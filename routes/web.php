@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Logs;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ExternalApiController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Controller;
 
 
 Route::get('/', function () {
