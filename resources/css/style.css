@@ -1,0 +1,63 @@
+/* deixando o fundo escuro com letra branca
+*  também colocando uma fonte do google medieval    
+*/
+
+body {
+    font-family: 'Cinzel', 'MedievalSharp', serif;
+    background-color: #1a1a1a;
+    color: #f8f9fa;
+}
+
+.navbar {
+    background-color: #000;
+}
+
+.navbar-brand, .nav-link {
+    font-size: 1.2rem;
+}
+
+.navbar-brand {
+    font-family: 'MedievalSharp', serif;
+}
+
+.lead {
+    font-size: 1.3rem;
+}
+
+h1 {
+    font-family: 'MedievalSharp', serif;
+    font-size: 3rem;
+    margin-top: 20px;
+}
+
+.card {
+    background-color: #333;
+    border: none;
+}
+
+.card-title {
+    font-family: 'MedievalSharp', serif;
+    font-size: 1.5rem;
+}
+
+.btn-primary {
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+}
+
+.btn-primary:hover {
+    background-color: #5a379f;
+    border-color: #52357a;
+}
+
+/* Ícones do FontAwesome dentro da navbar */
+.navbar-brand i {
+    margin-right: 10px;
+    color: #f8f9fa;
+}
+
+/* Imagem do logo central */
+.logo-center {
+    width: 100px;
+    margin-bottom: 20px;
+}
