@@ -1,20 +1,27 @@
 FROM php:8.2-fpm
 
-# Instalar extensões necessárias
-RUN docker-php-ext-install pdo pdo_mysql
+# Instalar dependências do sistema e extensões PHP necessárias
+RUN apt-get update && apt-get install -y \
+    unzip \
+    libzip-dev \
+    && docker-php-ext-install pdo_mysql zip
 
-# Copiar sua app
+# Instalar Composer globalmente
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copiar arquivos do projeto
 COPY . /var/www/html
 
-# Setar o working dir
 WORKDIR /var/www/html
 
-# Rodar comandos do Laravel
+# Rodar composer install para criar pasta vendor
+RUN composer install --no-dev --optimize-autoloader
+
+# Cache das configs do Laravel
 RUN php artisan config:cache \
  && php artisan route:cache \
  && php artisan view:cache
 
-# Expõe a porta do PHP-FPM
 EXPOSE 9000
 
 CMD ["php-fpm"]
