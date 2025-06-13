@@ -38,7 +38,18 @@ class ExternalApiService
                 'senha' => $senha,
             ]);
 
-        return $response->json();
+        \Log::debug('HTTP status', ['status' => $response->status()]);
+        \Log::debug('HTTP body', ['body' => $response->body()]);
+
+        // Se for um JSON válido, decodifica
+        $json = json_decode($response->body(), true);
+        
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return $json;
+        }
+
+        // Se não for JSON, retorna o texto puro em um array
+        return ['message' => $response->body()];
     }
 
     public function getPersonagem($token)
