@@ -18,11 +18,7 @@ Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'postLogin'])->name('login.post');
 
 // Exibir formulário de registro (GET)
-Route::get('/register-two', [LoginController::class, 'cadastro'])->name('registertwo');
-
-// Exibir formulário de registro (GET)
 Route::get('/register', [LoginController::class, 'cadastro'])->name('registertwo');
-
 // Processar o formulário (POST)
 Route::post('/register-two/criado', [LoginController::class, 'post'])->name('registertwo.post');
 
