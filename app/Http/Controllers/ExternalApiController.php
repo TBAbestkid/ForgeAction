@@ -7,21 +7,41 @@ use Illuminate\Http\Request;
 
 class ExternalApiController extends Controller
 {
-    protected $externalApi;
+    protected $apiService;
 
-    public function __construct(ExternalApiService $externalApi)
+    public function __construct(ExternalApiService $apiService)
     {
-        $this->externalApi = $externalApi;
+        $this->apiService = $apiService;
     }
 
-    public function index()
+    // Teste GET
+    public function getCharacters()
     {
-        $data = $this->externalApi->getData();
-
-        if (!$data) {
-            return response()->json(['error' => 'Erro ao buscar dados da API externa'], 500);
-        }
-
-        return response()->json($data);
+        $response = $this->apiService->get('/status_personagem/{$id}'); 
+        return response()->json($response);
     }
+
+    // Teste POST
+    public function createCharacter(Request $request)
+    {
+        $data = $request->all();
+        $response = $this->apiService->post('/status_personagem', $data);
+        return response()->json($response);
+    }
+
+    // Teste PUT
+    public function updateCharacter(Request $request, $id)
+    {
+        $data = $request->all();
+        $response = $this->apiService->put("/status_personagem/{$id}", $data);
+        return response()->json($response);
+    }
+
+    // Teste DELETE
+    public function deleteCharacter($id)
+    {
+        $response = $this->apiService->delete("/status_personagem/{$id}");
+        return response()->json($response);
+    }
+
 }
