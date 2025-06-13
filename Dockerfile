@@ -17,11 +17,10 @@ WORKDIR /var/www/html
 # Rodar composer install para criar pasta vendor
 RUN composer install --no-dev --optimize-autoloader
 
-# Cache das configs do Laravel
-RUN php artisan config:cache \
- && php artisan route:cache \
- && php artisan view:cache
+# Garantir permissões corretas
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 9000
 
+# Melhor deixar o cache no start ou como pre-deploy do Railway
 CMD ["php-fpm"]
