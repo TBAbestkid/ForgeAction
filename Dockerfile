@@ -1,26 +1,24 @@
 FROM php:8.2-fpm
 
-# Instalar dependências do sistema e extensões PHP necessárias
+# Instalar dependências
 RUN apt-get update && apt-get install -y \
+    nginx \
+    git \
     unzip \
     libzip-dev \
-    && docker-php-ext-install pdo_mysql zip
+    && docker-php-ext-install zip pdo pdo_mysql
 
-# Instalar Composer globalmente
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copiar arquivos do projeto
+# Copiar os arquivos da aplicação
 COPY . /var/www/html
-
 WORKDIR /var/www/html
 
-# Rodar composer install para criar pasta vendor
+# Instalar as dependências do composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Garantir permissões corretas
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Copiar config do Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 9000
+EXPOSE 8080
 
-# Melhor deixar o cache no start ou como pre-deploy do Railway
-CMD ["php-fpm"]
+CMD service nginx start && php-fpm
