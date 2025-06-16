@@ -2,8 +2,8 @@ FROM php:8.2-apache
 
 # 1) Instala extensões PHP que o Laravel necessita
 RUN apt-get update && \
-    apt-get install -y libpng-dev libonig-dev libxml2-dev zip unzip git curl && \
-    docker-php-ext-install pdo_mysql mbstring bcmath gd
+    apt-get install -y libpng-dev libonig-dev libxml2-dev zip unzip git curl libpq-dev && \
+    docker-php-ext-install pdo_mysql pdo_pgsql mbstring bcmath gd
 
 # 2) Habilita mod_rewrite
 RUN a2enmod rewrite
