@@ -16,8 +16,5 @@ RUN composer install --no-dev --optimize-autoloader
 # Permissões
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Exponha a porta 8080
-EXPOSE 8080
-
-# Muda a porta padrão do Apache para 8080
-RUN sed -i 's/80/8080/g' /etc/apache2/ports.conf /etc/apache2/sites-enabled/000-default.conf
+# Substitui porta dinâmica e inicia Apache
+CMD ["/bin/sh", "-c", "sed -i \"s/Listen 80/Listen ${PORT}/\" /etc/apache2/ports.conf && sed -i \"s/:80/:${PORT}/\" /etc/apache2/sites-enabled/000-default.conf && apache2-foreground"]
