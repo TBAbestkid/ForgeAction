@@ -13,11 +13,7 @@ class LoginController extends Controller
         return view('login');
     }
 
-    // Exibe a view de registro
-    public function cadastro(){
-        return view('registertwo');
-    }
-    
+
     // Métodos para processar o POST dos formulários
     public function postLogin(Request $request, ExternalApiService $apiService)
     {
@@ -28,7 +24,7 @@ class LoginController extends Controller
 
         $response = $apiService->loginUser($request->login, $request->senha);
 
-        \Log::debug('Resposta da API no login:', ['response' => $response]);
+        // \Log::debug('Resposta da API no login:', ['response' => $response]);
 
         if (isset($response['message']) && str_contains(strtolower($response['message']), 'bem-sucedido')) {
             session(['user_login' => $request->login]);
@@ -47,10 +43,10 @@ class LoginController extends Controller
             'chapLogin' => 'required|string',
             'chapSenha' => 'required|string|min:6',
         ]);
-        
+
         // tenta c
         $response = $apiService->registerUser($request->chapLogin, $request->chapSenha);
-        
+
         Log::info('JSon: ', $request);
         return response()->json([
             'message' => 'Usuário criado com sucesso!',
@@ -60,6 +56,12 @@ class LoginController extends Controller
     public function dashboard()
     {
         return view('dashboard');
+    }
+
+    public function logout()
+    {
+        session()->forget('user_login');
+        return redirect('/')->with('success', 'Logout realizado com sucesso!');
     }
 
 }
