@@ -4,19 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'ForgeAction')</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/forgeicon.png') }}" />
+    <link rel="icon" type="image/png" href="{{ secure_asset('assets/images/forgeicon.png') }}" />
     <!-- Google Fonts para temática RPG -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ secure_asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ secure_asset('css/app.css') }}">
+
 
 </head>
 <body>
@@ -35,7 +36,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#"><i class="fa-solid fa-user-cog"></i> {{ session('user_login') }}</a>
                 </li>
-            @else                 
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                </li>
+            @else
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('login') }}"><i class="fa-solid fa-user"></i> Login</a>
                 </li>
