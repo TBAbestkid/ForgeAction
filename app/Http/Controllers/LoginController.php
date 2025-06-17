@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ExternalApiService;
+use App\services\ExternalApiService;
 use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller

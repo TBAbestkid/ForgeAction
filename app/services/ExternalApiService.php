@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\services;
 
 use Illuminate\Support\Facades\Http;
 
 class ExternalApiService
-{
+s
     protected $baseUrl;
 
     public function __construct()
