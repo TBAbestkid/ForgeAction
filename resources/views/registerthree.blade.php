@@ -1,5 +1,5 @@
 @extends('partials/app')
-@section('title', 'ForgeAction - Cadastro2.0')
+@section('title', 'ForgeAction - Cadastro de Atributos')
 @section('content')
 <div class="container mt-5">
     <div class="card mx-auto p-4" style="max-width: 600px;">
