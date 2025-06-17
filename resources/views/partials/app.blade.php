@@ -44,7 +44,7 @@
                     <a class="nav-link" href="{{ route('login') }}"><i class="fa-solid fa-user"></i> Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('registertwo') }}"><i class="fa-solid fa-user-cog"></i> Cadastro</a>
+                    <a class="nav-link" href="{{ route('register') }}"><i class="fa-solid fa-user-cog"></i> Cadastro</a>
                 </li>
             @endif
             </ul>
