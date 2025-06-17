@@ -24,7 +24,7 @@
     <!-- Navbar simples -->
     <nav class="navbar navbar-expand-lg navbar-dark font-medieval">
         <div class="container">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="{{ url('/') }}">
             <i class="fa-brands fa-d-and-d"></i> ForgeAction
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
