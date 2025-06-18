@@ -18,72 +18,116 @@ class RegisterController extends Controller
     }
 
     // Processa o registro do usuário
+    // MEU DEUS FUNCIONA
     public function primeiroCadastro(Request $request, ExternalApiService $apiService)
     {
         $request->validate([
             'email' => 'required|email|unique:users,email',
-            'chapLogin' => 'required|string',
+            'chapLogin' => 'required|string|unique:users,username',
             'chapSenha' => 'required|string|min:4',
         ]);
+        // Log de depuração
+        // Log::info('Iniciando primeiroCadastro', [
+        //     'email' => $request->email,
+        //     'chapLogin' => $request->chapLogin
+        // ]);
 
-        // Tenta registrar na API
+        // Chama API para registrar usuário
         $response = $apiService->registerUser($request->chapLogin, $request->chapSenha);
-        Log::info('Resposta da API no registro:', ['response' => $response]);
+        // Log::info('Resposta registerUser API:', ['response' => $response]);
 
-        if (isset($response['message']) && str_contains(strtolower($response['message']), 'sucesso')) {
-            // Recupera chap_id
-            $checkResponse = $apiService->checkChapId($request->chapLogin);
-            Log::info('Resposta do check chap_id:', ['response' => $checkResponse]);
+        if (isset($response['http_status']) && $response['http_status'] === 201) {
+            Log::info('Registro na API confirmado via status 201');
 
-            if (isset($checkResponse['chap_id'])) {
-                // Agora salva no seu DB
+            // Tenta pegar o chap_id com até 3 tentativas
+            $checkResponse = null;
+            for ($i = 1; $i <= 3; $i++) {
+                $checkResponse = $apiService->getChapId($request->chapLogin);
+                // Log::info('Tentativa getChapId', [
+                //     'attempt' => $i,
+                //     'response' => $checkResponse
+                // ]);
+
+                if (
+                    isset($checkResponse['http_status']) &&
+                    $checkResponse['http_status'] === 200 &&
+                    isset($checkResponse['body']['chapId'])
+                ) {
+                    break;
+                }
+
+                sleep(1); // espera antes da próxima tentativa
+            }
+
+            if (
+                isset($checkResponse['http_status']) &&
+                $checkResponse['http_status'] === 200 &&
+                isset($checkResponse['body']['chapId'])
+            ) {
+                // Salva no DB local
                 $user = \App\Models\User::create([
                     'name' => $request->chapLogin,
+                    'username' => $request->chapLogin, 
                     'email' => $request->email,
                     'password' => bcrypt($request->chapSenha),
                 ]);
 
                 session([
                     'user_login' => $request->chapLogin,
-                    'chap_id' => $checkResponse['chap_id'],
+                    'chap_id' => $checkResponse['body']['chapId']
                 ]);
 
-                return redirect()->route('registertwo')->with('success', 'Usuário criado com sucesso!');
+                Log::info('Usuário e sessão salvos', [
+                    'user_id' => $user->id,
+                    'chap_id' => session('chap_id')
+                ]);
+
+                return redirect()->route('registertwo')->with('success', 'Usuário criado e logado com sucesso!');
             }
 
-            return back()->with('error', 'Usuário criado na API, mas falhou ao recuperar o chap_id.');
+            Log::warning('Usuário criado na API mas falhou ao recuperar chap_id');
+            return back()->with('error', 'Usuário criado na API, mas falhou ao recuperar o chap_id. Tente novamente.');
         }
 
         Log::warning('Falha no registro de usuário', ['response' => $response]);
-        return back()->with('error', $response['message'] ?? 'Falha ao criar usuário.');
+        return back()->with('error', 'Falha ao criar usuário na API.');
     }
 
 
     // Exibe a segunda parte do registro
     public function parteDois(){
-        return view('registertwo');
+        // Verifica se o usuário já está logado
+        if (!session()->has('user_login')) {
+            return redirect('/')->with('error', 'Você precisa estar logado para continuar!');
+        }
+        // Verifica se o chap_id está na sessão
+        if (!session()->has('chap_id')) {
+            return redirect('/')->with('error', 'Chap ID não encontrado. Por favor, tente novamente.');
+        }
+        // Se tudo estiver ok, exibe a view
+        // Log::info('Exibindo parte dois do registro', [
+        //     'user_login' => session('user_login'),
+        //     'chap_id' => session('chap_id')
+        // ]);
+
+        // Retorna a view da segunda parte do registro
+        // Mas antes, precisamos enviar o getClasses e getRaces para a view
+        $apiService = new ExternalApiService();
+        $classes = $apiService->getClasses();
+        $races = $apiService->getRaces();
+        Log::info('Classes e raças obtidas', [
+            'classes' => $classes,
+            'racas' => $races
+        ]);
+
+        // Passa as classes e raças para a view
+        return view('registertwo', ['classes' => $classes,'racas' => $races]);
     }
 
     // Processa a segunda parte do registro do usuário
     public function segundoCadastro(Request $request, ExternalApiService $apiService)
     {
-        // Validação dos dados do formulário
-        $request->validate([
-            'chapEmail' => 'required|email',
-            'chapNome' => 'required|string',
-        ]);
-
-        // Tenta atualizar o usuário via API
-        $response = $apiService->updateUser($request->chapEmail, $request->chapNome);
-
-        // Log de depuração
-        Log::info('Resposta da API na atualização do usuário:', ['response' => $response]);
-
-        if (isset($response['message']) && str_contains(strtolower($response['message']), 'sucesso')) {
-            return redirect()->route('registerthree')->with('success', 'Dados atualizados com sucesso!');
-        }
-
-        return back()->with('error', $response['message'] ?? 'Falha ao atualizar dados.');
+        return redirect('/')->with('error', 'Não é pra acessar essa bomba atomica.');
     }
 
     // Exibe a terceira parte do registro
@@ -94,22 +138,6 @@ class RegisterController extends Controller
     // Processa a terceira parte do registro do usuário
     public function terceiroCadastro(Request $request, ExternalApiService $apiService)
     {
-        // Validação dos dados do formulário
-        $request->validate([
-            'chapPersonagem' => 'required|string',
-            'chapClasse' => 'required|string',
-        ]);
-
-        // Tenta criar o personagem via API
-        $response = $apiService->createCharacter($request->chapPersonagem, $request->chapClasse);
-
-        // Log de depuração
-        Log::info('Resposta da API na criação do personagem:', ['response' => $response]);
-
-        if (isset($response['message']) && str_contains(strtolower($response['message']), 'sucesso')) {
-            return redirect('/')->with('success', 'Personagem criado com sucesso!');
-        }
-
-        return back()->with('error', $response['message'] ?? 'Falha ao criar personagem.');
+        return redirect('/')->with('error', 'Não é pra acessar essa bomba atomica.');
     }
 }
