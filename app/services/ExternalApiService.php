@@ -19,21 +19,33 @@ class ExternalApiService
         return Http::withBasicAuth('roger', 'roger@123');
     }
 
-    // Método GET
+    // Metodo POST para registrar usuário
     public function registerUser($login, $senha)
     {
-        $response = Http::post("{$this->baseUrl}/chave_personagem", [
+        $response = $this->withAuth()->post("{$this->baseUrl}/chave_personagem", [
             'chapLogin' => $login,
-            'chapSenha' => $senha,
+            'chapSenha' => $senha
         ]);
 
-        return $response->json();
+        // \Log::info('registerUser HTTP status:', ['status' => $response->status()]);
+        // \Log::info('registerUser HTTP body:', ['body' => $response->body()]);
+
+        return [
+            'http_status' => $response->status(),
+            'body' => $response->json()
+        ];
     }
 
     public function getChapId($login)
     {
-        $response = Http::get("{$this->baseUrl}/chave_personagem/check/{$login}");
-        return $response->json();
+        $response = $this->withAuth()->get("{$this->baseUrl}/chave_personagem/check/{$login}");
+        // \Log::info('getChapId HTTP status:', ['status' => $response->status()]);
+        // \Log::info('getChapId HTTP body:', ['body' => $response->body()]);
+
+        return [
+            'http_status' => $response->status(),
+            'body' => $response->json()
+        ];
     }
 
     // Metodo POST para login
