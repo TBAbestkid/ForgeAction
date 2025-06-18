@@ -98,7 +98,7 @@
                     <div class="card-body text-white">
                         <h5 class="card-title">Ainda não é cadastrado?</h5>
                         <p class="card-text">Crie sua conta e embarque nessa jornada.</p>
-                        <a href="{{ route('registertwo') }}" class="btn btn-success">Cadastro</a>
+                        <a href="{{ route('register') }}" class="btn btn-success">Cadastro</a>
                     </div>
                 </div>
             </div>
