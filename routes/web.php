@@ -28,15 +28,15 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Exibir formulário de registro (GET)
 Route::get('/register-primeiro', [RegisterController::class, 'parteUm'])->name('register');
-Route::post('/register-primeiro/criado', [LoginController::class, 'primeiroCadastro'])->name('register.post');
+Route::post('/register-primeiro/criado', [RegisterController::class, 'primeiroCadastro'])->name('register.post');
 
 // Exibir formulário de registro (GET) - segunda parte
 Route::get('/register-segundo', [RegisterController::class, 'parteDois'])->name('registertwo');
-Route::post('/register-segundo', [LoginController::class, 'segundoCadastro'])->name('registertwo.post');
+Route::post('/register-segundo', [RegisterController::class, 'segundoCadastro'])->name('registertwo.post');
 
 // Exibir formulário de registro (GET) - terceira parte
 Route::get('/register-terceiro', [RegisterController::class, 'parteTres'])->name('registerthree');
-Route::post('/register-terceiro', [LoginController::class, 'terceiroCadastro'])->name('registerthree.post');
+Route::post('/register-terceiro', [RegisterController::class, 'terceiroCadastro'])->name('registerthree.post');
 
 
 
