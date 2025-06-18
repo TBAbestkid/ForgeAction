@@ -1,6 +1,29 @@
 @extends('partials/app')
 @section('title', 'ForgeAction - Cadastro de Personagem')
 @section('content')
+{{-- Aqui exibe os alerts --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 <div class="container mt-5">
     <div class="card mx-auto p-4" style="max-width: 600px;">
         <h2 class="text-center font-medieval text-white">Crie seu personagem</h2>
