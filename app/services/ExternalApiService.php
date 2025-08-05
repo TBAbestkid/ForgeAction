@@ -10,7 +10,7 @@ class ExternalApiService
 
     public function __construct()
     {
-        $this->baseUrl = 'https://total-alice-rokaideveloper-77325d04.koyeb.app';
+        $this->baseUrl = 'https://narrow-christan-rokaideveloper-806169ef.koyeb.app';
     }
 
     // Método para autenticação básica, pra chamar os endpoints que precisam de autenticação

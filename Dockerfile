@@ -1,36 +1,41 @@
 FROM php:8.2-apache
 
-# 1) Instala extensões PHP que o Laravel necessita
-RUN apt-get update && \
-    apt-get install -y libpng-dev libonig-dev libxml2-dev zip unzip git curl libpq-dev && \
-    docker-php-ext-install pdo_mysql pdo_pgsql mbstring bcmath gd
+# Instala extensões essenciais para Laravel + PostgreSQL
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    zip unzip git curl \
+    && docker-php-ext-install pdo pdo_pgsql
 
-# 2) Habilita mod_rewrite
+# Habilita mod_rewrite do Apache
 RUN a2enmod rewrite
 
-# 3) Ajusta o DocumentRoot para apontar para public/
-RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
+# Define DocumentRoot para /var/www/html/public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 
-# 4) Copia o projeto inteiro
+# Instala Composer
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
+# Copia o projeto
 COPY . /var/www/html
 
-# 5) Ajusta permissões (inclui public, storage e cache)
+# Ajusta permissões
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# 6) Instala Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# 7) Instala dependências PHP
+# Define o diretório de trabalho
 WORKDIR /var/www/html
+
+# Instala dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# 8) Exponha porta (opcional, Railway ignora, mas documenta)
+# Cria entrypoint customizado
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Exponha porta (Railway ignora, mas documenta)
 EXPOSE 8080
 
-# 9) Substitui a porta e inicia o Apache em foreground
-CMD ["/bin/sh", "-c", "\
-    sed -i \"s/Listen 80/Listen ${PORT}/\" /etc/apache2/ports.conf && \
-    sed -i \"s/:80/:${PORT}/\" /etc/apache2/sites-enabled/000-default.conf && \
-    apache2-foreground \
-"]
+# Usa o entrypoint customizado e inicia o Apache
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["apache2-foreground"]
