@@ -11,50 +11,32 @@ use App\Http\Controllers\ExternalApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Controller;
 
-
-Route::get('/', function () {
-    return view('index');
-});
-
 Route::get('/dados-externos', [ExternalApiController::class, 'index']);
 
+// -------------------- LOGIN --------------------
 // Exibir formulário de login
 Route::get('/login', [LoginController::class, 'login'])->name('login');
+// Processar login
 Route::post('/login', [LoginController::class, 'postLogin'])->name('login.post');
-
-// logout
+// Logout
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-
-// Exibir formulário de registro (GET)
-Route::get('/register-primeiro', [RegisterController::class, 'parteUm'])->name('register');
-Route::post('/register-primeiro/criado', [RegisterController::class, 'primeiroCadastro'])->name('register.post');
-
-// Exibir formulário de registro (GET) - segunda parte
-Route::get('/register-segundo', [RegisterController::class, 'parteDois'])->name('registertwo');
-Route::post('/register-segundo', [RegisterController::class, 'segundoCadastro'])->name('registertwo.post');
-
-// Exibir formulário de registro (GET) - terceira parte
-Route::get('/register-terceiro', [RegisterController::class, 'parteTres'])->name('registerthree');
-Route::post('/register-terceiro', [RegisterController::class, 'terceiroCadastro'])->name('registerthree.post');
-
-
-
+// -------------------- REGISTRO --------------------
 // Exibir formulário de registro
-Route::get('/sobre-forgeaction', [LoginController::class, 'about'])->name('about');
+// Processar registro do usuário
+Route::post('/register/posts', [RegisterController::class, 'register'])->name('register.post');
+Route::get('/register', [RegisterController::class, 'registerAjax'])->name('register');
 
-// personagem
-Route::get('/meu-personagem', [Controller::class, 'index'])->name('personagem.index');
+// Redireciona '/' para '/home'
+Route::get('/', function () {
+    return redirect()->route('home');
+});
 
-// Rotas de POST (processamento dos formulários)
+// Home
+Route::get('/home', [DashboardController::class, 'index'])->name('home');
 
-Route::post('/auth/register', [AuthController::class, 'login-reg']);
+// Sobre
+Route::get('/sobre-forgeaction', [DashboardController::class, 'about'])->name('about');
 
-Route::get('/characters', [ExternalApiController::class, 'getCharacters']);
-Route::post('/characters', [ExternalApiController::class, 'createCharacter']);
-Route::put('/characters/{id}', [ExternalApiController::class, 'updateCharacter']);
-Route::delete('/characters/{id}', [ExternalApiController::class, 'deleteCharacter']);
-
-
-// Exibir formulário de registro (GET)
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// Apenas logado
+Route::get('/dashboard', [DashboardController::class, 'dash'])->name('dashboard');
