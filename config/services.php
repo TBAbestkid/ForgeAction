@@ -34,5 +34,10 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'api' => [
+        'base_url' => env('EXTERNAL_API_URL', 'https://narrow-christan-rokaideveloper-806169ef.koyeb.app'),
+        'user' => env('EXTERNAL_API_USER', 'roger'),
+        'pass' => env('EXTERNAL_API_PASS', 'roger@123'),
+    ],
 
 ];
