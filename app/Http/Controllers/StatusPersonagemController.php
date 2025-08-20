@@ -3,29 +3,54 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\ApiService;
 
 class StatusPersonagemController extends Controller
 {
-    // pagina principal
-    public function exibicao()
+    protected $api;
+
+    public function __construct(ApiService $api)
     {
-        return view('personagem.index');
+        $this->api = $api;
     }
 
-    // Pagina de criar personagem
-    public function criar(){
-        return view('personagem.criar');
+    /**
+     * GET /status-personagem/personagem/{personagemId}
+     */
+    public function show($personagemId)
+    {
+        return response()->json(
+            $this->api->get("status-personagem/personagem/{$personagemId}")
+        );
     }
 
-    // Pagina de atualizar personagem 
-    public function atualiza(){
-        return view('personagem.edit');
+    /**
+     * POST /status-personagem
+     */
+    public function store(Request $request)
+    {
+        return response()->json(
+            $this->api->post("status-personagem", $request->all())
+        );
     }
-    
-    // Pagina de deletar personagem
-    public function deleta(){
-        // bem, não tem segredo, deletar né?
+
+    /**
+     * PUT /status-personagem/personagem/{personagemId}
+     */
+    public function update(Request $request, $personagemId)
+    {
+        return response()->json(
+            $this->api->put("status-personagem/personagem/{$personagemId}", $request->all())
+        );
     }
-    
-    
+
+    /**
+     * DELETE /status-personagem/personagem/{personagemId}
+     */
+    public function destroy($personagemId)
+    {
+        return response()->json(
+            $this->api->delete("status-personagem/personagem/{$personagemId}")
+        );
+    }
 }

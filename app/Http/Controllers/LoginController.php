@@ -3,28 +3,47 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\services\ExternalApiService;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
-    // Exibe a view de login
-    public function login(){
+    protected $baseUrl;
+    protected $user;
+    protected $pass;
+
+    public function __construct()
+    {
+        $this->baseUrl = config('services.api.base_url');
+        $this->user = config('services.api.user');
+        $this->pass = config('services.api.pass');
+    }
+
+    protected function withAuth()
+    {
+        return Http::withBasicAuth($this->user, $this->pass);
+    }
+
+    public function login(Request $request){
+        // se usuario estiver logado, pq el vai fazer login?
+         if ($request->session()->has('user_login')) {
+            return redirect()->route('home')->with('error', 'Você já está logado!');
+        }
+
         return view('login');
     }
 
-
-    // Métodos para processar o POST dos formulários
-    public function postLogin(Request $request, ExternalApiService $apiService)
+    public function postLogin(Request $request)
     {
         $request->validate([
             'login' => 'required|string',
             'senha' => 'required|string',
         ]);
 
-        $response = $apiService->loginUser($request->login, $request->senha);
-
-        // \Log::debug('Resposta da API no login:', ['response' => $response]);
+        $response = $this->withAuth()->post("{$this->baseUrl}/login", [
+            'login' => $request->login,
+            'senha' => $request->senha,
+        ])->json();
 
         if (isset($response['message']) && str_contains(strtolower($response['message']), 'bem-sucedido')) {
             session(['user_login' => $request->login]);
@@ -34,28 +53,24 @@ class LoginController extends Controller
         return back()->with('error', $response['message'] ?? 'Falha no login.');
     }
 
-    public function post(Request $request)
+    public function register(Request $request)
     {
-        $apiService = new ExternalApiService();
-
-        // Validação simples para evitar erro
         $request->validate([
-            'chapLogin' => 'required|string',
-            'chapSenha' => 'required|string|min:6',
+            'login' => 'required|string',
+            'senha' => 'required|string|min:6',
         ]);
 
-        // tenta c
-        $response = $apiService->registerUser($request->chapLogin, $request->chapSenha);
+        $response = $this->withAuth()->post("{$this->baseUrl}/login/register", [
+            'login' => $request->login,
+            'senha' => $request->senha,
+        ])->json();
 
-        Log::info('JSon: ', $request);
+        Log::info('Registro de usuário:', ['request' => $request->all(), 'response' => $response]);
+
         return response()->json([
-            'message' => 'Usuário criado com sucesso!',
-            'user' => $request->all()
+            'message' => $response['message'] ?? 'Usuário criado com sucesso!',
+            'user' => $request->only(['login', 'senha']),
         ]);
-    }
-    public function dashboard()
-    {
-        return view('dashboard');
     }
 
     public function logout()
@@ -64,4 +79,8 @@ class LoginController extends Controller
         return redirect('/')->with('success', 'Logout realizado com sucesso!');
     }
 
+    public function dashboard()
+    {
+        return view('dashboard');
+    }
 }

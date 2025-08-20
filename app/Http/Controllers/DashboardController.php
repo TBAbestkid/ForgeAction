@@ -6,23 +6,25 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    //
-    public function index(ExternalApiService $apiService)
+    // Home acessível para todos
+    public function index()
     {
-        $token = session('auth_token');
-
-        if (!$token) {
-            return redirect()->route('login')->with('error', 'Você precisa estar logado.');
-        }
-
-        // Chame a API para obter os dados do personagem
-        $personagem = $apiService->getPersonagem($token); 
-
-        if (!$personagem) {
-            return back()->with('error', 'Erro ao buscar dados do personagem.');
-        }
-
-        return view('dashboard', compact('personagem'));
+        return view('index');
     }
 
+    // Sobre
+    public function about()
+    {
+        return view('about');
+    }
+
+    // Dashboard apenas logado
+    public function dash(Request $request)
+    {
+        if (!$request->session()->has('user_login')) {
+            return redirect()->route('home')->with('error', 'Você precisa estar logado.');
+        }
+
+        return view('dashboard'); // view para usuários logados
+    }
 }
