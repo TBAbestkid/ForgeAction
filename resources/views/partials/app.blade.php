@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'ForgeAction')</title>
     <link rel="icon" type="image/png" href="{{ secure_asset('assets/images/forgeicon.png') }}" />
     <!-- Google Fonts para temática RPG -->
