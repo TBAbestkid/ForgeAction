@@ -42,7 +42,7 @@
 
         <div class="tab-content mt-3">
             <!-- Aba 1: Dados Cadastrais -->
-            <form action="{{ route('register.post') }}" id="myForm" method="post">
+            <form action="{{ route('register.post') }}" id="registerForm" method="post">
                 @csrf
                 <div class="" id="login">
                     <div class="form-floating mb-3">
@@ -50,11 +50,11 @@
                         <label for="email">Email</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" name="chapLogin" class="form-control" placeholder="Nome Usuario" required>
+                        <input type="text" name="login" class="form-control" placeholder="Nome Usuario" required>
                         <label for="name">Nome usuario</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="password" name="chapSenha" class="form-control" placeholder="Senha" required>
+                        <input type="password" name="senha" class="form-control" placeholder="Senha" required>
                         <label for="password">Senha</label>
                     </div>
                     <div class="form-floating mb-3">
@@ -69,7 +69,59 @@
     </div>
 </div>
 
+@include('partials.loading')
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {{-- Fazer um js validando as infos do form --}}
+<script>
+    const form = document.querySelector('#registerForm');
+    const loading = document.querySelector('#loading-overlay');
 
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Verifica se senha e confirmação batem
+        const senha = form.senha.value;
+        const senhaConfirm = document.querySelector('#passwordConfirm').value;
+        if(senha !== senhaConfirm){
+            alert('As senhas não coincidem!');
+            return;
+        }
+
+        const data = {
+            login: form.login.value,
+            senha: senha,
+            email: form.email.value
+        };
+
+        // Mostra o overlay de loading
+        loading.style.display = 'flex';
+
+        fetch('/ajax/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(res => {
+            // Esconde o loading
+            loading.style.display = 'none';
+
+            if(res.success){
+                alert(res.message);
+                window.location.href = '/dashboard'; // redireciona após sucesso
+            } else {
+                alert(res.message);
+            }
+        })
+        .catch(err => {
+            loading.style.display = 'none';
+            console.error(err);
+            alert('Ocorreu um erro inesperado.');
+        });
+    });
+</script>
 @endsection
