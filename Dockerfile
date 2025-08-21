@@ -1,12 +1,15 @@
 FROM php:8.2-apache
 
-# Instala extensões essenciais para Laravel + PostgreSQL
+# Instala extensões essenciais para Laravel + PostgreSQL e PHP e libs
 RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    zip unzip git curl \
+    libpq-dev zip unzip git curl build-essential \
     && docker-php-ext-install pdo pdo_pgsql
 
-# Habilita mod_rewrite do Apache
+# Node.js + npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# Habilita mod_rewrite
 RUN a2enmod rewrite
 
 # Define DocumentRoot para /var/www/html/public
@@ -26,16 +29,16 @@ RUN chown -R www-data:www-data /var/www/html \
 # Define o diretório de trabalho
 WORKDIR /var/www/html
 
-# Instala dependências do Laravel
+# Composer + npm
 RUN composer install --no-dev --optimize-autoloader
+RUN npm install
+RUN npm run build
 
-# Cria entrypoint customizado
+# Entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Exponha porta (Railway ignora, mas documenta)
-EXPOSE 8080
+EXPOSE 8080 5173
 
-# Usa o entrypoint customizado e inicia o Apache
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["apache2-foreground"]
