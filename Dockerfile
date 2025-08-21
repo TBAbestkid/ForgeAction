@@ -32,6 +32,7 @@ WORKDIR /var/www/html
 # Composer + npm
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install
+RUN npm install vite
 RUN npm run build
 RUN vite build
 
