@@ -13,8 +13,8 @@ class ApiService
     public function __construct()
     {
         $this->baseUrl = config('services.api.base_url', 'https://narrow-christan-rokaideveloper-806169ef.koyeb.app');
-        $this->user = config('services.api.user', 'roger');
-        $this->pass = config('services.api.pass', 'roger@123');
+        $this->user = config('services.api.user', 'admin');
+        $this->pass = config('services.api.pass', 'admin');
     }
 
     protected function withAuth()
