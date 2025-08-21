@@ -52,27 +52,8 @@
     </div>
 </div>
 
-<!-- Modal de Alerta -->
-<div class="modal fade" id="modalAlert" tabindex="-1" aria-labelledby="modalAlertLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5 d-flex align-items-center text-dark" id="modalAlertLabel">
-                    <i class="bi bi-info-circle-fill text-primary me-2"></i> Alerta!
-                </h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-dark">
-                <p id="modalMessage"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Ok</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @include('partials/loading')
+@include('partials/alerts')
 
 <script>
     document.getElementById('myForm').addEventListener('submit', function() {
