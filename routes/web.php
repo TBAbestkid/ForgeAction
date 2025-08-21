@@ -23,9 +23,10 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // -------------------- REGISTRO --------------------
 // Exibir formulário de registro
+Route::get('/register', [RegisterController::class, 'register'])->name('register');
+
 // Processar registro do usuário
-Route::post('/register/posts', [RegisterController::class, 'register'])->name('register.post');
-Route::get('/register', [RegisterController::class, 'registerAjax'])->name('register');
+Route::post('/register', [RegisterController::class, 'registerPost'])->name('register.post');
 
 // Redireciona '/' para '/home'
 Route::get('/', function () {
