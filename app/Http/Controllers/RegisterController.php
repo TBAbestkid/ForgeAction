@@ -5,24 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Services\ApiService;
 use App\Models\User;
 
 class RegisterController extends Controller
 {
-    protected $baseUrl;
-    protected $user;
-    protected $pass;
+     protected $api;
 
-    public function __construct()
+    public function __construct(ApiService $api)
     {
-        $this->baseUrl = config('services.api.base_url');
-        $this->user = config('services.api.user');
-        $this->pass = config('services.api.pass');
-    }
-
-    protected function withAuth()
-    {
-        return Http::withBasicAuth($this->user, $this->pass);
+        $this->api = $api;
     }
 
     public function register(Request $request){
@@ -33,46 +25,29 @@ class RegisterController extends Controller
         return view('register');
     }
 
-    // Cadastro via AJAX
-    public function registerAjax(Request $request)
+    public function registerPost(Request $request)
     {
         $request->validate([
-            'login' => 'required|string|unique:users,username',
+            'login' => 'required|string|min:4',
             'senha' => 'required|string|min:6',
-            'email' => 'required|email|unique:users,email'
+            'email' => 'nullable|email'
         ]);
 
-        // Chamada direta à API externa
-        $response = $this->withAuth()->post("{$this->baseUrl}/login/register", [
-            'login' => $request->login,
-            'senha' => $request->senha,
-            'email' => $request->email
-        ])->json();
+        $data = $request->only(['login','senha','email']);
 
-        if (isset($response['http_status']) && $response['http_status'] === 201) {
-            // Cria usuário localmente
-            $user = User::create([
-                'name' => $request->login,
-                'username' => $request->login,
-                'email' => $request->email,
-                'password' => bcrypt($request->senha),
-            ]);
+        $response = $this->api->post('login/register', $data);
 
+        if (isset($response['id'])) {
             session([
-                'user_login' => $request->login,
-                'user_id' => $user->id,
+                'user_login' => $data['login'],
+                'user_id' => $response['id'] ?? null,
+                'user_role' => $response['role'] ?? 'PLAYER'
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Usuário criado com sucesso!',
-                'user' => $user
-            ]);
+            return redirect('/')->with('success', 'Cadastro realizado e login efetuado com sucesso!');
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => $response['message'] ?? 'Erro ao criar usuário na API'
-        ], 400);
+        return redirect()->route('login')->with('success', $response['message'] ?? 'Usuário criado com sucesso!');
     }
+
 }
