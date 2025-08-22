@@ -32,8 +32,8 @@ WORKDIR /var/www/html
 # Composer + npm
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install
-RUN npm run build
-RUN vite build
+RUN npm run build --production
+RUN vite build --mode=production
 
 # Copia o arquivo style.css para o diretório correto
 COPY resources/css/style.css /var/www/html/public/css/
