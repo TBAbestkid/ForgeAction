@@ -37,12 +37,14 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts \
 # Copia o restante do projeto
 COPY . .
 
-# Build frontend com Vite (vai gerar public/build)
+# Build frontend com Vite (vai gerar public/build) + caches do Laravel
 RUN npm run build \
+    && composer dump-autoload \
     && php artisan package:discover \
     && php artisan config:clear \
     && php artisan route:clear \
-    && php artisan view:clear
+    && php artisan view:clear \
+    && php artisan optimize:clear
 
 # Ajusta permissões
 RUN chown -R www-data:www-data /var/www/html \
