@@ -14,6 +14,15 @@ class PersonagemController extends Controller
         $this->api = $api;
     }
 
+    public function personagem(Request $request){
+        // se usuario não tiver sessão, pra q manter?
+        if (!$request->session()->has('user_login')) {
+            return redirect()->route('home')->with('error', 'Você deve estar logado para criar um personagem!');
+        }
+
+        return view('registerPerson');
+    }
+
     /**
      * GET /personagem/{personagemId}
      */
