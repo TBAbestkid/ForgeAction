@@ -37,6 +37,10 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts \
 # Copia o restante do projeto
 COPY . .
 
+# Debug: listar se ApiService existe
+RUN ls -l /var/www/html/app/Services/ || echo "❌ Pasta Services não encontrada"
+RUN test -f /var/www/html/app/Services/ApiService.php && echo "✅ ApiService.php existe" || echo "❌ ApiService.php não existe"
+
 # Build frontend com Vite (gera public/build) + autoload + discover
 RUN npm run build \
     && composer dump-autoload \
