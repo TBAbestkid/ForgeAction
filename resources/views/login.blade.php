@@ -54,12 +54,28 @@
 
 @include('partials/loading')
 @include('partials/alerts')
-
+<script src="{{ asset('js/loading.js') }}"></script>
 <script>
-    document.getElementById('myForm').addEventListener('submit', function() {
-        document.getElementById('loading-overlay').style.display = 'flex';
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('myForm');
+        const overlay = document.getElementById('loading-overlay');
+
+        console.log("DOM carregado. Form:", form, "Overlay:", overlay);
+
+        if (form && overlay) {
+            form.addEventListener('submit', function(e) {
+                // e.preventDefault(); // remova se quiser que envie de verdade
+                overlay.style.display = 'flex';
+                console.log("Overlay ativado pelo submit do formulário");
+
+                if (typeof showLoading === "function") {
+                    showLoading(3000);
+                }
+            });
+        } else {
+            console.warn("Form ou overlay não encontrados!");
+        }
     });
 </script>
-
 
 @endsection
