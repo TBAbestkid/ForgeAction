@@ -1,16 +1,17 @@
 #!/bin/bash
 set -e
 
-# Rodar comandos Laravel
+# Rodar migrations (somente se banco estiver pronto)
+php artisan migrate --force || true
+
+# Limpa caches (agora em runtime, quando DB existe)
+php artisan config:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
+php artisan optimize:clear || true
+
+# Cria link de storage
 php artisan storage:link || true
-php artisan migrate --force
 
-# Limpa caches (evita erros em Render)
-php artisan config:clear
-php artisan route:clear
-php artisan cache:clear
-php artisan view:clear
-php artisan optimize:clear
-
-# Inicia Apache
+# Executa comando original (Apache)
 exec "$@"

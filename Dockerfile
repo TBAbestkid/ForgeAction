@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Variável para permitir composer rodar como root
+# Variáveis
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     APACHE_DOCUMENT_ROOT=/var/www/html/public \
     PATH="$PATH:/var/www/html/vendor/bin"
@@ -16,7 +16,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Habilita mod_rewrite do Apache e ajusta DocumentRoot
+# Habilita mod_rewrite do Apache
 RUN a2enmod rewrite \
     && sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf \
     && sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
@@ -37,21 +37,22 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts \
 # Copia o restante do projeto
 COPY . .
 
-# Build frontend com Vite (vai gerar public/build) + caches do Laravel
+# Build frontend com Vite (gera public/build) + autoload + discover
 RUN npm run build \
     && composer dump-autoload \
-    && php artisan package:discover \
-    && php artisan config:clear \
-    && php artisan route:clear \
-    && php artisan view:clear \
-    && php artisan optimize:clear
+    && php artisan package:discover
 
 # Ajusta permissões
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
+# Copia entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Exposição da porta
 EXPOSE 8080
 
-# Inicia Apache
+# Define entrypoint e comando padrão
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["apache2-foreground"]
