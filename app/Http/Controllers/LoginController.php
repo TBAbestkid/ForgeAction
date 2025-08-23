@@ -18,7 +18,7 @@ class LoginController extends Controller
 
     public function login(Request $request){
         // se usuario estiver logado, pq el vai fazer login?
-         if ($request->session()->has('user_login')) {
+        if ($request->session()->has('user_login')) {
             return redirect()->route('home')->with('error', 'Você já está logado!');
         }
 
