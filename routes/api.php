@@ -80,6 +80,9 @@ Route::post('/personagem', [PersonagemController::class, 'store']);
 Route::delete('/personagem/{personagemId}', [PersonagemController::class, 'destroy']);
 Route::get('/personagem/usuario/{usuarioId}', [PersonagemController::class, 'showByUsuario']);
 
+// Apenas tudo néh
+Route::get('/enums/personagem', [EnumController::class, 'getPersonagemEnums']);
+
 // Enum de raças e classes
 Route::get('/enums/racas', [EnumController::class, 'racas']);
 Route::get('/enums/classes', [EnumController::class, 'classes']);
