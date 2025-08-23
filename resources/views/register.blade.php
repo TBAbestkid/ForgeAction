@@ -70,58 +70,75 @@
 </div>
 
 @include('partials.loading')
+@include('partials.alerts')
+<script src="{{ asset('js/loading.js') }}"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {{-- Fazer um js validando as infos do form --}}
 <script>
-    const form = document.querySelector('#registerForm');
-    const loading = document.querySelector('#loading-overlay');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registerForm');
+        const overlay = document.getElementById('loading-overlay');
 
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Verifica se senha e confirmação batem
-        const senha = form.senha.value;
-        const senhaConfirm = document.querySelector('#passwordConfirm').value;
-        if(senha !== senhaConfirm){
-            alert('As senhas não coincidem!');
+        if (!form || !overlay) {
+            console.warn("Form ou overlay não encontrados!");
             return;
         }
 
-        const data = {
-            login: form.login.value,
-            senha: senha,
-            email: form.email.value
-        };
+        form.addEventListener('submit', function(e) {
+            // Validações front-end
+            const senha = form.senha.value;
+            const senhaConfirm = document.querySelector('#passwordConfirm').value;
 
-        // Mostra o overlay de loading
-        loading.style.display = 'flex';
-
-        fetch('/ajax/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify(data)
-        })
-        .then(res => res.json())
-        .then(res => {
-            // Esconde o loading
-            loading.style.display = 'none';
-
-            if(res.success){
-                alert(res.message);
-                window.location.href = '/dashboard'; // redireciona após sucesso
-            } else {
-                alert(res.message);
+            if(senha !== senhaConfirm){
+                e.preventDefault(); // impede envio
+                showModal("As senhas não coincidem!");
+                return;
             }
-        })
-        .catch(err => {
-            loading.style.display = 'none';
-            console.error(err);
-            alert('Ocorreu um erro inesperado.');
+
+            // Mostra overlay enquanto a página carrega
+            overlay.style.display = 'flex';
+            if(typeof showLoading === "function") {
+                showLoading(3000); // opcional, para animação
+            }
+
+            // e.preventDefault(); // descomente se for usar fetch
+            /*
+            e.preventDefault();
+            const data = {
+                login: form.login.value,
+                senha: senha,
+                email: form.email.value
+            };
+
+            fetch('{{ route("register.post") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(res => {
+                overlay.style.display = 'none';
+                if(res.success){
+                    showToast(res.message, 'success');
+                    setTimeout(() => window.location.href = '/dashboard', 1500);
+                } else {
+                    showModal(res.message);
+                }
+            })
+            .catch(err => {
+                overlay.style.display = 'none';
+                console.error(err);
+                showModal('Ocorreu um erro inesperado.');
+            });
+            */
+            // Se for envio tradicional (reload da página), não precisa do fetch
         });
     });
 </script>
+
+
 @endsection
