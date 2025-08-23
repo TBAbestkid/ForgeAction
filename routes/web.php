@@ -10,6 +10,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExternalApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\PersonagemController;
+use App\Http\Controllers\EnumController;
 
 Route::get('/dados-externos', [ExternalApiController::class, 'index']);
 
@@ -19,7 +21,7 @@ Route::get('/login', [LoginController::class, 'login'])->name('login');
 // Processar login
 Route::post('/login', [LoginController::class, 'postLogin'])->name('login.post');
 // Logout
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // -------------------- REGISTRO --------------------
 // Exibir formulário de registro
@@ -41,3 +43,7 @@ Route::get('/sobre-forgeaction', [DashboardController::class, 'about'])->name('a
 
 // Apenas logado
 Route::get('/dashboard', [DashboardController::class, 'dash'])->name('dashboard');
+
+// Rota pra acessar apenas a view de criar personagem:
+Route::get('/registro-personagem', [PersonagemController::class, 'personagem'])->name('registerPerson');
+
