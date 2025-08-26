@@ -20,7 +20,7 @@ class EnumController extends Controller
     public function racas()
     {
         return response()->json(
-            $this->api->get("enums/racas")
+            $this->api->get("api/enums/racas")
         );
     }
 
@@ -30,7 +30,7 @@ class EnumController extends Controller
     public function classes()
     {
         return response()->json(
-            $this->api->get("enums/classes")
+            $this->api->get("api/enums/classes")
         );
     }
 
@@ -40,7 +40,7 @@ class EnumController extends Controller
     public function bonusRacas($raca)
     {
         return response()->json(
-            $this->api->get("enums/bonus-racas/{$raca}")
+            $this->api->get("api/enums/bonus-racas/{$raca}")
         );
     }
 }
