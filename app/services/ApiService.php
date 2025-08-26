@@ -25,36 +25,25 @@ class ApiService
     public function get(string $path, array $query = [])
     {
         $response = $this->withAuth()->get("{$this->baseUrl}/{$path}", $query);
-        return $this->parseResponse($response);
+        return $response->json();
     }
 
     public function post(string $path, array $data = [])
     {
         $response = $this->withAuth()->post("{$this->baseUrl}/{$path}", $data);
-        return $this->parseResponse($response);
+        return $response->json();
     }
 
     public function put(string $path, array $data = [])
     {
         $response = $this->withAuth()->put("{$this->baseUrl}/{$path}", $data);
-        return $this->parseResponse($response);
+        return $response->json();
     }
 
     public function delete(string $path)
     {
         $response = $this->withAuth()->delete("{$this->baseUrl}/{$path}");
-        return $this->parseResponse($response);
+        return $response->json();
     }
 
-    protected function parseResponse($response)
-    {
-        if ($response->successful()) {
-            return $response->json();
-        }
-
-        return [
-            'status' => $response->status(),
-            'error' => $response->body()
-        ];
-    }
 }
