@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ApiService;
+use App\services\ApiService;
 use Illuminate\Http\Request;
 
 class AtributoPersonagemController extends Controller

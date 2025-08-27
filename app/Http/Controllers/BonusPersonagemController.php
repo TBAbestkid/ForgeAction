@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ApiService;
+use App\services\ApiService;
 
 class BonusPersonagemController extends Controller
 {

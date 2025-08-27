@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ExternalApiService;
+use App\services\ExternalApiService;
 use Illuminate\Http\Request;
 
 class ExternalApiController extends Controller
@@ -17,7 +17,7 @@ class ExternalApiController extends Controller
     // Teste GET
     public function getCharacters()
     {
-        $response = $this->apiService->get('/status_personagem/{$id}'); 
+        $response = $this->apiService->get('/status_personagem/{$id}');
         return response()->json($response);
     }
 
