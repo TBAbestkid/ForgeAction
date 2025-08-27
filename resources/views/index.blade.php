@@ -1,5 +1,5 @@
 @extends('partials/app')
-@section('title', 'Página Inicial')
+@section('title', 'Página Inicial - ForgeAction')
 @section('content')
 <!-- Conteúdo Principal -->
 <div class="container mt-5 font-medieval">
@@ -20,8 +20,8 @@
 
                         <div class="d-flex align-items-center mb-3">
                             @if(session('character'))
-                                <img src="{{ asset('assets/images/characters/' . session('character')->image) }}" 
-                                    alt="Personagem" 
+                                <img src="{{ asset('assets/images/characters/' . session('character')->image) }}"
+                                    alt="Personagem"
                                     class="img-fluid rounded"
                                     style="width: 64px; height: 64px; object-fit: cover;">
                             @else
@@ -91,7 +91,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Card Cadastro -->
             <div class="col-md-4">
                 <div class="card text-center">
