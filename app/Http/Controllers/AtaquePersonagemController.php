@@ -15,42 +15,42 @@ class AtaquePersonagemController extends Controller
     }
 
     /**
-     * GET /ataque_personagem/personagem/{personagemId}
+     * GET /ataque-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("ataque_personagem/personagem/{$personagemId}")
+            $this->api->get("api/ataque-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /ataque_personagem
+     * POST /ataque-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("ataque_personagem", $request->all())
+            $this->api->post("api/ataque-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /ataque_personagem/personagem/{personagemId}
+     * PUT /ataque-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("ataque_personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/ataque-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /ataque_personagem/personagem/{personagemId}
+     * DELETE /ataque-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("ataque_personagem/personagem/{$personagemId}")
+            $this->api->delete("api/ataque-personagem/personagem/{$personagemId}")
         );
     }
 }

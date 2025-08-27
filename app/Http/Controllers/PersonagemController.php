@@ -14,52 +14,54 @@ class PersonagemController extends Controller
         $this->api = $api;
     }
 
-    public function personagem(Request $request){
-        // se usuario não tiver sessão, pra q manter?
+    public function personagem(Request $request)
+    {
+        // Se usuário não tiver sessão, redireciona
         if (!$request->session()->has('user_login')) {
-            return redirect()->route('home')->with('error', 'Você deve estar logado para criar um personagem!');
+            return redirect()->route('home')
+                ->with('error', 'Você deve estar logado para criar um personagem!');
         }
 
         return view('registerPerson');
     }
 
     /**
-     * GET /personagem/{personagemId}
+     * GET /api/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("personagem/{$personagemId}")
+            $this->api->get("api/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /personagem
+     * POST /api/personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("personagem", $request->all())
+            $this->api->post("api/personagem", $request->all())
         );
     }
 
     /**
-     * DELETE /personagem/{personagemId}
+     * DELETE /api/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("personagem/{$personagemId}")
+            $this->api->delete("api/personagem/{$personagemId}")
         );
     }
 
     /**
-     * GET /personagem/usuario/{usuarioId}
+     * GET /api/personagem/usuario/{usuarioId}
      */
     public function showByUsuario($usuarioId)
     {
         return response()->json(
-            $this->api->get("personagem/usuario/{$usuarioId}")
+            $this->api->get("api/personagem/usuario/{$usuarioId}")
         );
     }
 }

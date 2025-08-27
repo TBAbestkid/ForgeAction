@@ -15,42 +15,42 @@ class EquipPersonagemController extends Controller
     }
 
     /**
-     * GET /equip-personagem/personagem/{personagemId}
+     * GET /api/equip-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("equip-personagem/personagem/{$personagemId}")
+            $this->api->get("api/equip-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /equip-personagem
+     * POST /api/equip-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("equip-personagem", $request->all())
+            $this->api->post("api/equip-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /equip-personagem/personagem/{personagemId}
+     * PUT /api/equip-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("equip-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/equip-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /equip-personagem/personagem/{personagemId}
+     * DELETE /api/equip-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("equip-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/equip-personagem/personagem/{$personagemId}")
         );
     }
 }

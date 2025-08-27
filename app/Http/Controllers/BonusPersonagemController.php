@@ -15,42 +15,42 @@ class BonusPersonagemController extends Controller
     }
 
     /**
-     * GET /bonus-personagem/personagem/{personagemId}
+     * GET /api/bonus-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("bonus-personagem/personagem/{$personagemId}")
+            $this->api->get("api/bonus-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /bonus-personagem
+     * POST /api/bonus-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("bonus-personagem", $request->all())
+            $this->api->post("api/bonus-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /bonus-personagem/personagem/{personagemId}
+     * PUT /api/bonus-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("bonus-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/bonus-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /bonus-personagem/personagem/{personagemId}
+     * DELETE /api/bonus-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("bonus-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/bonus-personagem/personagem/{$personagemId}")
         );
     }
 }

@@ -15,42 +15,42 @@ class DanoBasePersonagemController extends Controller
     }
 
     /**
-     * GET /dano-base-personagem/personagem/{personagemId}
+     * GET /api/dano-base-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("dano-base-personagem/personagem/{$personagemId}")
+            $this->api->get("api/dano-base-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /dano-base-personagem
+     * POST /api/dano-base-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("dano-base-personagem", $request->all())
+            $this->api->post("api/dano-base-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /dano-base-personagem/personagem/{personagemId}
+     * PUT /api/dano-base-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("dano-base-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/dano-base-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /dano-base-personagem/personagem/{personagemId}
+     * DELETE /api/dano-base-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("dano-base-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/dano-base-personagem/personagem/{$personagemId}")
         );
     }
 }

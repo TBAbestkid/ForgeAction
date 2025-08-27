@@ -15,42 +15,42 @@ class InfoPersonagemController extends Controller
     }
 
     /**
-     * GET /info-personagem/personagem/{personagemId}
+     * GET /api/info-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("info-personagem/personagem/{$personagemId}")
+            $this->api->get("api/info-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /info-personagem
+     * POST /api/info-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("info-personagem", $request->all())
+            $this->api->post("api/info-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /info-personagem/personagem/{personagemId}
+     * PUT /api/info-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("info-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/info-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /info-personagem/personagem/{personagemId}
+     * DELETE /api/info-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("info-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/info-personagem/personagem/{$personagemId}")
         );
     }
 }

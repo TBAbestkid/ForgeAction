@@ -15,42 +15,42 @@ class DefesaPersonagemController extends Controller
     }
 
     /**
-     * GET /defesa-personagem/personagem/{personagemId}
+     * GET /api/defesa-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("defesa-personagem/personagem/{$personagemId}")
+            $this->api->get("api/defesa-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /defesa-personagem
+     * POST /api/defesa-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("defesa-personagem", $request->all())
+            $this->api->post("api/defesa-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /defesa-personagem/personagem/{personagemId}
+     * PUT /api/defesa-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("defesa-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/defesa-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /defesa-personagem/personagem/{personagemId}
+     * DELETE /api/defesa-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("defesa-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/defesa-personagem/personagem/{$personagemId}")
         );
     }
 }

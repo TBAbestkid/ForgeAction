@@ -15,42 +15,42 @@ class DadosAtaquePersonagemController extends Controller
     }
 
     /**
-     * GET /dados-ataque-personagem/personagem/{personagemId}
+     * GET /api/dados-ataque-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("dados-ataque-personagem/personagem/{$personagemId}")
+            $this->api->get("api/dados-ataque-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /dados-ataque-personagem
+     * POST /api/dados-ataque-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("dados-ataque-personagem", $request->all())
+            $this->api->post("api/dados-ataque-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /dados-ataque-personagem/personagem/{personagemId}
+     * PUT /api/dados-ataque-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("dados-ataque-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/dados-ataque-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /dados-ataque-personagem/personagem/{personagemId}
+     * DELETE /api/dados-ataque-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("dados-ataque-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/dados-ataque-personagem/personagem/{$personagemId}")
         );
     }
 }

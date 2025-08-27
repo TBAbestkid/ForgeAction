@@ -15,42 +15,42 @@ class AtributoPersonagemController extends Controller
     }
 
     /**
-     * GET /atributos-personagem/personagem/{personagemId}
+     * GET /api/atributos-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("atributos-personagem/personagem/{$personagemId}")
+            $this->api->get("api/atributos-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /atributos-personagem
+     * POST /api/atributos-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("atributos-personagem", $request->all())
+            $this->api->post("api/atributos-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /atributos-personagem/personagem/{personagemId}
+     * PUT /api/atributos-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("atributos-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/atributos-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /atributos-personagem/personagem/{personagemId}
+     * DELETE /api/atributos-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("atributos-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/atributos-personagem/personagem/{$personagemId}")
         );
     }
 }

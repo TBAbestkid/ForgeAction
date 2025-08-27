@@ -15,42 +15,42 @@ class DadosDefesaPersonagemController extends Controller
     }
 
     /**
-     * GET /dados-defesa-personagem/personagem/{personagemId}
+     * GET /api/dados-defesa-personagem/personagem/{personagemId}
      */
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("dados-defesa-personagem/personagem/{$personagemId}")
+            $this->api->get("api/dados-defesa-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /dados-defesa-personagem
+     * POST /api/dados-defesa-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("dados-defesa-personagem", $request->all())
+            $this->api->post("api/dados-defesa-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /dados-defesa-personagem/personagem/{personagemId}
+     * PUT /api/dados-defesa-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("dados-defesa-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/dados-defesa-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /dados-defesa-personagem/personagem/{personagemId}
+     * DELETE /api/dados-defesa-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("dados-defesa-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/dados-defesa-personagem/personagem/{$personagemId}")
         );
     }
 }

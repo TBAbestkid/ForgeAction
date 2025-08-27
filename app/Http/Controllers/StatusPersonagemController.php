@@ -20,37 +20,37 @@ class StatusPersonagemController extends Controller
     public function show($personagemId)
     {
         return response()->json(
-            $this->api->get("status-personagem/personagem/{$personagemId}")
+            $this->api->get("api/status-personagem/personagem/{$personagemId}")
         );
     }
 
     /**
-     * POST /status-personagem
+     * POST /api/status-personagem
      */
     public function store(Request $request)
     {
         return response()->json(
-            $this->api->post("status-personagem", $request->all())
+            $this->api->post("api/status-personagem", $request->all())
         );
     }
 
     /**
-     * PUT /status-personagem/personagem/{personagemId}
+     * PUT /api/status-personagem/personagem/{personagemId}
      */
     public function update(Request $request, $personagemId)
     {
         return response()->json(
-            $this->api->put("status-personagem/personagem/{$personagemId}", $request->all())
+            $this->api->put("api/status-personagem/personagem/{$personagemId}", $request->all())
         );
     }
 
     /**
-     * DELETE /status-personagem/personagem/{personagemId}
+     * DELETE /api/status-personagem/personagem/{personagemId}
      */
     public function destroy($personagemId)
     {
         return response()->json(
-            $this->api->delete("status-personagem/personagem/{$personagemId}")
+            $this->api->delete("api/status-personagem/personagem/{$personagemId}")
         );
     }
 }
