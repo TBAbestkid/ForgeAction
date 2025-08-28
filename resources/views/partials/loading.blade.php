@@ -37,14 +37,16 @@
         </div>
     </div>
 
-    <!-- GIF e texto no canto inferior direito, ajustado acima da barra -->
+    <!-- GIF e texto centralizados acima da barra -->
     <div style="
         position: absolute;
         bottom: 90px;
-        right: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         display: flex;
         align-items: center;
         gap: 15px;
+        justify-content: center;
     ">
         <img src="{{ asset('assets/images/forjando.gif') }}" alt="Carregando..." style="width: 80px; height: auto;">
         <h2 id="loading-text" class="font-medieval text-white" style="font-size: 2rem; margin: 0;">
