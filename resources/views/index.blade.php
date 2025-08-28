@@ -54,12 +54,12 @@
                 <div class="card text-start shadow-sm flex-fill" style="min-width: 200px;">
                     <div class="card-body rounded">
                         <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary">
-                                <i class="fa-solid fa-id-card me-1"></i> Ver Ficha
-                            </button>
-                            <button class="btn btn-outline-secondary">
-                                <i class="fa-solid fa-user-pen me-1"></i> Editar Aparência
-                            </button>
+                            <a href="{{ route('registerPerson') }}" class="btn btn-outline-light">
+                                <i class="fa-solid fa-user-plus me-1"></i> Adicionar Personagem
+                            </a>
+                            <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
+                                <i class="fa-solid fa-id-card me-1"></i> Ver Fichas
+                            </a>
                             <button class="btn btn-outline-success ">
                                 <i class="fa-solid fa-shield-halved me-1"></i> Equipamentos
                             </button>
