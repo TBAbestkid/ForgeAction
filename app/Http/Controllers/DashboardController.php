@@ -25,12 +25,20 @@ class DashboardController extends Controller
         if ($request->session()->has('user_login')) {
             $userId = $request->session()->get('user_id');
 
+            // Substituir nulls por valores padrão
             $personagens = $this->api->get("api/personagem/usuario/{$userId}");
 
-            // Substituir nulls por valores padrão
+            // Garante que seja um array
+            if (is_string($personagens)) {
+                $personagens = json_decode($personagens, true) ?: [];
+            } elseif (!is_array($personagens)) {
+                $personagens = [];
+            }
+
+            // Agora é seguro usar array_map
             $personagens = array_map(function($p) {
                 return [
-                    'id' => $p['id'],
+                    'id' => $p['id'] ?? 0,
                     'infoPersonagem' => $p['infoPersonagem'] ?? [
                         'nome' => 'Desconhecido',
                         'classe' => '-',
