@@ -64,4 +64,18 @@ class PersonagemController extends Controller
             $this->api->get("api/personagem/usuario/{$usuarioId}")
         );
     }
+
+    public function select(Request $request)
+    {
+        $char = $request->all(); // recebe todo personagem enviado
+        session(['selected_character' => [
+            'name' => $char['infoPersonagem']['nome'],
+            'classe' => $char['infoPersonagem']['classe'],
+            'raca' => $char['infoPersonagem']['raca'],
+            'description' => $char['infoPersonagem']['descricao'] ?? ''
+        ]]);
+
+        return response()->json(['success' => true]);
+    }
+
 }
