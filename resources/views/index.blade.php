@@ -12,39 +12,118 @@
     @endif
     @if(session('user_login'))
        <div class="container-fluid">
-            <div class="d-flex flex-wrap gap-3">
-                <!-- Card de Informações do Personagem -->
-                <div class="card text-start shadow-sm flex-fill" style="min-width: 300px;">
-                    <div class="card-body text-white rounded">
-                        <h5 class="card-title mb-3">Seu personagem</h5>
+            <div class="d-flex flex-wrap gap-4">
+                <!-- Personagem Selecionado -->
+                <div class="card shadow-lg border-0 flex-fill" style="min-width: 320px; max-width: 380px;">
+                    <div class="card-body bg-dark text-white rounded-3 p-4">
 
-                        <div class="d-flex align-items-center mb-3">
-                            @if(session('character'))
-                                <img src="{{ asset('assets/images/characters/' . session('character')->image) }}"
-                                    alt="Personagem"
-                                    class="img-fluid rounded"
-                                    style="width: 64px; height: 64px; object-fit: cover;">
-                            @else
-                                <i class="fa-regular fa-circle-user fa-2xl"></i>
-                            @endif
+                        <h5 class="card-title mb-4 fw-bold">
+                            <i class="fa-solid fa-user-astronaut me-2"></i> Personagem Selecionado
+                        </h5>
+
+                        <div class="d-flex align-items-center mb-4">
+                            <i class="fa-solid fa-chess-knight fa-3x text-secondary"></i>
 
                             <div class="ms-3">
-                                <strong class="d-block">{{ session('character') ? session('character')->name : 'Nenhum personagem' }}</strong>
-                                <small class="">Status: {{ session('character') && session('character')->equipped ? 'Equipado' : 'Não equipado' }}</small>
+                                <strong class="fs-5 d-block">Nome do Personagem</strong>
+                                <span class="badge bg-success">Equipado</span>
                             </div>
                         </div>
 
-                        <p class="small mb-3">Descrição: <em>{{ session('character') ? session('character')->description : 'Nenhuma descrição disponível.' }}</em></p>
+                        <p class="small fst-italic mb-4">
+                            "Descrição breve do personagem selecionado..."
+                        </p>
 
-                        <div class="d-flex justify-content-around">
-                            <a href="#" class="btn btn-outline-info" title="Ver no Dashboard" style="font-size: 1.5rem;">
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-outline-info btn-lg" title="Dashboard">
                                 <i class="fa-solid fa-gauge-high"></i>
                             </a>
-                            <a href="#" class="btn btn-outline-warning" title="Histórico" style="font-size: 1.5rem;">
+                            <a href="#" class="btn btn-outline-warning btn-lg" title="Histórico">
                                 <i class="fa-solid fa-book-open"></i>
                             </a>
-                            <a href="#" class="btn btn-outline-success" title="Inventário" style="font-size: 1.5rem;">
+                            <a href="#" class="btn btn-outline-success btn-lg" title="Inventário">
                                 <i class="fa-solid fa-suitcase"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personagens Disponíveis -->
+                <div class="card shadow-lg border-0 flex-fill text-white" style="min-width: 320px; max-width: 420px;">
+                    <div class="card-body rounded-3 p-4">
+
+                        <h6 class="fw-bold text-light mb-3">
+                            <i class="fa-solid fa-users me-2"></i> Personagens Disponíveis
+                        </h6>
+
+                        <!-- Barra de pesquisa -->
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-dark text-light border-secondary">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="searchCharacter" class="form-control bg-dark text-white border-secondary"
+                                placeholder="Pesquisar por nome, raça ou classe...">
+                        </div>
+
+                        <!-- Lista de personagens com scroll -->
+                        <ul id="characterList" class="list-group list-group-flush bg-dark"
+                            style="max-height: 250px; overflow-y: auto;">
+
+                            <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Nome 1</strong><br>
+                                    <small>Raça: Humano | Classe: Guerreiro</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-check me-1"></i>
+                                </button>
+                            </li>
+
+                            <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Nome 2</strong><br>
+                                    <small>Raça: Elfo | Classe: Mago</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-check me-1"></i>
+                                </button>
+                            </li>
+
+                            <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Nome 3</strong><br>
+                                    <small>Raça: Anão | Classe: Clérigo</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-check me-1"></i>
+                                </button>
+                            </li>
+
+                            <!-- Exemplos extras -->
+                            <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Nome 4</strong><br>
+                                    <small>Raça: Orc | Classe: Bárbaro</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-check me-1"></i>
+                                </button>
+                            </li>
+
+                            <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Nome 5</strong><br>
+                                    <small>Raça: Humano | Classe: Arqueiro</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-check me-1"></i>
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="mt-4 text-center">
+                            <a href="{{ route('dashboard') }}" class="btn btn-outline-primary w-100">
+                                <i class="fa-solid fa-id-card me-2"></i> Ver Todos no Dashboard
                             </a>
                         </div>
                     </div>
@@ -60,7 +139,7 @@
                             <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
                                 <i class="fa-solid fa-id-card me-1"></i> Ver Fichas
                             </a>
-                            <button class="btn btn-outline-success ">
+                            <button class="btn btn-outline-success">
                                 <i class="fa-solid fa-shield-halved me-1"></i> Equipamentos
                             </button>
                             <button class="btn btn-outline-danger">
@@ -117,3 +196,14 @@
     @endif
 </div>
 @endsection
+<script>
+    document.getElementById("searchCharacter").addEventListener("input", function() {
+        const searchTerm = this.value.toLowerCase();
+        const items = document.querySelectorAll("#characterList li");
+
+        items.forEach(item => {
+            const text = item.innerText.toLowerCase();
+            item.style.display = text.includes(searchTerm) ? "" : "none";
+        });
+    });
+</script>
