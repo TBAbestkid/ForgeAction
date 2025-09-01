@@ -59,9 +59,13 @@ Route::get('/dashboard', [DashboardController::class, 'dash'])->name('dashboard'
 // Rota pra acessar apenas a view de criar personagem:
 Route::get('/registro-personagem', [PersonagemController::class, 'personagem'])->name('registerPerson');
 
+// Selecionar personagem
+Route::post('/character/select', [PersonagemController::class, 'select'])->name('character.select');
+
+
 /*
  *--------------------------------------------
- *   Rotas de personagem                    /
+ *   Rotas de personagem (API)              /
  *------------------------------------------
  */
 
