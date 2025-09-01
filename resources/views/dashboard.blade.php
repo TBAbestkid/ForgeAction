@@ -5,7 +5,70 @@
 <div class="container mt-4">
     <h1 class="font-medieval text-center mb-4">Seus Personagens</h1>
 
-    <div class="d-flex flex-column gap-3">
+    <!-- Barra de pesquisa e filtros -->
+    <div class="card bg-dark text-white shadow-sm border-0 rounded-3 mb-4 p-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-6">
+                <input type="text" id="searchPersonagem" class="form-control bg-secondary text-white border-0" placeholder="Pesquisar por nome, raça ou classe...">
+            </div>
+            @php
+                $racas = [
+                    ["descricao" => "Draconato", "constante" => "DRACONATO"],
+                    ["descricao" => "Tiefling", "constante" => "TIEFLING"],
+                    ["descricao" => "Halfling", "constante" => "HALFLING"],
+                    ["descricao" => "Anão", "constante" => "ANAO"],
+                    ["descricao" => "Humano", "constante" => "HUMANO"],
+                    ["descricao" => "Elfo", "constante" => "ELFO"],
+                    ["descricao" => "Orc", "constante" => "ORC"],
+                    ["descricao" => "Brute (meio-orc + humano)", "constante" => "BRUTE_MEIO_ORC_HUMANO"],
+                    ["descricao" => "Brute (meio-orc + elfo)", "constante" => "BRUTE_MEIO_ORC_ELFO"],
+                    ["descricao" => "Tarnished (elfo + humano)", "constante" => "TARNISHED_ELFO_HUMANO"],
+                    ["descricao" => "Tarnished (elfo + tiefling)", "constante" => "TARNISHED_ELFO_TIEFLING"]
+                ];
+
+                $classes = [
+                    ["descricao" => "Atirador", "constante" => "ATIRADOR"],
+                    ["descricao" => "Caçador", "constante" => "CACADOR"],
+                    ["descricao" => "Guerreiro", "constante" => "GUERREIRO"],
+                    ["descricao" => "Paladino", "constante" => "PALADINO"],
+                    ["descricao" => "Espadachim", "constante" => "ESPADACHIM"],
+                    ["descricao" => "Assassino", "constante" => "ASSASSINO"],
+                    ["descricao" => "Ladrão", "constante" => "LADRAO"],
+                    ["descricao" => "Feiticeiro", "constante" => "FEITICEIRO"],
+                    ["descricao" => "Bruxo", "constante" => "BRUXO"],
+                    ["descricao" => "Mago", "constante" => "MAGO"],
+                    ["descricao" => "Clérigo", "constante" => "CLERIGO"],
+                    ["descricao" => "Monge", "constante" => "MONGE"],
+                    ["descricao" => "Xamã", "constante" => "XAMA"],
+                    ["descricao" => "Druida", "constante" => "DRUIDA"],
+                    ["descricao" => "Artífice", "constante" => "ARTIFICE"],
+                    ["descricao" => "Bardo", "constante" => "BARDO"]
+                ];
+            @endphp
+
+            <div class="col-md-3">
+                <select id="filterClasse" class="form-select bg-secondary text-white border-0">
+                    <option value="">Todas as Classes</option>
+                    @foreach($classes as $c)
+                        <option value="{{ $c['constante'] }}">{{ $c['descricao'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select id="filterRaca" class="form-select bg-secondary text-white border-0">
+                    <option value="">Todas as Raças</option>
+                    @foreach($racas as $r)
+                        <option value="{{ $r['constante'] }}">{{ $r['descricao'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Lista de personagens -->
+    <div class="d-flex flex-column gap-4" id="listaPersonagens">
         @forelse($personagens as $p)
             @php
                 $info = $p['infoPersonagem'];
@@ -14,59 +77,124 @@
                 $status = $p['status'];
                 $ataque = $p['ataque'];
                 $danoBase = $p['danoBase'];
+                $racas = [
+                    "DRACONATO" => "Draconato",
+                    "TIEFLING" => "Tiefling",
+                    "HALFLING" => "Halfling",
+                    "ANAO" => "Anão",
+                    "HUMANO" => "Humano",
+                    "ELFO" => "Elfo",
+                    "ORC" => "Orc",
+                    "BRUTE_MEIO_ORC_HUMANO" => "Brute (meio-orc + humano)",
+                    "BRUTE_MEIO_ORC_ELFO" => "Brute (meio-orc + elfo)",
+                    "TARNISHED_ELFO_HUMANO" => "Tarnished (elfo + humano)",
+                    "TARNISHED_ELFO_TIEFLING" => "Tarnished (elfo + tiefling)"
+                ];
+
+                $classes = [
+                    "ATIRADOR" => "Atirador",
+                    "CACADOR" => "Caçador",
+                    "GUERREIRO" => "Guerreiro",
+                    "PALADINO" => "Paladino",
+                    "ESPADACHIM" => "Espadachim",
+                    "ASSASSINO" => "Assassino",
+                    "LADRAO" => "Ladrão",
+                    "FEITICEIRO" => "Feiticeiro",
+                    "BRUXO" => "Bruxo",
+                    "MAGO" => "Mago",
+                    "CLERIGO" => "Clérigo",
+                    "MONGE" => "Monge",
+                    "XAMA" => "Xamã",
+                    "DRUIDA" => "Druida",
+                    "ARTIFICE" => "Artífice",
+                    "BARDO" => "Bardo"
+                ];
             @endphp
 
-            <div class="card p-3 bg-dark text-white personagem-card">
-                <div class="d-flex justify-content-between align-items-start">
+            <div class="card bg-dark text-white shadow-sm border-0 rounded-3 p-3 personagem-card"
+                 data-nome="{{ strtolower($info['nome']) }}"
+                 data-classe="{{ strtolower($info['classe']) }}"
+                 data-raca="{{ strtolower($info['raca']) }}">
+
+                <!-- Cabeçalho -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
-                        <h2>{{ $info['nome'] }}</h2>
-                        <p>Classe: {{ $info['classe'] }} | Raça: {{ $info['raca'] }} | Idade: {{ $info['idade'] }} | Genero: {{ $info['genero'] }}</p>
+                        <h4 class="mb-1">{{ $info['nome'] }}</h4>
+                        <span class="badge bg-primary">
+                            {{ $classes[$info['classe']] ?? $info['classe'] }}
+                        </span>
+                        <span class="badge bg-secondary">
+                            {{ $racas[$info['raca']] ?? $info['raca'] }}
+                        </span>
+                        <small class="d-block text-muted">
+                            Idade: {{ $info['idade'] }} | Gênero: {{ $info['genero'] }}
+                        </small>
                     </div>
-                    <div class="btn-group-vertical">
-                        <button class="btn btn-primary btn-sm mb-1">Selecionar</button>
-                        <button class="btn btn-warning btn-sm mb-1">Editar</button>
-                        <!-- Botão de excluir -->
-                        <button class="btn btn-danger btn-sm delete-btn" data-id="{{ $p['id'] }}">Excluir</button>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-success select-btn"
+                                data-character='@json($p)'>
+                            Selecionar
+                        </button>
+
+                        <button class="btn btn-sm btn-outline-warning">Editar</button>
+                        <button class="btn btn-sm btn-outline-danger delete-btn" data-id="{{ $p['id'] }}">Excluir</button>
                     </div>
                 </div>
 
-                <hr class="bg-white">
+                <hr class="border-secondary">
 
-                <!-- Botão Ler Mais -->
-                <button class="btn btn-outline-light btn-sm mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#detalhes-{{ $p['id'] }}" aria-expanded="false" aria-controls="detalhes-{{ $p['id'] }}">
-                    Ler mais
+                <!-- Botão expandir -->
+                <button class="btn btn-sm btn-outline-light mb-2"
+                        type="button" data-bs-toggle="collapse"
+                        data-bs-target="#detalhes-{{ $p['id'] }}"
+                        aria-expanded="false" aria-controls="detalhes-{{ $p['id'] }}">
+                    Ver mais detalhes
                 </button>
 
-                <!-- Conteúdo expansível -->
+                <!-- Infos expansíveis -->
                 <div class="collapse" id="detalhes-{{ $p['id'] }}">
-                    <div class="row mt-2">
+                    <div class="row g-3 mt-2">
+                        <!-- Atributos -->
                         <div class="col-md-4">
-                            <h5 class="font-medieval">Atributos</h5>
-                            <ul class="mb-0">
-                                <li>Força: {{ $atributos['forca'] }}</li>
-                                <li>Agilidade: {{ $atributos['agilidade'] }}</li>
-                                <li>Inteligência: {{ $atributos['inteligencia'] }}</li>
-                                <li>Sabedoria: {{ $atributos['sabedoria'] }}</li>
-                                <li>Destreza: {{ $atributos['destreza'] }}</li>
-                                <li>Vitalidade: {{ $atributos['vitalidade'] }}</li>
-                                <li>Percepção: {{ $atributos['percepcao'] }}</li>
-                                <li>Carisma: {{ $atributos['carisma'] }}</li>
+                            <h6 class="fw-bold text-info">Atributos</h6>
+                            <ul class="list-unstyled small mb-0">
+                                <li>Força: <span class="fw-bold">{{ $atributos['forca'] }}</span></li>
+                                <li>Agilidade: <span class="fw-bold">{{ $atributos['agilidade'] }}</span></li>
+                                <li>Inteligência: <span class="fw-bold">{{ $atributos['inteligencia'] }}</span></li>
+                                <li>Sabedoria: <span class="fw-bold">{{ $atributos['sabedoria'] }}</span></li>
+                                <li>Destreza: <span class="fw-bold">{{ $atributos['destreza'] }}</span></li>
+                                <li>Vitalidade: <span class="fw-bold">{{ $atributos['vitalidade'] }}</span></li>
+                                <li>Percepção: <span class="fw-bold">{{ $atributos['percepcao'] }}</span></li>
+                                <li>Carisma: <span class="fw-bold">{{ $atributos['carisma'] }}</span></li>
                             </ul>
                         </div>
+
+                        <!-- Status -->
                         <div class="col-md-4">
-                            <h5 class="font-medieval">Bônus & Status</h5>
-                            <p>Bônus Vida: {{ $bonus['bonupVida'] }} | Bônus Mana: {{ $bonus['bonupMana'] }}</p>
-                            <p>Vida Total: {{ $status['vida'] }} | Mana Total: {{ $status['mana'] }} | Iniciativa: {{ $status['iniciativa'] }}</p>
+                            <h6 class="fw-bold text-warning">Status</h6>
+                            <ul class="list-unstyled small mb-0">
+                                <li>Vida: <span class="fw-bold">{{ $status['vida'] }}</span></li>
+                                <li>Mana: <span class="fw-bold">{{ $status['mana'] }}</span></li>
+                                <li>Iniciativa: <span class="fw-bold">{{ $status['iniciativa'] }}</span></li>
+                                <li>Bônus Vida: {{ $bonus['bonupVida'] }}</li>
+                                <li>Bônus Mana: {{ $bonus['bonupMana'] }}</li>
+                            </ul>
                         </div>
+
+                        <!-- Ataques -->
                         <div class="col-md-4">
-                            <h5 class="font-medieval">Ataque & Dano</h5>
-                            <p>Físico Corpo: {{ $ataque['ataqueFisicoCorpo'] }} | Físico Distância: {{ $ataque['ataqueFisicoDistancia'] }} | Mágico: {{ $ataque['ataqueMagico'] }}</p>
-                            <p>Dano Físico: {{ $danoBase['fisico'] }} | Dano Mágico: {{ $danoBase['magico'] }}</p>
+                            <h6 class="fw-bold text-danger">Ataque & Dano</h6>
+                            <ul class="list-unstyled small mb-0">
+                                <li>Atk Corpo a Corpo: {{ $ataque['ataqueFisicoCorpo'] }}</li>
+                                <li>Atk Distância: {{ $ataque['ataqueFisicoDistancia'] }}</li>
+                                <li>Atk Mágico: {{ $ataque['ataqueMagico'] }}</li>
+                                <li>Dano Físico: {{ $danoBase['fisico'] }}</li>
+                                <li>Dano Mágico: {{ $danoBase['magico'] }}</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-
         @empty
             <p class="text-white">Nenhum personagem encontrado.</p>
         @endforelse
@@ -92,6 +220,8 @@
     </div>
 </div>
 
+@include('partials.alerts')
+
 <style>
     .personagem-card {
         cursor: pointer;
@@ -109,6 +239,37 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    const searchInput = document.getElementById('searchPersonagem');
+    const filterClasse = document.getElementById('filterClasse');
+    const filterRaca = document.getElementById('filterRaca');
+    const personagens = document.querySelectorAll('.personagem-card');
+
+    function filtrarPersonagens() {
+        const termo = searchInput.value.toLowerCase();
+        const classe = filterClasse.value.toLowerCase();
+        const raca = filterRaca.value.toLowerCase();
+
+        personagens.forEach(card => {
+            const nome = card.dataset.nome;
+            const cardClasse = card.dataset.classe;
+            const cardRaca = card.dataset.raca;
+
+            const matchNome = nome.includes(termo);
+            const matchClasse = !classe || cardClasse === classe;
+            const matchRaca = !raca || cardRaca === raca;
+
+            if (matchNome && matchClasse && matchRaca) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filtrarPersonagens);
+    filterClasse.addEventListener('change', filtrarPersonagens);
+    filterRaca.addEventListener('change', filtrarPersonagens);
+
     $(document).ready(function(){
         $.ajaxSetup({
             headers: {
@@ -152,5 +313,52 @@
             }
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const toastEl = document.getElementById('liveToast');
+        const toastMessage = document.getElementById('toastMessage');
+        const toast = new bootstrap.Toast(toastEl);
+
+        const selectButtons = document.querySelectorAll('.select-btn');
+        selectButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const character = JSON.parse(this.dataset.character);
+
+                fetch("{{ route('character.select') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(character)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        toastMessage.textContent = "Personagem selecionado com sucesso!";
+                        toastEl.classList.remove('bg-danger');
+                        toastEl.classList.add('bg-success');
+                        toast.show();
+                        setTimeout(() => location.reload(), 1000); // atualiza após 1s
+                    } else {
+                        toastMessage.textContent = data.message || "Erro ao selecionar personagem.";
+                        toastEl.classList.remove('bg-success');
+                        toastEl.classList.add('bg-danger');
+                        toast.show();
+                    }
+                })
+                .catch(err => {
+                    toastMessage.textContent = "Erro na requisição.";
+                    toastEl.classList.remove('bg-success');
+                    toastEl.classList.add('bg-danger');
+                    toast.show();
+                    console.error(err);
+                });
+            });
+        });
+
+    });
+
 </script>
 @endsection
