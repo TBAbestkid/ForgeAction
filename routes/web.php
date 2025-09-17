@@ -23,6 +23,8 @@ use App\Http\Controllers\BonusPersonagemController;
 use App\Http\Controllers\AtributoPersonagemController;
 use App\Http\Controllers\PersonagemController;
 use App\Http\Controllers\EnumController;
+use App\Http\Controllers\SalaPersonagemController;
+use App\Http\Controllers\SalaController;
 
 
 Route::get('/dados-externos', [ExternalApiController::class, 'index']);
@@ -34,6 +36,8 @@ Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'postLogin'])->name('login.post');
 // Logout
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Update, para MASTER
+Route::put('/login/update', [LoginController::class, 'update'])->name('login.update');
 
 // -------------------- REGISTRO --------------------
 // Exibir formulário de registro
@@ -142,3 +146,24 @@ Route::get('/enums/personagem', [EnumController::class, 'getPersonagemEnums']);
 Route::get('/enums/racas', [EnumController::class, 'racas']);
 Route::get('/enums/classes', [EnumController::class, 'classes']);
 Route::get('/enums/bonus-racas/{raca}', [EnumController::class, 'bonusRacas']);
+
+// Página que lista as salas do usuário
+Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
+
+// Página de criar sala
+Route::get('/salas/criar', function() {
+    return view('room.create');
+})->name('salas.create');
+
+// Rotas POST, PUT, DELETE continuam apontando para a API
+Route::post('/salas', [SalaController::class, 'store'])->name('salas.store');
+Route::put('/salas/{id}', [SalaController::class, 'update'])->name('salas.update');
+Route::delete('/salas/{id}', [SalaController::class, 'destroy'])->name('salas.destroy');
+Route::get('/salas/usuario/{usuarioId}', [SalaController::class, 'getByUsuario'])->name('salas.usuario');
+
+// SalaPersonagem
+Route::get('/sala-personagem/sala/{salaId}', [SalaPersonagemController::class, 'showBySala']);
+Route::get('/sala-personagem/personagem/{personagemId}', [SalaPersonagemController::class, 'showByPersonagem']);
+Route::post('/sala-personagem', [SalaPersonagemController::class, 'store']);
+Route::delete('/sala-personagem/{id}', [SalaPersonagemController::class, 'destroy']);
+Route::delete('/sala-personagem/sala/{salaId}/personagem/{personagemId}', [SalaPersonagemController::class, 'destroyBySalaAndPersonagem']);
