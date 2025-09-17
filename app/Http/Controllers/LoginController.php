@@ -55,4 +55,25 @@ class LoginController extends Controller
         session()->forget('user_login');
         return redirect('/')->with('success', 'Logout realizado com sucesso!');
     }
+
+    public function update(Request $request)
+    {
+        // pega usuário logado da sessão
+        $userId = session('user_id');
+        $currentRole = session('user_role');
+
+        // alterna o role
+        $newRole = $currentRole === 'MASTER' ? 'PLAYER' : 'MASTER';
+
+        // chama a API passando o novo role
+        $response = $this->api->put("/login/update", [
+            'id' => $userId,
+            'role' => $newRole,
+        ]);
+
+        // atualiza sessão também
+        session(['user_role' => $newRole]);
+
+        return response()->json($response);
+    }
 }
