@@ -10,7 +10,7 @@ use App\Models\User;
 
 class RegisterController extends Controller
 {
-     protected $api;
+    protected $api;
 
     public function __construct(ApiService $api)
     {
