@@ -13,7 +13,7 @@
     @if(session('user_login'))
        <div class="container-fluid">
             <div class="container mt-4">
-                <h1 class="font-medieval text-center mb-4">Seus Personagens</h1>
+                <h1 class="font-medieval text-start mb-4">Seus Personagens</h1>
 
                 <div class="row g-4">
 
@@ -125,6 +125,54 @@
                     </div>
 
                 </div>
+
+                <div class="container mt-4">
+                    <h1 class="font-medieval text-start mb-4">Salas</h1>
+
+                    <div class="row g-4">
+
+                        <!-- Card principal -->
+                        <div class="col-md-8">
+                            <div class="card shadow border-0 flex-fill">
+                                <div class="card-body text-white rounded-3 p-4" id="salas-container">
+                                    <div class="alert alert-info">
+                                        <i class="fa-solid fa-circle-exclamation"></i> Carregando salas...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Deixar comentado
+                        <div class="col-md-4">
+                            <div class="card shadow border-0 flex-fill">
+                                <div class="card-body text-white rounded-3 p-4">
+                                    plergh
+                                </div>
+                            </div>
+                        </div>-->
+
+                        <!-- Botões pra quando for Mestre -->
+                        @if (session('user_role') === 'MASTER')
+                            <div class="col-md-4">
+                                <div class="card shadow border-0 flex-fill">
+                                    <div class="card-body text-white rounded-3 p-4">
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ route('dashboard') }}" class="btn btn-outline-success">
+                                                <i class="fa-solid fa-user-plus"></i> Convidar
+                                            </a>
+                                            <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
+                                                <i class="fa-solid fa-user-group"></i> Criar Sala
+                                            </a>
+                                            <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
+                                                 <i class="fa-solid fa-trash me-1"></i> Remover Sala
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     @else
@@ -173,6 +221,7 @@
     @endif
 </div>
 @endsection
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -221,4 +270,111 @@
         });
     });
 
+    $(document).ready(function () {
+        const container = $("#salas-container");
+
+        $.ajax({
+            url: "/salas/usuario/{{ session('user_id') }}",
+            method: "GET",
+            success: function (response) {
+                container.empty();
+
+                if (response.length > 0) {
+                    const list = $("<ul class='list-group'></ul>");
+                    response.forEach(sala => {
+                        list.append(`
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fa-solid fa-door-open me-2 text-primary"></i>
+                                    <a href="/salas/${sala.id}" class="text-decoration-none">
+                                        ${sala.nome}
+                                    </a>
+                                </span>
+
+                                <div class="btn-group">
+                                    <a href="/salas/${sala.id}/edit" class="btn btn-sm btn-outline-warning">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        `);
+                    });
+                    container.append(list);
+
+                    // Excluir sala
+                    $(".btn-delete").click(function () {
+                        const id = $(this).data("id");
+                        if (!confirm("Tem certeza que deseja excluir esta sala?")) return;
+
+                        $.ajax({
+                            url: `/salas/${id}`,
+                            method: "DELETE",
+                            data: { _token: "{{ csrf_token() }}" },
+                            success: function () {
+                                // Atualiza lista sem reload
+                                loadSalas();
+                            },
+                            error: function () {
+                                alert("Erro ao excluir sala.");
+                            }
+                        });
+                    });
+
+                    // Convidar (exemplo com modal fake)
+                    $(".btn-invite").click(function () {
+                        const id = $(this).data("id");
+                        showModal("Convite", "Aqui você pode convidar usuários para a sala " + id);
+                    });
+                } else {
+                    container.append(`
+                        <div class="alert alert-info">
+                            <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
+                        </div>
+                    `);
+                }
+            },
+            error: function () {
+                container.html("<p class='text-danger'>Erro ao carregar salas.</p>");
+            }
+        });
+
+        // função para recarregar salas depois de excluir
+        function loadSalas() {
+            $.ajax({
+                url: "/salas/usuario/{{ session('user_id') }}",
+                method: "GET",
+                success: function (response) {
+                    container.empty();
+                    if (response.length > 0) {
+                        const list = $("<ul class='list-group'></ul>");
+                        response.forEach(sala => {
+                            list.append(`
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="fa-solid fa-door-open me-2 text-primary"></i>
+                                        <a href="/salas/${sala.id}" class="text-decoration-none">
+                                            ${sala.nome}
+                                        </a>
+                                    </span>
+                                </li>
+                            `);
+                        });
+                        container.append(list);
+                    } else {
+                        container.append(`
+                            <div class="alert alert-info">
+                                <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
+                            </div>
+                        `);
+                    }
+                }
+            });
+        }
+    });
 </script>
