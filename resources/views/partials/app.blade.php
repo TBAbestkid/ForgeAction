@@ -20,7 +20,7 @@
 </head>
 <body>
     <!-- Navbar simples -->
-    <nav class="navbar navbar-expand-lg navbar-dark font-medieval">
+    <nav class="navbar navbar-expand-lg navbar-dark font-medieval sticky-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
                 <i class="fa-brands fa-d-and-d"></i> ForgeAction
@@ -34,7 +34,7 @@
                 <ul class="navbar-nav ms-auto">
                     @if(session('user_login'))
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="fa-solid fa-user-cog"></i> {{ session('user_login') }}</a>
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#updateModal"><i class="fa-solid fa-user-cog"></i> {{ session('user_login') }}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -77,10 +77,59 @@
         </div>
     </div>
 
+    <!-- Modal de Update Role -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Alterar papel da conta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    Tem certeza que deseja alternar seu papel de
+                    <strong>{{ session('user_role') }}</strong>
+                    para
+                    <strong>{{ session('user_role') === 'MASTER' ? 'PLAYER' : 'MASTER' }}</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="btnToggleRole" class="btn btn-primary">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <main class="py-4">
         @yield('content')
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#btnToggleRole").click(function() {
+                showLoading(2000);
+
+                $.ajax({
+                    url: "{{ route('login.update') }}",
+                    method: "PUT",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(res) {
+                        hideLoading();
+                        // aqui suponho que o backend devolve { role: "MASTER" } ou { role: "PLAYER" }
+                        showModal("Papel atualizado para: " + res.role);
+                        setTimeout(() => location.reload(), 1500);
+                    },
+                    error: function() {
+                        hideLoading();
+                        showModal("Erro ao atualizar papel");
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
