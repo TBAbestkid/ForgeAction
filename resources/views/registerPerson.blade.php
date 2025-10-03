@@ -57,8 +57,8 @@
                             <option value="" disabled selected>Selecione seu gênero</option>
                             <option value="Masculino">Masculino</option>
                             <option value="Feminino">Feminino</option>
-                            <option value="Geladeira Electrolux Frost Free">Geladeira Electrolux Frost Free</option>
-                            <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option>
+                            <!--<option value="Geladeira Electrolux Frost Free">Geladeira Electrolux Frost Free</option>
+                            <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option>-->
                             <option value="Outro">Outro</option>
                         </select>
                         <label for="identificacao">Identificação</label>
