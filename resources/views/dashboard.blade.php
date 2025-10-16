@@ -3,13 +3,15 @@
 @section('content')
 
 <div class="container mt-4">
-    <h1 class="font-medieval text-center mb-4">Seus Personagens</h1>
+    <h1 class="font-medieval text-center text-light mb-4">Seus Personagens</h1>
 
     <!-- Barra de pesquisa e filtros -->
-    <div class="card bg-dark text-white shadow-sm border-0 rounded-3 mb-4 p-3">
-        <div class="row g-2 align-items-center">
+    <div class="card bg-dark text-white shadow-sm border border-secondary rounded-4 mb-4 p-3">
+        <div class="row g-3 align-items-center">
+
             <div class="col-md-6">
-                <input type="text" id="searchPersonagem" class="form-control bg-secondary text-white border-0" placeholder="Pesquisar por nome, raça ou classe...">
+                <input type="text" id="searchPersonagem" class="form-control bg-secondary text-white border-0"
+                       placeholder="Pesquisar por nome, raça ou classe...">
             </div>
             @php
                 $racas = [
@@ -68,137 +70,83 @@
     </div>
 
     <!-- Lista de personagens -->
-    <div class="d-flex flex-column gap-4" id="listaPersonagens">
-        @forelse($personagens as $p)
-            @php
-                $info = $p['infoPersonagem'];
-                $atributos = $p['atributos'];
-                $bonus = $p['bonus'];
-                $status = $p['status'];
-                $ataque = $p['ataque'];
-                $danoBase = $p['danoBase'];
-                $racas = [
-                    "DRACONATO" => "Draconato",
-                    "TIEFLING" => "Tiefling",
-                    "HALFLING" => "Halfling",
-                    "ANAO" => "Anão",
-                    "HUMANO" => "Humano",
-                    "ELFO" => "Elfo",
-                    "ORC" => "Orc",
-                    "BRUTE_MEIO_ORC_HUMANO" => "Brute (meio-orc + humano)",
-                    "BRUTE_MEIO_ORC_ELFO" => "Brute (meio-orc + elfo)",
-                    "TARNISHED_ELFO_HUMANO" => "Tarnished (elfo + humano)",
-                    "TARNISHED_ELFO_TIEFLING" => "Tarnished (elfo + tiefling)"
-                ];
+    @forelse($personagens as $p)
+        @php
+            $info = $p['infoPersonagem'];
+            $atributos = $p['atributos'];
+            $status = $p['status'];
+            $bonus = $p['bonus'];
+            $ataque = $p['ataque'];
+            $danoBase = $p['danoBase'];
+        @endphp
 
-                $classes = [
-                    "ATIRADOR" => "Atirador",
-                    "CACADOR" => "Caçador",
-                    "GUERREIRO" => "Guerreiro",
-                    "PALADINO" => "Paladino",
-                    "ESPADACHIM" => "Espadachim",
-                    "ASSASSINO" => "Assassino",
-                    "LADRAO" => "Ladrão",
-                    "FEITICEIRO" => "Feiticeiro",
-                    "BRUXO" => "Bruxo",
-                    "MAGO" => "Mago",
-                    "CLERIGO" => "Clérigo",
-                    "MONGE" => "Monge",
-                    "XAMA" => "Xamã",
-                    "DRUIDA" => "Druida",
-                    "ARTIFICE" => "Artífice",
-                    "BARDO" => "Bardo"
-                ];
-            @endphp
-
-            <div class="card bg-dark text-white shadow-sm border-0 rounded-3 p-3 personagem-card"
-                 data-nome="{{ strtolower($info['nome']) }}"
-                 data-classe="{{ strtolower($info['classe']) }}"
-                 data-raca="{{ strtolower($info['raca']) }}">
-
-                <!-- Cabeçalho -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div>
-                        <h4 class="mb-1">{{ $info['nome'] }}</h4>
-                        <span class="badge bg-primary">
-                            {{ $classes[$info['classe']] ?? $info['classe'] }}
-                        </span>
-                        <span class="badge bg-secondary">
-                            {{ $racas[$info['raca']] ?? $info['raca'] }}
-                        </span>
-                        <small class="d-block text-muted">
-                            Idade: {{ $info['idade'] }} | Gênero: {{ $info['genero'] }}
-                        </small>
+        <div class="card bg-dark text-white border border-secondary shadow-sm rounded-3 p-3 personagem-card mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <h5 class="mb-1 text-info fw-bold">{{ $info['nome'] }}</h5>
+                    <div class="d-flex flex-wrap gap-1 mb-1">
+                        <span class="badge bg-primary">{{ $classes[$info['classe']] ?? $info['classe'] }}</span>
+                        <span class="badge bg-secondary">{{ $racas[$info['raca']] ?? $info['raca'] }}</span>
                     </div>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-success select-btn"
-                                data-character='@json($p)'>
-                            Selecionar
-                        </button>
-
-                        <button class="btn btn-sm btn-outline-warning">Editar</button>
-                        <button class="btn btn-sm btn-outline-danger delete-btn" data-id="{{ $p['id'] }}">Excluir</button>
-                    </div>
+                    <small class="text-light">Idade: {{ $info['idade'] }} | {{ $info['genero'] }}</small>
                 </div>
 
-                <hr class="border-secondary">
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-success select-btn" data-character='@json($p)'>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="{{ $p['id'] }}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
 
-                <!-- Botão expandir -->
-                <button class="btn btn-sm btn-outline-light mb-2"
-                        type="button" data-bs-toggle="collapse"
-                        data-bs-target="#detalhes-{{ $p['id'] }}"
-                        aria-expanded="false" aria-controls="detalhes-{{ $p['id'] }}">
-                    Ver mais detalhes
-                </button>
+            <!-- Toggle detalhes -->
+            <button class="btn btn-sm btn-outline-light w-100 toggle-details-btn mb-2" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#detalhes-{{ $p['id'] }}"
+                    aria-expanded="false" aria-controls="detalhes-{{ $p['id'] }}">
+                <i class="bi bi-chevron-down"></i> Ver detalhes
+            </button>
 
-                <!-- Infos expansíveis -->
-                <div class="collapse" id="detalhes-{{ $p['id'] }}">
-                    <div class="row g-3 mt-2">
-                        <!-- Atributos -->
-                        <div class="col-md-4">
-                            <h6 class="fw-bold text-info">Atributos</h6>
-                            <ul class="list-unstyled small mb-0">
-                                <li>Força: <span class="fw-bold">{{ $atributos['forca'] }}</span></li>
-                                <li>Agilidade: <span class="fw-bold">{{ $atributos['agilidade'] }}</span></li>
-                                <li>Inteligência: <span class="fw-bold">{{ $atributos['inteligencia'] }}</span></li>
-                                <li>Sabedoria: <span class="fw-bold">{{ $atributos['sabedoria'] }}</span></li>
-                                <li>Destreza: <span class="fw-bold">{{ $atributos['destreza'] }}</span></li>
-                                <li>Vitalidade: <span class="fw-bold">{{ $atributos['vitalidade'] }}</span></li>
-                                <li>Percepção: <span class="fw-bold">{{ $atributos['percepcao'] }}</span></li>
-                                <li>Carisma: <span class="fw-bold">{{ $atributos['carisma'] }}</span></li>
-                            </ul>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="col-md-4">
-                            <h6 class="fw-bold text-warning">Status</h6>
-                            <ul class="list-unstyled small mb-0">
-                                <li>Vida: <span class="fw-bold">{{ $status['vida'] }}</span></li>
-                                <li>Mana: <span class="fw-bold">{{ $status['mana'] }}</span></li>
-                                <li>Iniciativa: <span class="fw-bold">{{ $status['iniciativa'] }}</span></li>
-                                <li>Bônus Vida: {{ $bonus['bonupVida'] }}</li>
-                                <li>Bônus Mana: {{ $bonus['bonupMana'] }}</li>
-                            </ul>
-                        </div>
-
-                        <!-- Ataques -->
-                        <div class="col-md-4">
-                            <h6 class="fw-bold text-danger">Ataque & Dano</h6>
-                            <ul class="list-unstyled small mb-0">
-                                <li>Atk Corpo a Corpo: {{ $ataque['ataqueFisicoCorpo'] }}</li>
-                                <li>Atk Distância: {{ $ataque['ataqueFisicoDistancia'] }}</li>
-                                <li>Atk Mágico: {{ $ataque['ataqueMagico'] }}</li>
-                                <li>Dano Físico: {{ $danoBase['fisico'] }}</li>
-                                <li>Dano Mágico: {{ $danoBase['magico'] }}</li>
-                            </ul>
-                        </div>
+            <div class="collapse" id="detalhes-{{ $p['id'] }}">
+                <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                        <h6 class="fw-bold text-info">Atributos</h6>
+                        <ul class="list-unstyled small mb-0">
+                            @foreach($atributos as $k => $v)
+                                <li>{{ ucfirst($k) }}: {{ $v }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <h6 class="fw-bold text-warning">Status & Bônus</h6>
+                        <ul class="list-unstyled small mb-0">
+                            <li>Iniciativa: {{ $status['iniciativa'] }}</li>
+                            <li>Bônus Vida: {{ $bonus['bonupVida'] }}</li>
+                            <li>Bônus Mana: {{ $bonus['bonupMana'] }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <h6 class="fw-bold text-danger">Ataque & Dano</h6>
+                        <ul class="list-unstyled small mb-0">
+                            <li>Fisico: {{ $ataque['ataqueFisicoCorpo'] }} / {{ $ataque['ataqueFisicoDistancia'] }}</li>
+                            <li>Mágico: {{ $ataque['ataqueMagico'] }}</li>
+                            <li>Dano Físico: {{ $danoBase['fisico'] }}</li>
+                            <li>Dano Mágico: {{ $danoBase['magico'] }}</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        @empty
-            <p class="text-white">Nenhum personagem encontrado.</p>
-        @endforelse
-    </div>
+        </div>
+    @empty
+        <div class="alert bg-dark text-light fw-bold rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+            <i class="fas fa-info-circle fa-lg"></i>
+            Nenhum personagem encontrado.
+        </div>
+    @endforelse
 </div>
 
 <!-- Modal de confirmação -->
@@ -235,19 +183,34 @@
         min-width: 80px;
     }
 </style>
+
 <!-- No head ou antes do fechamento do body -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    document.querySelectorAll('.toggle-details-btn').forEach(btn => {
+        const icon = btn.querySelector('i');
+        const target = document.querySelector(btn.dataset.bsTarget);
+
+        target.addEventListener('shown.bs.collapse', () => icon.classList.replace('bi-chevron-down', 'bi-chevron-up'));
+        target.addEventListener('hidden.bs.collapse', () => icon.classList.replace('bi-chevron-up', 'bi-chevron-down'));
+    });
+
     const searchInput = document.getElementById('searchPersonagem');
     const filterClasse = document.getElementById('filterClasse');
     const filterRaca = document.getElementById('filterRaca');
+    const listaPersonagens = document.getElementById('listaPersonagens');
     const personagens = document.querySelectorAll('.personagem-card');
+
+    const alertNenhum = document.createElement('div');
+    alertNenhum.className = 'alert bg-dark text-light fw-bold rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-sm';
+    alertNenhum.innerHTML = `<i class="fas fa-info-circle fa-lg"></i> Nenhum personagem encontrado.`;
 
     function filtrarPersonagens() {
         const termo = searchInput.value.toLowerCase();
         const classe = filterClasse.value.toLowerCase();
         const raca = filterRaca.value.toLowerCase();
+        let algumVisivel = false;
 
         personagens.forEach(card => {
             const nome = card.dataset.nome;
@@ -260,10 +223,22 @@
 
             if (matchNome && matchClasse && matchRaca) {
                 card.style.display = '';
+                algumVisivel = true;
             } else {
                 card.style.display = 'none';
             }
         });
+
+        // Mostra ou remove o alerta
+        if (!algumVisivel) {
+            if (!listaPersonagens.contains(alertNenhum)) {
+                listaPersonagens.appendChild(alertNenhum);
+            }
+        } else {
+            if (listaPersonagens.contains(alertNenhum)) {
+                listaPersonagens.removeChild(alertNenhum);
+            }
+        }
     }
 
     searchInput.addEventListener('input', filtrarPersonagens);
