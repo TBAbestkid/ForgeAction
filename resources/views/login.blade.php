@@ -41,18 +41,20 @@
                 <label for="floatingPassword">Senha</label>
             </div>
 
-            <div class="form-check text-start mb-3 text-white">
-                <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Lembre de mim!
-                </label>
-            </div>
-            <small>Ou</small>
-            <div class="text-center mt-3">
-                    <a href="{{ route('password.request') }}" class="text-info text-decoration-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check text-start text-white mb-0">
+                    <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Lembre de mim!
+                    </label>
+                </div>
+
+                <div>
+                    <a href="{{ route('forgot-password') }}" class="text-light text-decoration-none">
                         <i class="fas fa-key me-1"></i> Esqueceu a senha?
                     </a>
                 </div>
+            </div>
             <button class="btn btn-primary w-100 py-2 btn-submit" type="submit">Entre</button>
         </form>
     </div>
