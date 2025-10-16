@@ -28,17 +28,6 @@
 <div class="container mt-5">
     <div class="card mx-auto p-4" style="max-width: 600px;">
         <h2 class="text-center font-medieval text-white">Crie sua conta</h2>
-        <!-- <ul class="nav nav-tabs" id="registerTabs" role="tablist">
-            <li class="nav-item">
-                <button class="nav-link active" id="tab-login" data-bs-toggle="tab" type="button">Dados Cadastrais</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="tab-personagem" data-bs-toggle="tab" type="button">Dados do Personagem</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="tab-atributos" data-bs-toggle="tab" type="button">Atributos</button>
-            </li>
-        </ul> -->
 
         <div class="tab-content mt-3">
             <!-- Aba 1: Dados Cadastrais -->
