@@ -47,6 +47,12 @@
                     Lembre de mim!
                 </label>
             </div>
+            <small>Ou</small>
+            <div class="text-center mt-3">
+                    <a href="{{ route('password.request') }}" class="text-info text-decoration-none">
+                        <i class="fas fa-key me-1"></i> Esqueceu a senha?
+                    </a>
+                </div>
             <button class="btn btn-primary w-100 py-2 btn-submit" type="submit">Entre</button>
         </form>
     </div>
