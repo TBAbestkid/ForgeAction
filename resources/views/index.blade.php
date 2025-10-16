@@ -152,25 +152,23 @@
                         </div>-->
 
                         <!-- Botões pra quando for Mestre -->
-                        @if (session('user_role') === 'MASTER')
-                            <div class="col-md-4">
-                                <div class="card shadow border-0 flex-fill">
-                                    <div class="card-body text-white rounded-3 p-4">
-                                        <div class="d-grid gap-2">
-                                            <a href="{{ route('dashboard') }}" class="btn btn-outline-success">
-                                                <i class="fa-solid fa-user-plus"></i> Convidar
-                                            </a>
-                                            <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
-                                                <i class="fa-solid fa-user-group"></i> Criar Sala
-                                            </a>
-                                            <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
-                                                 <i class="fa-solid fa-trash me-1"></i> Remover Sala
-                                            </a>
-                                        </div>
+                        <div class="col-md-4 master-only" @if(session('user_role') !== 'MASTER') style="display:none" @endif>
+                            <div class="card shadow border-0 flex-fill">
+                                <div class="card-body text-white rounded-3 p-4">
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ route('dashboard') }}" class="btn btn-outline-success">
+                                            <i class="fa-solid fa-user-plus"></i> Convidar
+                                        </a>
+                                        <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
+                                            <i class="fa-solid fa-user-group"></i> Criar Sala
+                                        </a>
+                                        <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
+                                            <i class="fa-solid fa-trash me-1"></i> Remover Sala
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -220,161 +218,216 @@
         </div>
     @endif
 </div>
-@endsection
+
+@include('partials/loading')
+@include('partials/alerts')
+<script src="{{ asset('js/loading.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-        // Pesquisa rápida
-        const searchInput = document.getElementById('searchCharacter');
-        const listItems = document.querySelectorAll('.personagem-item');
-
-        searchInput.addEventListener('input', function () {
-            const query = this.value.toLowerCase();
-
-            listItems.forEach(item => {
-                const nome = item.dataset.nome;
-                const raca = item.dataset.raca;
-                const classe = item.dataset.classe;
-
-                if(nome.includes(query) || raca.includes(query) || classe.includes(query)){
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-
-        // Selecionar personagem via AJAX
-        const selectButtons = document.querySelectorAll('.select-btn');
-        selectButtons.forEach(btn => {
-            btn.addEventListener('click', function () {
-                // Converte string JSON de volta para objeto
-                const character = JSON.parse(this.dataset.character);
-
-                fetch("{{ route('character.select') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify(character) // envia como JSON
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success){
-                        location.reload(); // Atualiza o card de personagem selecionado
-                    }
-                });
-            });
-        });
-    });
-
     $(document).ready(function () {
-        const container = $("#salas-container");
 
-        $.ajax({
-            url: "/salas/usuario/{{ session('user_id') }}",
-            method: "GET",
-            success: function (response) {
-                container.empty();
+        /* -------------------------------------------------------------
+        🔍 PESQUISA DE PERSONAGENS
+        ------------------------------------------------------------- */
+        const $searchInput = $("#searchCharacter");
 
-                if (response.length > 0) {
-                    const list = $("<ul class='list-group'></ul>");
-                    response.forEach(sala => {
-                        list.append(`
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>
-                                    <i class="fa-solid fa-door-open me-2 text-primary"></i>
-                                    <a href="/salas/${sala.id}" class="text-decoration-none">
-                                        ${sala.nome}
-                                    </a>
-                                </span>
+        $searchInput.on("input", function () {
+            const query = $(this).val().toLowerCase();
 
-                                <div class="btn-group">
-                                    <a href="/salas/${sala.id}/edit" class="btn btn-sm btn-outline-warning">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
-                                        <i class="fa-solid fa-user-plus"></i>
-                                    </button>
-                                </div>
-                            </li>
-                        `);
-                    });
-                    container.append(list);
+            $(".personagem-item").each(function () {
+                const nome = $(this).data("nome");
+                const raca = $(this).data("raca");
+                const classe = $(this).data("classe");
 
-                    // Excluir sala
-                    $(".btn-delete").click(function () {
-                        const id = $(this).data("id");
-                        if (!confirm("Tem certeza que deseja excluir esta sala?")) return;
-
-                        $.ajax({
-                            url: `/salas/${id}`,
-                            method: "DELETE",
-                            data: { _token: "{{ csrf_token() }}" },
-                            success: function () {
-                                // Atualiza lista sem reload
-                                loadSalas();
-                            },
-                            error: function () {
-                                alert("Erro ao excluir sala.");
-                            }
-                        });
-                    });
-
-                    // Convidar (exemplo com modal fake)
-                    $(".btn-invite").click(function () {
-                        const id = $(this).data("id");
-                        showModal("Convite", "Aqui você pode convidar usuários para a sala " + id);
-                    });
+                if (nome.includes(query) || raca.includes(query) || classe.includes(query)) {
+                    $(this).show();
                 } else {
-                    container.append(`
-                        <div class="alert alert-info">
-                            <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
-                        </div>
-                    `);
+                    $(this).hide();
                 }
-            },
-            error: function () {
-                container.html("<p class='text-danger'>Erro ao carregar salas.</p>");
-            }
+            });
         });
 
-        // função para recarregar salas depois de excluir
-        function loadSalas() {
+        /* -------------------------------------------------------------
+        🧙‍♂️ CARREGAR PERSONAGENS (AJAX)
+        ------------------------------------------------------------- */
+        const $characterList = $("#characterList");
+
+        function loadPersonagens() {
             $.ajax({
-                url: "/salas/usuario/{{ session('user_id') }}",
+                url: "/personagem/usuario/{{ session('user_id') }}",
                 method: "GET",
                 success: function (response) {
-                    container.empty();
-                    if (response.length > 0) {
-                        const list = $("<ul class='list-group'></ul>");
-                        response.forEach(sala => {
-                            list.append(`
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <i class="fa-solid fa-door-open me-2 text-primary"></i>
-                                        <a href="/salas/${sala.id}" class="text-decoration-none">
-                                            ${sala.nome}
-                                        </a>
-                                    </span>
+                    $characterList.empty();
+
+                    if (response && Array.isArray(response) && response.length > 0) {
+                        response.forEach(p => {
+                            const info = p.infoPersonagem;
+                            const racas = {
+                                DRACONATO: "Draconato", TIEFLING: "Tiefling", HALFLING: "Halfling", ANAO: "Anão",
+                                HUMANO: "Humano", ELFO: "Elfo", ORC: "Orc",
+                                BRUTE_MEIO_ORC_HUMANO: "Brute (meio-orc + humano)",
+                                BRUTE_MEIO_ORC_ELFO: "Brute (meio-orc + elfo)",
+                                TARNISHED_ELFO_HUMANO: "Tarnished (elfo + humano)",
+                                TARNISHED_ELFO_TIEFLING: "Tarnished (elfo + tiefling)"
+                            };
+                            const classes = {
+                                ATIRADOR: "Atirador", CACADOR: "Caçador", GUERREIRO: "Guerreiro",
+                                PALADINO: "Paladino", ESPADACHIM: "Espadachim", ASSASSINO: "Assassino",
+                                LADRAO: "Ladrão", FEITICEIRO: "Feiticeiro", BRUXO: "Bruxo", MAGO: "Mago",
+                                CLERIGO: "Clérigo", MONGE: "Monge", XAMA: "Xamã", DRUIDA: "Druida",
+                                ARTIFICE: "Artífice", BARDO: "Bardo"
+                            };
+
+                            $characterList.append(`
+                                <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center personagem-item"
+                                    data-nome="${info.nome.toLowerCase()}"
+                                    data-raca="${info.raca.toLowerCase()}"
+                                    data-classe="${info.classe.toLowerCase()}">
+                                    <div>
+                                        <strong>${info.nome}</strong><br>
+                                        <small>Raça: ${racas[info.raca] ?? info.raca} | Classe: ${classes[info.classe] ?? info.classe}</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary select-btn" data-character='${JSON.stringify(p)}'>
+                                        <i class="fa-solid fa-check me-1"></i> Selecionar
+                                    </button>
                                 </li>
                             `);
                         });
-                        container.append(list);
+                        attachCharacterEvents();
                     } else {
-                        container.append(`
-                            <div class="alert alert-info">
-                                <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
-                            </div>
+                        $characterList.html(`
+                            <li class="list-group-item bg-dark text-light text-center">
+                                <i class="fa-solid fa-circle-exclamation"></i> Nenhum personagem encontrado.
+                            </li>
+                        `);
+                    }
+                },
+                error: function (xhr) {
+                    $characterList.empty();
+                    if (xhr.status === 404) {
+                        $characterList.html(`
+                            <li class="list-group-item bg-dark text-light text-center">
+                                <i class="fa-solid fa-circle-exclamation"></i> Nenhum personagem encontrado.
+                            </li>
+                        `);
+                    } else {
+                        $characterList.html(`
+                            <li class="list-group-item bg-dark text-danger text-center">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Erro ao carregar personagens.
+                            </li>
                         `);
                     }
                 }
             });
         }
+
+        /* -------------------------------------------------------------
+        🧩 SELECIONAR PERSONAGEM (AJAX)
+        ------------------------------------------------------------- */
+        function attachCharacterEvents() {
+            $(".select-btn").off("click").on("click", function () {
+                const character = $(this).data("character");
+
+                $.ajax({
+                    url: "{{ route('character.select') }}",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(character),
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    success: function (data) {
+                        if (data.success) location.reload();
+                    },
+                    error: function () {
+                        alert("Erro ao selecionar personagem.");
+                    }
+                });
+            });
+        }
+
+        /* -------------------------------------------------------------
+        🚪 LISTAGEM DE SALAS (AJAX)
+        ------------------------------------------------------------- */
+        const $salasContainer = $("#salas-container");
+
+        function loadSalas() {
+            $.ajax({
+                url: "/salas/usuario/{{ session('user_id') }}",
+                method: "GET",
+                success: function (response) {
+                    $salasContainer.empty();
+
+                    if (response.length > 0) {
+                        const $list = $("<ul class='list-group'></ul>");
+
+                        response.forEach((sala) => {
+                            $list.append(`
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="fa-solid fa-door-open me-2 text-primary"></i>
+                                        <a href="/salas/${sala.id}" class="text-decoration-none">${sala.nome}</a>
+                                    </span>
+
+                                    <div class="btn-group">
+                                        <a href="/salas/${sala.id}/edit" class="btn btn-sm btn-outline-warning">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
+                                            <i class="fa-solid fa-user-plus"></i>
+                                        </button>
+                                    </div>
+                                </li>
+                            `);
+                        });
+
+                        $salasContainer.append($list);
+                        attachSalaEvents();
+                    } else {
+                        $salasContainer.html(`
+                            <div class="alert alert-info">
+                                <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
+                            </div>
+                        `);
+                    }
+                },
+                error: function () {
+                    $salasContainer.html("<p class='text-danger'>Erro ao carregar salas.</p>");
+                }
+            });
+        }
+
+        /* -------------------------------------------------------------
+        🗑️ EVENTOS DAS SALAS (excluir / convidar)
+        ------------------------------------------------------------- */
+        function attachSalaEvents() {
+            $(".btn-delete").off("click").on("click", function () {
+                const id = $(this).data("id");
+                if (!confirm("Tem certeza que deseja excluir esta sala?")) return;
+
+                $.ajax({
+                    url: `/salas/${id}`,
+                    method: "DELETE",
+                    data: { _token: "{{ csrf_token() }}" },
+                    success: loadSalas,
+                    error: function () {
+                        alert("Erro ao excluir sala.");
+                    }
+                });
+            });
+
+            $(".btn-invite").off("click").on("click", function () {
+                const id = $(this).data("id");
+                showModal("Convite", "Aqui você pode convidar usuários para a sala " + id);
+            });
+        }
+
+        /* -------------------------------------------------------------
+        🚀 INICIALIZAÇÃO
+        ------------------------------------------------------------- */
+        loadPersonagens();
+        loadSalas();
     });
 </script>
+@endsection
