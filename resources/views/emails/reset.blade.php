@@ -55,7 +55,7 @@
 
                         <!-- Rodapé -->
                         <p style="font-size:12px; color:#aaa; margin-top:25px;">
-                            ForgeAction ⚒️ &copy; {{ date('Y') }}<br>
+                            ForgeAction &copy; {{ date('Y') }}<br>
                             Forje seu destino. Domine a aventura.
                         </p>
 
