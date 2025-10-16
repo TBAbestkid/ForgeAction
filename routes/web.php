@@ -4,12 +4,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Logs;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExternalApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Controller;
+
+use App\Mail\TestMail;
+use App\Mail\InviteMail;
 
 use App\Http\Controllers\AtaquePersonagemController;
 use App\Http\Controllers\StatusPersonagemController;
@@ -26,6 +30,20 @@ use App\Http\Controllers\EnumController;
 use App\Http\Controllers\SalaPersonagemController;
 use App\Http\Controllers\SalaController;
 
+Route::post('/enviar-invite', function(Request $request) {
+    $sala = Sala::find($request->salaId);
+    $user = User::where('email', $request->email)->first();
+    $remetente = auth()->user()->login; // usuário logado
+
+    $link = route('room.selection', ['salaId' => $sala->id]); // link para seleção de personagem
+
+    Mail::to($user->email)->send(new InviteMail($remetente, $sala->nome, $link));
+
+    return response()->json([
+        'success' => true,
+        'message' => "Convite enviado para {$user->email}"
+    ]);
+});
 
 Route::get('/dados-externos', [ExternalApiController::class, 'index']);
 
@@ -36,8 +54,13 @@ Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'postLogin'])->name('login.post');
 // Logout
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-// Update, para MASTER
+// Update, para MASTER ou PLAYER
 Route::put('/login/update', [LoginController::class, 'update'])->name('login.update');
+// Esqueceu a senha?
+Route::get('/login/forgot-password', [AuthController::class, 'forgotpassword'])->name('forgot-password');
+Route::post('/login/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('forgot-password.send');
+Route::get('/login/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/login/reset-password', [AuthController::class, 'reset'])->name('password.update');
 
 // -------------------- REGISTRO --------------------
 // Exibir formulário de registro
@@ -149,6 +172,7 @@ Route::get('/enums/bonus-racas/{raca}', [EnumController::class, 'bonusRacas']);
 
 // Página que lista as salas do usuário
 Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
+Route::get('/salas/{id}', [SalaController::class, 'room'])->name('salas.room');
 
 // Página de criar sala
 Route::get('/salas/criar', function() {
@@ -160,6 +184,9 @@ Route::post('/salas', [SalaController::class, 'store'])->name('salas.store');
 Route::put('/salas/{id}', [SalaController::class, 'update'])->name('salas.update');
 Route::delete('/salas/{id}', [SalaController::class, 'destroy'])->name('salas.destroy');
 Route::get('/salas/usuario/{usuarioId}', [SalaController::class, 'getByUsuario'])->name('salas.usuario');
+
+// Rota para pegar todos os usuários (para convite)
+Route::get('/usuarios', [SalaController::class, 'invite'])->name('usuarios.invite');
 
 // SalaPersonagem
 Route::get('/sala-personagem/sala/{salaId}', [SalaPersonagemController::class, 'showBySala']);
