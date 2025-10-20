@@ -47,7 +47,7 @@ class AuthController extends Controller
 
         // Envia e-mail usando o Mailable
         $apiMailer = new ApiMailer();
-        $apiMailer->send(new ResetMail($resetLink));
+        $apiMailer->send(new ResetMail($resetLink, $request->email));
 
         // Mail::to($request->email)->send(new ResetMail($resetLink));
 

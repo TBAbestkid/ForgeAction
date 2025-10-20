@@ -14,12 +14,15 @@ class ResetMail extends Mailable
     use Queueable, SerializesModels;
 
     public $resetLink;
+    protected $toEmail;
+
     /**
      * Create a new message instance.
      */
-    public function __construct($resetLink)
+    public function __construct($resetLink, $toEmail)
     {
         $this->resetLink = $resetLink;
+        $this->toEmail = $toEmail;
     }
 
     /**
@@ -53,9 +56,12 @@ class ResetMail extends Mailable
     }
     public function build()
     {
-        return $this->subject('Redefinição de senha - ForgeAction')
+        return $this->to($this->toEmail)
+                    ->subject('Redefinição de Senha')
                     ->view('emails.reset')
-                    ->with(['resetLink' => $this->resetLink]);
+                    ->with([
+                        'resetLink' => $this->resetLink
+                    ]);
     }
 
 }
