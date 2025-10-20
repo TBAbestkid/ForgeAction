@@ -156,8 +156,8 @@
                             <div class="card shadow border-0 flex-fill">
                                 <div class="card-body text-white rounded-3 p-4">
                                     <div class="d-grid gap-2">
-                                        <a href="{{ route('dashboard') }}" class="btn btn-outline-success">
-                                            <i class="fa-solid fa-user-plus"></i> Convidar
+                                        <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
+                                            <i class="fa-solid fa-user-plus"></i> Todas as salas
                                         </a>
                                         <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
                                             <i class="fa-solid fa-user-group"></i> Criar Sala

@@ -82,12 +82,13 @@ Route::get('/sobre-forgeaction', [DashboardController::class, 'about'])->name('a
 
 // Apenas logado
 Route::get('/dashboard', [DashboardController::class, 'dash'])->name('dashboard');
+Route::get('/perfil', [AuthController::class, 'profile'])->name('profile');
 
 // Rota pra acessar apenas a view de criar personagem:
 Route::get('/registro-personagem', [PersonagemController::class, 'personagem'])->name('registerPerson');
 
 // Selecionar personagem
-Route::post('/character/select', [PersonagemController::class, 'select'])->name('character.select');
+Route::post('/personagem/selecionar', [PersonagemController::class, 'select'])->name('character.select');
 
 
 /*
@@ -172,6 +173,8 @@ Route::get('/enums/bonus-racas/{raca}', [EnumController::class, 'bonusRacas']);
 
 // Página que lista as salas do usuário
 Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
+
+// Página de uma sala específica
 Route::get('/salas/{id}', [SalaController::class, 'room'])->name('salas.room');
 
 // Página de criar sala
