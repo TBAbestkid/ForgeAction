@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\services\ApiService;
+use App\Services\ApiService;
 
 class DadosAtaquePersonagemController extends Controller
 {

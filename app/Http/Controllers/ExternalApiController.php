@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\services\ExternalApiService;
+use App\Services\ExternalApiService;
 use Illuminate\Http\Request;
 
 class ExternalApiController extends Controller

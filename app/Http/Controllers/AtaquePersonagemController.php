@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\services\ApiService;
+use App\Services\ApiService;
 use Illuminate\Http\Request;
 
 class AtaquePersonagemController extends Controller
