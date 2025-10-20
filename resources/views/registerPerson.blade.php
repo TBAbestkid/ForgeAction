@@ -1,5 +1,5 @@
 @extends('partials/app')
-@section('title', 'ForgeAction - Cadastro de Personagem')
+@section('title', 'Cadastro de Personagem - ForgeAction')
 @section('content')
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">

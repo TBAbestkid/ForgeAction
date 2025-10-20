@@ -1,5 +1,5 @@
 @extends('partials/app')
-@section('title', 'ForgeAction - Entrar')
+@section('title', 'Entrar - ForgeAction')
 @section('content')
 <div class="d-flex justify-content-center align-items-center min-vh-100">
     <div class="form-signin w-100" style="max-width: 400px;">

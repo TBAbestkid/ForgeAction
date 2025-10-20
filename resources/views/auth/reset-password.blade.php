@@ -1,5 +1,5 @@
 @extends('partials.app')
-
+@section('title', 'Redefinir senha - ForgeAction')
 @section('content')
 <div class="d-flex justify-content-center align-items-center min-vh-100 bg-dark">
     <div class="card shadow-lg border-0 rounded-4 p-4" style="max-width: 450px; width: 100%; background-color: #1e1e1e;">

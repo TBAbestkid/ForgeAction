@@ -1,5 +1,5 @@
 @extends('partials/app')
-@section('title', 'ForgeAction - Dashboard')
+@section('title', 'Dashboard - ForgeAction')
 @section('content')
 
 <div class="container mt-4">

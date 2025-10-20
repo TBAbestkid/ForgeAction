@@ -1,5 +1,5 @@
 @extends('partials/app')
-@section('title', 'ForgeAction - Cadastro de Usuário')
+@section('title', 'Cadastro de Usuário - ForgeAction')
 @section('content')
     {{-- Aqui exibe os alerts --}}
     @if(session('success'))

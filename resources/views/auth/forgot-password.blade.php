@@ -1,5 +1,5 @@
 @extends('partials.app')
-
+@section('title', 'Esqueci senha - ForgeAction')
 @section('content')
 <div class="d-flex justify-content-center align-items-center min-vh-100">
     <div class="text-center text-light" style="max-width: 400px; width: 100%;">
@@ -23,7 +23,7 @@
             @csrf
             <div class="mb-3">
                 <label class="form-label text-light fw-bold">E-mail</label>
-                <input type="email" name="email" class="form-control bg-transparent text-light border-secondary" placeholder="Digite seu e-mail" required>
+                <input type="email" name="email" class="form-control border-secondary" placeholder="Digite seu e-mail" required>
             </div>
 
             <button type="submit" class="btn btn-warning w-100 fw-bold">

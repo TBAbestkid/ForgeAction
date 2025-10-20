@@ -1,6 +1,6 @@
 @extends('partials.app')
 
-@section('title', 'Sobre o ForgeAction')
+@section('title', 'Sobre - ForgeAction')
 
 @section('content')
 <div class="container my-5">
@@ -21,10 +21,10 @@
         <div class="col-md-7">
             <h2 class="featurette-heading fw-normal lh-1 font-medieval">Sobre o ForgeAction</h2>
             <p class="lead">
-                ForgeAction é um RPG inovador que traz um sistema próprio, 
-                onde cada decisão e combate se tornam uma experiência única. 
-                Desenvolvido com foco em mecânicas originais, nosso jogo propõe uma imersão completa, 
-                desde a criação do personagem até batalhas épicas, utilizando regras personalizadas 
+                ForgeAction é um RPG inovador que traz um sistema próprio,
+                onde cada decisão e combate se tornam uma experiência única.
+                Desenvolvido com foco em mecânicas originais, nosso jogo propõe uma imersão completa,
+                desde a criação do personagem até batalhas épicas, utilizando regras personalizadas
                 para ataque, defesa e habilidades.
             </p>
         </div>
@@ -41,9 +41,9 @@
     <div class="row featurette">
         <div class="col-md-7 order-md-2 ">
             <p class="lead">
-                A proposta do ForgeAction é oferecer aos jogadores um mundo repleto de desafios, 
-                onde estratégia, criatividade e coragem se unem para construir uma jornada inesquecível. 
-                Cada personagem possui atributos e poderes únicos, e o sistema de combate foi cuidadosamente 
+                A proposta do ForgeAction é oferecer aos jogadores um mundo repleto de desafios,
+                onde estratégia, criatividade e coragem se unem para construir uma jornada inesquecível.
+                Cada personagem possui atributos e poderes únicos, e o sistema de combate foi cuidadosamente
                 balanceado para proporcionar uma experiência dinâmica e envolvente.
             </p>
         </div>
