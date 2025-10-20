@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\ResetMail;
 use App\services\ApiService;
+use App\Services\ApiMailer;
 
 class AuthController extends Controller
 {
@@ -18,8 +19,19 @@ class AuthController extends Controller
         $this->api = $api;
     }
 
-    // carai nem usei essapohakkk
-    public function forgotpassword(){
+    public function profile()
+    {
+        $userId = session('user_id');
+
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Você precisa estar logado.');
+        }
+
+        return view('profile');
+    }
+
+    public function forgotpassword()
+    {
         return view('auth.forgot-password');
     }
 
@@ -34,7 +46,10 @@ class AuthController extends Controller
         $resetLink = route('password.reset', ['token' => $token]);
 
         // Envia e-mail usando o Mailable
-        Mail::to($request->email)->send(new ResetMail($resetLink));
+        $apiMailer = new ApiMailer();
+        $apiMailer->send(new ResetMail($resetLink));
+
+        // Mail::to($request->email)->send(new ResetMail($resetLink));
 
         return back()->with('status', 'Link de redefinição enviado para seu e-mail!');
     }
