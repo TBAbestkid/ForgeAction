@@ -10,7 +10,7 @@ class BrevoTransport extends Transport
 {
     protected $apiKey;
 
-    public function __construct($apiKey)
+    public function __construct(string $apiKey)
     {
         $this->apiKey = $apiKey;
     }
