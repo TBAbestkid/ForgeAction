@@ -14,11 +14,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        Mail::extend('brevo', function($app) {
-            $transport = new BrevoTransport(env('MAIL_BREVO_API_KEY'));
-            $swiftMailer = new \Swift_Mailer($transport);
-            return new \Illuminate\Mail\Mailer($app['view'], $swiftMailer, $app['events']);
-        });
+        // Evita rodar durante package:discover / CLI
+        if (!app()->runningInConsole()) {
+            Mail::extend('brevo', function ($app) {
+                $transport = new BrevoTransport(env('MAIL_BREVO_API_KEY'));
+                $swiftMailer = new \Swift_Mailer($transport);
+                return new \Illuminate\Mail\Mailer($app['view'], $swiftMailer, $app['events']);
+            });
+        }
     }
 
 
