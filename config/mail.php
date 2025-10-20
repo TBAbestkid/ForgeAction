@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default' => env('MAIL_MAILER', 'brevo'),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,89 +35,89 @@ return [
     |
     */
 
+    // 'mailers' => [
+
+    //     'smtp' => [
+    //         'transport' => 'smtp',
+    //         'scheme' => env('MAIL_SCHEME'),
+    //         'url' => env('MAIL_URL'),
+    //         'host' => env('MAIL_HOST', '127.0.0.1'),
+    //         'port' => env('MAIL_PORT', 2525),
+    //         'username' => env('MAIL_USERNAME'),
+    //         'password' => env('MAIL_PASSWORD'),
+    //         'timeout' => null,
+    //         'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+    //     ],
+
+    //     'ses' => [
+    //         'transport' => 'ses',
+    //     ],
+
+    //     'postmark' => [
+    //         'transport' => 'postmark',
+    //         // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),
+    //         // 'client' => [
+    //         //     'timeout' => 5,
+    //         // ],
+    //     ],
+
+    //     'resend' => [
+    //         'transport' => 'resend',
+    //     ],
+
+    //     'sendmail' => [
+    //         'transport' => 'sendmail',
+    //         'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
+    //     ],
+
+    //     'log' => [
+    //         'transport' => 'log',
+    //         'channel' => env('MAIL_LOG_CHANNEL'),
+    //     ],
+
+    //     'array' => [
+    //         'transport' => 'array',
+    //     ],
+
+    //     'failover' => [
+    //         'transport' => 'failover',
+    //         'mailers' => [
+    //             'smtp',
+    //             'log',
+    //         ],
+    //     ],
+
+    //     'roundrobin' => [
+    //         'transport' => 'roundrobin',
+    //         'mailers' => [
+    //             'ses',
+    //             'postmark',
+    //         ],
+    //     ],
+
+    // ],
+
     'mailers' => [
-
-        'smtp' => [
-            'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
-            'url' => env('MAIL_URL'),
-            'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 2525),
-            'username' => env('MAIL_USERNAME'),
-            'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+        'brevo' => [
+            'transport' => 'brevo',
+            'key' => env('MAIL_BREVO_API_KEY'),
         ],
 
-        'ses' => [
-            'transport' => 'ses',
-        ],
-
-        'postmark' => [
-            'transport' => 'postmark',
-            // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),
-            // 'client' => [
-            //     'timeout' => 5,
-            // ],
-        ],
-
-        'resend' => [
-            'transport' => 'resend',
-        ],
-
-        'sendmail' => [
-            'transport' => 'sendmail',
-            'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
-        ],
-
-        'log' => [
-            'transport' => 'log',
-            'channel' => env('MAIL_LOG_CHANNEL'),
-        ],
-
-        'array' => [
-            'transport' => 'array',
-        ],
-
-        'failover' => [
-            'transport' => 'failover',
-            'mailers' => [
-                'smtp',
-                'log',
-            ],
-        ],
-
-        'roundrobin' => [
-            'transport' => 'roundrobin',
-            'mailers' => [
-                'ses',
-                'postmark',
-            ],
-        ],
-
+        'log' => ['transport' => 'log'],
+        'array' => ['transport' => 'array'],
     ],
 
-    // 'mailers' => [
-    //     'brevo' => [
-    //         'transport' => 'brevo',
-    //         'key' => env('MAIL_BREVO_API_KEY'),
-    //     ],
+    'from' => [
+        'address' => env('MAIL_FROM_ADDRESS', 'noreply@forgeaction.com'),
+        'name' => env('MAIL_FROM_NAME', 'ForgeAction'),
+    ],
 
-    //     'log' => ['transport' => 'log'],
-    //     'array' => ['transport' => 'array'],
-    // ],
-
-    // 'from' => [
-    //     'address' => env('MAIL_FROM_ADDRESS', 'noreply@forgeaction.com'),
-    //     'name' => env('MAIL_FROM_NAME', 'ForgeAction'),
-    // ],
-
-    // 'markdown' => [
-    //     'theme' => 'default',
-    //     'paths' => [
-    //         resource_path('views/vendor/mail'),
-    //     ],
-    // ],
+    'markdown' => [
+        'theme' => 'default',
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
 
 
     /*
