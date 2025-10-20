@@ -67,64 +67,79 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('registerForm');
-        const overlay = document.getElementById('loading-overlay');
 
-        if (!form || !overlay) {
-            console.warn("Form ou overlay não encontrados!");
+        if (!form) {
+            console.warn("Form não encontrado!");
             return;
         }
 
         form.addEventListener('submit', function(e) {
-            // Validações front-end
-            const senha = form.senha.value;
-            const senhaConfirm = document.querySelector('#passwordConfirm').value;
+            e.preventDefault(); // impede envio tradicional
 
-            if(senha !== senhaConfirm){
-                e.preventDefault(); // impede envio
+            // -------------------
+            // 1️⃣ Validação de campos
+            // -------------------
+            const email = form.email.value.trim();
+            const login = form.login.value.trim();
+            const senha = form.senha.value.trim();
+            const senhaConfirm = document.querySelector('#passwordConfirm').value.trim();
+
+            if (!email || !login || !senha || !senhaConfirm) {
+                showModal("Preencha todos os campos!");
+                return;
+            }
+
+            if (senha !== senhaConfirm) {
                 showModal("As senhas não coincidem!");
                 return;
             }
 
-            // Mostra overlay enquanto a página carrega
-            overlay.style.display = 'flex';
-            if(typeof showLoading === "function") {
-                showLoading(3000); // opcional, para animação
+            if (senha.length < 6) {
+                showModal("A senha precisa ter pelo menos 6 caracteres!");
+                return;
             }
 
-            // e.preventDefault(); // descomente se for usar fetch
-            /*
-            e.preventDefault();
+            // -------------------
+            // 2️⃣ Mostra overlay de loading
+            // -------------------
+            showLoading(5000); // duração opcional, apenas animação
+
+            // -------------------
+            // 3️⃣ Envio via AJAX para Laravel
+            // -------------------
             const data = {
-                login: form.login.value,
+                email: email,
+                login: login,
                 senha: senha,
-                email: form.email.value
+                _token: document.querySelector('meta[name="csrf-token"]').content
             };
 
             fetch('{{ route("register.post") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify(data)
             })
             .then(res => res.json())
             .then(res => {
-                overlay.style.display = 'none';
-                if(res.success){
-                    showToast(res.message, 'success');
-                    setTimeout(() => window.location.href = '/dashboard', 1500);
+                hideLoading(); // esconde overlay
+
+                if (res.success) {
+                    showToast(res.message || "Conta criada com sucesso!", "success");
+                    setTimeout(() => {
+                        window.location.href = res.redirect || '/dashboard';
+                    }, 1500);
                 } else {
-                    showModal(res.message);
+                    showModal(res.message || "Ocorreu um erro ao criar a conta.");
                 }
             })
             .catch(err => {
-                overlay.style.display = 'none';
+                hideLoading();
                 console.error(err);
-                showModal('Ocorreu um erro inesperado.');
+                showModal("Ocorreu um erro inesperado.");
             });
-            */
-            // Se for envio tradicional (reload da página), não precisa do fetch
         });
     });
 </script>
