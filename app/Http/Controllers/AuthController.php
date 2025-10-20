@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\ResetMail;
-use App\services\ApiService;
+use App\Services\ApiService;
 use App\Services\ApiMailer;
 
 class AuthController extends Controller
