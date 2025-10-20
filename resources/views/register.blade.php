@@ -65,16 +65,30 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {{-- Fazer um js validando as infos do form --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('registerForm');
+        const modalAlert = new bootstrap.Modal(document.getElementById('modalAlert'));
+        const toastLive = new bootstrap.Toast(document.getElementById('liveToast'));
+
+        // Função: Modal para avisos de erro/alerta
+        function showModal(message) {
+            document.getElementById('modalMessage').textContent = message;
+            modalAlert.show();
+        }
+
+        // Função: Toast de sucesso
+        function showToast(message = "Sucesso!") {
+            document.getElementById('toastMessage').textContent = message;
+            toastLive.show();
+        }
 
         if (!form) {
-            console.warn("Form não encontrado!");
+            console.warn("Formulário de cadastro não encontrado!");
             return;
         }
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); // impede envio tradicional
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
 
             // -------------------
             // 1️⃣ Validação de campos
@@ -82,27 +96,24 @@
             const email = form.email.value.trim();
             const login = form.login.value.trim();
             const senha = form.senha.value.trim();
-            const senhaConfirm = document.querySelector('#passwordConfirm').value.trim();
+            const senhaConfirm = document.getElementById('passwordConfirm').value.trim();
 
             if (!email || !login || !senha || !senhaConfirm) {
-                showModal("Preencha todos os campos!");
-                return;
-            }
-
-            if (senha !== senhaConfirm) {
-                showModal("As senhas não coincidem!");
-                return;
+                return showModal("Preencha todos os campos para continuar!");
             }
 
             if (senha.length < 6) {
-                showModal("A senha precisa ter pelo menos 6 caracteres!");
-                return;
+                return showModal("A senha deve ter no mínimo 6 caracteres!");
+            }
+
+            if (senha !== senhaConfirm) {
+                return showModal("As senhas não coincidem. Verifique e tente novamente.");
             }
 
             // -------------------
             // 2️⃣ Mostra overlay de loading
             // -------------------
-            showLoading(5000); // duração opcional, apenas animação
+            showLoading(5000);
 
             // -------------------
             // 3️⃣ Envio via AJAX para Laravel
@@ -124,21 +135,22 @@
             })
             .then(res => res.json())
             .then(res => {
-                hideLoading(); // esconde overlay
+                hideLoading();
 
                 if (res.success) {
-                    showToast(res.message || "Conta criada com sucesso!", "success");
+                    showToast(res.message || "Conta criada com sucesso! Redirecionando...");
+
                     setTimeout(() => {
-                        window.location.href = res.redirect || '/dashboard';
+                        goToPage(res.redirect || '/', 2000);
                     }, 1500);
                 } else {
-                    showModal(res.message || "Ocorreu um erro ao criar a conta.");
+                    showModal(res.message || "Não foi possível criar a conta. Tente novamente.");
                 }
             })
             .catch(err => {
                 hideLoading();
                 console.error(err);
-                showModal("Ocorreu um erro inesperado.");
+                showModal("Erro inesperado. Verifique sua conexão ou tente mais tarde.");
             });
         });
     });
