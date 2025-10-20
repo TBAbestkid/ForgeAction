@@ -14,14 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Evita rodar durante package:discover / CLI
-        if (!app()->runningInConsole()) {
-            Mail::extend('brevo', function ($app) {
-                $transport = new BrevoTransport(env('MAIL_BREVO_API_KEY'));
-                $swiftMailer = new \Swift_Mailer($transport);
-                return new \Illuminate\Mail\Mailer($app['view'], $swiftMailer, $app['events']);
-            });
-        }
+        //
     }
 
 
@@ -30,6 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Registrar mailer customizado no boot, quando o MailServiceProvider já existe
+        Mail::extend('brevo', function ($app) {
+            $transport = new BrevoTransport(env('MAIL_BREVO_API_KEY'));
+            $swiftMailer = new \Swift_Mailer($transport);
+            return new \Illuminate\Mail\Mailer($app['view'], $swiftMailer, $app['events']);
+        });
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
