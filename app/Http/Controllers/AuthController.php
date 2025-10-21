@@ -47,6 +47,7 @@ class AuthController extends Controller
 
         // Renderiza o Blade com os dados do reset
         $html = view('emails.reset', ['resetLink' => $resetLink])->render();
+        dd($html)
 
         // Envia para a sua API via ApiService
         $response = $this->api->post("/api/email/enviar", [
