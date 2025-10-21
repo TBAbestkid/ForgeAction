@@ -34,7 +34,8 @@
                 <ul class="navbar-nav ms-auto">
                     @if(session('user_login'))
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#updateModal"><i class="fa-solid fa-user-cog"></i> {{ session('user_login') }}</a>
+                            <a class="nav-link" href="{{ url('/perfil') }}">
+                                <i class="fa-solid fa-user-cog"></i> {{ session('user_login') }}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
