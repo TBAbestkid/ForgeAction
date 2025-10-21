@@ -166,13 +166,12 @@
             select.innerHTML = `<option disabled selected>${placeholder}</option>`;
             try {
                 const r = await api(path);
-                if (r.status === 'success') {
-                    r.data?.forEach(e => select.add(new Option(e.descricao, e.constante)));
-                } else {
-                    console.error('Erro na resposta do enum', id, r.message);
+                if (!r || !r.data || !Array.isArray(r.data.data)) {
+                    throw new Error('Campo data não é um array: ' + JSON.stringify(r));
                 }
-            } catch (e) {
-                console.error('Erro ao carregar', id, e);
+                r.data.data.forEach(e => select.add(new Option(e.descricao, e.constante)));
+            } catch (err) {
+                console.error(`Erro ao carregar enum ${id}:`, err);
             }
         }
         loadEnum('classe','/enums/classes','Selecione uma Classe');
