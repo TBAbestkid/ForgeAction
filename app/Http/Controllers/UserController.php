@@ -83,7 +83,7 @@ class UserController extends Controller
         Log::info('UpdatePassword Payload:', $payload);
 
         // Chama a API
-        $response = $this->api->put('login/forgot_password', $payload);
+        $response = $this->api->put('login/forgot-password', $payload);
 
         // Log da resposta da API
         Log::info('UpdatePassword Response:', ['response' => $response]);
