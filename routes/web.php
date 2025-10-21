@@ -11,6 +11,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExternalApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\UserController;
 
 use App\Mail\TestMail;
 use App\Mail\InviteMail;
@@ -94,6 +95,11 @@ Route::get('/registro-personagem', [PersonagemController::class, 'personagem'])-
 // Selecionar personagem
 Route::post('/personagem/selecionar', [PersonagemController::class, 'select'])->name('character.select');
 
+// Atualizar perfil
+Route::get('/perfil', [UserController::class, 'profile'])->name('profile');
+Route::put('/perfil/email', [UserController::class, 'updateEmail'])->name('profile.updateEmail');
+Route::put('/perfil/role', [UserController::class, 'updateRole'])->name('profile.updateRole');
+Route::put('/perfil/senha', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
 
 /*
  *--------------------------------------------
