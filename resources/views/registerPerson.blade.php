@@ -57,8 +57,8 @@
                             <option value="" disabled selected>Selecione seu gênero</option>
                             <option value="Masculino">Masculino</option>
                             <option value="Feminino">Feminino</option>
-                            <!--<option value="Geladeira Electrolux Frost Free">Geladeira Electrolux Frost Free</option>
-                            <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option>-->
+                            <option value="Geladeira Electrolux Frost Free">Geladeira Electrolux Frost Free</option>
+                            <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option>
                             <option value="Outro">Outro</option>
                         </select>
                         <label for="genero">Identificação</label>
@@ -151,21 +151,29 @@
         /* ---------- API ---------- */
         async function api(path,method='GET',payload=null){
             const headers = { 'Accept':'application/json' };
-            if(payload) { headers['Content-Type']='application/json'; headers['X-CSRF-TOKEN']=getCsrf(); }
+            if(payload) {
+                headers['Content-Type']='application/json'; headers['X-CSRF-TOKEN']=getCsrf();
+            }
             const resp = await fetch(path,{ method, credentials:'same-origin', headers, body: payload?JSON.stringify(payload):null });
             let data=null; try{ data=await resp.json(); }catch(e){}
             return { ok: resp.ok, status: resp.status, data, resp };
         }
 
         /* ---------- LOAD ENUMS ---------- */
-        async function loadEnum(id,path,placeholder){
+        async function loadEnum(id, path, placeholder) {
             const select = document.getElementById(id);
-            if(!select) return;
-            select.innerHTML=`<option disabled selected>${placeholder}</option>`;
-            try{
+            if (!select) return;
+            select.innerHTML = `<option disabled selected>${placeholder}</option>`;
+            try {
                 const r = await api(path);
-                r.data?.forEach(e=> select.add(new Option(e.descricao,e.constante)));
-            }catch(e){ console.error('Erro ao carregar', id, e); }
+                if (r.status === 'success') {
+                    r.data?.forEach(e => select.add(new Option(e.descricao, e.constante)));
+                } else {
+                    console.error('Erro na resposta do enum', id, r.message);
+                }
+            } catch (e) {
+                console.error('Erro ao carregar', id, e);
+            }
         }
         loadEnum('classe','/enums/classes','Selecione uma Classe');
         loadEnum('raca','/enums/racas','Selecione uma Raça');
