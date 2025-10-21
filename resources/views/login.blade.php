@@ -68,7 +68,7 @@
         const form = document.getElementById('myForm');
         const overlay = document.getElementById('loading-overlay');
 
-        console.log("DOM carregado. Form:", form, "Overlay:", overlay);
+        // console.log("DOM carregado. Form:", form, "Overlay:", overlay);
 
         if (form && overlay) {
             form.addEventListener('submit', function(e) {
