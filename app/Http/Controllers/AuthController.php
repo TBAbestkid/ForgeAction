@@ -45,11 +45,20 @@ class AuthController extends Controller
 
         $resetLink = route('password.reset', ['token' => $token]);
 
-        // Envia e-mail usando o Mailable
-        $apiMailer = new ApiMailer();
-        $apiMailer->send(new ResetMail($resetLink, $request->email));
+        // Renderiza o Blade com os dados do reset
+        $html = view('emails.reset', ['resetLink' => $resetLink])->render();
 
-        // Mail::to($request->email)->send(new ResetMail($resetLink));
+        // Envia para a sua API via ApiService
+        $response = $this->api->post("/api/email/enviar", [
+            'assunto' => 'Redefinição de senha',
+            'corpo' => $html,
+            'destinatarios' => [$request->email],
+        ]);
+
+        // Opcional: você pode checar $response para ver se deu certo
+        if (!$response['success'] ?? true) {
+            return back()->withErrors(['email' => 'Falha ao enviar e-mail.']);
+        }
 
         return back()->with('status', 'Link de redefinição enviado para seu e-mail!');
     }
