@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\ResetMail;
 use App\Services\ApiService;
-use App\Services\ApiMailer;
+use App\Helpers\ApiResponse;
 
 class AuthController extends Controller
 {
@@ -61,8 +61,8 @@ class AuthController extends Controller
         ]);
 
         // Opcional: você pode checar $response para ver se deu certo
-        if (!$response['success'] ?? true) {
-            return back()->withErrors(['email' => 'Falha ao enviar e-mail.']);
+        if (($response['status'] ?? '') !== 'success') {
+            return back()->withErrors(['email' => $response['message'] ?? 'Falha ao enviar e-mail.']);
         }
 
         return back()->with('status', 'Link de redefinição enviado para seu e-mail!');
