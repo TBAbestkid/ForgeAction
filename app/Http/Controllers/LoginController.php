@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Services\ApiService;
+use App\Helpers\ApiResponse;
 
 class LoginController extends Controller
 {
@@ -37,14 +38,18 @@ class LoginController extends Controller
             'senha' => $request->senha,
         ]);
 
-        if (isset($response['id'])) { // se retornou id, login foi bem-sucedido
+        // verifica se o status é success e existe data
+        if (($response['status'] ?? '') === 'success' && isset($response['data'])) {
+            $data = $response['data'];
+
             session([
-                'user_login' => $request->login,
-                'user_id' => $response['id'],
-                'user_role' => $response['role']
+                'user_login' => $data['login'] ?? $request->login,
+                'user_id'    => $data['id'] ?? null,
+                'user_role'  => $data['role'] ?? 'PLAYER',
+                'user_email' => $data['email'] ?? null,
             ]);
 
-            return redirect('/')->with('success', 'Login realizado com sucesso!');
+            return redirect('/')->with('success', $response['message'] ?? 'Login realizado com sucesso!');
         }
 
         return back()->with('error', $response['message'] ?? 'Falha no login.');
@@ -56,24 +61,4 @@ class LoginController extends Controller
         return redirect('/')->with('success', 'Logout realizado com sucesso!');
     }
 
-    public function update(Request $request)
-    {
-        // pega usuário logado da sessão
-        $userId = session('user_id');
-        $currentRole = session('user_role');
-
-        // alterna o role
-        $newRole = $currentRole === 'MASTER' ? 'PLAYER' : 'MASTER';
-
-        // chama a API passando o novo role
-        $response = $this->api->put("/login/update", [
-            'id' => $userId,
-            'role' => $newRole,
-        ]);
-
-        // atualiza sessão também
-        session(['user_role' => $newRole]);
-
-        return response()->json($response);
-    }
 }
