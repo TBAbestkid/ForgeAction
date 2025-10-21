@@ -15,6 +15,10 @@ use App\Http\Controllers\Controller;
 use App\Mail\TestMail;
 use App\Mail\InviteMail;
 
+/* -----------------------------------------
+ *  Controllers da Api externa            /
+ * --------------------------------------
+ */
 use App\Http\Controllers\AtaquePersonagemController;
 use App\Http\Controllers\StatusPersonagemController;
 use App\Http\Controllers\InfoPersonagemController;

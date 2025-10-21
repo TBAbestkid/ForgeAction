@@ -1,7 +1,7 @@
 @extends('partials.app')
 @section('title', 'Redefinir senha - ForgeAction')
 @section('content')
-<div class="d-flex justify-content-center align-items-center min-vh-100 bg-dark">
+<div class="d-flex justify-content-center align-items-center min-vh-100">
     <div class="card shadow-lg border-0 rounded-4 p-4" style="max-width: 450px; width: 100%; background-color: #1e1e1e;">
         <div class="text-center mb-4">
             <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction" width="70" class="mb-3">
