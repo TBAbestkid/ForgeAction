@@ -273,33 +273,56 @@
             showLoading(5000); // mostra o loading enquanto cria
 
             try {
+                console.log("📤 Enviando payload para criação do personagem:", payload);
+
                 // Cria personagem
                 const resP = await api('/personagem', 'POST', payload);
-                if (!resP.ok) throw new Error('Erro ao criar personagem');
+                // console.log("✅ Resposta da criação:", resP);
+
+                // Corrige o acesso aos dados da API
+                const apiResponse = resP.data; // corpo real da resposta (onde está status e data)
+                if (!apiResponse || apiResponse.status !== 'success' || !apiResponse.data?.id) {
+                    // console.warn("⚠️ Erro detectado na criação do personagem. Resposta inválida:", apiResponse);
+                    throw new Error('Erro ao criar personagem');
+                }
+
+                const id = apiResponse.data.id;
+                console.log("🆔 Personagem criado com ID:", id);
 
                 // Pega o último personagem criado do usuário
+                // console.log(`📡 Buscando personagens do usuário ID: ${userId}`);
                 const resUser = await api(`/personagem/usuario/${userId}`);
-                if (!resUser.ok || !Array.isArray(resUser.data) || !resUser.data.length)
-                    throw new Error('Não foi possível recuperar os personagens do usuário');
+                // console.log("📥 Resposta dos personagens do usuário:", resUser);
 
-                const lastChar = resUser.data[resUser.data.length - 1];
-                const id = lastChar.id;
+                // Também ajusta o acesso aos dados do usuário
+                const userResponse = resUser.data;
+                if (!userResponse || userResponse.status !== 'success' || !userResponse.data?.length) {
+                    // console.warn("⚠️ Erro ao recuperar personagens do usuário:", userResponse);
+                    throw new Error('Não foi possível recuperar os personagens do usuário');
+                }
+
+                // Pega o último personagem criado
+                const lastChar = userResponse.data[userResponse.data.length - 1];
+                console.log("🧩 Último personagem criado:", lastChar);
 
                 // Cria atributos e info
+                // console.log("📦 Enviando dados de atributos e info:", { attrs, info });
                 await Promise.all([
                     api('/atributos-personagem', 'POST', { personagem: { id }, ...attrs }),
                     api('/info-personagem', 'POST', { personagem: { id }, ...info })
                 ]);
 
-                hideLoading(); // esconde loading
-                showModal("Personagem criado com sucesso!"); // mostra modal
+                // console.log("🎉 Personagem, atributos e info criados com sucesso!");
+                hideLoading();
+                showModal("Personagem criado com sucesso!");
                 setTimeout(() => window.location.href = '/dashboard', 2000);
 
             } catch (err) {
-                console.error(err);
-                hideLoading(); // esconde loading mesmo no erro
-                showModal(err.message || "Erro desconhecido"); // mostra modal de erro
+                // console.error("💥 ERRO no processo de criação do personagem:", err);
+                hideLoading();
+                showModal("Erro ao criar personagem: " + err.message, true);
             } finally {
+                // console.log("🔚 Processo finalizado, reabilitando botões.");
                 nextBtn.disabled = false;
                 submitBtn.disabled = false;
             }
