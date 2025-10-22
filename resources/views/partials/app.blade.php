@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="google-site-verification" content="ujLGJLcUsDPNpqlJDg1OtNICmpht1XP4428B_bWhUi8" />
+    <meta name="description" content="Crie, gerencie e evolua personagens de RPG com o ForgeAction. Um sistema interativo de fichas e aventuras personalizadas.">
+    <meta name="keywords" content="RPG, fichas de RPG, personagens, aventuras, sistema online, ForgeAction">
+    <meta name="author" content="ForgeAction Team">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="pt-BR">
     <title>@yield('title', 'ForgeAction')</title>
     <link rel="icon" type="image/png" href="{{ secure_asset('assets/images/forgeicon.png') }}" />
     <!-- Google Fonts para temática RPG -->
