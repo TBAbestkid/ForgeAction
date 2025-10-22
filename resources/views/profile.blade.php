@@ -16,10 +16,15 @@
                 <div class="form-check form-switch mt-4">
                     <input class="form-check-input" type="checkbox" id="toggleRole"
                         {{ $user['role'] === 'MASTER' ? 'checked' : '' }}>
-                    <label class="form-check-label fw-bold" for="toggleRole">
+                    <label class="form-check-label fw-bold text-light" for="toggleRole">
                         {{ $user['role'] === 'MASTER' ? 'Mestre Ativo' : 'Player Padrão' }}
                     </label>
                 </div>
+
+                {{-- Botão Editar Perfil --}}
+                <button id="btnEditProfile" class="btn btn-outline-light mt-4 w-100">
+                    <i class="fa-solid fa-pen-to-square"></i> Editar Perfil
+                </button>
             </div>
 
             {{-- Coluna direita: informações editáveis --}}
@@ -28,8 +33,9 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold text-light">Email</label>
                     <div class="input-group">
-                        <input type="email" id="email" class="form-control" value="{{ $user['email'] ?? '' }}">
-                        <button class="btn btn-primary" id="btnUpdateEmail">
+                        <input type="email" id="email" class="form-control"
+                            value="{{ $user['email'] ?? '' }}" disabled>
+                        <button class="btn btn-primary" id="btnUpdateEmail" disabled>
                             <i class="fa-solid fa-envelope"></i> Atualizar
                         </button>
                     </div>
@@ -38,21 +44,29 @@
                 {{-- Nova senha --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold text-light">Nova senha</label>
-                    <input type="password" id="senha" class="form-control" placeholder="Digite a nova senha">
+                    <input type="password" id="senha" class="form-control"
+                        placeholder="Digite a nova senha" disabled>
                 </div>
 
                 {{-- Confirmar senha --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold text-light">Confirmar senha</label>
                     <div class="input-group">
-                        <input type="password" id="senhaConfirm" class="form-control" placeholder="Confirme a nova senha">
-                        <button class="btn btn-primary" id="btnUpdatePassword">
+                        <input type="password" id="senhaConfirm" class="form-control"
+                            placeholder="Confirme a nova senha" disabled>
+                        <button class="btn btn-primary" id="btnUpdatePassword" disabled>
                             <i class="fa-solid fa-key"></i> Atualizar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    {{-- Botão de Voltar para Home --}}
+    <div class="text-center mt-4">
+        <a href="{{ url('/') }}" class="btn btn-outline-light">
+            <i class="fa-solid fa-arrow-left"></i> Voltar para Home
+        </a>
     </div>
 </div>
 
@@ -61,6 +75,10 @@
 <script src="{{ asset('js/loading.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const editBtn = document.getElementById("btnEditProfile");
+        const inputs = document.querySelectorAll("#email, #senha, #senhaConfirm");
+        const buttons = document.querySelectorAll("#btnUpdateEmail, #btnUpdatePassword");
+
         const emailInput = document.getElementById('email');
         const btnUpdateEmail = document.getElementById('btnUpdateEmail');
 
@@ -70,6 +88,8 @@
 
         const toggleRole = document.getElementById('toggleRole');
         const roleLabel = toggleRole.nextElementSibling;
+
+        let editMode = false;
 
         // --- Função para mostrar Toast existente ---
         function showToast(message, type = 'success') {
@@ -178,6 +198,27 @@
                 console.error('Erro no fetch:', err);
                 showModal('Erro na requisição');
             });
+        });
+
+        // --- Botão de edição ---
+        editBtn.addEventListener("click", () => {
+            editMode = !editMode;
+
+            inputs.forEach(input => input.disabled = !editMode);
+            buttons.forEach(btn => btn.disabled = !editMode);
+
+            if (editMode) {
+                editBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações';
+                editBtn.classList.remove("btn-outline-light");
+                editBtn.classList.add("btn-success");
+            } else {
+                editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Editar Perfil';
+                editBtn.classList.remove("btn-success");
+                editBtn.classList.add("btn-outline-light");
+
+                // Aqui você pode chamar uma função pra salvar automaticamente
+                // console.log("💾 Alterações salvas!");
+            }
         });
     });
 </script>
