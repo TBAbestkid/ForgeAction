@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Mail\ResetMail;
 use App\Services\ApiService;
 use App\Helpers\ApiResponse;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -54,7 +55,7 @@ class AuthController extends Controller
         // ]);
 
         // Envia para a sua API via ApiService
-        $response = $this->api->post("/api/email/enviar", [
+        $response = $this->api->post("api/email/enviar", [
             'assunto' => 'Redefinição de senha',
             'corpo' => $html,
             'destinatarios' => [$request->email],
