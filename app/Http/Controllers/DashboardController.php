@@ -83,50 +83,38 @@ class DashboardController extends Controller
         }
 
         $userId = $request->session()->get('user_id');
-        $personagens = [];
 
-        // Faz a requisição à API para pegar os personagens do usuário
-        $personagens = $this->api->get("api/personagem/usuario/{$userId}");
+        $response = $this->api->get("api/personagem/usuario/{$userId}");
 
-        // Decodifica JSON, se vier como string
-        if (is_string($personagens)) {
-            $personagens = json_decode($personagens, true) ?: [];
+        // Decodifica JSON, se necessário
+        if (is_string($response)) {
+            $response = json_decode($response, true) ?: [];
         }
 
-        // Se a API retornou erro, status 404 ou formato inesperado
-        if (isset($personagens['error']) || ($personagens['status'] ?? 200) === 404) {
-            $personagens = [];
-        }
+        // Pega apenas o data[]
+        $personagens = $response['data'] ?? [];
 
-        // Garante que é array e só faz o map se tiver dados válidos
-        if (is_array($personagens) && !empty($personagens) && !isset($personagens['error'])) {
-            $personagens = array_map(function ($p) {
-                return [
-                    'id' => $p['id'] ?? 0,
-                    'infoPersonagem' => $p['infoPersonagem'] ?? [
-                        'nome' => 'Desconhecido',
-                        'classe' => '-',
-                        'raca' => '-',
-                        'idade' => 0,
-                        'genero' => '-',
-                    ],
-                    'atributos' => $p['atributos'] ?? [
-                        'forca' => 0, 'agilidade' => 0, 'inteligencia' => 0, 'sabedoria' => 0,
-                        'destreza' => 0, 'vitalidade' => 0, 'percepcao' => 0, 'carisma' => 0
-                    ],
-                    'bonus' => $p['bonus'] ?? ['bonupVida' => 0, 'bonupMana' => 0],
-                    'status' => $p['status'] ?? ['vida' => 0, 'mana' => 0, 'iniciativa' => 0],
-                    'ataque' => $p['ataque'] ?? [
-                        'ataqueMagico' => 0,
-                        'ataqueFisicoCorpo' => 0,
-                        'ataqueFisicoDistancia' => 0
-                    ],
-                    'danoBase' => $p['danoBase'] ?? ['fisico' => 0, 'magico' => 0],
-                ];
-            }, $personagens);
-        } else {
-            $personagens = []; // garante estrutura segura
-        }
+        // Normaliza para evitar nulls
+        $personagens = array_map(function ($p) {
+            return [
+                'id' => $p['id'] ?? 0,
+                'infoPersonagem' => $p['infoPersonagem'] ?? [
+                    'nome' => 'Desconhecido',
+                    'classe' => '-',
+                    'raca' => '-',
+                    'idade' => 0,
+                    'genero' => '-',
+                ],
+                'atributos' => $p['atributos'] ?? [
+                    'forca'=>0,'agilidade'=>0,'inteligencia'=>0,'sabedoria'=>0,
+                    'destreza'=>0,'vitalidade'=>0,'percepcao'=>0,'carisma'=>0
+                ],
+                'bonus' => $p['bonus'] ?? ['bonusVida'=>0,'bonusMana'=>0],
+                'status' => $p['status'] ?? ['vida'=>0,'mana'=>0,'iniciativa'=>0],
+                'ataque' => $p['ataque'] ?? ['ataqueMagico'=>0,'ataqueFisicoCorpo'=>0,'ataqueFisicoDistancia'=>0],
+                'danoBase' => $p['danoBase'] ?? ['fisico'=>0,'magico'=>0],
+            ];
+        }, $personagens);
 
         return view('dashboard', compact('personagens'));
     }
