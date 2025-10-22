@@ -26,7 +26,7 @@
                                 </h5>
 
                                 @if(session('selected_character'))
-                                    <div class="d-flex align-items-center mb-4">
+                                    <div class="d-flex align-items-center mb-3">
                                         <i class="fa-solid fa-chess-knight fa-3x text-secondary"></i>
                                         <div class="ms-3">
                                             <strong class="fs-5 d-block">{{ session('selected_character.name') }}</strong>
@@ -34,7 +34,14 @@
                                             <p class="mb-0">{{ session('selected_character.raca') }} | {{ session('selected_character.classe') }}</p>
                                         </div>
                                     </div>
-                                    <p class="small fst-italic mb-4">{{ session('selected_character.description') ?? 'Descrição breve do personagem selecionado...' }}</p>
+                                    <p class="small fst-italic mb-3">{{ session('selected_character.description') ?? 'Descrição breve do personagem selecionado...' }}</p>
+
+                                    <!-- Botão Remover Seleção -->
+                                    {{-- <div class="text-end">
+                                        <button class="btn btn-sm btn-outline-danger deselect-btn">
+                                            <i class="fas fa-times-circle me-1"></i> Remover Seleção
+                                        </button>
+                                    </div> --}}
                                 @else
                                     <div class="d-flex align-items-center mb-4">
                                         <i class="fa-regular fa-circle-user fa-3x text-secondary"></i>
@@ -63,40 +70,11 @@
                                         placeholder="Pesquisar por nome, raça ou classe...">
                                 </div>
 
+                                <!-- Lista de Personagens -->
                                 <ul id="characterList" class="list-group list-group-flush bg-dark" style="max-height: 400px; overflow-y: auto;">
-                                    @foreach($personagens as $p)
-                                        @php
-                                            $info = $p['infoPersonagem'];
-                                            $racas = [
-                                                "DRACONATO"=>"Draconato","TIEFLING"=>"Tiefling","HALFLING"=>"Halfling","ANAO"=>"Anão",
-                                                "HUMANO"=>"Humano","ELFO"=>"Elfo","ORC"=>"Orc",
-                                                "BRUTE_MEIO_ORC_HUMANO"=>"Brute (meio-orc + humano)",
-                                                "BRUTE_MEIO_ORC_ELFO"=>"Brute (meio-orc + elfo)",
-                                                "TARNISHED_ELFO_HUMANO"=>"Tarnished (elfo + humano)",
-                                                "TARNISHED_ELFO_TIEFLING"=>"Tarnished (elfo + tiefling)"
-                                            ];
-                                            $classes = [
-                                                "ATIRADOR"=>"Atirador","CACADOR"=>"Caçador","GUERREIRO"=>"Guerreiro",
-                                                "PALADINO"=>"Paladino","ESPADACHIM"=>"Espadachim","ASSASSINO"=>"Assassino",
-                                                "LADRAO"=>"Ladrão","FEITICEIRO"=>"Feiticeiro","BRUXO"=>"Bruxo","MAGO"=>"Mago",
-                                                "CLERIGO"=>"Clérigo","MONGE"=>"Monge","XAMA"=>"Xamã","DRUIDA"=>"Druida",
-                                                "ARTIFICE"=>"Artífice","BARDO"=>"Bardo"
-                                            ];
-                                        @endphp
-
-                                        <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center personagem-item"
-                                            data-nome="{{ strtolower($info['nome']) }}"
-                                            data-raca="{{ strtolower($info['raca']) }}"
-                                            data-classe="{{ strtolower($info['classe']) }}">
-                                            <div>
-                                                <strong>{{ $info['nome'] }}</strong><br>
-                                                <small>Raça: {{ $racas[$info['raca']] ?? $info['raca'] }} | Classe: {{ $classes[$info['classe']] ?? $info['classe'] }}</small>
-                                            </div>
-                                            <button class="btn btn-sm btn-outline-primary select-btn" data-character='@json($p)'>
-                                                <i class="fa-solid fa-check me-1"></i> Selecionar
-                                            </button>
-                                        </li>
-                                    @endforeach
+                                    <li class="list-group-item bg-dark text-white text-center" id="loadingCharacters">
+                                        <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando personagens...
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -135,8 +113,9 @@
                         <div class="col-md-8">
                             <div class="card shadow border-0 flex-fill">
                                 <div class="card-body text-white rounded-3 p-4" id="salas-container">
-                                    <div class="alert alert-info">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Carregando salas...
+                                    <div class="d-flex align-items-center justify-content-center gap-2 bg-dark text-light fw-bold rounded-3 p-3 shadow-sm">
+                                        <i class="fa-solid fa-spinner fa-spin fa-lg"></i>
+                                        Carregando salas...
                                     </div>
                                 </div>
                             </div>
@@ -257,26 +236,15 @@
                 url: "/personagem/usuario/{{ session('user_id') }}",
                 method: "GET",
                 success: function (response) {
-                    $characterList.empty();
+                    $characterList.empty(); // remove o loading
 
-                    if (response && Array.isArray(response) && response.length > 0) {
-                        response.forEach(p => {
+                    const personagens = response.data || [];
+
+                    if (personagens.length > 0) {
+                        personagens.forEach(p => {
                             const info = p.infoPersonagem;
-                            const racas = {
-                                DRACONATO: "Draconato", TIEFLING: "Tiefling", HALFLING: "Halfling", ANAO: "Anão",
-                                HUMANO: "Humano", ELFO: "Elfo", ORC: "Orc",
-                                BRUTE_MEIO_ORC_HUMANO: "Brute (meio-orc + humano)",
-                                BRUTE_MEIO_ORC_ELFO: "Brute (meio-orc + elfo)",
-                                TARNISHED_ELFO_HUMANO: "Tarnished (elfo + humano)",
-                                TARNISHED_ELFO_TIEFLING: "Tarnished (elfo + tiefling)"
-                            };
-                            const classes = {
-                                ATIRADOR: "Atirador", CACADOR: "Caçador", GUERREIRO: "Guerreiro",
-                                PALADINO: "Paladino", ESPADACHIM: "Espadachim", ASSASSINO: "Assassino",
-                                LADRAO: "Ladrão", FEITICEIRO: "Feiticeiro", BRUXO: "Bruxo", MAGO: "Mago",
-                                CLERIGO: "Clérigo", MONGE: "Monge", XAMA: "Xamã", DRUIDA: "Druida",
-                                ARTIFICE: "Artífice", BARDO: "Bardo"
-                            };
+                            const racas = { /* seu mapeamento de raças */ };
+                            const classes = { /* seu mapeamento de classes */ };
 
                             $characterList.append(`
                                 <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center personagem-item"
@@ -302,21 +270,12 @@
                         `);
                     }
                 },
-                error: function (xhr) {
-                    $characterList.empty();
-                    if (xhr.status === 404) {
-                        $characterList.html(`
-                            <li class="list-group-item bg-dark text-light text-center">
-                                <i class="fa-solid fa-circle-exclamation"></i> Nenhum personagem encontrado.
-                            </li>
-                        `);
-                    } else {
-                        $characterList.html(`
-                            <li class="list-group-item bg-dark text-danger text-center">
-                                <i class="fa-solid fa-triangle-exclamation"></i> Erro ao carregar personagens.
-                            </li>
-                        `);
-                    }
+                error: function () {
+                    $characterList.html(`
+                        <li class="list-group-item bg-dark text-danger text-center">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Erro ao carregar personagens.
+                        </li>
+                    `);
                 }
             });
         }
@@ -345,6 +304,26 @@
         }
 
         /* -------------------------------------------------------------
+        🧩 DESELECIONAR PERSONAGEM (AJAX)
+        ------------------------------------------------------------- */
+        function attachDeselectEvents() {
+            $(".deselect-btn").off("click").on("click", function () {
+
+                $.ajax({
+                    url: "{{ route('character.deselect') }}",
+                    method: "POST",
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    success: function (data) {
+                        if (data.success) location.reload();
+                    },
+                    error: function () {
+                        alert("Erro ao deselecionar personagem.");
+                    }
+                });
+            });
+        }
+
+        /* -------------------------------------------------------------
         🚪 LISTAGEM DE SALAS (AJAX)
         ------------------------------------------------------------- */
         const $salasContainer = $("#salas-container");
@@ -356,10 +335,13 @@
                 success: function (response) {
                     $salasContainer.empty();
 
-                    if (response.length > 0) {
+                    // agora pegamos apenas response.data
+                    const salas = response.data || [];
+
+                    if (salas.length > 0) {
                         const $list = $("<ul class='list-group'></ul>");
 
-                        response.forEach((sala) => {
+                        salas.forEach((sala) => {
                             $list.append(`
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span>
