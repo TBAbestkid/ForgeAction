@@ -1,2 +1,4 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /perfil
+Sitemap: https://forgeaction.onrender.com/sitemap.xml
