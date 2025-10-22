@@ -12,6 +12,7 @@ use App\Http\Controllers\ExternalApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\GoogleController;
 
 use App\Mail\TestMail;
 use App\Mail\InviteMail;
@@ -94,6 +95,8 @@ Route::get('/registro-personagem', [PersonagemController::class, 'personagem'])-
 
 // Selecionar personagem
 Route::post('/personagem/selecionar', [PersonagemController::class, 'select'])->name('character.select');
+// Deselecionar personagem
+Route::post('/personagem/deselecionar', [PersonagemController::class, 'deselect'])->name('character.deselect');
 
 // Atualizar perfil
 Route::get('/perfil', [UserController::class, 'profile'])->name('profile');
