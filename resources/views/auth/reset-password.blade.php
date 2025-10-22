@@ -9,18 +9,18 @@
             <p class="text-secondary small">Escolha uma nova senha para continuar sua jornada.</p>
         </div>
 
-        <form method="POST" action="{{ route('password.update') }}">
+        <form id="resetForm" method="POST" action="{{ route('password.update') }}">
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
 
             <div class="mb-3">
                 <label class="form-label text-light fw-bold">Nova Senha</label>
-                <input type="password" name="password" class="form-control bg-dark text-light border-secondary" placeholder="Digite sua nova senha" required>
+                <input type="password" id="password" name="password" class="form-control bg-dark text-light border-secondary" placeholder="Digite sua nova senha" required>
             </div>
 
             <div class="mb-4">
                 <label class="form-label text-light fw-bold">Confirme a Senha</label>
-                <input type="password" name="password_confirmation" class="form-control bg-dark text-light border-secondary" placeholder="Confirme sua nova senha" required>
+                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control bg-dark text-light border-secondary" placeholder="Confirme sua nova senha" required>
             </div>
 
             <button type="submit" class="btn btn-warning w-100 fw-bold">
@@ -35,4 +35,45 @@
         </form>
     </div>
 </div>
+@include('partials/loading')
+@include('partials/alerts')
+<script src="{{ asset('js/loading.js') }}"></script>
+<script>
+    document.getElementById('resetForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('password_confirmation').value;
+
+        if(password !== confirm) {
+            e.preventDefault(); // impede o envio do formulário
+            showModal('As senhas não coincidem!'); // função para mostrar modal
+            return false;
+        }
+
+        if(password.length < 6) {
+            e.preventDefault();
+            showModal('A senha deve ter no mínimo 6 caracteres!');
+            return false;
+        }
+    });
+
+    // Função para exibir modal
+    function showModal(message) {
+        const modalMessage = document.getElementById('modalMessage');
+        modalMessage.textContent = message;
+
+        const modal = new bootstrap.Modal(document.getElementById('modalAlert'));
+        modal.show();
+    }
+
+    // Exemplo de função para toast (opcional)
+    /* function showToast(message, type = 'success') {
+        const toastMessage = document.getElementById('toastMessage');
+        const toastEl = document.getElementById('liveToast');
+        toastMessage.textContent = message;
+        toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning');
+        toastEl.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    } */
+</script>
 @endsection

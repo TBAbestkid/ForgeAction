@@ -99,7 +99,7 @@ class AuthController extends Controller
             'senha'   => $request->password,
         ]);
 
-        if ($response['success'] ?? false) {
+        if (($response['status'] ?? '') === 'success') {
             Cache::forget('reset_password_' . $request->token);
             return redirect()->route('home')->with('success', 'Senha redefinida com sucesso!');
         }
