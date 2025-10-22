@@ -78,4 +78,11 @@ class PersonagemController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function deselect(Request $request)
+    {
+        // Remove o personagem selecionado da sessão
+        $request->session()->forget('selected_character');
+
+        return response()->json(['success' => true]);
+    }
 }
