@@ -21,7 +21,7 @@
                         <td align="center" style="text-align:center;">
 
                         <!-- Logo -->
-                        <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction" width="80" style="display:block; margin-bottom:15px;">
+                        <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction" width="80" style="display:block; margin-bottom:15px; background-color:#1a1a1a; border-radius:8px;">
 
                         <!-- Título -->
                         <h1 style="font-family:'MedievalSharp', Georgia, serif; color:#d4af37; font-size:28px; margin:0 0 15px;">
