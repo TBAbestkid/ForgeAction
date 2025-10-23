@@ -182,12 +182,49 @@
         const nextBtn=document.getElementById('btn-next');
         const submitBtn=document.getElementById('btn-submit');
 
-        function validateFields(fields){
-            let allValid=true;
-            fields.forEach(f=>{
+        function validateFields(fields) {
+            let allValid = true;
+
+            fields.forEach(f => {
                 clearInvalid(f);
-                if(!f.value.trim()){ setInvalid(f,'Campo obrigatório'); allValid=false; }
-                else if(f.id==='idade' && !isPositiveInt(f.value)){ setInvalid(f,'Informe inteiro >=1'); allValid=false; }
+                const value = f.value.trim();
+
+                // Campo obrigatório
+                if (!value) {
+                    setInvalid(f, 'Campo obrigatório');
+                    allValid = false;
+                    return;
+                }
+
+                // Verifica selects (classe / raça)
+                if ((f.id === 'classe' || f.id === 'raca') && f.selectedIndex === 0) {
+                    setInvalid(f, 'Selecione uma opção válida');
+                    allValid = false;
+                    return;
+                }
+
+                // Nome do personagem — até 50 caracteres
+                if (f.id === 'nome' && value.length > 50) {
+                    setInvalid(f, 'Nome muito longo (máx. 50 caracteres)');
+                    allValid = false;
+                    return;
+                }
+
+                // Idade — aceita números grandes, mas evita absurdos
+                if (f.id === 'idade') {
+                    if (!isPositiveInt(value)) {
+                        setInvalid(f, 'Informe um número inteiro válido');
+                        allValid = false;
+                        return;
+                    }
+
+                    const idadeNum = parseInt(value, 10);
+                    if (idadeNum < 1 || idadeNum > 999999) {
+                        setInvalid(f, 'Idade deve estar entre 1 e 999.999');
+                        allValid = false;
+                        return;
+                    }
+                }
             });
             return allValid;
         }
@@ -252,15 +289,34 @@
                 showModal("Usuário não logado");
                 return;
             }
+
             if (!validateFields(infoFields)) {
+                showModal("Preencha todos os campos corretamente antes de continuar.");
                 goToInfo();
                 return;
             }
 
-            const info = getInfo(), attrs = getAttrs();
+            const info = getInfo();
+            const attrs = getAttrs();
+
+            const requiredInfo = ['nome', 'raca', 'classe', 'idade', 'genero'];
+            const missing = requiredInfo.filter(k => !info[k] || info[k].toString().trim() === '');
+
+            if (missing.length > 0) {
+                showModal(`Campos ausentes: ${missing.join(', ')}`);
+                return;
+            }
+
+            // Verifica atributos
+            const totalAtributos = Object.values(attrs).reduce((a, b) => a + (parseInt(b) || 0), 0);
+            if (totalAtributos !== 23) {
+                showModal("Distribua todos os pontos de atributo antes de criar o personagem.");
+                return;
+            }
+
             const payload = {
                 usuario: { id: userId },
-                nome: info.nome,
+                nome: info.nome.trim(),
                 raca: info.raca,
                 classe: info.classe,
                 idade: info.idade,
@@ -281,9 +337,10 @@
 
                 // Corrige o acesso aos dados da API
                 const apiResponse = resP.data; // corpo real da resposta (onde está status e data)
+
                 if (!apiResponse || apiResponse.status !== 'success' || !apiResponse.data?.id) {
                     // console.warn("⚠️ Erro detectado na criação do personagem. Resposta inválida:", apiResponse);
-                    throw new Error('Erro ao criar personagem');
+                    throw new Error('Resposta inválida ao criar personagem');
                 }
 
                 const id = apiResponse.data.id;
@@ -296,17 +353,21 @@
 
                 // Também ajusta o acesso aos dados do usuário
                 const userResponse = resUser.data;
-                if (!userResponse || userResponse.status !== 'success' || !userResponse.data?.length) {
-                    // console.warn("⚠️ Erro ao recuperar personagens do usuário:", userResponse);
-                    throw new Error('Não foi possível recuperar os personagens do usuário');
+
+                if (!userResponse || userResponse.status !== 'success' || !Array.isArray(userResponse.data)) {
+                    throw new Error('Falha ao recuperar personagens do usuário');
                 }
 
                 // Pega o último personagem criado
-                const lastChar = userResponse.data[userResponse.data.length - 1];
-                console.log("🧩 Último personagem criado:", lastChar);
+                const lastChar = userResponse.data.find(p => p.id === id);
+                if (!lastChar) {
+                    throw new Error('O personagem criado não foi retornado pelo servidor.');
+                }
 
                 // Cria atributos e info
                 // console.log("📦 Enviando dados de atributos e info:", { attrs, info });
+                console.log("🧩 Personagem confirmado:", lastChar);
+
                 await Promise.all([
                     api('/atributos-personagem', 'POST', { personagem: { id }, ...attrs }),
                     api('/info-personagem', 'POST', { personagem: { id }, ...info })
