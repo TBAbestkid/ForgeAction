@@ -138,7 +138,7 @@
                                         <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
                                             <i class="fa-solid fa-user-plus"></i> Todas as salas
                                         </a>
-                                        <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
+                                        <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
                                             <i class="fa-solid fa-user-group"></i> Criar Sala
                                         </a>
                                         <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
