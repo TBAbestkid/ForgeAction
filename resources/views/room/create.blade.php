@@ -48,68 +48,68 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-async function submitSala(e) {
-    e.preventDefault();
+    async function submitSala(e) {
+        e.preventDefault();
 
-    // Pega dados do formulário
-    const form = document.getElementById('createSalaForm');
-    const formData = new FormData(form);
-    const payload = Object.fromEntries(formData.entries());
+        // Pega dados do formulário
+        const form = document.getElementById('createSalaForm');
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
 
-    // Ajusta o checkbox (porque "on" não é legal de mandar)
-    payload.ativo = formData.get("ativo") ? true : false;
+        // Ajusta o checkbox (porque "on" não é legal de mandar)
+        payload.ativo = formData.get("ativo") ? true : false;
 
-    // Limpa mensagens antigas
-    document.getElementById('createSalaAlert').innerHTML = '';
+        // Limpa mensagens antigas
+        document.getElementById('createSalaAlert').innerHTML = '';
 
-    // Mostra overlay/loading
-    showLoading(3000);
+        // Mostra overlay/loading
+        showLoading(3000);
 
-    try {
-        // Faz request para criar sala
-        const res = await $.ajax({
-            url: "{{ route('salas.store') }}",
-            method: "POST",
-            data: payload
-        });
+        try {
+            // Faz request para criar sala
+            const res = await $.ajax({
+                url: "{{ route('salas.store') }}",
+                method: "POST",
+                data: payload
+            });
 
-        // Esconde loading
-        hideLoading();
+            // Esconde loading
+            hideLoading();
 
-        // Mostra mensagem de sucesso
-        document.getElementById('createSalaAlert').innerHTML = `
-            <div class="alert alert-success">Sala criada com sucesso!</div>
-        `;
+            // Mostra mensagem de sucesso
+            document.getElementById('createSalaAlert').innerHTML = `
+                <div class="alert alert-success">Sala criada com sucesso!</div>
+            `;
 
-        // Redireciona após um tempo
-        setTimeout(() => {
-            goToPage("{{ route('salas.index') }}", 2000);
-        }, 1500);
+            // Redireciona após um tempo
+            setTimeout(() => {
+                goToPage("{{ route('salas.index') }}", 2000);
+            }, 1500);
 
-    } catch (err) {
-        console.error(err);
+        } catch (err) {
+            console.error(err);
 
-        // Esconde loading
-        hideLoading();
+            // Esconde loading
+            hideLoading();
 
-        // Mensagem padrão
-        let msg = 'Erro ao criar sala.';
+            // Mensagem padrão
+            let msg = 'Erro ao criar sala.';
 
-        // Caso a API retorne mensagem mais específica
-        if (err.responseJSON && err.responseJSON.message) {
-            msg = err.responseJSON.message;
+            // Caso a API retorne mensagem mais específica
+            if (err.responseJSON && err.responseJSON.message) {
+                msg = err.responseJSON.message;
+            }
+
+            // Mostra alerta de erro
+            document.getElementById('createSalaAlert').innerHTML = `
+                <div class="alert alert-danger">${msg}</div>
+            `;
         }
-
-        // Mostra alerta de erro
-        document.getElementById('createSalaAlert').innerHTML = `
-            <div class="alert alert-danger">${msg}</div>
-        `;
     }
-}
 
-// Bind no formulário
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('createSalaForm').addEventListener('submit', submitSala);
-});
+    // Bind no formulário
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('createSalaForm').addEventListener('submit', submitSala);
+    });
 </script>
 @endpush
