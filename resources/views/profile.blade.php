@@ -9,7 +9,7 @@
             {{-- Coluna esquerda: ícone + login --}}
             <div class="col-md-4 text-center border-end">
                 <i class="fa-solid fa-user-circle text-light" style="font-size: 8rem;"></i>
-                <h3 class="mt-3 mb-0 text-light">{{ $user['login'] }}</h3>
+                <h3 class="mt-3 mb-0 text-light" id="">{{ $user['login'] }}</h3>
                 <p class="text-light mb-0">{{ ucfirst(strtolower($user['role'])) }}</p>
 
                 {{-- Toggle para mudar o papel --}}
@@ -39,6 +39,13 @@
                             <i class="fa-solid fa-envelope"></i> Atualizar
                         </button>
                     </div>
+                </div>
+
+                {{-- Senha Atual --}}
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-light">Senha atual</label>
+                    <input type="password" id="senhaAtual" class="form-control"
+                        placeholder="Digite a senha atual" disabled>
                 </div>
 
                 {{-- Nova senha --}}
@@ -76,13 +83,14 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const editBtn = document.getElementById("btnEditProfile");
-        const inputs = document.querySelectorAll("#email, #senha, #senhaConfirm");
+        const inputs = document.querySelectorAll("#email, #senha, #senhaAtual, #senhaConfirm");
         const buttons = document.querySelectorAll("#btnUpdateEmail, #btnUpdatePassword");
 
         const emailInput = document.getElementById('email');
         const btnUpdateEmail = document.getElementById('btnUpdateEmail');
 
         const senhaInput = document.getElementById('senha');
+        const senhaAtualInput = document.getElementById('senhaAtual');
         const senhaConfirmInput = document.getElementById('senhaConfirm');
         const btnUpdatePassword = document.getElementById('btnUpdatePassword');
 
@@ -141,13 +149,14 @@
             });
         });
 
-         // --- Atualizar Senha ---
+        // --- Atualizar Senha ---
         btnUpdatePassword.addEventListener('click', function(e) {
             e.preventDefault();
             const senha = senhaInput.value.trim();
+            const senhaAtual = senhaAtualInput.value.trim();
             const senhaConfirm = senhaConfirmInput.value.trim();
 
-            if(!senha || !senhaConfirm) return showModal('Preencha os dois campos de senha');
+            if(!senha || !senhaConfirm || !senhaAtual) return showModal('Preencha os três campos de senha');
             if(senha !== senhaConfirm) return showModal('As senhas não coincidem');
 
             fetch("{{ route('profile.updatePassword') }}", {
@@ -156,13 +165,14 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ senha })
+                body: JSON.stringify({ senhaAtual, senha })
             })
             .then(res => res.json())
             .then(res => {
                 if(res.status === 'success') {
                     showToast(res.message, 'success');
                     senhaInput.value = '';
+                    senhaAtualInput.value = '';
                     senhaConfirmInput.value = '';
                 } else showModal(res.message || 'Erro ao atualizar senha');
             })
@@ -217,7 +227,7 @@
                 editBtn.classList.add("btn-outline-light");
 
                 // Aqui você pode chamar uma função pra salvar automaticamente
-                // console.log("💾 Alterações salvas!");
+                console.log("💾 Alterações salvas!");
             }
         });
     });
