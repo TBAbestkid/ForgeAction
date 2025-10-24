@@ -72,26 +72,34 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-   public function updatePassword(Request $request)
+    public function updatePassword(Request $request)
     {
-        $payload = [
-            'email' => session('user_email'),
-            'senha' => $request->senha,
-        ];
+        $request->validate([
+            'senhaAtual' => 'required|string',
+            'senha' => 'required|string|min:6',
+        ]);
 
-        // Log do payload
-        Log::info('UpdatePassword Payload:', $payload);
+        $userEmail = session('user_email');
+        $userLogin = session('user_login');
 
-        // Chama a API
-        $response = $this->api->put('login/forgot-password', $payload);
+        $loginResponse = $this->api->post('login', [
+            'login' => $userLogin,
+            'senha' => $request->senhaAtual,
+        ]);
 
-        // Log da resposta da API
-        Log::info('UpdatePassword Response:', ['response' => $response]);
-
-        if (($response['status'] ?? '') === 'success') {
-            return ApiResponse::success($response['data'] ?? null, $response['message'] ?? 'Senha atualizada!');
+        if (($loginResponse['status'] ?? '') !== 'success') {
+            return ApiResponse::error('Senha atual incorreta', 401);
         }
 
-        return ApiResponse::error($response['message'] ?? 'Erro ao atualizar senha', $response['code'] ?? 400);
+        $updateResponse = $this->api->put('login/forgot-password', [
+            'email' => $userEmail,
+            'senha' => $request->senha,
+        ]);
+
+        if (($updateResponse['status'] ?? '') === 'success') {
+            return ApiResponse::success(null, $updateResponse['message'] ?? 'Senha atualizada com sucesso!');
+        }
+
+        return ApiResponse::error($updateResponse['message'] ?? 'Erro ao atualizar senha', $updateResponse['code'] ?? 400);
     }
 }
