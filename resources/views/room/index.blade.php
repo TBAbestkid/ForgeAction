@@ -9,7 +9,9 @@
         <div class="col-md-8">
             <div class="card shadow border-0 flex-fill">
                 <div class="card-body text-white rounded-3 p-4" id="salas-container">
-                    <p>Carregando salas...</p>
+                    <li class="list-group-item bg-dark text-white text-center" id="loadingRoom">
+                        <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando salas...
+                    </li>
                 </div>
             </div>
         </div>
@@ -42,19 +44,25 @@
             success: function (response) {
                 container.empty();
 
-                if (response.length > 0) {
-                    const list = $("<ul class='list-group'></ul>");
-                    response.forEach(sala => {
-                        list.append(
-                            `<li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>${sala.nome}</span>
-                                <a href="/salas/${sala.id}" class="btn btn-sm btn-primary">
-                                    Entrar
-                                </a>
-                            </li>`
-                        );
+                if (response.status === "success" && response.data.length > 0) {
+                    response.data.forEach(sala => {
+                        const numPlayers = sala.salaPersonagens ? sala.salaPersonagens.length : 0;
+
+                        const salaDiv = $(`
+                            <div class="sala-card p-3 mb-3 rounded d-flex justify-content-between align-items-center" style="background-color: #1a1a1a; color: #f5f5f5;">
+                                <div>
+                                    <strong>${sala.nome}</strong><br>
+                                    <small class="text-lights">${sala.descricao}</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary me-2">${numPlayers} jogador(es)</span>
+                                    <a href="/salas/${sala.id}" class="btn btn-sm btn-primary">Entrar</a>
+                                </div>
+                            </div>
+                        `);
+
+                        container.append(salaDiv);
                     });
-                    container.append(list);
                 } else {
                     container.append(
                         `<div class="alert alert-info">
