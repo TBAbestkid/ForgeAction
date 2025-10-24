@@ -58,6 +58,7 @@ class LoginController extends Controller
     public function logout()
     {
         session()->forget('user_login');
+        session()->forget('selected_character');
         return redirect('/')->with('success', 'Logout realizado com sucesso!');
     }
 
