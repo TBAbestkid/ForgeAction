@@ -12,6 +12,12 @@
     <meta name="language" content="pt-BR">
     <title>@yield('title', 'ForgeAction')</title>
     <link rel="icon" type="image/png" href="{{ secure_asset('assets/images/forgeicon.png') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon-96x96.png') }}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/images/favicon.svg') }}" />
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/apple-touch-icon.png') }}" />
+    <link rel="manifest" href="{{ asset('assets/images/site.webmanifest') }}" />
+
     <!-- Google Fonts para temática RPG -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
@@ -98,5 +104,15 @@
 
         gtag('config', 'G-0FGXCHJGQB');
     </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => console.log('Service Worker registrado:', registration.scope))
+            .catch(err => console.log('Falha ao registrar Service Worker:', err));
+        });
+    }
+    </script>
+
 </body>
 </html>
