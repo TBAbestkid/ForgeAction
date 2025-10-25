@@ -36,6 +36,8 @@ use App\Http\Controllers\EnumController;
 use App\Http\Controllers\SalaPersonagemController;
 use App\Http\Controllers\SalaController;
 
+Route::view('/loading', 'loading');
+
 Route::post('/enviar-invite', function(Request $request) {
     $sala = Sala::find($request->salaId);
     $user = User::where('email', $request->email)->first();

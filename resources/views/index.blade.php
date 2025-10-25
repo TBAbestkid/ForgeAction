@@ -66,7 +66,7 @@
                                     <span class="input-group-text bg-dark text-light border-secondary">
                                         <i class="fa-solid fa-magnifying-glass"></i>
                                     </span>
-                                    <input type="text" id="searchCharacter" class="form-control bg-dark text-white border-secondary"
+                                    <input type="text" id="searchCharacter" class="form-control text-white border-secondary"
                                         placeholder="Pesquisar por nome, raça ou classe...">
                                 </div>
 
@@ -154,40 +154,35 @@
         </div>
     @else
         {{-- Bloco dos cards de login, cadastro e sobre --}}
-        <div class="row text-white">
-            <div class="col-md-12 text-center">
-                <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction Logo" class="logo-center">
+        <div class="container text-white d-flex flex-column align-items-center justify-content-center min-vh-100">
+            <div class="text-center mb-5">
+                <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction Logo" class="logo-center mb-3" style="max-width:150px;">
                 <h1>ForgeAction</h1>
                 <p class="lead">Prepare-se para a aventura épica!</p>
             </div>
-        </div>
-        <div class="row mt-5 text-white">
-            <!-- Card Login -->
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body text-white">
+
+            <div class="d-flex flex-wrap justify-content-center gap-4 w-100" style="max-width: 900px;">
+                <!-- Card Login -->
+                <div class="card bg-dark text-white text-center flex-fill" style="min-width: 260px; max-width: 300px;">
+                    <div class="card-body">
                         <h5 class="card-title">Já tem login?</h5>
-                        <p class="card-text ">Acesse sua conta e continue a aventura.</p>
+                        <p class="card-text">Acesse sua conta e continue a aventura.</p>
                         <a href="{{ route('login') }}" class="btn btn-primary">Login</a>
                     </div>
                 </div>
-            </div>
 
-            <!-- Card Cadastro -->
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body text-white">
+                <!-- Card Cadastro -->
+                <div class="card bg-dark text-white text-center flex-fill" style="min-width: 260px; max-width: 300px;">
+                    <div class="card-body">
                         <h5 class="card-title">Ainda não é cadastrado?</h5>
                         <p class="card-text">Crie sua conta e embarque nessa jornada.</p>
                         <a href="{{ route('register') }}" class="btn btn-success">Cadastro</a>
                     </div>
                 </div>
-            </div>
 
-            <!-- Card Sobre -->
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body text-white">
+                <!-- Card Sobre -->
+                <div class="card bg-dark text-white text-center flex-fill" style="min-width: 260px; max-width: 300px;">
+                    <div class="card-body">
                         <h5 class="card-title">Sobre</h5>
                         <p class="card-text">Saiba mais sobre o ForgeAction.</p>
                         <a href="{{ route('about') }}" class="btn btn-info">Sobre</a>
