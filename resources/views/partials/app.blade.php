@@ -16,7 +16,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('assets/images/favicon.svg') }}" />
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}" />
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/apple-touch-icon.png') }}" />
-    <link rel="manifest" href="{{ asset('assets/images/site.webmanifest') }}" />
+    <link rel="manifest" href="{{ asset('assets/site.webmanifest') }}" />
 
     <!-- Google Fonts para temática RPG -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
