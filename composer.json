@@ -8,6 +8,8 @@
     "require": {
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.9",
+        "ladumor/laravel-pwa": "^0.0.5",
+        "laravel-notification-channels/webpush": "^10.2",
         "laravel/framework": "^11.31",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.9",
