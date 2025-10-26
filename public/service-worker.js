@@ -1,10 +1,11 @@
 const CACHE_NAME = 'forgeaction-cache-v1';
 const urlsToCache = [
     '/',
+    '/loading.html',
     '/assets/images/forgeicon/icon-192x192.png',
     '/assets/images/forgeicon/icon-512x512.png',
-    '/css/app.css',   // se tiver
-    '/js/app.js',     // se tiver
+    '/css/app.css',
+    '/js/app.js',
 ];
 
 self.addEventListener('install', function(event) {
