@@ -9,21 +9,23 @@
             {{-- Coluna esquerda: ícone + login --}}
             <div class="col-md-4 text-center border-end">
                 <i class="fa-solid fa-user-circle text-light" style="font-size: 8rem;"></i>
-                <h3 class="mt-3 mb-0 text-light" id="">{{ $user['login'] }}</h3>
-                <p class="text-light mb-0">{{ ucfirst(strtolower($user['role'])) }}</p>
+                <h3 class="mt-3 mb-0 text-light">{{ $user['login'] }}</h3>
+                <p class="text-light mb-0"><i class="fa-solid fa-id-badge me-1"></i>{{ ucfirst(strtolower($user['role'])) }}</p>
 
                 {{-- Toggle para mudar o papel --}}
                 <div class="form-check form-switch mt-4">
                     <input class="form-check-input" type="checkbox" id="toggleRole"
                         {{ $user['role'] === 'MASTER' ? 'checked' : '' }}>
                     <label class="form-check-label fw-bold text-light" for="toggleRole">
-                        {{ $user['role'] === 'MASTER' ? 'Mestre Ativo' : 'Player Padrão' }}
+                        {!! $user['role'] === 'MASTER'
+                            ? '<i class="fa-solid fa-chess-king me-1"></i> Mestre Ativo'
+                            : '<i class="fa-solid fa-user me-1"></i> Player Padrão' !!}
                     </label>
                 </div>
 
                 {{-- Botão Editar Perfil --}}
                 <button id="btnEditProfile" class="btn btn-outline-light mt-4 w-100">
-                    <i class="fa-solid fa-pen-to-square"></i> Editar Perfil
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Editar Perfil
                 </button>
             </div>
 
@@ -31,48 +33,57 @@
             <div class="col-md-8">
                 {{-- Email --}}
                 <div class="mb-3">
-                    <label class="form-label fw-bold text-light">Email</label>
+                    <label class="form-label fw-bold text-light">
+                        <i class="fa-solid fa-envelope me-1"></i> Email
+                    </label>
                     <div class="input-group">
                         <input type="email" id="email" class="form-control"
                             value="{{ $user['email'] ?? '' }}" disabled>
                         <button class="btn btn-primary" id="btnUpdateEmail" disabled>
-                            <i class="fa-solid fa-envelope"></i> Atualizar
+                            <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Atualizar
                         </button>
                     </div>
                 </div>
 
                 {{-- Senha Atual --}}
                 <div class="mb-3">
-                    <label class="form-label fw-bold text-light">Senha atual</label>
+                    <label class="form-label fw-bold text-light">
+                        <i class="fa-solid fa-lock me-1"></i> Senha Atual
+                    </label>
                     <input type="password" id="senhaAtual" class="form-control"
                         placeholder="Digite a senha atual" disabled>
                 </div>
 
-                {{-- Nova senha --}}
+                {{-- Nova Senha --}}
                 <div class="mb-3">
-                    <label class="form-label fw-bold text-light">Nova senha</label>
+                    <label class="form-label fw-bold text-light">
+                        <i class="fa-solid fa-key me-1"></i> Nova Senha
+                    </label>
                     <input type="password" id="senha" class="form-control"
                         placeholder="Digite a nova senha" disabled>
                 </div>
 
                 {{-- Confirmar senha --}}
                 <div class="mb-3">
-                    <label class="form-label fw-bold text-light">Confirmar senha</label>
+                    <label class="form-label fw-bold text-light">
+                        <i class="fa-solid fa-key me-1"></i> Confirmar Senha
+                    </label>
                     <div class="input-group">
                         <input type="password" id="senhaConfirm" class="form-control"
                             placeholder="Confirme a nova senha" disabled>
                         <button class="btn btn-primary" id="btnUpdatePassword" disabled>
-                            <i class="fa-solid fa-key"></i> Atualizar
+                            <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Atualizar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     {{-- Botão de Voltar para Home --}}
     <div class="text-center mt-4">
         <a href="{{ url('/') }}" class="btn btn-outline-light">
-            <i class="fa-solid fa-arrow-left"></i> Voltar para Home
+            <i class="fa-solid fa-arrow-left me-1"></i> Voltar para Home
         </a>
     </div>
 </div>
