@@ -94,7 +94,7 @@ class AuthController extends Controller
         }
 
         // Aqui você chama sua API para atualizar a senha
-        $response = $this->api->put("login/forgot-password", [
+        $response = $this->api->put("api/login/forgot-password", [
             'email'   => $email,
             'senha'   => $request->password,
         ]);
