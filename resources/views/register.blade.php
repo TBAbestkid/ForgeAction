@@ -26,31 +26,38 @@
     @endif
 
 <div class="container mt-5">
-    <div class="card mx-auto p-4" style="max-width: 600px;">
-        <h2 class="text-center font-medieval text-white">Crie sua conta</h2>
+    <div class="mx-auto p-4" style="max-width: 600px;">
+        <img class="mb-4 mx-auto d-block" src="{{ asset('assets/images/forgeicon.png') }}" alt="" width="72" height="57">
+        <h1 class="h3 mb-3 fw-normal text-center font-medieval text-white">Faça cadastro!</h1>
 
         <div class="tab-content mt-3">
             <!-- Aba 1: Dados Cadastrais -->
             <form action="{{ route('register.post') }}" id="registerForm" method="post">
                 @csrf
-                <div class="" id="login">
+                <div class="text-dark" id="login">
                     <div class="form-floating mb-3">
-                        <input type="text" name="email" class="form-control" placeholder="name@example.com" required>
-                        <label for="email">Email</label>
+                        <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
+                        <label for="email"><i class="fa-solid fa-envelope me-1"></i> Email</label>
                     </div>
+
                     <div class="form-floating mb-3">
-                        <input type="text" name="login" class="form-control" placeholder="Nome Usuario" required>
-                        <label for="name">Nome usuario</label>
+                        <input type="text" name="login" class="form-control" id="login" placeholder="Nome Usuario" required>
+                        <label for="login"><i class="fa-solid fa-user me-1"></i> Nome usuário</label>
                     </div>
+
                     <div class="form-floating mb-3">
-                        <input type="password" name="senha" class="form-control" placeholder="Senha" required>
-                        <label for="password">Senha</label>
+                        <input type="password" name="senha" class="form-control" id="senha" placeholder="Senha" required>
+                        <label for="senha"><i class="fa-solid fa-lock me-1"></i> Senha</label>
                     </div>
+
                     <div class="form-floating mb-3">
                         <input type="password" id="passwordConfirm" class="form-control" placeholder="Confirme a senha" required>
-                        <label for="passwordConfirm">Confirme a senha</label>
+                        <label for="passwordConfirm"><i class="fa-solid fa-check-double me-1"></i> Confirme a senha</label>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Envie</button>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Enviar
+                    </button>
                 </div>
             </form>
         </div>

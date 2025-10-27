@@ -34,11 +34,11 @@
 
             <div class="form-floating mb-3 text-dark">
                 <input type="text" name="login" class="form-control" id="floatingInput" placeholder="Insira usuario">
-                <label for="floatingInput">Usuario</label>
+                <label for="floatingInput"><i class="fa-solid fa-user me-1"></i> Usuario</label>
             </div>
             <div class="form-floating mb-3 text-dark">
                 <input type="password" name="senha" class="form-control" id="floatingPassword" placeholder="Insira a Senha">
-                <label for="floatingPassword">Senha</label>
+                <label for="floatingPassword"><i class="fa-solid fa-lock me-1"></i>Senha</label>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -55,7 +55,7 @@
                     </a>
                 </div>
             </div>
-            <button class="btn btn-primary w-100 py-2 btn-submit" type="submit">Entre</button>
+            <button class="btn btn-primary w-100 py-2 btn-submit" type="submit"><i class="fa-solid fa-paper-plane me-1"></i> Entre</button>
         </form>
     </div>
 </div>
