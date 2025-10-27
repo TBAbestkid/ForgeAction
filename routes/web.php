@@ -37,6 +37,7 @@ use App\Http\Controllers\SalaPersonagemController;
 use App\Http\Controllers\SalaController;
 
 Route::view('/loading', 'loading')->name('loading');
+Route::view('/baixar', 'pwa.download')->name('pwa.download');
 
 Route::post('/enviar-invite', function(Request $request) {
     $sala = Sala::find($request->salaId);
@@ -69,6 +70,10 @@ Route::get('/login/forgot-password', [AuthController::class, 'forgotpassword'])-
 Route::post('/login/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('forgot-password.send');
 Route::get('/login/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
 Route::post('/login/reset-password', [AuthController::class, 'reset'])->name('password.update');
+
+// Login com Google
+Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 // -------------------- REGISTRO --------------------
 // Exibir formulário de registro

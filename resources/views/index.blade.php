@@ -132,7 +132,7 @@
             </div>
         </div>
     @else
-        {{-- Bloco dos cards de login, cadastro e sobre --}}
+        {{-- Bloco dos cards de login, cadastro, sobre e download --}}
         <div class="container text-white d-flex flex-column align-items-center justify-content-center min-vh-100">
             <div class="text-center mb-5">
                 <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction Logo" class="logo-center mb-3" style="max-width:150px;">
@@ -165,6 +165,18 @@
                         <h5 class="card-title">Sobre</h5>
                         <p class="card-text">Saiba mais sobre o ForgeAction.</p>
                         <a href="{{ route('about') }}" class="btn btn-info">Sobre</a>
+                    </div>
+                </div>
+
+                <!-- Card Baixar App -->
+                <div id="installCard" class="card bg-dark text-white text-center flex-fill fade-in-card"
+                    style="min-width: 260px; max-width: 300px; display:none;">
+                    <div class="card-body">
+                        <h5 class="card-title">Instale o App</h5>
+                        <p class="card-text">Use o ForgeAction direto no seu dispositivo!</p>
+                        <button id="installBtn" class="btn btn-warning glow-btn">
+                            <i class="fa-solid fa-download me-1"></i> Instalar
+                        </button>
                     </div>
                 </div>
             </div>
@@ -386,4 +398,53 @@
         loadSalas();
     });
 </script>
+{{-- Script de instalação PWA --}}
+<script>
+    let deferredPrompt;
+    const installCard = document.getElementById('installCard');
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installCard.style.display = 'block';
+        installCard.classList.add('show-card'); // animação de entrada
+    });
+
+    installBtn.addEventListener('click', async () => {
+        installCard.style.display = 'none';
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(outcome === 'accepted' ? 'PWA instalado!' : 'Instalação cancelada.');
+        deferredPrompt = null;
+    });
+</script>
+{{-- Estilos animados --}}
+<style>
+    @keyframes glow {
+        0%, 100% { box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.6); }
+        50% { box-shadow: 0 0 20px 6px rgba(255, 215, 0, 1); }
+    }
+
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .glow-btn {
+        animation: glow 1.8s infinite ease-in-out;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .fade-in-card.show-card {
+        animation: fadeInScale 0.6s ease forwards;
+    }
+</style>
 @endsection
