@@ -36,7 +36,7 @@ use App\Http\Controllers\EnumController;
 use App\Http\Controllers\SalaPersonagemController;
 use App\Http\Controllers\SalaController;
 
-Route::view('/loading', 'loading');
+Route::view('/loading', 'loading')->name('loading');
 
 Route::post('/enviar-invite', function(Request $request) {
     $sala = Sala::find($request->salaId);
@@ -99,6 +99,8 @@ Route::get('/registro-personagem', [PersonagemController::class, 'personagem'])-
 Route::post('/personagem/selecionar', [PersonagemController::class, 'select'])->name('character.select');
 // Deselecionar personagem
 Route::post('/personagem/deselecionar', [PersonagemController::class, 'deselect'])->name('character.deselect');
+// Para testar os dados
+Route::get('/dados-teste', [DashboardController::class, 'dice'])->name('dice');
 
 // Atualizar perfil
 Route::get('/perfil', [UserController::class, 'profile'])->name('profile');
@@ -189,10 +191,7 @@ Route::get('/enums/bonus-racas/{raca}', [EnumController::class, 'bonusRacas']);
 // Página que lista as salas do usuário
 Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
 
-// Página de uma sala específica
-Route::get('/salas/{id}', [SalaController::class, 'room'])->name('salas.room');
-
-// Página de criar sala
+// Primeiro a rota fixa (criar)
 Route::get('/salas/criar', function() {
     return view('room.create');
 })->name('salas.create');
@@ -203,8 +202,13 @@ Route::put('/salas/{id}', [SalaController::class, 'update'])->name('salas.update
 Route::delete('/salas/{id}', [SalaController::class, 'destroy'])->name('salas.destroy');
 Route::get('/salas/usuario/{usuarioId}', [SalaController::class, 'getByUsuario'])->name('salas.usuario');
 
+// Depois a rota dinâmica
+Route::get('/salas/{id}', [SalaController::class, 'room'])->name('room.room');
+
 // Rota para pegar todos os usuários (para convite)
 Route::get('/usuarios', [SalaController::class, 'invite'])->name('usuarios.invite');
+Route::post('/enviar-invite', [SalaController::class, 'sendInvite'])->name('enviar.invite');
+Route::get('/convite/{token}', [SalaController::class, 'acceptInvite'])->name('room.invite.accept');
 
 // SalaPersonagem
 Route::get('/sala-personagem/sala/{salaId}', [SalaPersonagemController::class, 'showBySala']);
