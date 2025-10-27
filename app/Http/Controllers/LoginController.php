@@ -33,15 +33,30 @@ class LoginController extends Controller
             'senha' => 'required|string',
         ]);
 
-        $response = $this->api->post('login', [
+        $response = $this->api->post('api/login', [
             'login' => $request->login,
             'senha' => $request->senha,
         ]);
 
-        // verifica se o status é success e existe data
-        if (($response['status'] ?? '') === 'success' && isset($response['data'])) {
+        // Garante que o retorno é um array
+        if (!is_array($response)) {
+            return back()->with('error', 'Erro inesperado na comunicação com o servidor.');
+        }
+
+        // Garante que o login foi bem-sucedido
+        $isSuccess = (
+            (($response['status_code'] ?? 200) === 200) &&
+            (($response['status'] ?? '') === 'success') &&
+            isset($response['data'])
+        );
+
+        if ($isSuccess) {
             $data = $response['data'];
 
+            // Limpa sessões antigas antes de registrar novo login
+            $request->session()->forget(['user_login', 'user_id', 'user_role', 'user_email']);
+
+            // Registra sessão do usuário autenticado
             session([
                 'user_login' => $data['login'] ?? $request->login,
                 'user_id'    => $data['id'] ?? null,

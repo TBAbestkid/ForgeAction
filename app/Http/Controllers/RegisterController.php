@@ -27,7 +27,7 @@ class RegisterController extends Controller
 
     public function registerPost(Request $request)
     {
-        // Validação
+        // Validação dos campos
         $request->validate([
             'login' => 'required|string|min:4',
             'senha' => 'required|string|min:6',
@@ -37,50 +37,66 @@ class RegisterController extends Controller
         $data = $request->only(['login', 'senha', 'email']);
 
         try {
-            $response = $this->api->post('login/register', $data);
+            $response = $this->api->post('api/login/register', $data);
 
-            if (isset($response['id'])) {
+            // Verifica se o retorno é válido
+            if (!is_array($response)) {
+                $message = 'Erro inesperado na comunicação com o servidor.';
+                return $this->handleRegisterResponse($request, false, $message);
+            }
+
+            // Checa sucesso da API (status_code + status + data)
+            $isSuccess = (
+                (($response['status_code'] ?? 200) === 200) &&
+                (($response['status'] ?? '') === 'success') &&
+                isset($response['data'])
+            );
+
+            if ($isSuccess) {
+                $userData = $response['data'];
+
+                // Limpa sessões anteriores
+                $request->session()->forget(['user_login', 'user_id', 'user_role', 'user_email']);
+
+                // Cria sessão do novo usuário
                 session([
-                    'user_login' => $data['login'],
-                    'user_id' => $response['id'],
-                    'user_email' => $data['email'],
-                    'user_role' => $response['role'] ?? 'PLAYER'
+                    'user_login' => $userData['login'] ?? $data['login'],
+                    'user_id'    => $userData['id'] ?? null,
+                    'user_email' => $userData['email'] ?? $data['email'],
+                    'user_role'  => $userData['role'] ?? 'PLAYER'
                 ]);
 
-                // Se for AJAX, retorna JSON
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Cadastro realizado e login efetuado com sucesso!',
-                        'redirect' => route('/')
-                    ]);
-                }
-
-                return redirect('/')->with('success', 'Cadastro realizado e login efetuado com sucesso!');
+                $message = $response['message'] ?? 'Cadastro realizado e login efetuado com sucesso!';
+                return $this->handleRegisterResponse($request, true, $message, '/');
             }
 
-            // Caso não tenha ID retornado
-            $msg = $response['message'] ?? 'Usuário criado com sucesso!';
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $msg
-                ]);
-            }
-
-            return redirect()->route('login')->with('success', $msg);
-
+            // Se a API não retornou sucesso, mostra a mensagem dela
+            $message = $response['message'] ?? 'Falha ao criar usuário.';
+            return $this->handleRegisterResponse($request, false, $message, 'login');
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erro ao criar usuário: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->route('login')->with('error', 'Erro ao criar usuário: ' . $e->getMessage());
+            $message = 'Erro ao criar usuário: ' . $e->getMessage();
+            return $this->handleRegisterResponse($request, false, $message, 'login', 500);
         }
+    }
+
+    /**
+     * Helper para unificar respostas de sucesso/erro do registerPost.
+     */
+    private function handleRegisterResponse(Request $request, bool $success, string $message, string $redirect = null, int $statusCode = 200)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success'  => $success,
+                'message'  => $message,
+                'redirect' => $success && $redirect ? url($redirect) : null
+            ], $statusCode);
+        }
+
+        if ($success) {
+            return redirect($redirect ?? '/')->with('success', $message);
+        }
+
+        return redirect()->route('login')->with('error', $message);
     }
 
 }
