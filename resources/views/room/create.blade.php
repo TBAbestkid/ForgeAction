@@ -3,33 +3,34 @@
 
 @section('content')
 <div class="container mt-5">
-    <div class="card mx-auto shadow border-0 rounded-3 p-4" style="max-width: 600px; background-color: #1c1c1c;">
+    <div class="text-dark mx-auto border-0 rounded-3 p-4" style="max-width: 600px;">
+        <img class="mb-4 mx-auto d-block" src="{{ asset('assets/images/forgeicon.png') }}" alt="" width="72" height="57">
         <h2 class="text-center font-medieval text-white mb-4">Criar Sala</h2>
 
-        <form id="createSalaForm">
+        <form id="createSalaForm" onsubmit="return false;">
             @csrf
 
             <div class="form-floating mb-3">
                 <input type="text" name="nome" class="form-control" placeholder="Nome da Sala" required>
-                <label>Nome da Sala</label>
+                <label><i class="fa-solid fa-door-open"></i> Nome da Sala</label>
             </div>
 
             <div class="form-floating mb-3">
                 <textarea name="descricao" class="form-control" placeholder="Descrição da Sala" style="height:100px;"></textarea>
-                <label>Descrição</label>
+                <label><i class="fa-solid fa-align-left mt-2"></i> Descrição</label>
             </div>
 
             <div class="form-floating mb-3">
                 <input type="password" name="senha" class="form-control" placeholder="Senha (opcional)">
-                <label>Senha (opcional)</label>
+                <label><i class="fa-solid fa-key"></i> Senha (opcional)</label>
             </div>
 
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" name="ativo" id="ativo" checked>
-                <label class="form-check-label text-white" for="ativo">Sala Ativa</label>
+                <label class="form-check-label text-white" for="ativo"> Sala Ativa</label>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">
+            <button type="button" id="btnCreateSala" class="btn btn-primary w-100">
                 <i class="fa-solid fa-plus me-1"></i> Criar Sala
             </button>
         </form>
@@ -42,74 +43,105 @@
 @include('partials.loading')
 
 <script src="{{ asset('js/loading.js') }}"></script>
-@endsection
-@push('scripts')
 <!-- jQuery e Select2 -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    async function submitSala(e) {
-        e.preventDefault();
+    document.getElementById('btnCreateSala').addEventListener('click', async function () {
+        // console.log('🟡 Botão "Criar Sala" clicado.');
 
-        // Pega dados do formulário
         const form = document.getElementById('createSalaForm');
         const formData = new FormData(form);
-        const payload = Object.fromEntries(formData.entries());
 
-        // Ajusta o checkbox (porque "on" não é legal de mandar)
-        payload.ativo = formData.get("ativo") ? true : false;
+        // Validação básica
+        const nome = formData.get('nome')?.trim();
+        if (!nome) {
+            showModal('O nome da sala é obrigatório.');
+            return;
+        }
 
-        // Limpa mensagens antigas
-        document.getElementById('createSalaAlert').innerHTML = '';
+        // Converte checkbox para boolean
+        const ativo = form.querySelector('#ativo')?.checked || false;
 
-        // Mostra overlay/loading
-        showLoading(3000);
+        // Monta o payload seguro
+        const payload = new FormData();
+        payload.append('nome', nome);
+        payload.append('descricao', formData.get('descricao') || '');
+        payload.append('senha', formData.get('senha') || '');
+        payload.append('ativo', ativo ? 'true' : 'false');
+        payload.append('usuario_id', '{{ session("user_id") }}');
+
+        // console.log('📦 Dados do formulário preparados:');
+        // for (let [key, value] of payload.entries()) {
+        //     console.log(`   ${key}:`, value);
+        // }
+
+        // Função de modal
+        function showModal(message) {
+            const modalEl = document.getElementById('modalAlert');
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = message;
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        // Função de toast
+        function showToast(message) {
+            const toastEl = document.getElementById('liveToast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        // Exibe loading até resposta
+        showLoading();
 
         try {
-            // Faz request para criar sala
-            const res = await $.ajax({
-                url: "{{ route('salas.store') }}",
-                method: "POST",
-                data: payload
+            const response = await fetch('{{ route("salas.store") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+                },
+                body: payload
             });
 
-            // Esconde loading
-            hideLoading();
+            console.log('📩 Resposta recebida. Status:', response.status);
 
-            // Mostra mensagem de sucesso
-            document.getElementById('createSalaAlert').innerHTML = `
-                <div class="alert alert-success">Sala criada com sucesso!</div>
-            `;
-
-            // Redireciona após um tempo
-            setTimeout(() => {
-                goToPage("{{ route('salas.index') }}", 2000);
-            }, 1500);
-
-        } catch (err) {
-            console.error(err);
-
-            // Esconde loading
-            hideLoading();
-
-            // Mensagem padrão
-            let msg = 'Erro ao criar sala.';
-
-            // Caso a API retorne mensagem mais específica
-            if (err.responseJSON && err.responseJSON.message) {
-                msg = err.responseJSON.message;
+            let result = {};
+            try {
+                result = await response.json();
+                console.log('📦 Corpo da resposta (JSON):', result);
+            } catch {
+                console.warn('⚠️ Resposta não era JSON.');
             }
 
-            // Mostra alerta de erro
-            document.getElementById('createSalaAlert').innerHTML = `
-                <div class="alert alert-danger">${msg}</div>
-            `;
-        }
-    }
+            hideLoading();
 
-    // Bind no formulário
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('createSalaForm').addEventListener('submit', submitSala);
+            if (result.status === 'success' || response.ok) {
+                showToast(result.message || 'Sala criada com sucesso!');
+
+                const salaId = result.data?.id;
+                if (salaId) {
+                    setTimeout(() => {
+                        goToPage(`/salas/${salaId}`, 1500); // redireciona direto para a sala criada
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                        goToPage('{{ route("salas.index") }}', 1500); // fallback
+                    }, 1000);
+                }
+
+            } else {
+                // Mostra erro detalhado do backend
+                showModal(result.message || 'Erro ao criar sala.');
+            }
+
+        } catch (error) {
+            console.error('💥 Erro inesperado ao criar sala:', error);
+            hideLoading();
+            showModal('Erro inesperado ao criar sala.');
+        }
     });
 </script>
-@endpush
+@endsection
