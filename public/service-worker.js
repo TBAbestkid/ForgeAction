@@ -1,7 +1,7 @@
 const CACHE_NAME = 'forgeaction-cache-v1';
 const urlsToCache = [
     '/',
-    '/loading.html',
+    '/loading',
     '/assets/images/forgeicon/icon-192x192.png',
     '/assets/images/forgeicon/icon-512x512.png',
     '/css/app.css',
