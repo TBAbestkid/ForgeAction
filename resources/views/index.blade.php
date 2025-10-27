@@ -11,15 +11,14 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
     @if(session('user_login'))
-       <div class="container-fluid">
+        <div class="container-fluid">
             <div class="container mt-4">
                 <h1 class="font-medieval text-start mb-4">Seus Personagens</h1>
 
-                <div class="row g-4">
-
+                <div class="d-flex flex-wrap gap-4 justify-content-center">
                     <!-- Coluna 1: Personagem Selecionado -->
-                    <div class="col-md-4">
-                        <div class="card shadow-lg border-0 flex-fill" style="min-width: 320px; max-width: 380px;">
+                    <div class="flex-fill" style="min-width: 320px; max-width: 380px;">
+                        <div class="card shadow-lg border-0 h-100">
                             <div class="card-body text-white rounded-3 p-4">
                                 <h5 class="card-title mb-4 fw-bold">
                                     <i class="fa-solid fa-user-astronaut me-2"></i> Personagem Selecionado
@@ -35,13 +34,6 @@
                                         </div>
                                     </div>
                                     <p class="small fst-italic mb-3">{{ session('selected_character.description') ?? 'Descrição breve do personagem selecionado...' }}</p>
-
-                                    <!-- Botão Remover Seleção -->
-                                    {{-- <div class="text-end">
-                                        <button class="btn btn-sm btn-outline-danger deselect-btn">
-                                            <i class="fas fa-times-circle me-1"></i> Remover Seleção
-                                        </button>
-                                    </div> --}}
                                 @else
                                     <div class="d-flex align-items-center mb-4">
                                         <i class="fa-regular fa-circle-user fa-3x text-secondary"></i>
@@ -56,12 +48,11 @@
                     </div>
 
                     <!-- Coluna 2: Lista de Personagens -->
-                    <div class="col-md-4">
-                        <div class="card shadow-lg border-0 flex-fill text-white" style="min-width: 320px; max-width: 100%;">
+                    <div class="flex-fill" style="min-width: 320px; max-width: 400px;">
+                        <div class="card shadow-lg border-0 text-white h-100">
                             <div class="card-body rounded-3 p-4">
                                 <h6 class="fw-bold text-light mb-3"><i class="fa-solid fa-users me-2"></i> Personagens Disponíveis</h6>
 
-                                <!-- Barra de pesquisa -->
                                 <div class="input-group mb-3">
                                     <span class="input-group-text bg-dark text-light border-secondary">
                                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -70,7 +61,6 @@
                                         placeholder="Pesquisar por nome, raça ou classe...">
                                 </div>
 
-                                <!-- Lista de Personagens -->
                                 <ul id="characterList" class="list-group list-group-flush bg-dark" style="max-height: 400px; overflow-y: auto;">
                                     <li class="list-group-item bg-dark text-white text-center" id="loadingCharacters">
                                         <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando personagens...
@@ -81,9 +71,9 @@
                     </div>
 
                     <!-- Coluna 3: Botões de Ação -->
-                    <div class="col-md-4">
-                        <div class="card text-start shadow-sm flex-fill" style="min-width: 200px;">
-                            <div class="card-body rounded">
+                    <div class="flex-fill" style="min-width: 200px; max-width: 300px;">
+                        <div class="card text-start shadow-sm h-100">
+                            <div class="card-body rounded d-flex flex-column justify-content-center">
                                 <div class="d-grid gap-2">
                                     <a href="{{ route('registerPerson') }}" class="btn btn-outline-light">
                                         <i class="fa-solid fa-user-plus me-1"></i> Adicionar Personagem
@@ -101,17 +91,15 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                <div class="container mt-4">
+                <!-- Salas -->
+                <div class="container mt-5">
                     <h1 class="font-medieval text-start mb-4">Salas</h1>
-
-                    <div class="row g-4">
-
+                    <div class="d-flex flex-wrap gap-4 justify-content-center align-items-start">
                         <!-- Card principal -->
-                        <div class="col-md-8">
-                            <div class="card shadow border-0 flex-fill">
+                        <div class="flex-grow-1 flex-shrink-1" style="flex-basis: 600px; min-width: 320px;">
+                            <div class="card shadow border-0 h-100">
                                 <div class="card-body text-white rounded-3 p-4" id="salas-container">
                                     <div class="d-flex align-items-center justify-content-center gap-2 bg-dark text-light fw-bold rounded-3 p-3 shadow-sm">
                                         <i class="fa-solid fa-spinner fa-spin fa-lg"></i>
@@ -121,19 +109,10 @@
                             </div>
                         </div>
 
-                        <!-- Deixar comentado
-                        <div class="col-md-4">
-                            <div class="card shadow border-0 flex-fill">
-                                <div class="card-body text-white rounded-3 p-4">
-                                    plergh
-                                </div>
-                            </div>
-                        </div>-->
-
-                        <!-- Botões pra quando for Mestre -->
-                        <div class="col-md-4 master-only" @if(session('user_role') !== 'MASTER') style="display:none" @endif>
-                            <div class="card shadow border-0 flex-fill">
-                                <div class="card-body text-white rounded-3 p-4">
+                        <!-- Botões pra Mestre -->
+                        <div class="flex-grow-0 flex-shrink-1 master-only" style="flex-basis: 300px; min-width: 200px;" @if(session('user_role') !== 'MASTER') style="display:none" @endif>
+                            <div class="card shadow border-0 h-100">
+                                <div class="card-body text-white rounded-3 p-4 d-flex flex-column justify-content-start">
                                     <div class="d-grid gap-2">
                                         <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
                                             <i class="fa-solid fa-user-plus"></i> Todas as salas
