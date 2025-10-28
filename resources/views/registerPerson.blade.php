@@ -284,12 +284,13 @@
         /* ---------- SUBMIT ---------- */
         async function tryDeletePersonagem(id){ if(!id) return; await api('/personagem/'+id,'DELETE'); }
 
-        async function submitCharacter() {
+       async function submitCharacter() {
             if (!userId || userId === 0) {
                 showModal("Usuário não logado");
                 return;
             }
 
+            // Valida campos da etapa 1
             if (!validateFields(infoFields)) {
                 showModal("Preencha todos os campos corretamente antes de continuar.");
                 goToInfo();
@@ -299,93 +300,38 @@
             const info = getInfo();
             const attrs = getAttrs();
 
-            const requiredInfo = ['nome', 'raca', 'classe', 'idade', 'genero'];
-            const missing = requiredInfo.filter(k => !info[k] || info[k].toString().trim() === '');
-
-            if (missing.length > 0) {
-                showModal(`Campos ausentes: ${missing.join(', ')}`);
-                return;
-            }
-
-            // Verifica atributos
+            // Verifica pontos de atributos
             const totalAtributos = Object.values(attrs).reduce((a, b) => a + (parseInt(b) || 0), 0);
-            if (totalAtributos !== 23) {
-                showModal("Distribua todos os pontos de atributo antes de criar o personagem.");
+            if (totalAtributos !== TOTAL_POINTS) {
+                showModal(`Distribua todos os ${TOTAL_POINTS} pontos de atributo antes de criar o personagem.`);
                 return;
             }
 
-            const payload = {
-                usuario: { id: userId },
-                nome: info.nome.trim(),
-                raca: info.raca,
-                classe: info.classe,
-                idade: info.idade,
-                genero: info.genero
-            };
+            // Monta payload corretamente
+            const payload = { usuarioId: userId, ...info, ...attrs };
 
-            nextBtn.disabled = true;
             submitBtn.disabled = true;
-
-            showLoading(5000); // mostra o loading enquanto cria
+            nextBtn.disabled = true;
+            showLoading(5000);
 
             try {
-                console.log("📤 Enviando payload para criação do personagem:", payload);
+                const res = await api('/personagem', 'POST', payload);
 
-                // Cria personagem
-                const resP = await api('/personagem', 'POST', payload);
-                // console.log("✅ Resposta da criação:", resP);
-
-                // Corrige o acesso aos dados da API
-                const apiResponse = resP.data; // corpo real da resposta (onde está status e data)
-
-                if (!apiResponse || apiResponse.status !== 'success' || !apiResponse.data?.id) {
-                    // console.warn("⚠️ Erro detectado na criação do personagem. Resposta inválida:", apiResponse);
-                    throw new Error('Resposta inválida ao criar personagem');
+                // Aqui só checamos status e code do JSON
+                if (res.data?.status === 'success' && res.data?.code === 201) {
+                    hideLoading();
+                    showModal("Personagem criado com sucesso!");
+                    setTimeout(() => window.location.href = '/dashboard', 2000);
+                } else {
+                    throw new Error(res.data?.message || `Erro inesperado: ${res.data?.code || res.status}`);
                 }
-
-                const id = apiResponse.data.id;
-                console.log("🆔 Personagem criado com ID:", id);
-
-                // Pega o último personagem criado do usuário
-                // console.log(`📡 Buscando personagens do usuário ID: ${userId}`);
-                const resUser = await api(`/personagem/usuario/${userId}`);
-                // console.log("📥 Resposta dos personagens do usuário:", resUser);
-
-                // Também ajusta o acesso aos dados do usuário
-                const userResponse = resUser.data;
-
-                if (!userResponse || userResponse.status !== 'success' || !Array.isArray(userResponse.data)) {
-                    throw new Error('Falha ao recuperar personagens do usuário');
-                }
-
-                // Pega o último personagem criado
-                const lastChar = userResponse.data.find(p => p.id === id);
-                if (!lastChar) {
-                    throw new Error('O personagem criado não foi retornado pelo servidor.');
-                }
-
-                // Cria atributos e info
-                // console.log("📦 Enviando dados de atributos e info:", { attrs, info });
-                console.log("🧩 Personagem confirmado:", lastChar);
-
-                await Promise.all([
-                    api('/atributos-personagem', 'POST', { personagem: { id }, ...attrs }),
-                    api('/info-personagem', 'POST', { personagem: { id }, ...info })
-                ]);
-
-                // console.log("🎉 Personagem, atributos e info criados com sucesso!");
-                hideLoading();
-                showModal("Personagem criado com sucesso!");
-                setTimeout(() => window.location.href = '/dashboard', 2000);
 
             } catch (err) {
-                // console.error("💥 ERRO no processo de criação do personagem:", err);
                 hideLoading();
                 showModal("Erro ao criar personagem: " + err.message, true);
             } finally {
-                // console.log("🔚 Processo finalizado, reabilitando botões.");
-                nextBtn.disabled = false;
                 submitBtn.disabled = false;
+                nextBtn.disabled = false;
             }
         }
 
