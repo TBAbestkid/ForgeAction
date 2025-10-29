@@ -68,6 +68,10 @@ class DashboardController extends Controller
         return view('index', compact('char', 'personagens'));
     }
 
+    public function dice()
+    {
+        return view('dice');
+    }
 
     // Sobre
     public function about()
@@ -94,29 +98,45 @@ class DashboardController extends Controller
         // Pega apenas o data[]
         $personagens = $response['data'] ?? [];
 
-        // Normaliza para evitar nulls
+        // Busca classes e raças
+        $classesRes = $this->api->get("enums/classes");
+        $racasRes = $this->api->get("enums/racas");
+
+        $classes = is_string($classesRes) ? json_decode($classesRes, true)['data'] ?? [] : $classesRes['data'] ?? [];
+        $racas = is_string($racasRes) ? json_decode($racasRes, true)['data'] ?? [] : $racasRes['data'] ?? [];
+
+        // Opcional: garantir que todos os campos existam para evitar undefined na view
         $personagens = array_map(function ($p) {
             return [
                 'id' => $p['id'] ?? 0,
-                'infoPersonagem' => $p['infoPersonagem'] ?? [
-                    'nome' => 'Desconhecido',
-                    'classe' => '-',
-                    'raca' => '-',
-                    'idade' => 0,
-                    'genero' => '-',
-                ],
-                'atributos' => $p['atributos'] ?? [
-                    'forca'=>0,'agilidade'=>0,'inteligencia'=>0,'sabedoria'=>0,
-                    'destreza'=>0,'vitalidade'=>0,'percepcao'=>0,'carisma'=>0
-                ],
-                'bonus' => $p['bonus'] ?? ['bonusVida'=>0,'bonusMana'=>0],
-                'status' => $p['status'] ?? ['vida'=>0,'mana'=>0,'iniciativa'=>0],
-                'ataque' => $p['ataque'] ?? ['ataqueMagico'=>0,'ataqueFisicoCorpo'=>0,'ataqueFisicoDistancia'=>0],
-                'danoBase' => $p['danoBase'] ?? ['fisico'=>0,'magico'=>0],
+                'personagemId' => $p['personagemId'] ?? 0,
+                'nome' => $p['nome'] ?? 'Desconhecido',
+                'raca' => $p['raca'] ?? '-',
+                'classe' => $p['classe'] ?? '-',
+                'idade' => $p['idade'] ?? 0,
+                'genero' => $p['genero'] ?? '-',
+                'level' => $p['level'] ?? 1,
+                'forca' => $p['forca'] ?? 0,
+                'agilidade' => $p['agilidade'] ?? 0,
+                'inteligencia' => $p['inteligencia'] ?? 0,
+                'destreza' => $p['destreza'] ?? 0,
+                'vitalidade' => $p['vitalidade'] ?? 0,
+                'percepcao' => $p['percepcao'] ?? 0,
+                'sabedoria' => $p['sabedoria'] ?? 0,
+                'carisma' => $p['carisma'] ?? 0,
+                'vida' => $p['vida'] ?? 0,
+                'mana' => $p['mana'] ?? 0,
+                'iniciativa' => $p['iniciativa'] ?? 0,
+                'ataqueMagico' => $p['ataqueMagico'] ?? 0,
+                'ataqueFisicoCorpo' => $p['ataqueFisicoCorpo'] ?? 0,
+                'ataqueFisicoDistancia' => $p['ataqueFisicoDistancia'] ?? 0,
+                'defesaPersonagem' => $p['defesaPersonagem'] ?? 0,
+                'esquivaPersonagem' => $p['esquivaPersonagem'] ?? 0,
+                'usuarioId' => $p['usuarioId'] ?? 0,
             ];
         }, $personagens);
 
-        return view('dashboard', compact('personagens'));
+        return view('dashboard', compact('personagens', 'classes', 'racas'));
     }
 
 }

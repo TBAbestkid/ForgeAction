@@ -222,45 +222,75 @@
                 url: "/personagem/usuario/{{ session('user_id') }}",
                 method: "GET",
                 success: function (response) {
-                    $characterList.empty(); // remove o loading
+                    $characterList.empty(); // limpa o conteúdo anterior
 
                     const personagens = response.data || [];
 
                     if (personagens.length > 0) {
                         personagens.forEach(p => {
-                            const info = p.infoPersonagem;
-                            const racas = { /* seu mapeamento de raças */ };
-                            const classes = { /* seu mapeamento de classes */ };
+                            const racas = {
+                                "DRACONATO": "Draconato",
+                                "TIEFLING": "Tiefling",
+                                "HALFLING": "Halfling",
+                                "ANAO": "Anão",
+                                "HUMANO": "Humano",
+                                "ELFO": "Elfo",
+                                "ORC": "Orc",
+                                "BRUTE_MEIO_ORC_HUMANO": "Brute (meio-orc + humano)",
+                                "BRUTE_MEIO_ORC_ELFO": "Brute (meio-orc + elfo)",
+                                "TARNISHED_ELFO_HUMANO": "Tarnished (elfo + humano)",
+                                "TARNISHED_ELFO_TIEFLING": "Tarnished (elfo + tiefling)"
+                            };
+
+                            const classes = {
+                                "ATIRADOR": "Atirador",
+                                "CACADOR": "Caçador",
+                                "GUERREIRO": "Guerreiro",
+                                "PALADINO": "Paladino",
+                                "ESPADACHIM": "Espadachim",
+                                "ASSASSINO": "Assassino",
+                                "LADRAO": "Ladrão",
+                                "FEITICEIRO": "Feiticeiro",
+                                "BRUXO": "Bruxo",
+                                "MAGO": "Mago",
+                                "CLERIGO": "Clérigo",
+                                "MONGE": "Monge",
+                                "XAMA": "Xamã",
+                                "DRUIDA": "Druida",
+                                "ARTIFICE": "Artífice",
+                                "BARDO": "Bardo"
+                            };
 
                             $characterList.append(`
-                                <li class="bg-dark text-white list-group-item d-flex justify-content-between align-items-center personagem-item"
-                                    data-nome="${info.nome.toLowerCase()}"
-                                    data-raca="${info.raca.toLowerCase()}"
-                                    data-classe="${info.classe.toLowerCase()}">
+                                <div class="personagem-card bg-dark text-white p-3 mb-2 rounded-3 d-flex justify-content-between align-items-center">
                                     <div>
-                                        <strong>${info.nome}</strong><br>
-                                        <small>Raça: ${racas[info.raca] ?? info.raca} | Classe: ${classes[info.classe] ?? info.classe}</small>
+                                        <strong class="fs-5">${p.nome}</strong><br>
+                                        <small>
+                                            Raça: ${racas[p.raca] ?? p.raca} |
+                                            Classe: ${classes[p.classe] ?? p.classe}
+                                        </small>
                                     </div>
                                     <button class="btn btn-sm btn-outline-primary select-btn" data-character='${JSON.stringify(p)}'>
                                         <i class="fa-solid fa-check me-1"></i> Selecionar
                                     </button>
-                                </li>
+                                </div>
                             `);
                         });
-                        attachCharacterEvents();
+
+                        attachCharacterEvents(); // reativa os botões
                     } else {
                         $characterList.html(`
-                            <li class="list-group-item bg-dark text-light text-center">
+                            <div class="text-center text-light py-3 bg-dark rounded">
                                 <i class="fa-solid fa-circle-exclamation"></i> Nenhum personagem encontrado.
-                            </li>
+                            </div>
                         `);
                     }
                 },
                 error: function () {
                     $characterList.html(`
-                        <li class="list-group-item bg-dark text-danger text-center">
+                        <div class="text-center text-danger py-3 bg-dark rounded">
                             <i class="fa-solid fa-triangle-exclamation"></i> Erro ao carregar personagens.
-                        </li>
+                        </div>
                     `);
                 }
             });
@@ -315,54 +345,70 @@
         const $salasContainer = $("#salas-container");
 
         function loadSalas() {
-            $.ajax({
-                url: "/salas/usuario/{{ session('user_id') }}",
-                method: "GET",
-                success: function (response) {
-                    $salasContainer.empty();
+            const userId = "{{ session('user_id') }}";
+            const userRole = "{{ session('user_role') }}";
 
-                    // agora pegamos apenas response.data
-                    const salas = response.data || [];
+            $salasContainer.html("<p class='text-light'>Carregando salas...</p>");
 
-                    if (salas.length > 0) {
-                        const $list = $("<ul class='list-group'></ul>");
+            // Função auxiliar para buscar as salas (por tipo)
+            function fetchSalas(url) {
+                return $.ajax({ url, method: "GET" })
+                    .then(response => response.data || [])
+                    .catch(() => []);
+            }
 
-                        salas.forEach((sala) => {
-                            $list.append(`
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <i class="fa-solid fa-door-open me-2 text-primary"></i>
-                                        <a href="/salas/${sala.id}" class="text-decoration-none">${sala.nome}</a>
-                                    </span>
+            // Decide quais rotas chamar
+            const rotas = [];
 
-                                    <div class="btn-group">
-                                        <a href="/salas/${sala.id}/edit" class="btn btn-sm btn-outline-warning">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
-                                            <i class="fa-solid fa-user-plus"></i>
-                                        </button>
-                                    </div>
-                                </li>
-                            `);
-                        });
+            if (userRole === "PLAYER") {
+                rotas.push(`/salas/jogador/${userId}`);
+            } else if (userRole === "MESTRE") {
+                // busca tanto as que ele criou quanto as que participa
+                rotas.push(`/salas/mestre/${userId}`, `/salas/jogador/${userId}`);
+            } else {
+                // fallback se for outro tipo ou indefinido
+                rotas.push(`/salas/jogador/${userId}`);
+            }
 
-                        $salasContainer.append($list);
-                        attachSalaEvents();
-                    } else {
-                        $salasContainer.html(`
-                            <div class="alert alert-info">
-                                <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
-                            </div>
+            // Faz todas as requisições e junta os resultados
+            Promise.all(rotas.map(fetchSalas)).then(results => {
+                const salas = results.flat(); // junta as listas
+                $salasContainer.empty();
+
+                if (salas.length > 0) {
+                    const $list = $("<ul class='list-group'></ul>");
+                    salas.forEach((sala) => {
+                        $list.append(`
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fa-solid fa-door-open me-2 text-primary"></i>
+                                    <a href="/salas/${sala.id}" class="text-decoration-none">${sala.nome}</a>
+                                </span>
+                                <div class="btn-group">
+                                    <a href="/salas/${sala.id}/edit" class="btn btn-sm btn-outline-warning">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                    </button>
+                                </div>
+                            </li>
                         `);
-                    }
-                },
-                error: function () {
-                    $salasContainer.html("<p class='text-danger'>Erro ao carregar salas.</p>");
+                    });
+                    $salasContainer.append($list);
+                    attachSalaEvents();
+                } else {
+                    $salasContainer.html(`
+                        <div class="alert alert-info">
+                            <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
+                        </div>
+                    `);
                 }
+            }).catch(() => {
+                $salasContainer.html("<p class='text-danger'>Erro ao carregar salas.</p>");
             });
         }
 

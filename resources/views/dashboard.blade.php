@@ -3,78 +3,34 @@
 @section('content')
 
 <div class="container mt-4">
-    <h1 class="font-medieval text-center text-light mb-4">Seus Personagens</h1>
 
-    <!-- Barra de pesquisa e filtros -->
-    <div class="card bg-dark text-white shadow-sm border border-secondary rounded-4 mb-4 p-3">
-        <div class="row g-3 align-items-center">
+    <h1 class="text-center mb-4">Seus Personagens</h1>
 
-            <div class="col-md-6">
-                <input type="text" id="searchPersonagem" class="form-control bg-secondary text-white border-0"
-                       placeholder="Pesquisar por nome, raça ou classe...">
-            </div>
-            @php
-                $racas = [
-                    ["descricao" => "Draconato", "constante" => "DRACONATO"],
-                    ["descricao" => "Tiefling", "constante" => "TIEFLING"],
-                    ["descricao" => "Halfling", "constante" => "HALFLING"],
-                    ["descricao" => "Anão", "constante" => "ANAO"],
-                    ["descricao" => "Humano", "constante" => "HUMANO"],
-                    ["descricao" => "Elfo", "constante" => "ELFO"],
-                    ["descricao" => "Orc", "constante" => "ORC"],
-                    ["descricao" => "Brute (meio-orc + humano)", "constante" => "BRUTE_MEIO_ORC_HUMANO"],
-                    ["descricao" => "Brute (meio-orc + elfo)", "constante" => "BRUTE_MEIO_ORC_ELFO"],
-                    ["descricao" => "Tarnished (elfo + humano)", "constante" => "TARNISHED_ELFO_HUMANO"],
-                    ["descricao" => "Tarnished (elfo + tiefling)", "constante" => "TARNISHED_ELFO_TIEFLING"]
-                ];
+    <!-- Pesquisa e filtros simples -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <input type="text" id="searchPersonagem" class="form-control" style="flex:1;" placeholder="Pesquisar por nome, raça ou classe...">
 
-                $classes = [
-                    ["descricao" => "Atirador", "constante" => "ATIRADOR"],
-                    ["descricao" => "Caçador", "constante" => "CACADOR"],
-                    ["descricao" => "Guerreiro", "constante" => "GUERREIRO"],
-                    ["descricao" => "Paladino", "constante" => "PALADINO"],
-                    ["descricao" => "Espadachim", "constante" => "ESPADACHIM"],
-                    ["descricao" => "Assassino", "constante" => "ASSASSINO"],
-                    ["descricao" => "Ladrão", "constante" => "LADRAO"],
-                    ["descricao" => "Feiticeiro", "constante" => "FEITICEIRO"],
-                    ["descricao" => "Bruxo", "constante" => "BRUXO"],
-                    ["descricao" => "Mago", "constante" => "MAGO"],
-                    ["descricao" => "Clérigo", "constante" => "CLERIGO"],
-                    ["descricao" => "Monge", "constante" => "MONGE"],
-                    ["descricao" => "Xamã", "constante" => "XAMA"],
-                    ["descricao" => "Druida", "constante" => "DRUIDA"],
-                    ["descricao" => "Artífice", "constante" => "ARTIFICE"],
-                    ["descricao" => "Bardo", "constante" => "BARDO"]
-                ];
-            @endphp
+        <select id="filterClasse" class="form-select" style="width:auto;">
+            <option value="">Todas as Classes</option>
+            @foreach($classes as $c)
+                <option value="{{ $c['constante'] }}">{{ $c['descricao'] }}</option>
+            @endforeach
+        </select>
 
-            <div class="col-md-3">
-                <select id="filterClasse" class="form-select bg-secondary text-white border-0">
-                    <option value="">Todas as Classes</option>
-                    @foreach($classes as $c)
-                        <option value="{{ $c['constante'] }}">{{ $c['descricao'] }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <select id="filterRaca" class="form-select bg-secondary text-white border-0">
-                    <option value="">Todas as Raças</option>
-                    @foreach($racas as $r)
-                        <option value="{{ $r['constante'] }}">{{ $r['descricao'] }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-        </div>
+        <select id="filterRaca" class="form-select" style="width:auto;">
+            <option value="">Todas as Raças</option>
+            @foreach($racas as $r)
+                <option value="{{ $r['constante'] }}">{{ $r['descricao'] }}</option>
+            @endforeach
+        </select>
     </div>
 
-    <!-- Lista de Personagens -->
+    <!-- Lista de personagens -->
     <div id="characterListContainer">
-        <div class="alert alert-info text-center" id="loadingCharacters">
+        <div id="loadingCharacters" class="text-center mb-2 bg-dark text-white text-center">
             <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando personagens...
         </div>
-        <div id="characterCards"></div>
+        <div id="characterCards" class="d-flex flex-column gap-2"></div>
     </div>
 
 </div>
@@ -100,20 +56,6 @@
 
 @include('partials.alerts')
 
-<style>
-    .personagem-card {
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .personagem-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(255,255,255,0.2);
-    }
-    .btn-group-vertical button {
-        min-width: 80px;
-    }
-</style>
-
 <!-- No head ou antes do fechamento do body -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -128,7 +70,7 @@
 
         const alertNenhum = document.createElement('div');
         alertNenhum.className = 'alert bg-dark text-light fw-bold rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-sm';
-        alertNenhum.innerHTML = `<i class="fas fa-info-circle fa-lg"></i> Nenhum personagem encontrado.`;
+        alertNenhum.innerHTML = `<i class="fas fa-dragon fa-lg"></i> Nenhum personagem encontrado!`;
 
         async function loadPersonagens() {
             try {
@@ -147,25 +89,19 @@
                 $cards.empty();
 
                 personagens.forEach(p => {
-                    const info = p.infoPersonagem ?? {nome:'Desconhecido',classe:'-',raca:'-',idade:0,genero:'-'};
-                    const atributos = p.atributos ?? {};
-                    const status = p.status ?? {};
-                    const ataque = p.ataque ?? {};
-                    const danoBase = p.danoBase ?? {};
-
                     const cardHtml = $(`
                         <div class="card bg-dark text-white border border-secondary shadow-sm rounded-3 p-3 personagem-card mb-3"
-                            data-nome="${info.nome.toLowerCase()}"
-                            data-classe="${info.classe.toLowerCase()}"
-                            data-raca="${info.raca.toLowerCase()}">
+                            data-nome="${p.nome.toLowerCase()}"
+                            data-classe="${p.classe.toLowerCase()}"
+                            data-raca="${p.raca.toLowerCase()}">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <h5 class="mb-1 text-info fw-bold">${info.nome}</h5>
+                                    <h5 class="mb-1 text-info fw-bold">${p.nome}</h5>
                                     <div class="d-flex flex-wrap gap-1 mb-1">
-                                        <span class="badge bg-primary">${info.classe}</span>
-                                        <span class="badge bg-secondary">${info.raca}</span>
+                                        <span class="badge bg-primary">${p.classe}</span>
+                                        <span class="badge bg-secondary">${p.raca}</span>
                                     </div>
-                                    <small class="text-light">Idade: ${info.idade} | ${info.genero}</small>
+                                    <small class="text-light">Idade: ${p.idade} | ${p.genero}</small>
                                 </div>
                                 <div class="btn-group">
                                     <button class="btn btn-sm btn-outline-success select-btn" data-character='${JSON.stringify(p)}'>
@@ -188,13 +124,22 @@
                                     <div class="col-12 col-md-4">
                                         <h6 class="fw-bold text-info">Atributos</h6>
                                         <ul class="list-unstyled small mb-0">
-                                            ${Object.entries(atributos).map(([k,v])=>`<li>${k}: ${v}</li>`).join('')}
+                                            <li>Força: ${p.forca}</li>
+                                            <li>Agilidade: ${p.agilidade}</li>
+                                            <li>Inteligência: ${p.inteligencia}</li>
+                                            <li>Destreza: ${p.destreza}</li>
+                                            <li>Vitalidade: ${p.vitalidade}</li>
+                                            <li>Percepção: ${p.percepcao}</li>
+                                            <li>Sabedoria: ${p.sabedoria}</li>
+                                            <li>Carisma: ${p.carisma}</li>
                                         </ul>
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <h6 class="fw-bold text-warning">Status & Bônus</h6>
                                         <ul class="list-unstyled small mb-0">
-                                            <li>Iniciativa: ${status.iniciativa||0}</li>
+                                            <li>Vida: ${p.vida}</li>
+                                            <li>Mana: ${p.mana}</li>
+                                            <li>Iniciativa: ${p.iniciativa}</li>
                                             <li>Bônus Vida: ${p.bonus?.bonusVida||0}</li>
                                             <li>Bônus Mana: ${p.bonus?.bonusMana||0}</li>
                                         </ul>
@@ -202,10 +147,13 @@
                                     <div class="col-12 col-md-4">
                                         <h6 class="fw-bold text-danger">Ataque & Dano</h6>
                                         <ul class="list-unstyled small mb-0">
-                                            <li>Fisico: ${ataque.ataqueFisicoCorpo||0} / ${ataque.ataqueFisicoDistancia||0}</li>
-                                            <li>Mágico: ${ataque.ataqueMagico||0}</li>
-                                            <li>Dano Físico: ${danoBase.fisico||0}</li>
-                                            <li>Dano Mágico: ${danoBase.magico||0}</li>
+                                            <li>Fisico Corpo: ${p.ataqueFisicoCorpo}</li>
+                                            <li>Fisico Distância: ${p.ataqueFisicoDistancia}</li>
+                                            <li>Mágico: ${p.ataqueMagico}</li>
+                                            <li>Dano Físico: ${p.danoBase?.fisico||0}</li>
+                                            <li>Dano Mágico: ${p.danoBase?.magico||0}</li>
+                                            <li>Defesa: ${p.defesaPersonagem}</li>
+                                            <li>Esquiva: ${p.esquivaPersonagem}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -254,10 +202,20 @@
                 $.ajax({
                     url: `/personagem/${personagemToDelete}`,
                     type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
                     success: function() {
-                        $(`.delete-btn[data-id='${personagemToDelete}']`).closest('.personagem-card').remove();
+                        const card = $(`.delete-btn[data-id='${personagemToDelete}']`).closest('.personagem-card');
+                        card.fadeOut(400, () => card.remove()); // animação suave
                         personagemToDelete = null;
                         bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+
+                        // Toast de sucesso
+                        toastMessage.textContent = "Personagem excluído com sucesso!";
+                        toastEl.classList.remove('bg-danger');
+                        toastEl.classList.add('bg-success');
+                        toast.show();
                     },
                     error: function(xhr) {
                         alert(xhr.status === 419 ? 'Sessão expirada.' : 'Erro ao deletar personagem: ' + xhr.status);
