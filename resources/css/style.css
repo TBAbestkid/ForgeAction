@@ -1,5 +1,5 @@
 /* deixando o fundo escuro com letra branca
-*  também colocando uma fonte do google medieval    
+*  também colocando uma fonte do google medieval
 */
 
 body {
@@ -60,4 +60,24 @@ h1 {
 .logo-center {
     width: 100px;
     margin-bottom: 20px;
+}
+
+#characterList {
+    max-height: 60vh;
+    overflow-y: auto;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #888 #333; /* Firefox */
+}
+
+#characterList::-webkit-scrollbar {
+    width: 8px; /* Chrome/Safari */
+}
+
+#characterList::-webkit-scrollbar-track {
+    background: #333;
+}
+
+#characterList::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
 }
