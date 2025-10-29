@@ -2,78 +2,83 @@
 @section('title', 'Salas - ForgeAction')
 
 @section('content')
-<div class="container mt-4">
-    <h1 class="font-medieval text-start mb-4">Salas</h1>
+<div class="container mt-4 d-flex flex-column flex-lg-row gap-4">
 
-    <div class="row g-4">
-        <div class="col-md-8">
-            <div class="card shadow border-0 flex-fill">
-                <div class="card-body text-white rounded-3 p-4" id="salas-container">
-                    <li class="list-group-item bg-dark text-white text-center" id="loadingRoom">
-                        <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando salas...
-                    </li>
-                </div>
-            </div>
+    <!-- Coluna principal -->
+    <div class="flex-fill d-flex flex-column gap-5">
+
+        <!-- Botão de Voltar -->
+        <div class="text-start">
+            <a href="{{ url('/') }}" class="btn btn-outline-light mb-4">
+                <i class="fa-solid fa-arrow-left me-1"></i> Voltar para Home
+            </a>
         </div>
 
+        <!-- Minhas Salas -->
         @if(session('user_role') === 'MASTER')
-        <div class="col-md-4">
-            <div class="card shadow border-0 flex-fill">
-                <div class="card-body text-white rounded-3 p-4">
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
-                            <i class="fa-solid fa-user-group"></i> Criar Sala
-                        </a>
-                    </div>
+            <div>
+                <h2 class="font-medieval mb-3">Minhas Salas</h2>
+                <div id="minhas-salas" class="d-flex flex-column gap-3">
+                    @forelse($minhasSalas as $sala)
+                        <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white">
+                            <div>
+                                <strong>{{ $sala['nome'] }}</strong><br>
+                                <small class="text-light">{{ $sala['descricao'] }}</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-secondary me-2">{{ count($sala['salaPersonagens'] ?? []) }} jogador(es)</span>
+                                <a href="/salas/{{ $sala['id'] }}" class="btn btn-sm btn-primary">Entrar</a>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="alert alert-info"><i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala criada.</div>
+                    @endforelse
                 </div>
             </div>
-        </div>
         @endif
+
+        <!-- Salas que participo -->
+        <div>
+            <h2 class="font-medieval mb-3">Salas que participo</h2>
+            <div id="salas-participando" class="d-flex flex-column gap-3">
+                @forelse($outrasSalas as $sala)
+                    <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white">
+                        <div>
+                            <strong>{{ $sala['nome'] }}</strong><br>
+                            <small class="text-light">{{ $sala['descricao'] }}</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-secondary me-2">{{ count($sala['salaPersonagens'] ?? []) }} jogador(es)</span>
+                            <a href="/salas/{{ $sala['id'] }}" class="btn btn-sm btn-primary">Entrar</a>
+                        </div>
+                    </div>
+                @empty
+                    <div class="alert alert-info"><i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala participando.</div>
+                @endforelse
+            </div>
+        </div>
+
     </div>
+
+    <!-- Coluna lateral: apenas para MASTER -->
+    @if(session('user_role') === 'MASTER')
+    <div class="flex-grow-0 flex-shrink-1" style="flex-basis: 300px; min-width: 200px;">
+        <div class="card shadow border-0 h-100 bg-dark text-white">
+            <div class="card-body rounded-3 p-4 d-flex flex-column gap-2">
+                <a href="{{ route('salas.index') }}" class="btn btn-outline-success w-100">
+                    <i class="fa-solid fa-user-plus me-2"></i> Todas as salas
+                </a>
+                <a href="{{ route('salas.create') }}" class="btn btn-outline-primary w-100">
+                    <i class="fa-solid fa-user-group me-2"></i> Criar Sala
+                </a>
+                <a href="{{ route('dashboard') }}" class="btn btn-outline-danger w-100">
+                    <i class="fa-solid fa-trash me-1"></i> Remover Sala
+                </a>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>
 @endsection
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        const container = $("#salas-container");
-
-        $.ajax({
-            url: "/salas/usuario/{{ session('user_id') }}",
-            method: "GET",
-            success: function (response) {
-                container.empty();
-
-                if (response.status === "success" && response.data.length > 0) {
-                    response.data.forEach(sala => {
-                        const numPlayers = sala.salaPersonagens ? sala.salaPersonagens.length : 0;
-
-                        const salaDiv = $(`
-                            <div class="sala-card p-3 mb-3 rounded d-flex justify-content-between align-items-center" style="background-color: #1a1a1a; color: #f5f5f5;">
-                                <div>
-                                    <strong>${sala.nome}</strong><br>
-                                    <small class="text-lights">${sala.descricao}</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-2">${numPlayers} jogador(es)</span>
-                                    <a href="/salas/${sala.id}" class="btn btn-sm btn-primary">Entrar</a>
-                                </div>
-                            </div>
-                        `);
-
-                        container.append(salaDiv);
-                    });
-                } else {
-                    container.append(
-                        `<div class="alert alert-info">
-                            <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
-                        </div>`
-                    );
-                }
-            },
-            error: function () {
-                container.html("<p class='text-danger'>Erro ao carregar salas.</p>");
-            }
-        });
-    });
-</script>
