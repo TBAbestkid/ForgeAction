@@ -24,16 +24,15 @@
                                     <i class="fa-solid fa-user-astronaut me-2"></i> Personagem Selecionado
                                 </h5>
 
-                                @if(session('selected_character'))
+                               @if(session('selected_character'))
                                     <div class="d-flex align-items-center mb-3">
                                         <i class="fa-solid fa-chess-knight fa-3x text-secondary"></i>
                                         <div class="ms-3">
-                                            <strong class="fs-5 d-block">{{ session('selected_character.name') }}</strong>
+                                            <strong class="fs-5 d-block">{{ session('selected_character.nome') }}</strong>
                                             <span class="badge bg-success">Equipado</span>
                                             <p class="mb-0">{{ session('selected_character.raca') }} | {{ session('selected_character.classe') }}</p>
                                         </div>
                                     </div>
-                                    <p class="small fst-italic mb-3">{{ session('selected_character.description') ?? 'Descrição breve do personagem selecionado...' }}</p>
                                 @else
                                     <div class="d-flex align-items-center mb-4">
                                         <i class="fa-regular fa-circle-user fa-3x text-secondary"></i>
@@ -41,7 +40,6 @@
                                             <strong class="fs-5 d-block">Nenhum personagem</strong>
                                         </div>
                                     </div>
-                                    <p class="small fst-italic mb-4">Nenhum personagem selecionado.</p>
                                 @endif
                             </div>
                         </div>
@@ -102,8 +100,9 @@
                             <div class="card shadow border-0 h-100">
                                 <div class="card-body text-white rounded-3 p-4" id="salas-container">
                                     <div class="d-flex align-items-center justify-content-center gap-2 bg-dark text-light fw-bold rounded-3 p-3 shadow-sm">
-                                        <i class="fa-solid fa-spinner fa-spin fa-lg"></i>
-                                        Carregando salas...
+                                        <li class="list-group-item bg-dark text-white text-center" id="loadingRoom">
+                                            <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando salas...
+                                        </li>
                                     </div>
                                 </div>
                             </div>
@@ -191,6 +190,37 @@
 <script>
     $(document).ready(function () {
 
+        /* ------------------------------
+        🔔 Função para mostrar modal
+        ------------------------------ */
+        function showAlert(message) {
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = message;
+
+            const modalEl = document.getElementById('modalAlert');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        /* ------------------------------
+        🎉 Função para mostrar toast
+        tipo: 'success', 'danger', 'warning', 'info'
+        ------------------------------ */
+        function showToast(message, tipo = 'success') {
+            const toastEl = document.getElementById('liveToast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastMessage.textContent = message;
+
+            // Remove classes de bg existentes
+            toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-info');
+            // Adiciona a classe do tipo
+            toastEl.classList.add(`bg-${tipo}`);
+
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
         /* -------------------------------------------------------------
         🔍 PESQUISA DE PERSONAGENS
         ------------------------------------------------------------- */
@@ -262,7 +292,10 @@
                             };
 
                             $characterList.append(`
-                                <div class="personagem-card bg-dark text-white p-3 mb-2 rounded-3 d-flex justify-content-between align-items-center">
+                                <div class="personagem-card bg-dark text-white p-3 mb-2 rounded-3 d-flex justify-content-between align-items-center"
+                                    data-nome="${p.nome.toLowerCase()}"
+                                    data-raca="${p.raca.toLowerCase()}"
+                                    data-classe="${p.classe.toLowerCase()}">
                                     <div>
                                         <strong class="fs-5">${p.nome}</strong><br>
                                         <small>
@@ -270,7 +303,7 @@
                                             Classe: ${classes[p.classe] ?? p.classe}
                                         </small>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-primary select-btn" data-character='${JSON.stringify(p)}'>
+                                    <button class="btn btn-sm btn-outline-success select-btn" data-character='${JSON.stringify(p)}'>
                                         <i class="fa-solid fa-check me-1"></i> Selecionar
                                     </button>
                                 </div>
@@ -310,10 +343,16 @@
                     data: JSON.stringify(character),
                     headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
                     success: function (data) {
-                        if (data.success) location.reload();
+                        if (data.success) {
+                            // Mostra toast ou feedback visual
+                            showToast("Personagem selecionado com sucesso!", "success");
+                            location.reload();
+                        } else {
+                            showAlert(data.message || "Erro ao selecionar personagem.");
+                        }
                     },
-                    error: function () {
-                        alert("Erro ao selecionar personagem.");
+                    error: function (xhr) {
+                        showAlert("Erro na requisição: " + xhr.status);
                     }
                 });
             });
@@ -348,35 +387,46 @@
             const userId = "{{ session('user_id') }}";
             const userRole = "{{ session('user_role') }}";
 
-            $salasContainer.html("<p class='text-light'>Carregando salas...</p>");
+            $salasContainer.html("<li class='list-group-item bg-dark text-white text-center' id='loadingRoom'> <i class='fa-solid fa-spinner fa-spin me-2'></i> Carregando salas... </li>");
 
-            // Função auxiliar para buscar as salas (por tipo)
+            // 🔹 Função auxiliar para buscar as salas (por tipo)
             function fetchSalas(url) {
                 return $.ajax({ url, method: "GET" })
-                    .then(response => response.data || [])
+                    .then(response => Array.isArray(response) ? response : (response.data || []))
                     .catch(() => []);
             }
 
-            // Decide quais rotas chamar
+
+            // 🔹 Define as rotas que serão chamadas
             const rotas = [];
 
             if (userRole === "PLAYER") {
-                rotas.push(`/salas/jogador/${userId}`);
-            } else if (userRole === "MESTRE") {
-                // busca tanto as que ele criou quanto as que participa
-                rotas.push(`/salas/mestre/${userId}`, `/salas/jogador/${userId}`);
-            } else {
-                // fallback se for outro tipo ou indefinido
-                rotas.push(`/salas/jogador/${userId}`);
+                // Jogador → apenas as salas onde ele participa
+                rotas.push(`/api/salas/jogador/${userId}`);
+            }
+            else if (userRole === "MESTRE") {
+                // Mestre → salas que ele criou + salas que participa como jogador
+                rotas.push(`/api/salas/mestre/${userId}`);
+                rotas.push(`/api/salas/jogador/${userId}`);
+            }
+            else {
+                // Fallback → tratar como jogador
+                rotas.push(`/api/salas/jogador/${userId}`);
             }
 
-            // Faz todas as requisições e junta os resultados
+            // 🔹 Faz todas as requisições e junta os resultados
             Promise.all(rotas.map(fetchSalas)).then(results => {
-                const salas = results.flat(); // junta as listas
+                // Junta e remove duplicadas (por ID)
+                const salas = results.flat().reduce((acc, sala) => {
+                    if (!acc.find(s => s.id === sala.id)) acc.push(sala);
+                    return acc;
+                }, []);
+
                 $salasContainer.empty();
 
                 if (salas.length > 0) {
                     const $list = $("<ul class='list-group'></ul>");
+
                     salas.forEach((sala) => {
                         $list.append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -398,6 +448,7 @@
                             </li>
                         `);
                     });
+
                     $salasContainer.append($list);
                     attachSalaEvents();
                 } else {
@@ -421,7 +472,7 @@
                 if (!confirm("Tem certeza que deseja excluir esta sala?")) return;
 
                 $.ajax({
-                    url: `/salas/${id}`,
+                    url: `/api/salas/${id}`,
                     method: "DELETE",
                     data: { _token: "{{ csrf_token() }}" },
                     success: loadSalas,
