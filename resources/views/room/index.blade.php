@@ -42,16 +42,18 @@
             <h2 class="font-medieval mb-3">Salas que participo</h2>
             <div id="salas-participando" class="d-flex flex-column gap-3">
                 @forelse($outrasSalas as $sala)
-                    <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white">
-                        <div>
-                            <strong>{{ $sala['nome'] }}</strong><br>
-                            <small class="text-light">{{ $sala['descricao'] }}</small>
+                    @if(is_array($sala))
+                        <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white">
+                            <div>
+                                <strong>{{ $sala['nome'] ?? '—' }}</strong><br>
+                                <small class="text-light">{{ $sala['descricao'] ?? '' }}</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-secondary me-2">{{ count($sala['salaPersonagens'] ?? []) }} jogador(es)</span>
+                                <a href="/salas/{{ $sala['id'] ?? '#' }}" class="btn btn-sm btn-primary">Entrar</a>
+                            </div>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-secondary me-2">{{ count($sala['salaPersonagens'] ?? []) }} jogador(es)</span>
-                            <a href="/salas/{{ $sala['id'] }}" class="btn btn-sm btn-primary">Entrar</a>
-                        </div>
-                    </div>
+                    @endif
                 @empty
                     <div class="alert alert-info"><i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala participando.</div>
                 @endforelse
