@@ -13,7 +13,6 @@
         "laravel/framework": "^11.31",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.9",
-        "pusher/pusher-php-server": "^7.2",
         "sendinblue/api-v3-sdk": "^8.4",
         "symfony/http-client": "^7.3",
         "symfony/mailchimp-mailer": "^7.3"
