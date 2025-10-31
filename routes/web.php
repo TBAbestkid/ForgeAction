@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ExternalApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\UserController;
@@ -32,23 +31,6 @@ use App\Http\Controllers\SalaApiController;
 
 Route::view('/loading', 'loading')->name('loading');
 Route::view('/baixar', 'pwa.download')->name('pwa.download');
-
-Route::post('/enviar-invite', function(Request $request) {
-    $sala = Sala::find($request->salaId);
-    $user = User::where('email', $request->email)->first();
-    $remetente = auth()->user()->login; // usuário logado
-
-    $link = route('room.selection', ['salaId' => $sala->id]); // link para seleção de personagem
-
-    Mail::to($user->email)->send(new InviteMail($remetente, $sala->nome, $link));
-
-    return response()->json([
-        'success' => true,
-        'message' => "Convite enviado para {$user->email}"
-    ]);
-});
-
-Route::get('/dados-externos', [ExternalApiController::class, 'index']);
 
 // -------------------- LOGIN --------------------
 // Exibir formulário de login
@@ -102,10 +84,17 @@ Route::post('/personagem/deselecionar', [PersonagemController::class, 'deselect'
 Route::get('/dados-teste', [DashboardController::class, 'dice'])->name('dice');
 
 // Atualizar perfil
-Route::get('/perfil', [UserController::class, 'profile'])->name('profile');
+Route::get('/perfil', [UserController::class, 'profile'])->name('profile'); // Página de perfil
+
+// Rotas da API de usuário
 Route::put('/perfil/email', [UserController::class, 'updateEmail'])->name('profile.updateEmail');
 Route::put('/perfil/role', [UserController::class, 'updateRole'])->name('profile.updateRole');
 Route::put('/perfil/senha', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
+// 🔹 Rota para listar todos os usuários
+Route::get('/usuarios', [UserController::class, 'get'])->name('api.users.list');
+
+// 🔹 Rota para buscar um usuário específico
+Route::get('/usuarios/{usuarioId}', [UserController::class, 'getById'])->name('api.users.show');
 
 /*
  *--------------------------------------------
@@ -131,6 +120,7 @@ Route::get('/enums/bonus-racas/{raca}', [EnumController::class, 'bonusRacas']);
 Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
 Route::get('/salas/criar', function() { return view('room.create'); })->name('salas.create');
 Route::get('/salas/{id}', [SalaController::class, 'room'])->name('room.room');
+Route::post('/salas/personagens/adicionar/{salaId}', [SalaController::class, 'adicionarPersonagem']);
 
 
 // ---------- ROTAS DE API PARA SALAS ----------
