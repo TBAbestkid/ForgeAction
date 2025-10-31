@@ -26,7 +26,7 @@
                                 <small class="text-light">{{ $sala['descricao'] }}</small>
                             </div>
                             <div class="d-flex align-items-center">
-                                <span class="badge bg-secondary me-2">{{ count($sala['salaPersonagens'] ?? []) }} jogador(es)</span>
+                                <span class="badge bg-secondary me-2">{{ $sala['total_jogadores'] ?? 0 }} jogador(es)</span>
                                 <a href="/salas/{{ $sala['id'] }}" class="btn btn-sm btn-primary">Entrar</a>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                                 <small class="text-light">{{ $sala['descricao'] ?? '' }}</small>
                             </div>
                             <div class="d-flex align-items-center">
-                                <span class="badge bg-secondary me-2">{{ count($sala['salaPersonagens'] ?? []) }} jogador(es)</span>
+                                <span class="badge bg-secondary me-2">{{ $sala['total_jogadores'] ?? 0 }} jogador(es)</span>
                                 <a href="/salas/{{ $sala['id'] ?? '#' }}" class="btn btn-sm btn-primary">Entrar</a>
                             </div>
                         </div>
