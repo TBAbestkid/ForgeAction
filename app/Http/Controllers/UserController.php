@@ -16,6 +16,26 @@ class UserController extends Controller
         $this->api = $api;
     }
 
+    /**
+     * GET /api/usuarios
+     * Retorna todos os usuarios
+     */
+    public function get() {
+        return response()->json(
+            $this->api->get("api/usuarios")
+        );
+    }
+
+    /**
+     * GET /api/usuarios/{id}
+     * Retorna o usuario pelo ID
+     */
+    public function getById($usuarioId) {
+        return response()->json(
+            $this->api->get("api/usuarios/{$usuarioId}")
+        );
+    }
+
     public function profile(Request $request)
     {
         if (!$request->session()->has('user_login')) {
