@@ -77,3 +77,50 @@ body {
     background-color: #888;
     border-radius: 4px;
 }
+
+#images-section {
+    overflow: hidden;
+    max-height: 400px; /* altura inicial suficiente para suas imagens */
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+#images-section.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+#chat-messages {
+    overflow-y: auto; /* scrollbar vertical */
+    flex-grow: 1;      /* ocupa todo o espaço do chat-container */
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;       /* espaçamento entre mensagens */
+}
+
+/* opcional: rolar até a última mensagem */
+#chat-messages.scroll-bottom {
+    scroll-behavior: smooth;
+}
+.drawer {
+    position: relative;
+    width: 0;
+    overflow: hidden;
+    transition: width 0.4s ease;
+    min-height: 100%;
+    border-right: 1px solid #444;
+}
+
+.drawer.open {
+    width: 360px;
+}
+
+.drawer-body {
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
+}
+
+/* Suaviza o conteúdo principal empurrando */
+body.drawer-open main {
+    margin-left: 360px;
+    transition: margin-left 0.4s ease;
+}
