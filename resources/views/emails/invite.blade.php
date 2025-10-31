@@ -31,7 +31,7 @@
                             <p style="font-size:16px; line-height:1.5; margin:0 0 10px;">
                                 <strong>{{ $remetente }}</strong> está te convidando para se juntar à aventura:
                             </p>
-                            <h2 style="font-family:'MedievalSharp', Georgia, serif; color:#6f42c1; font-size:22px; margin:0 0 15px;">{{ $sala }}</h2>
+                            <h2 style="font-family:'MedievalSharp', Georgia, serif; color:#6f42c1; font-size:22px; margin:0 0 15px;">{{ $sala['nome'] }}</h2>
                             <p style="font-size:16px; line-height:1.5; margin:0 0 20px;">
                                 Prepare-se para explorar, lutar e se divertir ao lado de outros jogadores. Clique no botão abaixo para aceitar o convite e entrar na sala.
                             </p>
