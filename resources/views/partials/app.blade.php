@@ -10,6 +10,7 @@
     <meta name="author" content="ForgeAction Team">
     <meta name="robots" content="index, follow">
     <meta name="language" content="pt-BR">
+    <meta name="theme-color" content="#000000">
     <title>@yield('title', 'ForgeAction')</title>
     <link rel="icon" type="image/png" href="{{ secure_asset('assets/images/forgeicon.png') }}" />
     <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon-96x96.png') }}" sizes="96x96" />
@@ -105,13 +106,13 @@
         gtag('config', 'G-0FGXCHJGQB');
     </script>
     <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => console.log('Service Worker registrado:', registration.scope))
-            .catch(err => console.log('Falha ao registrar Service Worker:', err));
-        });
-    }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => console.log('Service Worker registrado:', registration.scope))
+                .catch(err => console.log('Falha ao registrar Service Worker:', err));
+            });
+        }
     </script>
 
 </body>
