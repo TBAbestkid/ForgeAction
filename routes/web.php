@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Logs;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AuthController;
@@ -13,6 +14,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\ChatController;
+use App\Events\MessageSent;
 
 use App\Mail\TestMail;
 use App\Mail\InviteMail;
@@ -25,6 +28,7 @@ use App\Http\Controllers\BonusPersonagemController;
 use App\Http\Controllers\PersonagemController;
 use App\Http\Controllers\EnumController;
 use App\Http\Controllers\SalaController;
+use App\Http\Controllers\SalaApiController;
 
 Route::view('/loading', 'loading')->name('loading');
 Route::view('/baixar', 'pwa.download')->name('pwa.download');
@@ -128,18 +132,29 @@ Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
 Route::get('/salas/criar', function() { return view('room.create'); })->name('salas.create');
 Route::get('/salas/{id}', [SalaController::class, 'room'])->name('room.room');
 
-// Rotas de API
-Route::prefix('api')->group(function() {
-    Route::get('/salas', [SalaController::class, 'get'])->name('salas.sala');
-    Route::get('/salas/jogador/{usuarioId}', [SalaController::class, 'getByJogador'])->name('salas.jogador');
-    Route::get('/salas/mestre/{usuarioId}', [SalaController::class, 'getByMestre'])->name('salas.mestre');
-    Route::get('/salas/buscar/{nome}', [SalaController::class, 'getByNome'])->name('salas.buscar');
 
-    Route::post('/salas', [SalaController::class, 'store'])->name('salas.store');
-    Route::put('/salas/{id}', [SalaController::class, 'update'])->name('salas.update');
-    Route::delete('/salas/{id}', [SalaController::class, 'destroy'])->name('salas.destroy');
+// ---------- ROTAS DE API PARA SALAS ----------
+Route::prefix('api')->group(function () {
 
-    Route::get('/usuarios', [SalaController::class, 'invite'])->name('usuarios.invite');
-    Route::post('/enviar-invite', [SalaController::class, 'sendInvite'])->name('enviar.invite');
-    Route::get('/convite/{token}', [SalaController::class, 'acceptInvite'])->name('room.invite.accept');
+    // ---------- SALAS ----------
+    Route::get('/salas', [SalaApiController::class, 'get'])->name('api.salas.get');
+    Route::get('/salas/{id}', [SalaApiController::class, 'getById'])->name('api.salas.getById');
+    Route::post('/salas', [SalaApiController::class, 'store'])->name('api.salas.store');
+    Route::put('/salas/{id}', [SalaApiController::class, 'update'])->name('api.salas.update');
+    Route::delete('/salas/{id}', [SalaApiController::class, 'destroy'])->name('api.salas.destroy');
+
+    // ---------- SALAS POR USUÁRIO ----------
+    Route::get('/salas/jogador/{usuarioId}', [SalaApiController::class, 'getByJogador'])->name('api.salas.jogador');
+    Route::get('/salas/mestre/{usuarioId}', [SalaApiController::class, 'getByMestre'])->name('api.salas.mestre');
+    Route::get('/salas/buscar/{nome}', [SalaApiController::class, 'getByNome'])->name('api.salas.buscar');
+
+    // ---------- PERSONAGENS EM SALAS ----------
+    Route::get('/salas/personagens/listar/{salaId}', [SalaApiController::class, 'listarPersonagens'])->name('api.salas.personagens.listar');
+    Route::post('/salas/personagens/adicionar/{salaId}/{personagemId}', [SalaApiController::class, 'adicionarPersonagem'])->name('api.salas.personagens.adicionar');
+    Route::delete('/salas/personagens/remover/{salaId}/{personagemId}', [SalaApiController::class, 'removerPersonagem'])->name('api.salas.personagens.remover');
+
+    // ---------- CONVITES / USUÁRIOS ----------
+    Route::get('/usuarios', [SalaController::class, 'invite'])->name('api.usuarios.invite');
+    Route::post('/enviar-invite', [SalaController::class, 'sendInvite'])->name('api.enviar.invite');
+    Route::get('/convite/{token}', [SalaController::class, 'acceptInvite'])->name('api.invite.accept');
 });
