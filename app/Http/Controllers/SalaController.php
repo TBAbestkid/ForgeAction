@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 
@@ -16,7 +17,7 @@ class SalaController extends Controller
         $this->api = $api;
     }
 
-   public function index()
+    public function index()
     {
         $userId = session('user_id');
         $userRole = session('user_role');
@@ -63,6 +64,9 @@ class SalaController extends Controller
 
     public function sendInvite(Request $request)
     {
+        // Log do request
+        // Log::info('sendInvite - request recebido', $request->all());
+
         $request->validate([
             'email' => 'required|email',
             'salaId' => 'required|integer'
@@ -72,29 +76,53 @@ class SalaController extends Controller
         $salaId = $request->salaId;
         $userId = session('user_id');
 
+        // Log::info("sendInvite - dados extraídos", [
+        //     'email' => $email,
+        //     'salaId' => $salaId,
+        //     'userId' => $userId
+        // ]);
+
         // Busca a sala do dono
-        $salasResponse = $this->api->get("api/salas/usuario/{$userId}");
-        if (!$salasResponse || ($salasResponse['status'] ?? '') !== 'success') {
+        $salasResponse = $this->api->get("api/salas/mestre/{$userId}");
+        // Log::info('sendInvite - resposta da API de salas', ['response' => $salasResponse]);
+
+        if (!$salasResponse || !is_array($salasResponse) || count($salasResponse) === 0) {
+            // Log::error('sendInvite - erro ao recuperar salas', ['userId' => $userId]);
             return response()->json(['message' => 'Erro ao recuperar suas salas.'], 404);
         }
 
-        $sala = collect($salasResponse['data'] ?? [])->firstWhere('id', (int) $salaId);
+        // Procura a sala correta
+        $sala = collect($salasResponse)->firstWhere('id', (int) $salaId);
+        // Log::info('sendInvite - sala encontrada', ['sala' => $sala]);
+
         if (!$sala) {
+            // Log::error('sendInvite - sala não encontrada', ['salaId' => $salaId]);
             return response()->json(['message' => 'Sala não encontrada.'], 404);
         }
 
-        $dono = session('user_login');
+        // Verifica se o usuário logado é o mestre da sala
+        if ($sala['mestre'] != $userId) {
+            // Log::warning('sendInvite - usuário não é mestre da sala', [
+            //     'userId' => $userId,
+            //     'sala' => $sala
+            // ]);
+            return response()->json(['message' => 'Você não tem permissão para convidar nesta sala.'], 403);
+        }
 
-        // Gera token único e salva temporariamente no cache (expira em 60 min)
+        $dono = session('user_login');
         $token = Str::random(64);
+
+        // Salva no cache
         Cache::put('invite_sala_' . $token, [
             'email' => $email,
             'salaId' => $salaId,
             'donoId' => $userId,
         ], now()->addMinutes(60));
 
+        Log::info('sendInvite - token gerado e salvo no cache', ['token' => $token]);
+
         // Link de convite
-        $inviteLink = route('room.invite.accept', ['token' => $token]);
+        $inviteLink = route('api.invite.accept', ['token' => $token]);
 
         // Monta o HTML do e-mail
         $html = view('emails.invite', [
@@ -110,64 +138,100 @@ class SalaController extends Controller
             'destinatarios' => [$email],
         ]);
 
+        Log::info('sendInvite - resposta da API de e-mail', ['response' => $response]);
+
         if (($response['status'] ?? '') !== 'success') {
+            Log::error('sendInvite - erro ao enviar e-mail', ['response' => $response]);
             return response()->json(['message' => $response['message'] ?? 'Erro ao enviar e-mail.'], 500);
         }
+
+        Log::info('sendInvite - convite enviado com sucesso', ['email' => $email, 'salaId' => $salaId]);
 
         return response()->json(['message' => 'Convite enviado com sucesso!']);
     }
 
     public function authenticated(Request $request, $user)
     {
+        Log::info('authenticated - usuário logado', [
+            'user_id' => $user->id ?? null,
+            'user_email' => $user->email ?? null,
+            'invite_token_session' => session('invite_token')
+        ]);
+
         // Se houver token de convite na sessão
         if (session()->has('invite_token')) {
-            $token = session()->pull('invite_token'); // pega e remove da sessão
-            return redirect()->route('room.invite.accept', ['token' => $token]);
+            $token = session()->pull('invite_token');
+            Log::info('authenticated - redirecionando para convite', ['token' => $token]);
+
+            return redirect()->route('api.invite.accept', ['token' => $token]);
         }
 
-        // Caso contrário, redireciona normalmente
+        Log::info('authenticated - redirecionando normalmente para salas');
         return redirect()->route('salas.index');
     }
 
     public function acceptInvite($token)
     {
+        Log::info('acceptInvite - iniciado', ['token' => $token]);
+
         $data = Cache::get('invite_sala_' . $token);
+        Log::info('acceptInvite - dados do cache', ['data' => $data]);
 
         if (!$data) {
+            Log::warning('acceptInvite - convite expirado ou inválido', ['token' => $token]);
             return redirect()->route('salas.index')->withErrors(['token' => 'Convite expirado ou inválido.']);
         }
 
-        $salaId = $data['salaId'];
-        $email = $data['email'];
+        $salaId = $data['salaId'] ?? null;
+        $email = $data['email'] ?? null;
+        Log::info('acceptInvite - dados básicos', ['salaId' => $salaId, 'email' => $email]);
 
         if (!session('user_id')) {
+            Log::info('acceptInvite - usuário não logado, redirecionando para login', ['token' => $token]);
             session(['invite_token' => $token]);
             return redirect()->route('login');
         }
 
-        // Aqui você precisa do dono da sala
-        $salaOwnerId = $data['donoId'] ?? null; // você deve salvar isso ao gerar o convite
+        $salaOwnerId = $data['donoId'] ?? null;
+        Log::info('acceptInvite - dono da sala', ['donoId' => $salaOwnerId]);
+
         if (!$salaOwnerId) {
+            Log::error('acceptInvite - dono da sala ausente');
             return redirect()->route('salas.index')->withErrors(['sala' => 'Não foi possível identificar o dono da sala.']);
         }
 
-        // Busca todas as salas do dono
-        $salasResponse = $this->api->get("api/salas/usuario/{$salaOwnerId}");
-        $salas = $salasResponse['data'] ?? [];
+        // 🔹 Busca todas as salas do dono
+        $salasResponse = $this->api->get("api/salas/mestre/{$salaOwnerId}");
+        Log::info('acceptInvite - resposta da API salas', ['salasResponse' => $salasResponse]);
 
-        // Filtra a sala específica
-        // $sala = collect($salas)->firstWhere('id', (int) $salaId);
+        $salas = isset($salasResponse['data']) ? $salasResponse['data'] : $salasResponse;
+        $sala = collect($salas)->firstWhere('id', (int) $salaId);
+        Log::info('acceptInvite - sala filtrada', ['sala' => $sala]);
 
-        if (!$salas) {
+        if (!$sala) {
+            Log::error('acceptInvite - sala não encontrada', ['salaId' => $salaId]);
             return redirect()->route('salas.index')->withErrors(['sala' => 'Sala não encontrada.']);
         }
 
-        // Busca personagens do usuário que aceitou
-        $personagensResponse = $this->api->get("api/personagens/usuario/" . session('user_id'));
-        $personagens = $personagensResponse['data'] ?? [];
+        // 🔹 Busca personagens
+        $personagensResponse = $this->api->get("api/personagem/usuario/" . session('user_id'));
+        Log::info('acceptInvite - resposta personagens', ['response' => $personagensResponse]);
+
+        if (!isset($personagensResponse['status']) || $personagensResponse['status'] !== 'success') {
+            Log::warning('API retornou erro ao buscar personagens', ['response' => $personagensResponse]);
+            $personagens = [];
+        } else {
+            $personagens = $personagensResponse['data'] ?? [];
+        }
+
+        Log::info('acceptInvite - personagens carregados', [
+            'user_id' => session('user_id'),
+            'total' => count($personagens),
+            'nomes' => array_column($personagens, 'nome')
+        ]);
 
         return view('room.selection', [
-            'sala' => $salas,
+            'sala' => $sala,
             'personagens' => $personagens
         ]);
     }
@@ -230,4 +294,12 @@ class SalaController extends Controller
             // ],
         ]);
     }
+
+    public function adicionarPersonagem(Request $request, $salaId)
+    {
+        $personagemId = $request->personagemId;
+        $this->api->post("api/salas/personagens/adicionar/{$salaId}/{$personagemId}");
+        return redirect()->route('room.room', ['id' => $salaId]);
+    }
+
 }
