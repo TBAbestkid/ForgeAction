@@ -27,3 +27,24 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 d-flex align-items-center text-dark" id="modalConfirmLabel">
+                    <i class="bi bi-question-circle-fill text-warning me-2"></i> Confirmar Ação
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <p id="modalConfirmMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmAction">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
