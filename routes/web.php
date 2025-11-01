@@ -30,6 +30,7 @@ use App\Http\Controllers\SalaController;
 use App\Http\Controllers\SalaApiController;
 
 Route::view('/loading', 'loading')->name('loading');
+Route::view('/chat-teste', 'chat')->name('chat');
 Route::view('/baixar', 'pwa.download')->name('pwa.download');
 
 // -------------------- LOGIN --------------------
