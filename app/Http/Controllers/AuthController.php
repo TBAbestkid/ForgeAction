@@ -55,7 +55,7 @@ class AuthController extends Controller
         // ]);
 
         // Envia para a sua API via ApiService
-        $response = $this->api->post("api/email/enviar-simples", [
+        $response = $this->api->post("api/email/enviar", [
             'assunto' => 'Redefinição de senha',
             'corpo' => $html,
             'destinatarios' => [$request->email],

@@ -7,15 +7,19 @@
         <h2 class="mb-3">Esqueceu sua senha?</h2>
         <p class="text-secondary mb-4">Informe seu e-mail e enviaremos um link para redefinir sua senha.</p>
 
-        @if (session('status'))
-            <div class="alert alert-success py-2">
-                <i class="fas fa-check-circle me-1"></i> {{ session('status') }}
+       @if (session('status'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('status') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if ($errors->any())
-            <div class="alert alert-danger py-2">
-                <i class="fas fa-exclamation-triangle me-1"></i> {{ $errors->first() }}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
