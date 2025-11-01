@@ -13,6 +13,24 @@
             </div>
         </div>
 
+        @if ($isDono)
+            <!-- Botão de Convidar à direita -->
+            <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center"
+                    type="button" data-bs-toggle="modal" data-bs-target="#inviteModal"
+                    aria-controls="offcanvasMembers">
+                <i class="fa-solid fa-user-plus me-1"></i>
+                <span class="d-none d-md-inline">Convidar</span>
+            </button>
+
+            <!-- Botão de Editar à direita -->
+            <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center"
+                    type="button" data-bs-toggle="modal" data-bs-target="#editSalaModal"
+                    aria-controls="offcanvasMembers">
+                <i class="fa-solid fa-pen-to-square me-1"></i>
+                <span class="d-none d-md-inline">Editar Sala</span>
+            </button>
+        @endif
+
         <!-- Botão de membros à direita -->
         <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center"
                 type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMembers"
@@ -129,58 +147,60 @@
                 style="width: 70px; min-width: 70px;">
 
                 {{-- 🔹 Iniciar Turno --}}
-                <button class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
+                <button id="btnIniciarTurno" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
                     data-bs-toggle="tooltip" title="Iniciar Turno"
                     style="width: 50px; height: 50px;">
                     <i class="fa-solid fa-play fs-4"></i>
                 </button>
 
                 {{-- 🔹 Causar Dano --}}
-                <button class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
+                <button id="btn-dano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
                     data-bs-toggle="tooltip" title="Causar Dano"
                     style="width: 50px; height: 50px;">
                     <i class="fa-solid fa-burst fs-4"></i>
                 </button>
 
+                {{-- 🔹 Curar --}}
+                <button id="btn-curar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
+                    data-bs-toggle="tooltip" title="Curar"
+                    style="width: 50px; height: 50px;">
+                    <i class="fa-solid fa-heart-pulse fs-4"></i>
+                </button>
+
                 {{-- 🔹 Upar Personagem --}}
-                <button class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
+                <button id="btn-upar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
                     data-bs-toggle="tooltip" title="Upar Personagem"
                     style="width: 50px; height: 50px;">
                     <i class="fa-solid fa-arrow-up fs-4"></i>
                 </button>
 
                 {{-- 🔹 Lançar Dados --}}
-                <button class="btn btn-outline-warning rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Lançar Dados"
+                <button id="btn-lancar-mestre"
+                    class="btn btn-outline-warning rounded-circle d-flex flex-column align-items-center justify-content-center"
+                    data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
                     style="width: 50px; height: 50px;">
                     <i class="fa-solid fa-dice-d20 fs-4"></i>
                 </button>
 
                 {{-- 🔹 Permitir Dados --}}
-                <button class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
+                {{-- <button class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
                     data-bs-toggle="tooltip" title="Permitir Dados"
                     style="width: 50px; height: 50px;">
                     <i class="fa-solid fa-user-check fs-4"></i>
-                </button>
+                </button> --}}
             </div>
         @endif
 
         {{-- Coluna 2: Área de imagens + chat --}}
-        <div class="flex-grow-1 d-flex flex-column h-100">
-
-            {{-- Botão toggle de imagens/jogos --}}
-            <button id="toggle-images-btn" class="btn btn-sm btn-warning mb-2"
-                    data-bs-toggle="collapse" data-bs-target="#games-section" aria-expanded="true" aria-controls="games-section">
-                <i class="fa-solid fa-chevron-up"></i> Área de Jogos
-            </button>
+        <div class="d-flex flex-column flex-grow-1" style="min-height: 100vh; width: 100%;">
 
             {{-- Área principal de jogos (personagens + DiceBox) --}}
-            <div id="games-section" class="collapse show flex-grow-1 d-flex gap-4 align-items-stretch" style="height: 50vh;">
+            <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: 50vh;">
 
                 {{-- Coluna esquerda (personagens) --}}
-                <div class="d-flex flex-column gap-3 flex-shrink-0 overflow-auto" style="min-width: 200px; max-height: 100%;">
+                <div class="d-flex flex-column gap-2 overflow-auto" style="flex:1 1 auto; min-width:120px;">
                     @foreach ($membros->slice(0, ceil($membros->count() / 3)) as $m)
-                        <div class="bg-dark rounded p-2 text-end d-flex flex-column align-items-end"
+                        <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-id="{{ $m['personagemId'] }}"
                             data-nome="{{ $m['nome'] }}"
                             data-raca="{{ $m['raca'] }}"
@@ -203,25 +223,25 @@
                             data-defesa="{{ $m['defesaPersonagem'] }}"
                             data-esquiva="{{ $m['esquivaPersonagem'] }}"
                             data-iniciativa="{{ $m['iniciativa'] }}">
-                            <strong>{{ $m['nome'] }}</strong>
-                            <div class="progress mt-1 w-100" style="height: 8px;">
-                                <div class="progress-bar bg-success" role="progressbar"
-                                    style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;"
-                                    aria-valuenow="{{ $m['vida'] }}" aria-valuemin="0" aria-valuemax="{{ $m['vida'] }}">
+                            <strong class="small">{{ $m['nome'] }}</strong>
+                            <div class="progress mt-1 w-100" style="height: 16px; font-size:0.7rem;">
+                                <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
+                                    role="progressbar"
+                                    style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
+                                    {{ $m['vida'] }}/{{ $m['vida'] }} HP
                                 </div>
                             </div>
-                            <small class="text-light">{{ $m['vida'] }}/{{ $m['vida'] }} HP</small>
                         </div>
                     @endforeach
                 </div>
 
                 {{-- Coluna central (DiceBox) --}}
-                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center w-100"
-                    style="height: 100%; border: 2px solid #555;">
+                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center"
+                    style="flex:2 1 auto; min-height:150px; border:2px solid #555;">
                     <span id="dice-placeholder" class="text-white">🎲 Aguardando início do turno...</span>
 
-                    <div id="turn-controls" class="d-none flex-column align-items-center gap-2">
-                        <div class="d-flex gap-3">
+                    <div id="turn-controls" class="d-none flex-column align-items-center gap-2 mt-2">
+                        <div class="d-flex gap-2 flex-wrap justify-content-center">
                             <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
                             <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
                         </div>
@@ -237,54 +257,54 @@
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div class="d-flex flex-column gap-3 flex-shrink-0 overflow-auto" style="min-width: 200px; max-height: 100%;">
+                <div class="d-flex flex-column gap-2 overflow-auto" style="flex:1 1 auto; min-width:120px;">
                     @foreach ($membros->slice(ceil($membros->count() / 3)) as $m)
-                        <div class="bg-dark rounded p-2 text-start d-flex flex-column align-items-start"
-                                data-id="{{ $m['personagemId'] }}"
-                                data-nome="{{ $m['nome'] }}"
-                                data-raca="{{ $m['raca'] }}"
-                                data-classe="{{ $m['classe'] }}"
-                                data-level="{{ $m['level'] }}"
-                                data-vida="{{ $m['vida'] }}"
-                                data-mana="{{ $m['mana'] }}"
-                                data-usuario-id="{{ $m['usuarioId'] }}"
-                                data-forca="{{ $m['forca'] }}"
-                                data-agilidade="{{ $m['agilidade'] }}"
-                                data-inteligencia="{{ $m['inteligencia'] }}"
-                                data-destreza="{{ $m['destreza'] }}"
-                                data-vitalidade="{{ $m['vitalidade'] }}"
-                                data-percepcao="{{ $m['percepcao'] }}"
-                                data-sabedoria="{{ $m['sabedoria'] }}"
-                                data-carisma="{{ $m['carisma'] }}"
-                                data-ataque-magico="{{ $m['ataqueMagico'] }}"
-                                data-ataque-corpo="{{ $m['ataqueFisicoCorpo'] }}"
-                                data-ataque-distancia="{{ $m['ataqueFisicoDistancia'] }}"
-                                data-defesa="{{ $m['defesaPersonagem'] }}"
-                                data-esquiva="{{ $m['esquivaPersonagem'] }}"
-                                data-iniciativa="{{ $m['iniciativa'] }}">
-                            <strong>{{ $m['nome'] }}</strong>
-                            <div class="progress mt-1 w-100" style="height: 8px;">
-                                <div class="progress-bar bg-success" role="progressbar"
-                                    style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;"
-                                    aria-valuenow="{{ $m['vida'] }}" aria-valuemin="0" aria-valuemax="{{ $m['vida'] }}">
+                        <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
+                            data-id="{{ $m['personagemId'] }}"
+                            data-nome="{{ $m['nome'] }}"
+                            data-raca="{{ $m['raca'] }}"
+                            data-classe="{{ $m['classe'] }}"
+                            data-level="{{ $m['level'] }}"
+                            data-vida="{{ $m['vida'] }}"
+                            data-mana="{{ $m['mana'] }}"
+                            data-usuario-id="{{ $m['usuarioId'] }}"
+                            data-forca="{{ $m['forca'] }}"
+                            data-agilidade="{{ $m['agilidade'] }}"
+                            data-inteligencia="{{ $m['inteligencia'] }}"
+                            data-destreza="{{ $m['destreza'] }}"
+                            data-vitalidade="{{ $m['vitalidade'] }}"
+                            data-percepcao="{{ $m['percepcao'] }}"
+                            data-sabedoria="{{ $m['sabedoria'] }}"
+                            data-carisma="{{ $m['carisma'] }}"
+                            data-ataque-magico="{{ $m['ataqueMagico'] }}"
+                            data-ataque-corpo="{{ $m['ataqueFisicoCorpo'] }}"
+                            data-ataque-distancia="{{ $m['ataqueFisicoDistancia'] }}"
+                            data-defesa="{{ $m['defesaPersonagem'] }}"
+                            data-esquiva="{{ $m['esquivaPersonagem'] }}"
+                            data-iniciativa="{{ $m['iniciativa'] }}">
+                            <strong class="small">{{ $m['nome'] }}</strong>
+                            <div class="progress mt-1 w-100" style="height: 16px; font-size:0.7rem;">
+                                <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
+                                    role="progressbar"
+                                    style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
+                                    {{ $m['vida'] }}/{{ $m['vida'] }} HP
                                 </div>
                             </div>
-                            <small class="text-light">{{ $m['vida'] }}/{{ $m['vida'] }} HP</small>
                         </div>
                     @endforeach
                 </div>
 
             </div>
 
-            {{-- Botão toggle do Chat --}}
-            <button id="chat-toggle-btn" class="btn btn-sm btn-warning mt-2" type="button"
+            {{-- Chat --}}
+            <button id="chat-toggle-btn" class="btn btn-sm btn-warning mt-2 d-flex align-items-center gap-1" type="button"
                     aria-expanded="true" aria-controls="chat-container">
                 <i class="fa-solid fa-comment"></i> Chat
             </button>
 
-            {{-- Chat --}}
-            <div id="chat-container" class="collapse show d-flex flex-column bg-dark rounded p-3 text-white mt-2"
-                style="height: 400px;">
+            {{-- Chat com collapse --}}
+            <div id="chat-container" class="d-flex flex-column bg-dark rounded p-3 text-white mt-2"
+                style="flex-shrink:0; min-height:150px; max-height:40vh; overflow:hidden;">
                 <strong>Chat da Sala:</strong>
                 <div id="chat-messages" class="flex-grow-1 d-flex flex-column gap-2 overflow-auto">
                     <!-- Mensagens -->
@@ -367,7 +387,24 @@
     </div>
 </div>
 
-
+<!-- Modal para input do valor -->
+<div class="modal fade" id="modalValor" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">Insira valor</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label for="inputValor">Insira valor:</label>
+                <input type="number" id="inputValor" class="form-control" min="0">
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnConfirmarValor" class="btn btn-danger" data-bs-dismiss="modal">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal de Convite -->
 <div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
@@ -399,6 +436,7 @@
 @include('partials/alerts')
 <script src="{{ asset('js/loading.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ asset('js/chat-room.js') }}"></script>
 {{-- Ativar tooltips --}}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -406,186 +444,401 @@
         [...tooltipTriggerList].forEach(el => new bootstrap.Tooltip(el));
     });
 </script>
+{{-- Exporta variáveis PHP para JS --}}
+<script>
+    window.CHAT_CONFIG = {
+        userId: {{ session('user_id') ?? 'null' }},
+        userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
+        salaId: {{ $sala['id'] }},
+        wsUrl: "{{ env('EXTERNAL_API_URL') }}/ws"
+    };
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ===== CHAT =====
+
+    // ---------- CONFIGURAÇÃO / CONSTANTES ----------
+    const PERSONAGENS_CONTAINER_ID = 'personagens-container';
+    const personagensContainer = document.getElementById(PERSONAGENS_CONTAINER_ID);
+
+    // Chat e toasts
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
     const chatMessages = document.getElementById('chat-messages');
     const userLogin = '{{ session("user_login") ?? "Player" }}';
+    const toastEl = document.getElementById('liveToast');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastBootstrap = bootstrap?.Toast?.getOrCreateInstance(toastEl);
 
-    window.addMessage = function (text, sender = '🧠 Sistema') {
+    // Turnos e dados
+    const placeholder = document.getElementById('dice-placeholder');
+    const turnControls = document.getElementById('turn-controls');
+    const diceOptions = document.getElementById('dice-options');
+    const btnRoll = document.getElementById('btn-roll');
+    const btnSkip = document.getElementById('btn-skip');
+    const btnIniciar = document.getElementById('btnIniciarTurno');
+    const btnLancarMestre = document.getElementById('btn-lancar-mestre');
+
+    // Botões de modo
+    const btnDano = document.getElementById('btn-dano');
+    const btnCurar = document.getElementById('btn-curar');
+    const btnUpar = document.getElementById('btn-upar');
+
+    // Modal unificado
+    const modalValorEl = document.getElementById('modalValor');
+    const modalValor = modalValorEl ? new bootstrap.Modal(modalValorEl) : null;
+    const inputValor = document.getElementById('inputValor');
+    const btnConfirmarValor = document.getElementById('btnConfirmarValor');
+
+    // ---------- ESTADOS ----------
+    let ordemTurnos = [];
+    let turnoAtual = 0;
+    let rodada = 1;
+    let rodadaAtiva = false;
+    let mestreModoSecreto = false;
+
+    let modoDanoAtivo = false;
+    let modoCurarAtivo = false;
+    let modoUparAtivo = false;
+
+    let personagemSelecionado = null;
+    let tipoValor = null; // 'dano' ou 'cura'
+
+    // ---------- FUNÇÕES AUXILIARES ----------
+    function addMessage(text, sender = '🧠 Sistema') {
+        if (!chatMessages) return;
         const messageDiv = document.createElement('div');
         messageDiv.className = 'd-flex align-items-start gap-2 mb-1';
-
         const icon = document.createElement('i');
         icon.className = sender === '🧠 Sistema'
             ? 'fa-solid fa-robot text-warning mt-1'
             : 'fa-solid fa-user text-primary mt-1';
         messageDiv.appendChild(icon);
-
         const msgBox = document.createElement('div');
         msgBox.className = sender === '🧠 Sistema'
             ? 'bg-dark text-warning rounded px-2 py-1 small'
             : 'bg-secondary rounded px-2 py-1';
         msgBox.innerHTML = `<strong>${sender}:</strong> ${text}`;
         messageDiv.appendChild(msgBox);
-
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-    };
-
-    chatSend.addEventListener('click', () => {
-        const text = chatInput.value.trim();
-        if (!text) return;
-        addMessage(text, userLogin);
-        chatInput.value = '';
-        chatInput.focus();
-    });
-
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            chatSend.click();
-        }
-    });
-
-    // ===== COLLAPSE CUSTOM =====
-    function setupCollapse(toggleBtnId, collapseElId, iconUp = 'fa-chevron-up', iconDown = 'fa-chevron-down') {
-        const toggleBtn = document.getElementById(toggleBtnId);
-        const collapseEl = document.getElementById(collapseElId);
-        const icon = toggleBtn?.querySelector('i');
-
-        if (!toggleBtn || !collapseEl) return;
-
-        toggleBtn.addEventListener('click', () => {
-            collapseEl.classList.toggle('collapsed');
-            if (collapseEl.classList.contains('collapsed')) {
-                collapseEl.style.height = '0';
-                collapseEl.style.overflow = 'hidden';
-                if (icon) icon.classList.replace(iconUp, iconDown);
-            } else {
-                collapseEl.style.height = '';
-                collapseEl.style.overflow = '';
-                if (icon) icon.classList.replace(iconDown, iconUp);
-            }
-        });
     }
 
-    setupCollapse('toggle-images-btn', 'games-section');
-    setupCollapse('chat-toggle-btn', 'chat-container', 'fa-comment', 'fa-comment-dots');
+    function abrirModal(tipo) {
+        const titulo = modalValorEl.querySelector('.modal-title');
+        const btn = btnConfirmarValor;
 
-    // ===== AÇÕES DE JOGO =====
-    const toastEl = document.getElementById('liveToast');
-    const toastMessage = document.getElementById('toastMessage');
-    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastEl);
-
-    const placeholder = document.getElementById('dice-placeholder');
-    const turnControls = document.getElementById('turn-controls');
-    const diceOptions = document.getElementById('dice-options');
-    const btnRoll = document.getElementById('btn-roll');
-    const btnSkip = document.getElementById('btn-skip');
-    const btnIniciar = document.querySelector('.btn.btn-outline-success');
-
-    let ordemTurnos = [];
-    let turnoAtual = 0;
-    let rodada = 1;
-
-    btnIniciar.addEventListener('click', iniciarTurno);
-
-    function iniciarTurno() {
-        const personagens = [...document.querySelectorAll('.personagem-card, [data-iniciativa]')];
-        if (!personagens.length) return showModal('Nenhum personagem encontrado.');
-
-        personagens.forEach(p => {
-            p.style.boxShadow = 'none';
-            p.dataset.jogou = 'false';
-        });
-
-        ordemTurnos = personagens.sort((a, b) => b.dataset.iniciativa - a.dataset.iniciativa);
-
-        for (let i = 0; i < ordemTurnos.length - 1; i++) {
-            if (ordemTurnos[i].dataset.iniciativa === ordemTurnos[i + 1].dataset.iniciativa) {
-                if (Math.random() > 0.5) [ordemTurnos[i], ordemTurnos[i + 1]] = [ordemTurnos[i + 1], ordemTurnos[i]];
-            }
-        }
-
-        turnoAtual = 0;
-        addMessage(`🧠 Rodada ${rodada} começou!`);
-        ativarTurno(ordemTurnos[turnoAtual]);
-    }
-
-    function ativarTurno(personagem) {
-        document.querySelectorAll('[data-iniciativa]').forEach(p => p.style.boxShadow = 'none');
-        personagem.style.boxShadow = '0 0 20px 4px rgba(0, 255, 0, 0.8)';
-
-        placeholder.classList.add('d-none');
-        turnControls.classList.remove('d-none');
-        diceOptions.classList.add('d-none');
-        placeholder.textContent = `🎯 Turno de ${personagem.dataset.nome}`;
-
-        toastMessage.textContent = `É o turno de ${personagem.dataset.nome}!`;
-        toastEl.className = 'toast align-items-center text-bg-success border-0';
-        toastBootstrap.show();
-
-        addMessage(`É o turno de ${personagem.dataset.nome}!`);
-
-        btnRoll.onclick = () => diceOptions.classList.toggle('d-none');
-        btnSkip.onclick = () => proximoTurno(personagem);
-
-        document.querySelectorAll('.dice-btn').forEach(btn => {
-            btn.onclick = () => {
-                const lados = parseInt(btn.dataset.sides);
-                const resultado = Math.floor(Math.random() * lados) + 1;
-                showDiceResult(personagem.dataset.nome, lados, resultado);
-                personagem.dataset.jogou = 'true';
-                diceOptions.classList.add('d-none');
-            };
-        });
-    }
-
-    function proximoTurno(personagem) {
-        personagem.dataset.jogou = 'true';
-
-        const todosJogaram = ordemTurnos.every(p => p.dataset.jogou === 'true');
-
-        if (todosJogaram) {
-            addMessage(`🧠 Turno ${rodada} encerrado!`);
-            rodada++;
-            ordemTurnos.forEach(p => p.dataset.jogou = 'false');
-            addMessage(`🧠 Rodada ${rodada} começou!`);
-            turnoAtual = 0;
+        if (tipo === 'dano') {
+            titulo.textContent = 'Aplicar Dano';
+            btn.className = 'btn btn-danger';
         } else {
-            do {
-                turnoAtual = (turnoAtual + 1) % ordemTurnos.length;
-            } while (ordemTurnos[turnoAtual].dataset.jogou === 'true');
+            titulo.textContent = 'Aplicar Cura';
+            btn.className = 'btn btn-success';
         }
 
-        ativarTurno(ordemTurnos[turnoAtual]);
+        modalValor?.show();
     }
 
-    function showDiceResult(nome, lados, resultado) {
-        placeholder.classList.remove('d-none');
-        placeholder.innerHTML = `🎲 <strong>${nome}</strong> rolou um <strong>D${lados}</strong> e tirou <strong>${resultado}</strong>!`;
-        turnControls.classList.add('d-none');
-
-        toastMessage.textContent = `${nome} rolou D${lados} → ${resultado}`;
-        toastEl.className = 'toast align-items-center text-bg-primary border-0';
-        toastBootstrap.show();
-
-        addMessage(`${nome} rolou um D${lados} e tirou ${resultado}.`);
-
-        setTimeout(() => {
-            turnControls.classList.remove('d-none');
-            placeholder.classList.add('d-none');
-        }, 2500);
+    function showFeedback(text, tipo = 'primary', sender) {
+        addMessage(text, sender ?? '🧠 Sistema');
+        toastMessage.textContent = text;
+        toastEl.className = `toast align-items-center text-bg-${tipo} border-0`;
+        toastBootstrap?.show();
     }
 
-    function showModal(message) {
-        document.getElementById('modalMessage').textContent = message;
-        const modal = new bootstrap.Modal(document.getElementById('modalAlert'));
-        modal.show();
+    function getCardMaxHP(card) {
+        const vidaMaxAttr = card.dataset.vidaMax || card.dataset['vida-max'];
+        if (vidaMaxAttr) return parseInt(vidaMaxAttr, 10);
+        const progress = card.querySelector('.progress-bar');
+        if (progress) {
+            const parts = (progress.textContent || '').split('/');
+            if (parts[1]) return parseInt(parts[1], 10);
+        }
+        return parseInt(card.dataset.vida, 10) || 0;
     }
+
+    function atualizarBarraVida(card, vidaAtual, vidaMax) {
+        const progress = card.querySelector('.progress-bar');
+        if (!progress) return;
+        const pct = vidaMax > 0 ? Math.max(0, Math.min(100, (vidaAtual / vidaMax) * 100)) : 0;
+        progress.style.width = `${pct}%`;
+        progress.textContent = `${vidaAtual}/${vidaMax} HP`;
+    }
+
+    function aplicarVida(card, valor, tipo) {
+        const vidaAtual = parseInt(card.dataset.vida ?? 0, 10);
+        const vidaMax = getCardMaxHP(card);
+        let novaVida = vidaAtual;
+
+        if (tipo === 'cura') {
+            novaVida = Math.min(vidaMax, vidaAtual + Math.abs(valor));
+            showFeedback(`❤️ ${card.dataset.nome} recuperou ${valor} HP! (${novaVida}/${vidaMax})`, 'success');
+        } else if (tipo === 'dano') {
+            novaVida = Math.max(0, vidaAtual - Math.abs(valor));
+            showFeedback(`💥 ${card.dataset.nome} sofreu ${valor} de dano! (${novaVida}/${vidaMax})`, 'danger');
+        }
+
+        card.dataset.vida = novaVida;
+        atualizarBarraVida(card, novaVida, vidaMax);
+    }
+
+    function resetCardBorders() {
+        document.querySelectorAll('.personagem-card').forEach(card => {
+            card.classList.remove('border-danger', 'border-success', 'border-info', 'border-primary', 'border-3');
+            card.style.cursor = '';
+        });
+    }
+
+    function desativarTodosOsModos() {
+        modoDanoAtivo = modoCurarAtivo = modoUparAtivo = false;
+        resetCardBorders();
+    }
+
+    function destacarPersonagem(card) {
+        document.querySelectorAll('.personagem-card').forEach(c => {
+            c.classList.remove('border-warning', 'border-3');
+        });
+        card.classList.add('border', 'border-warning', 'border-3');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function ordenarIniciativas(personagens) {
+        // Cria uma lista com nome e iniciativa
+        let lista = personagens.map(card => ({
+            nome: card.dataset.nome,
+            iniciativa: parseInt(card.dataset.iniciativa || 0, 10),
+            card
+        }));
+
+        // Ordena do maior para o menor
+        lista.sort((a, b) => b.iniciativa - a.iniciativa);
+
+        // Resolve empates sorteando entre empatados
+        for (let i = 0; i < lista.length - 1; i++) {
+            if (lista[i].iniciativa === lista[i + 1].iniciativa) {
+                if (Math.random() < 0.5) {
+                    [lista[i], lista[i + 1]] = [lista[i + 1], lista[i]];
+                }
+            }
+        }
+
+        return lista;
+    }
+
+    function iniciarRodada() {
+        const personagens = Array.from(document.querySelectorAll('.personagem-card'));
+        if (personagens.length === 0) {
+            showFeedback('Nenhum personagem encontrado!', 'danger');
+            return;
+        }
+
+        // Ordena e inicia
+        ordemTurnos = ordenarIniciativas(personagens);
+        turnoAtual = 0;
+        rodadaAtiva = true;
+
+        // Mostra quem começa
+        const primeiro = ordemTurnos[turnoAtual];
+        destacarPersonagem(primeiro.card);
+        showFeedback(`🎯 Rodada ${rodada} iniciada! Primeiro: ${primeiro.nome}`, 'success');
+        addMessage(`🕒 Ordem de turnos: ${ordemTurnos.map(p => p.nome).join(', ')}`);
+
+        // Exibe controles e atualiza a UI
+        document.getElementById('turn-controls')?.classList.remove('d-none');
+        atualizarTurnoUI();
+    }
+
+    function atualizarTurnoUI() {
+        const placeholder = document.getElementById('dice-placeholder');
+        const btnRoll = document.getElementById('btn-roll');
+        const btnSkip = document.getElementById('btn-skip');
+
+        if (!rodadaAtiva) {
+            placeholder.textContent = "🎲 Aguardando início do turno...";
+            btnRoll.disabled = true;
+            btnSkip.disabled = true;
+            return;
+        }
+
+        const atual = ordemTurnos[turnoAtual];
+        destacarPersonagem(atual.card);
+
+        placeholder.textContent = `🕒 Turno de ${atual.nome}`;
+        btnRoll.disabled = false;
+        btnSkip.disabled = false;
+    }
+
+    function proximoTurno() {
+        if (!rodadaAtiva) return;
+
+        turnoAtual++;
+        if (turnoAtual >= ordemTurnos.length) {
+            // Todos jogaram
+            showFeedback(`🏁 Fim da rodada ${rodada}. Clique em ▶️ para iniciar a próxima.`, 'primary');
+            rodada++;
+            rodadaAtiva = false;
+            document.getElementById('btnIniciarTurno').disabled = false;
+
+            // Esconde os controles até reiniciar
+            document.getElementById('turn-controls')?.classList.add('d-none');
+            document.getElementById('dice-placeholder').textContent = "🎲 Aguardando início do turno...";
+            return;
+        }
+
+        const atual = ordemTurnos[turnoAtual];
+        showFeedback(`👉 Turno de ${atual.nome}`, 'info');
+        atualizarTurnoUI();
+    }
+
+    // ---------- EVENTOS DE MODO ----------
+    if (btnDano) {
+        btnDano.addEventListener('click', () => {
+            const ativando = !modoDanoAtivo;
+            desativarTodosOsModos();
+            modoDanoAtivo = ativando;
+            if (modoDanoAtivo) {
+                document.querySelectorAll('.personagem-card').forEach(c => {
+                    c.classList.add('border', 'border-danger');
+                    c.style.cursor = 'pointer';
+                });
+                showFeedback('💥 Modo DANO ativado. Clique em um personagem para aplicar.', 'danger');
+            } else showFeedback('🧠 Modo DANO desativado.', 'secondary');
+        });
+    }
+
+    if (btnCurar) {
+        btnCurar.addEventListener('click', () => {
+            const ativando = !modoCurarAtivo;
+            desativarTodosOsModos();
+            modoCurarAtivo = ativando;
+            if (modoCurarAtivo) {
+                document.querySelectorAll('.personagem-card').forEach(c => {
+                    c.classList.add('border', 'border-success');
+                    c.style.cursor = 'pointer';
+                });
+                showFeedback('❤️ Modo CURA ativado. Clique em um personagem para curar.', 'success');
+            } else showFeedback('🧠 Modo CURA desativado.', 'secondary');
+        });
+    }
+
+    if (btnUpar) {
+        btnUpar.addEventListener('click', () => {
+            const ativando = !modoUparAtivo;
+            desativarTodosOsModos();
+            modoUparAtivo = ativando;
+            if (modoUparAtivo) {
+                document.querySelectorAll('.personagem-card').forEach(c => {
+                    c.classList.add('border', 'border-info', 'border-3');
+                    c.style.cursor = 'pointer';
+                });
+                showFeedback('✨ Modo UP ativo! Clique em um personagem para upar.', 'info');
+            } else showFeedback('🧠 Modo UP desativado.', 'secondary');
+        });
+    }
+
+    if (btnIniciar) {
+        btnIniciar.addEventListener('click', () => {
+            if (rodadaAtiva) {
+                showFeedback('Já há uma rodada em andamento!', 'warning');
+                return;
+            }
+            btnIniciar.disabled = true;
+            iniciarRodada();
+        });
+    }
+
+    if (btnRoll) {
+        btnRoll.addEventListener('click', () => {
+            if (!rodadaAtiva) return;
+
+            const atual = ordemTurnos[turnoAtual];
+            const lados = [4, 6, 8, 10, 12, 20];
+            const dado = lados[Math.floor(Math.random() * lados.length)];
+            const valor = Math.floor(Math.random() * dado) + 1;
+
+            addMessage(`🎲 ${atual.nome} rolou um D${dado} e tirou **${valor}**`);
+            proximoTurno();
+        });
+    }
+
+    if (btnSkip) {
+        btnSkip.addEventListener('click', () => {
+            if (!rodadaAtiva) return;
+
+            const atual = ordemTurnos[turnoAtual];
+            addMessage(`⏭️ ${atual.nome} decidiu pular o turno.`);
+            proximoTurno();
+        });
+    }
+
+    // ---------- CLIQUES NOS CARDS ----------
+    if (personagensContainer) {
+        personagensContainer.addEventListener('click', (e) => {
+            const card = e.target.closest('.personagem-card');
+            if (!card) return;
+
+            // Se estiver no modo DANO
+            if (modoDanoAtivo) {
+                personagemSelecionado = card;
+                tipoValor = 'dano';
+                abrirModal('dano'); // abre o modal
+                return;
+            }
+
+            // Se estiver no modo CURA
+            if (modoCurarAtivo) {
+                personagemSelecionado = card;
+                tipoValor = 'cura';
+                abrirModal('cura'); // abre o modal
+                return;
+            }
+
+            // Se estiver no modo UPAR
+            if (modoUparAtivo) {
+                let level = parseInt(card.dataset.level ?? 1, 10);
+                level++;
+                card.dataset.level = level;
+                const levelText = card.querySelector('.level-text');
+                if (levelText) levelText.textContent = `Lv. ${level}`;
+                showFeedback(`⚡ ${card.dataset.nome} subiu para o nível ${level}!`, 'info');
+            }
+        });
+    }
+
+    // ---------- CONFIRMAR MODAL ----------
+    if (btnConfirmarValor) {
+        btnConfirmarValor.addEventListener('click', () => {
+            const valor = parseInt(inputValor?.value ?? 0, 10);
+
+            // Validação básica
+            if (!valor || !personagemSelecionado || !tipoValor) return;
+
+            aplicarVida(personagemSelecionado, valor, tipoValor);
+
+            // Limpa e fecha o modal
+            modalValor?.hide();
+            inputValor.value = '';
+            personagemSelecionado = null;
+            tipoValor = null;
+        });
+    }
+
+    // ---------- CHAT SIMPLES ----------
+    if (chatSend && chatInput) {
+        chatSend.addEventListener('click', () => {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            addMessage(text, userLogin);
+            chatInput.value = '';
+        });
+    }
+
+    // ---------- INICIALIZAÇÃO ----------
+    document.querySelectorAll('.personagem-card').forEach(card => {
+        const vidaAtual = parseInt(card.dataset.vida ?? 0, 10);
+        const vidaMax = getCardMaxHP(card);
+        atualizarBarraVida(card, vidaAtual, vidaMax);
+    });
 });
 
 
