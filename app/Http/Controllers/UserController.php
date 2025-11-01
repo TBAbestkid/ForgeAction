@@ -54,7 +54,7 @@ class UserController extends Controller
 
     public function updateEmail(Request $request)
     {
-        $response = $this->api->put('login/update', [
+        $response = $this->api->put('api/login/update', [
             'login' => session('user_login'),
             'email' => $request->email,
             'role'  => $request->role,
@@ -74,13 +74,12 @@ class UserController extends Controller
 
         $payload = [
             'login' => session('user_login'),
-            'email' => session('user_email'),
             'role' => $newRole,
         ];
 
         Log::info('UpdateRole Payload:', $payload);
 
-        $response = $this->api->put('login/update', $payload);
+        $response = $this->api->put('api/login/update', $payload);
 
         // log completo da resposta
         Log::info('UpdateRole Response:', ['response' => $response]);
@@ -111,7 +110,7 @@ class UserController extends Controller
             return ApiResponse::error('Senha atual incorreta', 401);
         }
 
-        $updateResponse = $this->api->put('login/forgot-password', [
+        $updateResponse = $this->api->put('api/login/forgot-password', [
             'email' => $userEmail,
             'senha' => $request->senha,
         ]);
