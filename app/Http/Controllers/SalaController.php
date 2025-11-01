@@ -62,6 +62,21 @@ class SalaController extends Controller
         );
     }
 
+    public function createRoom()
+    {
+        $user = session('user_login');
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Você precisa estar logado.');
+        }
+
+        $userRole = session('user_role');
+        if ($userRole !== 'MASTER') {
+            return redirect()->route('salas.index')->with('error', 'Apenas mestres podem criar salas.');
+        }
+
+        return view('room.create');
+    }
+
     public function sendInvite(Request $request)
     {
         // Log do request

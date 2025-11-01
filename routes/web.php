@@ -119,7 +119,7 @@ Route::get('/enums/bonus-racas/{raca}', [EnumController::class, 'bonusRacas']);
 
 // Rotas de página
 Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
-Route::get('/salas/criar', function() { return view('room.create'); })->name('salas.create');
+Route::get('/salas/criar', [SalaController::class, 'createRoom'])->name('salas.create');
 Route::get('/salas/{id}', [SalaController::class, 'room'])->name('room.room');
 Route::post('/salas/personagens/adicionar/{salaId}', [SalaController::class, 'adicionarPersonagem']);
 

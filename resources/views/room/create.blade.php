@@ -67,8 +67,6 @@
         const payload = new FormData();
         payload.append('nome', nome);
         payload.append('descricao', formData.get('descricao') || '');
-        payload.append('senha', formData.get('senha') || '');
-        payload.append('ativo', ativo ? 'true' : 'false');
         payload.append('usuario_id', '{{ session("user_id") }}');
 
         // console.log('📦 Dados do formulário preparados:');
@@ -98,7 +96,7 @@
         showLoading();
 
         try {
-            const response = await fetch('{{ route("salas.store") }}', {
+            const response = await fetch('{{ route("api.salas.store") }}', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
