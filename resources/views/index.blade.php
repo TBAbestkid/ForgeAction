@@ -457,13 +457,9 @@
                 // Jogador → apenas as salas onde ele participa
                 rotas.push(`/api/salas/jogador/${userId}`);
             }
-            else if (userRole === "MESTRE") {
+            else if (userRole === "MASTER") {
                 // Mestre → salas que ele criou + salas que participa como jogador
                 rotas.push(`/api/salas/mestre/${userId}`);
-                rotas.push(`/api/salas/jogador/${userId}`);
-            }
-            else {
-                // Fallback → tratar como jogador
                 rotas.push(`/api/salas/jogador/${userId}`);
             }
 
