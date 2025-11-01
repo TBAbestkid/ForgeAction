@@ -30,6 +30,8 @@
         </div>
     </div>
 </div>
+<!-- Stomp -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -42,9 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let userName = null;
     let channel = null;
-
-    // Conexão WebSocket
-    let socket;
+    let stompClient = null;
 
     document.getElementById('btnJoinChat').addEventListener('click', () => {
         userName = document.getElementById('chatName').value.trim() || '{{ session("user_login") ?? "Desconhecido" }}';
@@ -53,24 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         addMessage(`🟢 Você entrou no canal "${channel}" como "${userName}"`);
 
-        // Conectar no WebSocket
-        socket = new WebSocket('wss://narrow-christan-rokaideveloper-806169ef.koyeb.app/ws');
+        // Conectar com STOMP
+        const socket = new SockJS('https://narrow-christan-rokaideveloper-806169ef.koyeb.app/ws');
+        stompClient = Stomp.over(socket);
 
-        socket.addEventListener('open', () => {
-            console.log('Conectado ao WS');
-        });
-
-        socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-            addMessage(data.message, data.user || 'Sistema');
-        });
-
-        socket.addEventListener('close', () => {
-            addMessage('🔴 Conexão encerrada', 'Sistema');
+        stompClient.connect({}, () => {
+            // Inscrever no tópico do canal
+            stompClient.subscribe('/topic/' + channel, (message) => {
+                const data = JSON.parse(message.body);
+                addMessage(data.conteudo, data.autor);
+            });
         });
     });
 
-    function addMessage(text, sender='Sistema') {
+    function addMessage(text, sender = 'Sistema') {
         const div = document.createElement('div');
         div.innerHTML = `<strong>${sender}:</strong> ${text}`;
         messages.appendChild(div);
@@ -79,11 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chatSend.addEventListener('click', () => {
         const msg = chatInput.value.trim();
-        if (!msg || !socket || socket.readyState !== WebSocket.OPEN) return;
+        if (!msg || !stompClient) return;
 
-        const payload = { user: userName, channel, message: msg };
-        socket.send(JSON.stringify(payload));
+        // Enviar via STOMP
+        const payload = {
+            conteudo: msg,
+            autor: userName
+        };
 
+        stompClient.send('/app/enviar/' + channel, {}, JSON.stringify(payload));
         chatInput.value = '';
         chatInput.focus();
     });
