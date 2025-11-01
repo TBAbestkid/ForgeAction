@@ -107,25 +107,26 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Botões pra Mestre -->
-                        <div class="flex-grow-0 flex-shrink-1 master-only" style="flex-basis: 300px; min-width: 200px;" @if(session('user_role') !== 'MASTER') style="display:none" @endif>
-                            <div class="card shadow border-0 h-100">
-                                <div class="card-body text-white rounded-3 p-4 d-flex flex-column justify-content-start">
-                                    <div class="d-grid gap-2">
-                                        <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
-                                            <i class="fa-solid fa-user-plus"></i> Todas as salas
-                                        </a>
-                                        <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
-                                            <i class="fa-solid fa-user-group"></i> Criar Sala
-                                        </a>
-                                        <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
-                                            <i class="fa-solid fa-trash me-1"></i> Remover Sala
-                                        </a>
+                        @if (session('user_role') === 'MASTER')
+                            <!-- Botões pra Mestre -->
+                            <div class="flex-grow-0 flex-shrink-1 master-only" style="flex-basis: 300px; min-width: 200px;" @if(session('user_role') !== 'MASTER') style="display:none" @endif>
+                                <div class="card shadow border-0 h-100">
+                                    <div class="card-body text-white rounded-3 p-4 d-flex flex-column justify-content-start">
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
+                                                <i class="fa-solid fa-user-plus"></i> Todas as salas
+                                            </a>
+                                            <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
+                                                <i class="fa-solid fa-user-group"></i> Criar Sala
+                                            </a>
+                                            <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
+                                                <i class="fa-solid fa-trash me-1"></i> Remover Sala
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
