@@ -20,16 +20,6 @@
                 <label><i class="fa-solid fa-align-left mt-2"></i> Descrição</label>
             </div>
 
-            <div class="form-floating mb-3">
-                <input type="password" name="senha" class="form-control" placeholder="Senha (opcional)">
-                <label><i class="fa-solid fa-key"></i> Senha (opcional)</label>
-            </div>
-
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" name="ativo" id="ativo" checked>
-                <label class="form-check-label text-white" for="ativo"> Sala Ativa</label>
-            </div>
-
             <button type="button" id="btnCreateSala" class="btn btn-primary w-100">
                 <i class="fa-solid fa-plus me-1"></i> Criar Sala
             </button>
@@ -67,7 +57,7 @@
         const payload = new FormData();
         payload.append('nome', nome);
         payload.append('descricao', formData.get('descricao') || '');
-        payload.append('usuario_id', '{{ session("user_id") }}');
+        payload.append('mestreId', '{{ session("user_id") }}');
 
         // console.log('📦 Dados do formulário preparados:');
         // for (let [key, value] of payload.entries()) {
