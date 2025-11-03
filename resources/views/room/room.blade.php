@@ -146,9 +146,9 @@
             <div class="flex-shrink-0 d-flex flex-column align-items-center justify-content-start gap-3 p-2 bg-dark rounded-4 shadow"
                 style="width: 70px; min-width: 70px;">
 
-                {{-- 🔹 Iniciar Turno --}}
+                {{-- 🔹 Iniciar/Avançar Turno --}}
                 <button id="btnIniciarTurno" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Iniciar Turno"
+                    data-bs-toggle="tooltip" title="Iniciar/Avançar Turno"
                     style="width: 50px; height: 50px;">
                     <i class="fa-solid fa-play fs-4"></i>
                 </button>
@@ -183,11 +183,12 @@
                 </button>
 
                 {{-- 🔹 Permitir Dados --}}
-                {{-- <button class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Permitir Dados"
+                <button id="btn-permitir-jogada"
+                    class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
+                    data-bs-toggle="tooltip" title="Permitir Jogada Extra"
                     style="width: 50px; height: 50px;">
                     <i class="fa-solid fa-user-check fs-4"></i>
-                </button> --}}
+                </button>
             </div>
         @endif
 
@@ -202,6 +203,7 @@
                     @foreach ($membros->slice(0, ceil($membros->count() / 3)) as $m)
                         <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-id="{{ $m['personagemId'] }}"
+                            data-vida-max="{{ $m['vida'] }}"
                             data-nome="{{ $m['nome'] }}"
                             data-raca="{{ $m['raca'] }}"
                             data-classe="{{ $m['classe'] }}"
@@ -261,6 +263,7 @@
                     @foreach ($membros->slice(ceil($membros->count() / 3)) as $m)
                         <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-id="{{ $m['personagemId'] }}"
+                            data-vida-max="{{ $m['vida'] }}"
                             data-nome="{{ $m['nome'] }}"
                             data-raca="{{ $m['raca'] }}"
                             data-classe="{{ $m['classe'] }}"
@@ -441,7 +444,12 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        [...tooltipTriggerList].forEach(el => new bootstrap.Tooltip(el));
+        if (window.bootstrap && window.bootstrap.Tooltip) {
+            [...tooltipTriggerList].forEach(el => new window.bootstrap.Tooltip(el));
+        } else {
+            // bootstrap não carregado ainda; será criado pelo script do bundle quando disponível
+            console.warn('[room] bootstrap.Tooltip não disponível no momento.');
+        }
     });
 </script>
 {{-- Exporta variáveis PHP para JS --}}
@@ -450,15 +458,25 @@
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        wsUrl: "{{ env('EXTERNAL_API_URL') }}/ws"
+        wsUrl: "{{ env('EXTERNAL_API_URL') }}/ws",
+        // Indica se o usuário é o mestre/dono da sala (usado pelo JS para habilitar controles)
+        isMestre: {{ $isDono ? 'true' : 'false' }}
     };
 </script>
 
-<script>
+<script src="{{ asset('js/room-manager.js') }}"></script>
+
+<!-- Inline script desativado: o mesmo código foi mantido aqui apenas como referência.
+    Ele foi convertido para type="text/plain" para não ser executado pelo navegador.
+    O arquivo `public/js/room-manager.js` agora contém a lógica ativa. -->
+<script id="inline-room-script" type="text/plain" data-disabled="true">
 document.addEventListener('DOMContentLoaded', () => {
 
     // ---------- CONFIGURAÇÃO / CONSTANTES ----------
-    const PERSONAGENS_CONTAINER_ID = 'personagens-container';
+    // Antes estava apontando para 'personagens-container' que não existe no DOM,
+    // portanto a delegação de eventos falhava (personagensContainer === null).
+    // Usamos o container existente 'games-section' para delegar cliques dos cards.
+    const PERSONAGENS_CONTAINER_ID = 'games-section';
     const personagensContainer = document.getElementById(PERSONAGENS_CONTAINER_ID);
 
     // Chat e toasts
