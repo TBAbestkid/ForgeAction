@@ -299,22 +299,29 @@
 
             </div>
 
-            {{-- Chat --}}
-            <button id="chat-toggle-btn" class="btn btn-sm btn-warning mt-2 d-flex align-items-center gap-1" type="button"
-                    aria-expanded="true" aria-controls="chat-container">
+            {{-- Botão para abrir/fechar chat --}}
+            <button id="chat-toggle-btn"
+                    class="btn btn-sm btn-warning mt-2 d-flex align-items-center gap-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#chat-container"
+                    aria-expanded="false"
+                    aria-controls="chat-container">
                 <i class="fa-solid fa-comment"></i> Chat
             </button>
 
             {{-- Chat com collapse --}}
-            <div id="chat-container" class="d-flex flex-column bg-dark rounded p-3 text-white mt-2"
-                style="flex-shrink:0; min-height:150px; max-height:40vh; overflow:hidden;">
-                <strong>Chat da Sala:</strong>
-                <div id="chat-messages" class="flex-grow-1 d-flex flex-column gap-2 overflow-auto">
-                    <!-- Mensagens -->
-                </div>
-                <div class="d-flex mt-2">
-                    <input type="text" class="form-control me-2" placeholder="Digite sua mensagem..." id="chat-input">
-                    <button class="btn btn-primary" id="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+            <div id="chat-container" class="collapse mt-2">
+                <div class="d-flex flex-column bg-dark rounded p-3 text-white"
+                    style="min-height:150px; max-height:40vh; overflow:hidden;">
+                    <strong>Chat da Sala:</strong>
+                    <div id="chat-messages" class="flex-grow-1 d-flex flex-column gap-2 overflow-auto">
+                        <!-- Mensagens -->
+                    </div>
+                    <div class="d-flex mt-2">
+                        <input type="text" class="form-control me-2" placeholder="Digite sua mensagem..." id="chat-input">
+                        <button class="btn btn-primary" id="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
                 </div>
             </div>
 
