@@ -440,6 +440,7 @@
 <script src="{{ asset('js/loading.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ asset('js/chat-room.js') }}"></script>
+<script src="{{ asset('js/dice-manager.js') }}"></script>
 {{-- Ativar tooltips --}}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
