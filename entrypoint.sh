@@ -3,9 +3,6 @@ set -e
 
 php artisan key:generate
 
-npm install --silent --no-progress --omit=dev
-npm run build
-
 # Rodar migrations (somente se banco estiver pronto)
 php artisan migrate --force || true
 
