@@ -16,8 +16,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Habilita mod_rewrite e módulos de proxy
-RUN a2enmod rewrite proxy proxy_http proxy_wstunnel
+# Habilita mod_rewrite
+RUN a2enmod rewrite
 
 # Configura Apache para portas 8080 e 8443
 RUN echo "Listen 8080" > /etc/apache2/ports.conf \
