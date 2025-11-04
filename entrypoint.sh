@@ -9,6 +9,7 @@ php artisan config:clear || true
 php artisan route:clear || true
 php artisan view:clear || true
 php artisan optimize:clear || true
+php artisan key:generate
 
 # Cria link de storage
 php artisan storage:link || true
