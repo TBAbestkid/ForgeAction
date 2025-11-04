@@ -16,8 +16,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Habilita mod_rewrite
-RUN a2enmod rewrite
+# Habilita mod_rewrite e módulos de proxy
+RUN a2enmod rewrite proxy proxy_http proxy_wstunnel
 
 # Configura Apache para portas 8080 e 8443
 RUN echo "Listen 8080" > /etc/apache2/ports.conf \
@@ -26,6 +26,21 @@ RUN echo "Listen 8080" > /etc/apache2/ports.conf \
     && sed -ri -e "s!<VirtualHost \*:443>!<VirtualHost *:8443>!g" /etc/apache2/sites-available/*.conf \
     && sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf \
     && sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# === Adiciona configuração de proxy reverso ===
+RUN echo '<VirtualHost *:8080>\n\
+    ServerName localhost\n\
+    DocumentRoot /var/www/html/public\n\
+\n\
+    # Proxy para WebSocket (acessa o container da API)\n\
+    ProxyPass "/ws"  "ws://172.17.0.2:9001/ws"\n\
+    ProxyPassReverse "/ws"  "ws://172.17.0.2:9001/ws"\n\
+\n\
+    <Directory /var/www/html/public>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Copia Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
