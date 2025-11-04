@@ -17,7 +17,13 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && rm -rf /var/lib/apt/lists/*
 
 # Habilita mod_rewrite do Apache
-RUN a2enmod rewrite \
+RUN a2enmod rewrite
+
+# Configura Apache para portas 8080 e 8443
+RUN echo "Listen 8080" > /etc/apache2/ports.conf \
+    && echo "Listen 8443" >> /etc/apache2/ports.conf \
+    && sed -ri -e "s!<VirtualHost \*:80>!<VirtualHost *:8080>!g" /etc/apache2/sites-available/*.conf \
+    && sed -ri -e "s!<VirtualHost \*:443>!<VirtualHost *:8443>!g" /etc/apache2/sites-available/*.conf \
     && sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf \
     && sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
@@ -46,16 +52,17 @@ RUN npm run build \
     && composer dump-autoload \
     && php artisan package:discover
 
-# Ajusta permissões
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+# Ajusta permissões APENAS nas pastas essenciais
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 755 storage bootstrap/cache
 
 # Copia entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Exposição da porta
+# Exposição das portas
 EXPOSE 8080
+EXPOSE 8443
 
 # Define entrypoint e comando padrão
 ENTRYPOINT ["/entrypoint.sh"]
