@@ -16,8 +16,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Habilita mod_rewrite do Apache
-RUN a2enmod rewrite
+# Habilita mod_rewrite e módulos de proxy
+RUN a2enmod rewrite proxy proxy_http proxy_wstunnel
 
 # Configura Apache para portas 8080 e 8443
 RUN echo "Listen 8080" > /etc/apache2/ports.conf \
@@ -54,7 +54,7 @@ RUN npm run build \
 
 # Ajusta permissões APENAS nas pastas essenciais
 RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 755 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache
 
 # Copia entrypoint
 COPY entrypoint.sh /entrypoint.sh
