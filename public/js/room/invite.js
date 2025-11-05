@@ -103,7 +103,7 @@ $(document).ready(function () {
         $.ajax({
             url: 'api/enviar-invite',
             type: 'POST',
-            data: { _token: token, salaId, email },
+            data: { _token: token, salaId: salaId, email: email },
             success: function (res) {
                 showToast(res.message || 'Convite enviado!');
                 bootstrap.Modal.getInstance('#inviteModal').hide();
