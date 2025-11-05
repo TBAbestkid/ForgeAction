@@ -101,7 +101,7 @@ $(document).ready(function () {
             return showAlert('Selecione um usuário para enviar o convite.');
 
         $.ajax({
-            url: 'api/enviar-invite',
+            url: '/api/enviar-invite',
             type: 'POST',
             data: { _token: token, salaId: salaId, email: email },
             success: function (res) {
