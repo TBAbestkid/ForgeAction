@@ -95,7 +95,7 @@ $(document).ready(function () {
     // ======================
     $('#btnSendInvite').click(function () {
         const salaId = $(this).data('sala-id') || getSalaId();
-        const emails = $('#selectUser').val();
+        const email = $('#selectUser').val();
 
         if (!email || email.length === 0)
             return showAlert('Selecione um usuário para enviar o convite.');
