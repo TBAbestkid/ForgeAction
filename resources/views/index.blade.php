@@ -410,7 +410,7 @@
                         if (isMestre) {
                             botoes = `
                                 <div class="btn-group">
-                                    <a href="/salas/${sala.id}/edit" class="btn btn-sm btn-outline-warning">
+                                    <a href="#" class="btn btn-sm btn-outline-warning">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
                                     <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
