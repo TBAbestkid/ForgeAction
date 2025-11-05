@@ -33,50 +33,59 @@ $(document).ready(function () {
         $('#inviteModal').data('sala-id', salaIdClicada);
         new bootstrap.Modal('#inviteModal').show();
 
-        // Requisição AJAX pra buscar usuários
+        // 1️⃣ Busca lista de personagens da sala para saber quem já é membro
         $.ajax({
-            url: '/usuarios',
+            url: `/salas/personagens/listar/${salaIdClicada}`,
             type: 'GET',
-            success: function (response) {
-                if (response.status !== 'success' || !Array.isArray(response.data)) {
-                    showAlert('Erro ao carregar usuários.');
-                    return;
-                }
+            success: function (personagens) {
+                const membrosAtuais = personagens.map(p => p.usuarioId);
 
-                usuarios = response.data;
-                const select = $('#selectUser');
+                // 2️⃣ Depois busca todos os usuários
+                $.ajax({
+                    url: '/usuarios',
+                    type: 'GET',
+                    success: function (response) {
+                        if (response.status !== 'success' || !Array.isArray(response.data)) {
+                            showAlert('Erro ao carregar usuários.');
+                            return;
+                        }
 
-                // limpa e repopula o select com placeholder inicial
-                select.empty().append('<option></option>');
+                        usuarios = response.data;
+                        const select = $('#selectUser');
+                        select.empty().append('<option></option>'); // placeholder inicial
 
-                // obtém lista de membros já na sala pra evitar duplicatas
-                const membrosIds = $('.btn-remove-member').map((i, el) => $(el).data('id')).get();
+                        // 3️⃣ Filtra apenas usuários que não estão na sala
+                        const disponiveis = usuarios.filter(u => !membrosAtuais.includes(u.id));
 
-                usuarios.forEach(user => {
-                    if (!membrosIds.includes(user.id)) {
-                        select.append(new Option(`${user.login} (${user.email})`, user.email));
+                        // 4️⃣ Popula o select
+                        disponiveis.forEach(user => {
+                            select.append(new Option(`${user.login} (${user.email})`, user.email));
+                        });
+
+                        // 5️⃣ Reinstancia o Select2
+                        if ($.fn.select2) {
+                            if (select.hasClass('select2-hidden-accessible')) {
+                                select.select2('destroy');
+                            }
+
+                            select.select2({
+                                theme: 'bootstrap-5',
+                                placeholder: 'Selecione ou procure um usuário...',
+                                dropdownParent: $('#inviteModal'),
+                                width: 'resolve',
+                                allowClear: true
+                            });
+                        }
+
+                        $('#btnSendInvite').data('sala-id', salaIdClicada);
+                    },
+                    error: function () {
+                        showAlert('Erro ao carregar usuários.');
                     }
                 });
-
-                // 🔹 Inicializa ou reinicializa Select2
-                if ($.fn.select2) {
-                    if (select.hasClass('select2-hidden-accessible')) {
-                        select.select2('destroy');
-                    }
-
-                    select.select2({
-                        theme: 'bootstrap-5',
-                        placeholder: 'Selecione ou procure um usuário...',
-                        dropdownParent: $('#inviteModal'),
-                        width: 'resolve',
-                        allowClear: true
-                    });
-                }
-
-                $('#btnSendInvite').data('sala-id', salaIdClicada);
             },
             error: function () {
-                showAlert('Erro ao carregar usuários.');
+                showAlert('Erro ao carregar membros da sala.');
             }
         });
     });
@@ -86,7 +95,7 @@ $(document).ready(function () {
     // ======================
     $('#btnSendInvite').click(function () {
         const salaId = $(this).data('sala-id') || getSalaId();
-        const email = $('#selectUser').val();
+        const emails = $('#selectUser').val();
 
         if (!email || email.length === 0)
             return showAlert('Selecione um usuário para enviar o convite.');
@@ -94,7 +103,7 @@ $(document).ready(function () {
         $.ajax({
             url: 'api/enviar-invite',
             type: 'POST',
-            data: { _token: token, salaId: salaId, email: email },
+            data: { _token: token, salaId, email },
             success: function (res) {
                 showToast(res.message || 'Convite enviado!');
                 bootstrap.Modal.getInstance('#inviteModal').hide();
