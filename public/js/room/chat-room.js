@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
 
+    // ======= CONFIG =======
     let userName = userLogin || 'Desconhecido';
     let channel = `${salaId}`;
-    let stompClient = null;
 
     // ======= FUNÇÃO DE ADIÇÃO DE MENSAGEM =======
     function addMessage(text, sender = 'Sistema') {
@@ -31,17 +31,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======= FUNÇÃO DE ENVIO DE MENSAGEM =======
     function sendMessage() {
         const msg = chatInput.value.trim();
-        if (!msg || !stompClient) return;
+        if (!msg || !window.chatStomp.getConnectionStatus()) return;
 
         const payload = {
             tipo: 'chat',
             conteudo: msg,
             autor: userName,
-            userId: userId,
-            salaId: salaId
+            userId,
+            salaId
         };
 
-        stompClient.send('/app/enviar/' + channel, {}, JSON.stringify(payload));
+        WebSocketService.send('/app/enviar/' + channel, payload);
         chatInput.value = '';
         chatInput.focus();
     }
@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data) return;
 
         // Primeiro dispara evento para outros módulos poderem reagir
+        // Essa linha cria e dispara um evento personalizado (CustomEvent)
+        // chamado 'ws.message' dentro do document, ou seja:
+        // "Ei, todo mundo que estiver ouvindo o evento ws.message, aqui vai uma nova mensagem WebSocket!"
         document.dispatchEvent(new CustomEvent('ws.message', {
             detail: data,
             bubbles: true
@@ -86,48 +89,41 @@ document.addEventListener('DOMContentLoaded', () => {
     function connectChat() {
         addMessage(`🟢 Conectando ao chat como "${userName}"...`);
 
-        const socket = new SockJS(wsUrl);
-        stompClient = Stomp.over(socket);
+        WebSocketService.connect(
+            wsUrl,
+            channel,
+            processMessage, // callback para mensagens recebidas
+            () => {
+                // Quando conectar:
+                // addMessage('✅ Conectado ao servidor!', 'Sistema');
 
-        stompClient.connect({}, () => {
-            // Inscreve no canal
-            stompClient.subscribe('/topic/' + channel, (message) => {
-                try {
-                    const data = JSON.parse(message.body);
-                    processMessage(data);
-                } catch (e) {
-                    console.error('Erro ao processar mensagem:', e);
-                    addMessage('⚠️ Erro ao processar mensagem recebida', 'Sistema');
-                }
-            });
+                const entradaMsg = {
+                    tipo: 'entrada',
+                    conteudo: `${userName} entrou na sala "${channel}"`,
+                    autor: userName,
+                    userId,
+                    salaId
+                };
+                WebSocketService.send('/app/enviar/' + channel, entradaMsg);
 
-            // Envia mensagem automática de entrada
-            const entradaMsg = {
-                tipo: 'entrada',
-                conteudo: `${userName} entrou na sala "${channel}"`,
-                autor: userName,
-                userId: userId,
-                salaId: salaId
-            };
-            stompClient.send('/app/enviar/' + channel, {}, JSON.stringify(entradaMsg));
+                // Cria uma variável global chamada chatStomp.
+                // Outros scripts na página podem acessar essa variável para enviar ou
+                // receber mensagens do WebSocket.
+                // Serve pra compartilhar o serviço entre diferentes scripts,
+                // sem precisar importar nada.
+                window.chatStomp = WebSocketService;
 
-            // Expor stompClient globalmente para outros módulos
-            try {
-                window.chatStomp = stompClient;
-                // Notifica outros listeners que o stomp está pronto
-                document.dispatchEvent(new CustomEvent('stomp.connected', {
-                    detail: { stompClient },
-                    bubbles: true
-                }));
-            } catch (e) {
-                console.warn('Não foi possível expor window.chatStomp', e);
-                addMessage('⚠️ Aviso: Modo offline para outros recursos', 'Sistema');
+                // Dispara um evento personalizado chamado 'stomp.connected'.
+                // É um sinal de que o WebSocket já está realmente conectado e pronto para uso.
+                // Outros scripts podem “escutar” esse evento e só então começar a interagir com o
+                // WebSocket, garantindo que não vão tentar usar antes da hora.
+                document.dispatchEvent(new CustomEvent('stomp.connected', { bubbles: true }));
+            },
+            (error) => {
+                console.error('❌ Erro ao conectar:', error);
+                addMessage('⚠️ Falha ao conectar ao chat.', 'Sistema');
             }
-
-        }, (error) => {
-            console.error('Erro ao conectar ao WebSocket:', error);
-            addMessage('⚠️ Falha ao conectar ao chat.', 'Sistema');
-        });
+        );
     }
 
     // ======= EVENTOS =======

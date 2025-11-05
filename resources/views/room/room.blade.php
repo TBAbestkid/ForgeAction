@@ -15,10 +15,8 @@
 
         @if ($isDono)
             <!-- Botão de Convidar à direita -->
-            <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center"
-                    type="button" data-bs-toggle="modal" data-bs-target="#inviteModal"1
-
-                     >
+            <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center btn-invite"
+                data-id="{{ $sala['id'] }}">
                 <i class="fa-solid fa-user-plus me-1"></i>
                 <span class="d-none d-md-inline">Convidar</span>
             </button>
@@ -38,6 +36,12 @@
             <i class="fa-solid fa-users me-1"></i>
             <span class="d-none d-md-inline">Membros</span>
         </button>
+        @if(!$isDono)
+            <button class="btn btn-sm btn-outline-danger btn-leave mt-2 mt-md-0 ms-md-3 px-3 py-2 d-flex align-items-center"
+                    data-id="{{ $sala['id'] }}">
+                <i class="fa-solid fa-door-open me-1"></i> Sair da Sala
+            </button>
+        @endif
     </nav>
 
     {{-- Estrutura principal com 3 colunas --}}
@@ -259,6 +263,11 @@
                         <div class="d-flex gap-2 flex-wrap justify-content-center">
                             <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
                             <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
+                            @if ($isDono)
+                                {{-- Apenas caso mestre quiser ocultar os dados --}}
+                                <input type="checkbox" name="ocultarDados" id="ocultarDados" class="form-check-input mt-1" >
+                                <label for="ocultarDados" class="form-check-label text-white">Ocultar Dados aos Jogadores</label>
+                            @endif
                         </div>
 
                         <div id="dice-options" class="d-none mt-3 text-center">
@@ -326,7 +335,7 @@
             </div>
             @if(!$isDono)
                 {{-- View de infos personagem --}}
-                <div class="flex-shrink-0 d-flex align-items-center justify-content-center gap-3 p-2 bg-dark rounded-4 shadow flex-row d-none d-md-flex gap-4 mt-3 center">
+                <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-4 p-2 bg-dark rounded-4 shadow mt-3">
 
                     {{-- 🔹 Identidade --}}
                     <div class="card bg-warning text-dark">
@@ -406,7 +415,7 @@
                 </div>
             @else
                 {{-- Botões de ação de mestre como linha abaixo de área --}}
-                <div class="flex-shrink-0 d-flex align-items-center justify-content-center gap-3 p-2 bg-dark rounded-4 shadow flex-row d-none d-md-flex gap-4 mt-3 center">
+                <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-4 p-2 bg-dark rounded-4 shadow mt-3">
                     {{-- Linha pra ter três elementos --}}
                     <div class="row mb-2 gap-2 justify-content-center">
                         {{-- 🔹 Iniciar/Avançar Turno --}}
@@ -579,10 +588,13 @@
 
 @include('partials/loading')
 @include('partials/alerts')
+@include('partials/invite')
 {{-- @include('partials/invite') --}}
-<script src="{{ asset('js/loading.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('js/dice-manager.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{{ asset('js/utils/alerts.js') }}"></script>
+<script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/room/dice-manager.js') }}"></script>
 {{-- Ativar tooltips --}}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -597,25 +609,29 @@
 </script>
 {{-- Exporta variáveis PHP para JS --}}
 <script>
-    const newWsUrl = "/ws"; // caminho absoluto na raiz do site
+    // const newWsUrl = "/ws";
 
-    console.log("WebSocket URL:", newWsUrl); // vai mostrar "/ws"
+    // console.log("WebSocket URL:", newWsUrl);
+
 
     window.CHAT_CONFIG = {
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        wsUrl: newWsUrl,   // 🔹 apenas "/ws"
+        wsUrl: "{{ env('EXTERNAL_API_URL') }}/ws", // newWsUrl
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
-
+    window.userId = "{{ session('user_id') }}";
+    window.csrfToken = "{{ csrf_token() }}";
     const csrfToken = "{{ csrf_token() }}";
     const routeSalasIndex = "{{ route('salas.index') }}";
 </script>
 
-<script src="{{ asset('js/chat-room.js') }}"></script>
-<script src="{{ asset('js/room-manager.js') }}"></script>
-{{-- <script src="{{ asset('js/invite.js') }}"></script> --}}
+<script src="{{ asset('js/utils/webSocketService.js') }}"></script>
+<script src="{{ asset('js/room/exit.js') }}"></script>
+<script src="{{ asset('js/room/chat-room.js') }}"></script>
+<script src="{{ asset('js/room/room-manager.js') }}"></script>
+{{-- <script src="{{ asset('js/room/invite.js') }}"></script> --}}
 
 @endsection
 

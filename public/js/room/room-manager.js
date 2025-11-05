@@ -39,12 +39,17 @@
     const btnRoll = document.getElementById('btn-roll');
     const btnSkip = document.getElementById('btn-skip');
     const btnLancarMestre = document.getElementById('btn-lancar-mestre');
+    const btnOcultarDados = document.getElementById('ocultarDados'); // Adicionar para futuramente inserir isso
 
     // ========== UTILS ==========
+    // Função de debug que imprime mensagens no console com um prefixo [RM]
     function debugLog(...args) { console.log('[RM]', ...args); }
 
+    // Função para enviar uma mensagem do tipo "sistema" para a sala via WebSocket
     function enviarSistema(msg) {
+        // Se o WebSocket não estiver conectado ou não houver sala, não faz nada
         if (!stompClient || !salaId) return;
+        // Envia a mensagem para o servidor, no endpoint '/app/enviar/{salaId}'
         stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify({
             tipo: 'sistema',
             conteudo: msg,
@@ -53,6 +58,7 @@
         }));
     }
 
+    // Função para enviar uma ação (tipo evento ou comando) para a sala via WebSocket
     function enviarAcao(obj) {
         if (!stompClient || !salaId) return;
         stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify({
@@ -64,6 +70,7 @@
 
     // ========== GAME FLOW ==========
 
+    // Função para obter o card do personagem pelo ID
     function getCardById(pid) {
         // Procura primeiro no container de personagens da esquerda
         let card = personagensContainer.querySelector(`.personagem-card[data-id="${pid}"]`);
@@ -71,23 +78,37 @@
             // Se não encontrou, procura em todo o documento
             card = document.querySelector(`.personagem-card[data-id="${pid}"]`);
         }
+        // Retorna o card encontrado ou null
         return card;
     }
 
+    // Função para destacar visualmente o card do personagem atual
     function destacarPersonagem(card) {
+        // Remove destaque de todos os cards
         document.querySelectorAll('.personagem-card').forEach(c => {
             c.classList.remove('border-warning', 'border-3');
         });
+
+        // Se não houver card, sai da função
         if (!card) return;
+
+        // Adicionar classes de destaque
         card.classList.add('border', 'border-warning', 'border-3');
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    // Função para habilitar/desabilitar controles do jogador
     function setPlayerControlsEnabled(enabled, personagemId) {
+        // Obtém o card do personagem
         const card = getCardById(personagemId);
+
+        // Se não houver card, sai da função
         if (!card) return;
 
+        // Obtém o dono do card
         const donoDoCard = String(card.dataset.usuarioId);
+
+        // Verifica se o usuário atual é o dono do personagem
         const souDono = donoDoCard === userId;
 
         // Reset estado dos controles
@@ -96,6 +117,7 @@
         btnSkip.disabled = false;
         ultimoDadoRolado = null;
 
+        // Se for mestre, desabilita controles
         if (isMestre) {
             turnControls.classList.add('d-none');
             btnRoll.disabled = true;
@@ -103,58 +125,102 @@
             return;
         }
 
+        // Se for dono do personagem e controles habilitados
         if (souDono && enabled) {
             turnControls.classList.remove('d-none');
             btnRoll.disabled = false;
             btnSkip.disabled = false;
         } else {
+            // Caso contrário, desabilita controles
             turnControls.classList.add('d-none');
             btnRoll.disabled = true;
             btnSkip.disabled = true;
         }
     }
 
+    // Função para ordenar personagens por iniciativa
     function ordenarIniciativas(personagens) {
+
+        // Cria uma lista de objetos com nome, iniciativa, card, personagemId e usuarioId
         let lista = personagens.map(card => ({
+            // Pega o nome do personagem
             nome: card.dataset.nome,
+            // Pega a iniciativa como número inteiro
             iniciativa: parseInt(card.dataset.iniciativa || 0, 10),
+            // o card em si
             card,
+            // o id do personagem como string
             personagemId: String(card.dataset.id),
+            // o id do usuario dono do personagem como string
             usuarioId: String(card.dataset.usuarioId || '')
         }));
+
+        // Ordena a lista por iniciativa decrescente
         lista.sort((a, b) => b.iniciativa - a.iniciativa);
+
+        // ===================== EMBARALHAMENTO DE INICIATIVAS IGUAIS =====================
         // tie-break shuffle
+        // Percorre a lista de personagens ordenada por iniciativa
         for (let i = 0; i < lista.length - 1; i++) {
+            // Se dois personagens consecutivos têm a mesma iniciativa
             if (lista[i].iniciativa === lista[i + 1].iniciativa) {
+                // Troca a posição deles aleatoriamente com 50% de chance
+                // Isso evita que sempre o mesmo personagem com iniciativa igual vá primeiro
+                // [lista[i], lista[i + 1]] = [lista[i + 1], lista[i]] é a sintaxe de destruturação do JS
+                // que troca os valores sem precisar de variável temporária
                 if (Math.random() < 0.5) [lista[i], lista[i + 1]] = [lista[i + 1], lista[i]];
             }
         }
+
         return lista;
     }
 
+    // Função para iniciar uma nova rodada
     function iniciarRodada() {
+        // Pega todos os cards de personagens
         const cards = Array.from(document.querySelectorAll('.personagem-card'));
+
+        // Se não houver personagens, sai da função
         if (cards.length === 0) return;
 
+        // Cria a ordem dos turnos e já ordena inicialmente
         ordemTurnos = ordenarIniciativas(cards);
+
+        // Inicializa variáveis de estado
         turnoIndex = 0;
+
+        // Rodada começa ativa
         rodadaAtiva = true;
+
+        // Fase agora é PLAYER
         phase = 'player';
+
+        // Rodada começa em 1
         rodada = rodada || 1;
 
+        // Define o jogador atual como o primeiro da ordem
         const primeiro = ordemTurnos[turnoIndex];
+
+        // Define o currentPlayerId
         currentPlayerId = primeiro.personagemId;
 
+        // Destaca o personagem inicial
         destacarPersonagem(primeiro.card);
+
+        // Envia mensagens com as funções iniciadas
         enviarSistema(`🕒 Rodada ${rodada} iniciada! Ordem de turnos: ${ordemTurnos.map(p => p.nome).join(', ')}`);
+        // Enviando a ordem dos turnos para todos os clientes
         enviarAcao({ acao: 'ordemTurnos', ordem: ordemTurnos });
+        // Enviando o turno atual
         enviarAcao({ acao: 'turnoAtual', personagemId: currentPlayerId });
 
+        //
         setPlayerControlsEnabled(true, currentPlayerId);
         atualizarTurnoUI();
         atualizarBotoesMestre();
     }
 
+    // Função para atualizar a UI do turno atual
     function atualizarTurnoUI() {
         debugLog('🔄 Atualizando UI do turno:', { rodadaAtiva, turnoIndex, currentPlayerId });
 
@@ -201,6 +267,7 @@
         });
     }
 
+    // Função para atualizar o estado dos botões do mestre
     function atualizarBotoesMestre() {
         debugLog('🎮 Atualizando botões mestre:', { isMestre, phase, rodadaAtiva });
         if (!isMestre) return;
@@ -270,6 +337,7 @@
         btnPermitir.disabled = true;
     }
 
+    // Função para avançar para a fase do mestre após ação do jogador
     function proximoPhaseDepoisDaAcaoDoJogador() {
         setPlayerControlsEnabled(false, currentPlayerId);
         phase = 'master';
@@ -444,43 +512,63 @@
     }
 
     // ========== WEBSOCKET INTEGRATION ==========
-
+    // Função que processa todas as ações recebidas via WebSocket do tipo "acao"
     function onReceiveAction(data) {
+        // Se não houver dados ou não tiver o campo 'acao', ignora
         if (!data || !data.acao) return;
+        // Log para debug no console
         debugLog('📥 Ação recebida:', data);
 
+        // Pega o "card" do personagem, se houver personagemId na ação
         const card = data.personagemId ? getCardById(String(data.personagemId)) : null;
 
+        // Switch para tratar cada tipo de ação específica
         switch (data.acao) {
+            // ===================== ORDEM DOS TURNOS =====================
             case 'ordemTurnos':
+                // Atualiza a ordem de turno com base no que veio do servidor
                 ordemTurnos = (data.ordem || []).map(o => ({
                     nome: o.nome,
                     personagemId: String(o.personagemId),
                     usuarioId: String(o.usuarioId || ''),
-                    card: getCardById(String(o.personagemId))
+                    card: getCardById(String(o.personagemId)) // pega o card de cada personagem
                 }));
                 debugLog('ordemTurnos recebida:', ordemTurnos);
                 break;
 
+            // ===================== TURNO ATUAL =====================
             case 'turnoAtual':
-                if (!card) {
+                if (!card) { // se não achar o card, loga e retorna
                     debugLog('⚠️ Card não encontrado para personagemId:', data.personagemId);
                     return;
                 }
+
+                // Atualiza estado do jogo
                 rodadaAtiva = true;
+                // Fase agora é PLAYER
                 phase = 'player';
                 currentPlayerId = String(data.personagemId);
 
-                // Atualiza o índice do turno baseado no personagem atual
+                // Procura no array 'ordemTurnos' a posição do personagem atual
+                // 'turnoIndex' é usado para controlar quem é o próximo na ordem de turno
                 const turnoAtualIndex = ordemTurnos.findIndex(p => p.personagemId === currentPlayerId);
+
+                // Se encontrado, atualiza a variável global 'turnoIndex'
                 if (turnoAtualIndex !== -1) {
                     turnoIndex = turnoAtualIndex;
                     debugLog('🎯 Atualizando turnoIndex para:', turnoIndex);
                 }
 
+                // Destaca o personagem atual visualmente
                 destacarPersonagem(card);
+
+                // Verifica se é o jogador atual
                 const isMyTurn = String(card.dataset.usuarioId) === userId;
+
+                // Habilita ou desabilita controles do jogador
                 setPlayerControlsEnabled(isMyTurn, data.personagemId);
+
+                // Atualiza a UI do turno
                 atualizarTurnoUI();
 
                 // Debug do estado após atualização
@@ -492,11 +580,15 @@
                 });
                 break;
 
+            // ===================== AÇÃO DO JOGADOR FINALIZADA =====================
             case 'playerActionDone':
                 // Quando um jogador finaliza a ação, o mestre deve ser notificado
+                // Atualiza estado geral
                 rodadaAtiva = true;
-                phase = 'master';
+                phase = 'master'; // passa o controle para o mestre
                 currentPlayerId = String(data.personagemId);
+
+                // Loga a ação
                 debugLog('🎯 Jogador finalizou ação:', {
                     phase,
                     isMestre,
@@ -504,7 +596,10 @@
                     btnLancarMestre: document.getElementById('btn-lancar-mestre')?.disabled
                 });
 
+                // Destaca o card do personagem
                 if (card) destacarPersonagem(card);
+
+                // Se não for mestre, desativa controles do jogador
                 if (!isMestre) {
                     // para clientes players, garantir que controles do jogador estejam desativados
                     setPlayerControlsEnabled(false, currentPlayerId);
@@ -514,7 +609,7 @@
                 atualizarBotoesMestre();
                 atualizarTurnoUI();
 
-                // Dupla verificação do estado após atualização
+                // Dupla verificação: corrige caso botão do mestre ainda esteja desabilitado
                 setTimeout(() => {
                     if (isMestre && phase === 'master' && document.getElementById('btn-lancar-mestre')?.disabled) {
                         debugLog('⚠️ Correção: btnLancarMestre ainda desabilitado após playerActionDone');
@@ -523,7 +618,9 @@
                 }, 100);
                 break;
 
+            // ===================== PERMITIR JOGADA EXTRA =====================
             case 'permitirJogada':
+                // Ativa controles do jogador atual para uma jogada extra
                 if (String(data.personagemId) === String(currentPlayerId)) {
                     phase = 'player';
                     setPlayerControlsEnabled(true, currentPlayerId);
@@ -535,158 +632,177 @@
                 debugLog('🎲 Mestre rolou:', data);
                 break;
 
+            // ===================== UP DISPONÍVEL PARA ATRIBUTOS =====================
             case 'upDisponivel':
-                // Verifica se o jogador é o dono do personagem
+                // Verifica se o jogador atual é o dono do personagem
                 if (String(data.usuarioId) === userId) {
                     debugLog('🔼 Up disponível para:', data);
-                    // Abre o drawer da ficha
-                    const drawer = document.getElementById('personagemDrawer');
-                    const bsDrawer = new bootstrap.Offcanvas(drawer);
-                    bsDrawer.show();
 
-                    // Abre a seção de atributos
-                    document.getElementById('collapseAtributos')?.classList.add('show');
+                    const collapse = document.getElementById('collapseAtributos');
+                    collapse.classList.add('show'); // Abre o collapse da ficha do personagem
 
-                    // Adiciona os botões de up nos atributos se ainda não existirem
-                    const atributosDiv = document.getElementById('collapseAtributos');
-                    if (atributosDiv) {
-                        // Remove botões anteriores
-                        atributosDiv.querySelectorAll('.btn-up-atributo').forEach(btn => btn.remove());
+                    // Remove todos os botões + e - que podem ter sido criados em atualizações anteriores
+                    collapse.querySelectorAll('.btn-up-atributo').forEach(btn => btn.remove());
 
-                        // Adiciona novos botões
-                        const atributos = atributosDiv.querySelectorAll('.bg-dark');
-                        let pontosDisponiveis = 5;
-                        let pontosDistribuidos = {};
+                    const atributos = collapse.querySelectorAll('.bg-dark'); // Seleciona cada div que representa um atributo
+                    let pontosDisponiveis = 5; // Número total de pontos que o jogador pode distribuir
+                    let pontosDistribuidos = {}; // Armazena quantos pontos cada atributo recebeu
 
-                        // Cria container para pontos e botão de reset
-                        const headerContainer = document.createElement('div');
-                        headerContainer.className = 'text-center mt-2 mb-3';
+                    // Contém texto de pontos disponíveis + botões Reset e Salvar
+                    const headerContainer = document.createElement('div');
+                    headerContainer.className = 'd-flex justify-content-center align-items-center gap-2 mt-2 mb-3';
 
-                        const spanPontos = document.createElement('div');
-                        spanPontos.className = 'text-warning mb-2';
+                    // Texto de pontos disponíveis
+                    const spanPontos = document.createElement('div');
+                    spanPontos.className = 'text-warning';
+                    spanPontos.textContent = `Pontos disponíveis: ${pontosDisponiveis}`;
+                    headerContainer.appendChild(spanPontos);
+
+                    // Botão para resetar distribuição
+                    const btnReset = document.createElement('button');
+                    btnReset.className = 'btn btn-sm btn-outline-warning';
+                    btnReset.textContent = 'Resetar Distribuição';
+                    btnReset.disabled = true; // Desabilitado inicialmente, será habilitado quando houver pontos distribuídos
+                    headerContainer.appendChild(btnReset);
+
+                    // Botão de salvar (com ícone fa-save)
+                    const btnSalvar = document.createElement('button');
+                    btnSalvar.className = 'btn btn-sm btn-outline-success';
+                    btnSalvar.innerHTML = '<i class="fas fa-save"></i> Salvar';
+                    headerContainer.appendChild(btnSalvar);
+
+                    // Insere o header no topo do collapse, antes do primeiro filho da card-body
+                    collapse.querySelector('.card-body').insertBefore(
+                        headerContainer,
+                        collapse.querySelector('.card-body').firstChild
+                    );
+
+                    // ===================== FUNÇÃO DE ATUALIZAÇÃO DA INTERFACE =====================
+                    function atualizarInterface() {
+                        // Atualiza o texto de pontos disponíveis
                         spanPontos.textContent = `Pontos disponíveis: ${pontosDisponiveis}`;
-                        headerContainer.appendChild(spanPontos);
 
-                        // Botão para resetar distribuição
-                        const btnReset = document.createElement('button');
-                        btnReset.className = 'btn btn-sm btn-outline-warning';
-                        btnReset.textContent = 'Resetar Distribuição';
-                        btnReset.disabled = true;
-                        headerContainer.appendChild(btnReset);
+                        // Habilita/desabilita botão Reset dependendo se há pontos distribuídos
+                        btnReset.disabled = Object.values(pontosDistribuidos).every(v => v === 0);
 
-                        atributosDiv.querySelector('.card-body').insertBefore(
-                            headerContainer,
-                            atributosDiv.querySelector('.card-body').firstChild
-                        );
-
+                        // Atualiza cada atributo visualmente
                         atributos.forEach(div => {
-                            // Container para o atributo e seus controles
-                            const container = document.createElement('div');
-                            container.className = 'd-flex align-items-center justify-content-between';
+                            const nome = div.dataset.nome; // Nome do atributo (forca, agilidade, etc.)
+                            const adicional = pontosDistribuidos[nome] || 0; // Pontos distribuídos nesse atributo
 
-                            // Extrai nome e valor base do atributo
-                            const texto = div.textContent;
-                            const [nome, valorBase] = texto.split(': ');
-                            const baseValue = parseInt(valorBase);
-                            pontosDistribuidos[nome] = 0;
-
-                            // Texto do atributo
-                            const textoAtributo = document.createElement('div');
-                            textoAtributo.className = 'flex-grow-1';
-                            textoAtributo.textContent = `${nome}: ${baseValue}`;
-
-                            // Container dos botões
-                            const botoesContainer = document.createElement('div');
-                            botoesContainer.className = 'ms-2 d-flex gap-1';
-
-                            // Valor adicional
-                            const spanAdicional = document.createElement('span');
+                            // Procura span existente para mostrar pontos adicionais ou cria novo
+                            const spanAdicional = div.querySelector('.text-info') || div.querySelector('span') || document.createElement('span');
                             spanAdicional.className = 'text-info ms-1';
-                            spanAdicional.style.display = 'none';
+                            spanAdicional.textContent = adicional > 0 ? ` (+${adicional})` : '';
+                            spanAdicional.style.display = adicional > 0 ? 'inline' : 'none';
 
-                            // Botões + e -
-                            const btnMenos = document.createElement('button');
-                            btnMenos.className = 'btn btn-sm btn-outline-danger btn-up-atributo';
-                            btnMenos.innerHTML = '<i class="fa-solid fa-minus"></i>';
-                            btnMenos.disabled = true;
+                            // Garante que o span está no DOM
+                            div.appendChild(spanAdicional);
 
-                            const btnMais = document.createElement('button');
-                            btnMais.className = 'btn btn-sm btn-outline-info btn-up-atributo';
-                            btnMais.innerHTML = '<i class="fa-solid fa-plus"></i>';
-
-                            function atualizarInterface() {
-                                const adicional = pontosDistribuidos[nome];
-                                spanAdicional.textContent = adicional > 0 ? ` (+${adicional})` : '';
-                                spanAdicional.style.display = adicional > 0 ? 'inline' : 'none';
-                                btnMenos.disabled = adicional === 0;
-                                btnMais.disabled = pontosDisponiveis === 0;
-                                btnReset.disabled = Object.values(pontosDistribuidos).every(v => v === 0);
-                                spanPontos.textContent = `Pontos disponíveis: ${pontosDisponiveis}`;
-
-                                // Envia atualização em tempo real
-                                enviarAcao({
-                                    acao: 'atributoUpado',
-                                    personagemId: data.personagemId,
-                                    atributo: nome.toLowerCase(),
-                                    valorBase: baseValue,
-                                    adicional: adicional
-                                });
-                            }
-
-                            btnMais.onclick = function() {
-                                if (pontosDisponiveis > 0) {
-                                    pontosDistribuidos[nome]++;
-                                    pontosDisponiveis--;
-                                    atualizarInterface();
-                                }
-                            };
-
-                            btnMenos.onclick = function() {
-                                if (pontosDistribuidos[nome] > 0) {
-                                    pontosDistribuidos[nome]--;
-                                    pontosDisponiveis++;
-                                    atualizarInterface();
-                                }
-                            };
-
-                            btnReset.onclick = function() {
-                                Object.keys(pontosDistribuidos).forEach(attr => {
-                                    pontosDisponiveis += pontosDistribuidos[attr];
-                                    pontosDistribuidos[attr] = 0;
-                                });
-                                document.querySelectorAll('.text-info[style]').forEach(span => {
-                                    span.style.display = 'none';
-                                });
-                                atualizarInterface();
-                            };
-                            // Monta a estrutura
-                            botoesContainer.appendChild(btnMenos);
-                            botoesContainer.appendChild(btnMais);
-                            container.appendChild(textoAtributo);
-                            container.appendChild(spanAdicional);
-                            container.appendChild(botoesContainer);
-
-                            // Substitui o div original pelo novo container
-                            div.parentNode.replaceChild(container, div);
+                            // Envia atualização para o backend/WebSocket em tempo real
+                            enviarAcao({
+                                acao: 'atributoUpado',
+                                personagemId: data.personagemId,
+                                atributo: nome.toLowerCase(),
+                                valorBase: parseInt(div.dataset.valorBase, 10),
+                                adicional: adicional
+                            });
                         });
                     }
+
+                    // ===================== BOTÕES + E - PARA CADA ATRIBUTO =====================
+                    atributos.forEach(div => {
+                        const nome = div.dataset.nome; // Nome do atributo
+                        const valorBase = parseInt(div.dataset.valorBase, 10); // Valor base do atributo
+                        pontosDistribuidos[nome] = 0; // Inicializa contador de pontos distribuídos
+
+                        // Container para os botões + e -
+                        const botoesContainer = document.createElement('div');
+                        botoesContainer.className = 'ms-2 d-flex gap-1 align-items-center';
+
+                        // Botão de remover ponto
+                        const btnMenos = document.createElement('button');
+                        btnMenos.className = 'btn btn-sm btn-outline-danger btn-up-atributo';
+                        btnMenos.innerHTML = '<i class="fa-solid fa-minus"></i>';
+                        btnMenos.disabled = true; // Desabilitado inicialmente, pois não há pontos distribuídos
+
+                        // Botão de adicionar ponto
+                        const btnMais = document.createElement('button');
+                        btnMais.className = 'btn btn-sm btn-outline-info btn-up-atributo';
+                        btnMais.innerHTML = '<i class="fa-solid fa-plus"></i>';
+
+                        // Funções de clique
+                        btnMais.onclick = () => {
+                            if (pontosDisponiveis > 0) {
+                                pontosDistribuidos[nome]++;
+                                pontosDisponiveis--;
+                                atualizarInterface(); // Atualiza UI e envia WS
+                            }
+                        };
+                        btnMenos.onclick = () => {
+                            if (pontosDistribuidos[nome] > 0) {
+                                pontosDistribuidos[nome]--;
+                                pontosDisponiveis++;
+                                atualizarInterface(); // Atualiza UI e envia WS
+                            }
+                        };
+
+                        // Adiciona os botões ao container
+                        botoesContainer.appendChild(btnMenos);
+                        botoesContainer.appendChild(btnMais);
+
+                        // Adiciona o container dentro da div do atributo
+                        div.appendChild(botoesContainer);
+                    });
+
+                    // ===================== EVENTOS DO HEADER =====================
+                    // Resetar todos os pontos
+                    btnReset.onclick = () => {
+                        Object.keys(pontosDistribuidos).forEach(attr => pontosDistribuidos[attr] = 0);
+                        pontosDisponiveis = 5;
+                        atualizarInterface();
+                    };
+
+                    // Botão salvar: aqui você implementaria o envio dos dados para o backend
+                    btnSalvar.onclick = () => {
+                        console.log('💾 Salvando atributos...', pontosDistribuidos);
+                        /*
+                            Exemplo de payload para enviar ao backend:
+                            {
+                                "forca": x,
+                                "agilidade": x,
+                                "inteligencia": x,
+                                "destreza": x,
+                                "vitalidade": x,
+                                "percepcao": x,
+                                "sabedoria": x,
+                                "carisma": x
+                            }
+                        */
+                    };
                 }
                 break;
 
+
             case 'danoRecebido':
             case 'curaRecebida':
+                // Pega o card do personagem que sofreu dano ou recebeu cura
                 const cardVida = getCardById(String(data.personagemId));
-                if (!cardVida) return;
+                if (!cardVida) return; // Se não existir card correspondente, sai da função
 
-                // Atualizar barra de vida
-                const progressBar = cardVida.querySelector('.progress-bar');
+                // Atualiza a barra de vida do personagem
+                const progressBar = cardVida.querySelector('.progress-bar'); // procura o elemento da barra de progresso
                 if (progressBar) {
+                    // vidaMaxima vem do dataset do card (atributo data-vida-max)
                     const vidaMaxima = parseInt(cardVida.dataset.vidaMax, 10);
+                    // Calcula largura percentual da barra de vida com base no valor atual
                     progressBar.style.width = `${(data.vidaAtual / vidaMaxima) * 100}%`;
+                    // Atualiza o texto visível da barra para mostrar "vidaAtual/vidaMaxima HP"
                     progressBar.textContent = `${data.vidaAtual}/${vidaMaxima} HP`;
                 }
 
-                // Atualizar dataset
+                // Atualiza o dataset do card para manter o valor de vida atual sincronizado com o DOM
+                // Isso é útil caso outras funções precisem ler o valor atual da vida diretamente do card
                 cardVida.dataset.vida = data.vidaAtual;
                 break;
 
@@ -696,16 +812,24 @@
         }
     }
 
+    // Configuração da integração com o WebSocket do chat-room.js
     function setupSocketIntegration() {
-        if (window.chatStomp) {
+        // Se já existe, reaproveita o stompClient do chat-room.js
+        if (window.chatStomp) { // Checa se o serviço WebSocket (window.chatStomp) já foi criado por webSocketService.js
             stompClient = window.chatStomp;
+            // Se sim, atribui ele a stompClient, que é um apelido local
             debugLog('🔁 Reaproveitando stomp client do chat');
+            // Mas pq disso? Porque chat-room.js já gerencia a conexão WebSocket e o stompClient
+            // Evita criar múltiplas conexões WebSocket para a mesma sala
+            // Garante que você esteja usando o mesmo cliente STOMP global
         }
 
+        // Esse evento é disparado pelo webSocketService.js
+        // quando a conexão WebSocket/STOMP foi estabelecida com sucesso
         document.addEventListener('stomp.connected', (ev) => {
             try {
-                stompClient = ev.detail.stompClient;
-                debugLog('🔌 Conectado ao stomp via chat-room');
+                stompClient = ev.detail.stompClient; // pega o cliente STOMP que está pronto e guarda localmente
+                debugLog('🔌 Conectado ao stomp via chat-room'); // imprime no console para você ver que agora é seguro enviar mensagens
             } catch (e) {
                 console.warn('Erro ao integrar com chat-room:', e);
             }
