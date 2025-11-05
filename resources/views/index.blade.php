@@ -184,90 +184,16 @@
     @endif
 </div>
 
-<!-- Modal de Convite -->
-<div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title" id="inviteModalLabel">
-                    <i class="fa-solid fa-user-plus me-2"></i> Convidar usuário
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-                <label for="userSearch" class="form-label">Pesquisar usuário:</label>
-                <input type="text" id="userSearch" class="form-control mb-2" placeholder="Digite email ou login...">
-
-                <select id="selectUser" class="form-select">
-                    <option value="">Carregando...</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" id="btnSendInvite">Enviar Convite</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 @include('partials/loading')
 @include('partials/alerts')
-<script src="{{ asset('js/loading.js') }}"></script>
+@include('partials/invite')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/utils/alerts.js') }}"></script>
+
 <script>
-
-    /* ------------------------------
-    🔔 Função para mostrar modal
-    ------------------------------ */
-    function showAlert(message) {
-        const modalMessage = document.getElementById('modalMessage');
-        modalMessage.textContent = message;
-
-        const modalEl = document.getElementById('modalAlert');
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
-    }
-
-    /* ------------------------------
-    🎉 Função para mostrar toast
-    tipo: 'success', 'danger', 'warning', 'info'
-    ------------------------------ */
-    function showToast(message, tipo = 'success') {
-        const toastEl = document.getElementById('liveToast');
-        const toastMessage = document.getElementById('toastMessage');
-
-        toastMessage.textContent = message;
-        toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-info');
-        toastEl.classList.add(`bg-${tipo}`);
-
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-    }
-
-    /* ------------------------------
-    ❓ Função para mostrar modal de confirmação
-    onConfirm: função callback executada ao confirmar
-    ------------------------------ */
-    function showConfirm(message, onConfirm) {
-        const messageEl = document.getElementById('modalConfirmMessage');
-        messageEl.textContent = message;
-
-        const modalEl = document.getElementById('modalConfirm');
-        const modal = new bootstrap.Modal(modalEl);
-
-        // Remove qualquer evento anterior no botão
-        const confirmBtn = document.getElementById('btnConfirmAction');
-        confirmBtn.replaceWith(confirmBtn.cloneNode(true));
-        const newConfirmBtn = document.getElementById('btnConfirmAction');
-
-        // Define o evento de confirmação
-        newConfirmBtn.addEventListener('click', function() {
-            modal.hide();
-            onConfirm(); // executa o callback
-        });
-
-        modal.show();
-    }
 
     /* -------------------------------------------------------------
     📢 FUNÇÕES GERAIS E INICIALIZAÇÃO
@@ -560,128 +486,16 @@
         loadSalas();
     });
 
-    /* -------------------------------------------------------------
-    🚪 SAIR DA SALA (AJAX)
-    ------------------------------------------------------------- */
-    $(document).on('click', '.btn-leave', function() {
-        const salaId = $(this).data('id');
-        const userId = "{{ session('user_id') }}";
-
-        showConfirm('Tem certeza que deseja sair desta sala?', function() {
-
-            showToast('Saindo da sala...');
-
-            // 🔹 Passo 1: buscar os personagens da sala
-            $.ajax({
-                url: `/api/salas/personagens/listar/${salaId}`,
-                type: 'GET',
-                success: function(personagens) {
-                    const personagem = personagens.find(p => p.usuarioId == userId);
-
-                    if (!personagem) {
-                        showToast('Seu personagem não foi encontrado nesta sala.');
-                        return;
-                    }
-
-                    const personagemId = personagem.personagemId;
-
-                    // 🔹 Passo 2: chamar a rota de saída
-                    $.ajax({
-                        url: `/api/salas/personagens/remover/${salaId}/${personagemId}`,
-                        type: 'DELETE',
-                        data: { _token: "{{ csrf_token() }}" },
-                        success: function(res) {
-                            showToast(res.message || 'Você saiu da sala.');
-                            loadSalas();
-                        },
-                        error: function(xhr) {
-                            showToast(xhr.responseJSON?.message || 'Erro ao sair da sala.');
-                        }
-                    });
-                },
-                error: function() {
-                    showToast('Erro ao carregar os personagens da sala.');
-                }
-            });
-        });
-    });
-
-    /* -------------------------------------------------------------
-    📩 CONVIDAR MEMBRO VIA MODAL
-    ------------------------------------------------------------- */
-    let usuarios = [];
-
-    $(document).on('click', '.btn-invite', function() {
-        const salaId = $(this).data('id');
-        $('#inviteModal').data('sala-id', salaId);
-
-        const modalEl = document.getElementById('inviteModal');
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
-
-        // Buscar usuários
-        $.ajax({
-            url: '/api/usuarios',
-            type: 'GET',
-            success: function(response) {
-                if (response.status !== 'success' || !Array.isArray(response.data)) {
-                    showAlert('Erro ao carregar usuários.');
-                    return;
-                }
-
-                usuarios = response.data;
-                const select = $('#selectUser');
-                select.empty().append('<option value="">Selecione um usuário</option>');
-
-                const membrosIds = $('.btn-remove-member').map((i, el) => $(el).data('id')).get();
-
-                usuarios.forEach(user => {
-                    if (!membrosIds.includes(user.id)) {
-                        select.append(`<option value="${user.email}">${user.login} (${user.email})</option>`);
-                    }
-                });
-            },
-            error: function() {
-                showAlert('Erro ao carregar usuários.');
-            }
-        });
-
-        // Garante que não duplica o evento
-        $('#btnSendInvite').off('click').on('click', function() {
-            const email = $('#selectUser').val();
-            if (!email) {
-                showAlert('Selecione um usuário para enviar o convite.');
-                return;
-            }
-
-            const salaId = $('#inviteModal').data('sala-id');
-
-            $.ajax({
-                url: '/api/enviar-invite',
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    salaId: salaId,
-                    email: email
-                },
-                success: function(res) {
-                    console.log('Resposta da API:', res); // 🔹 Mostra no console
-                    showToast(res.message || 'Convite enviado com sucesso!');
-                    bootstrap.Modal.getInstance(document.getElementById('inviteModal')).hide();
-                },
-                error: function(xhr) {
-                    console.error('Erro da API:', xhr); // 🔹 Mostra no console
-                    if(xhr.responseJSON){
-                        console.log('Detalhes do erro:', xhr.responseJSON);
-                    }
-                    showAlert(xhr.responseJSON?.message || 'Erro ao enviar convite.');
-                }
-            });
-        });
-    });
-
-
 </script>
+{{-- Passando infos do Blade para o script... --}}
+<script>
+    window.userId = "{{ session('user_id') }}";
+    window.csrfToken = "{{ csrf_token() }}";
+    const routeSalasIndex = "{{ route('salas.index') }}";
+</script>
+<script src="{{ asset('js/room/invite.js') }}"></script>
+<script src="{{ asset('js/room/exit.js') }}"></script>
+
 {{-- Script de instalação PWA --}}
 <script>
     let deferredPrompt;
