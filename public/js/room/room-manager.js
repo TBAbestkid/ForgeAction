@@ -822,6 +822,12 @@
             // Mas pq disso? Porque chat-room.js já gerencia a conexão WebSocket e o stompClient
             // Evita criar múltiplas conexões WebSocket para a mesma sala
             // Garante que você esteja usando o mesmo cliente STOMP global
+        } else {
+            debugLog('⚠️ WebSocket/STOMP não encontrado. Certifique-se de que webSocketService.js foi carregado.');
+            document.addEventListener('stomp.connected', (ev) => {
+                stompClient = ev.detail.stompClient;
+                debugLog('🔌 Conectado ao stomp via chat-room (fallback)');
+            });
         }
 
         // Esse evento é disparado pelo webSocketService.js
