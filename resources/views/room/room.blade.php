@@ -579,10 +579,9 @@
 
 @include('partials/loading')
 @include('partials/alerts')
-@include('partials/invite')
+{{-- @include('partials/invite') --}}
 <script src="{{ asset('js/loading.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('js/chat-room.js') }}"></script>
 <script src="{{ asset('js/dice-manager.js') }}"></script>
 {{-- Ativar tooltips --}}
 <script>
@@ -612,8 +611,9 @@
     const routeSalasIndex = "{{ route('salas.index') }}";
 </script>
 
+<script src="{{ asset('js/chat-room.js') }}"></script>
 <script src="{{ asset('js/room-manager.js') }}"></script>
-<script src="{{ asset('js/invite.js') }}"></script>
+{{-- <script src="{{ asset('js/invite.js') }}"></script> --}}
 
 @endsection
 
