@@ -35,7 +35,7 @@ $(document).ready(function () {
 
         // 1️⃣ Busca lista de personagens da sala para saber quem já é membro
         $.ajax({
-            url: `/salas/personagens/listar/${salaIdClicada}`,
+            url: `/api/salas/personagens/listar/${salaIdClicada}`,
             type: 'GET',
             success: function (personagens) {
                 const membrosAtuais = personagens.map(p => p.usuarioId);
