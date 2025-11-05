@@ -67,27 +67,14 @@
 
 @include('partials.loading')
 @include('partials.alerts')
-<script src="{{ asset('js/loading.js') }}"></script>
+<script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/utils/alerts.js') }}"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {{-- Fazer um js validando as infos do form --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('registerForm');
-        const modalAlert = new bootstrap.Modal(document.getElementById('modalAlert'));
-        const toastLive = new bootstrap.Toast(document.getElementById('liveToast'));
-
-        // Função: Modal para avisos de erro/alerta
-        function showModal(message) {
-            document.getElementById('modalMessage').textContent = message;
-            modalAlert.show();
-        }
-
-        // Função: Toast de sucesso
-        function showToast(message = "Sucesso!") {
-            document.getElementById('toastMessage').textContent = message;
-            toastLive.show();
-        }
 
         if (!form) {
             console.warn("Formulário de cadastro não encontrado!");

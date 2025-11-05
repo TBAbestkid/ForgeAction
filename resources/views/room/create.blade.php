@@ -32,7 +32,8 @@
 @include('partials.alerts')
 @include('partials.loading')
 
-<script src="{{ asset('js/loading.js') }}"></script>
+<script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/utils/alerts.js') }}"></script>
 <!-- jQuery e Select2 -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -46,7 +47,7 @@
         // Validação básica
         const nome = formData.get('nome')?.trim();
         if (!nome) {
-            showModal('O nome da sala é obrigatório.');
+            showAlert('O nome da sala é obrigatório.');
             return;
         }
 
@@ -63,24 +64,6 @@
         // for (let [key, value] of payload.entries()) {
         //     console.log(`   ${key}:`, value);
         // }
-
-        // Função de modal
-        function showModal(message) {
-            const modalEl = document.getElementById('modalAlert');
-            const modalMessage = document.getElementById('modalMessage');
-            modalMessage.textContent = message;
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
-
-        // Função de toast
-        function showToast(message) {
-            const toastEl = document.getElementById('liveToast');
-            const toastMessage = document.getElementById('toastMessage');
-            toastMessage.textContent = message;
-            const toast = new bootstrap.Toast(toastEl);
-            toast.show();
-        }
 
         // Exibe loading até resposta
         showLoading();
@@ -122,13 +105,13 @@
 
             } else {
                 // Mostra erro detalhado do backend
-                showModal(result.message || 'Erro ao criar sala.');
+                showAlert(result.message || 'Erro ao criar sala.');
             }
 
         } catch (error) {
             console.error('💥 Erro inesperado ao criar sala:', error);
             hideLoading();
-            showModal('Erro inesperado ao criar sala.');
+            showAlert('Erro inesperado ao criar sala.');
         }
     });
 </script>

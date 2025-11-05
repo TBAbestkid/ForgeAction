@@ -94,26 +94,14 @@
 
 @include('partials.loading')
 @include('partials.alerts')
-<script src="{{ asset('js/loading.js') }}"></script>
+<script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/utils/alerts.js') }}"></script>
 
 <!-- jQuery e Select2 -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        function showModal(message) {
-            // Coloca a mensagem no modal
-            const modalMessage = document.getElementById("modalMessage");
-            if (modalMessage) modalMessage.textContent = message;
-
-            // Inicializa e mostra o modal usando Bootstrap 5
-            const modalEl = document.getElementById("modalAlert");
-            if (modalEl) {
-                const modal = new bootstrap.Modal(modalEl);
-                modal.show();
-            }
-        }
-
         /* ---------- CONFIG ---------- */
         const TOTAL_POINTS = 23;
         const ATTRS = ['forca','agilidade','inteligencia','sabedoria','destreza','vitalidade','percepcao','carisma'];
@@ -286,13 +274,13 @@
 
        async function submitCharacter() {
             if (!userId || userId === 0) {
-                showModal("Usuário não logado");
+                showAlert("Usuário não logado");
                 return;
             }
 
             // Valida campos da etapa 1
             if (!validateFields(infoFields)) {
-                showModal("Preencha todos os campos corretamente antes de continuar.");
+                showAlert("Preencha todos os campos corretamente antes de continuar.");
                 goToInfo();
                 return;
             }
@@ -303,7 +291,7 @@
             // Verifica pontos de atributos
             const totalAtributos = Object.values(attrs).reduce((a, b) => a + (parseInt(b) || 0), 0);
             if (totalAtributos !== TOTAL_POINTS) {
-                showModal(`Distribua todos os ${TOTAL_POINTS} pontos de atributo antes de criar o personagem.`);
+                showAlert(`Distribua todos os ${TOTAL_POINTS} pontos de atributo antes de criar o personagem.`);
                 return;
             }
 
@@ -320,7 +308,7 @@
                 // Aqui só checamos status e code do JSON
                 if (res.data?.status === 'success' && res.data?.code === 201) {
                     hideLoading();
-                    showModal("Personagem criado com sucesso!");
+                    showAlert("Personagem criado com sucesso!");
                     setTimeout(() => window.location.href = '/dashboard', 2000);
                 } else {
                     throw new Error(res.data?.message || `Erro inesperado: ${res.data?.code || res.status}`);
@@ -328,7 +316,7 @@
 
             } catch (err) {
                 hideLoading();
-                showModal("Erro ao criar personagem: " + err.message, true);
+                showAlert("Erro ao criar personagem: " + err.message, true);
             } finally {
                 submitBtn.disabled = false;
                 nextBtn.disabled = false;

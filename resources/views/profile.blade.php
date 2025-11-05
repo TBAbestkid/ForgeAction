@@ -90,7 +90,8 @@
 
 @include('partials/loading')
 @include('partials/alerts')
-<script src="{{ asset('js/loading.js') }}"></script>
+<script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const editBtn = document.getElementById("btnEditProfile");
@@ -109,31 +110,6 @@
         const roleLabel = toggleRole.nextElementSibling;
 
         let editMode = false;
-
-        // --- Função para mostrar Toast existente ---
-        function showToast(message, type = 'success') {
-            const toastEl = document.getElementById('liveToast');
-            const toastMessage = document.getElementById('toastMessage');
-
-            toastMessage.textContent = message;
-
-            toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning');
-            if(type === 'success') toastEl.classList.add('bg-success');
-            else if(type === 'danger') toastEl.classList.add('bg-danger');
-            else if(type === 'warning') toastEl.classList.add('bg-warning');
-
-            const toast = new bootstrap.Toast(toastEl);
-            toast.show();
-        }
-
-        // --- Função para mostrar Modal existente ---
-        function showModal(message) {
-            const modalEl = document.getElementById('modalAlert');
-            const modalMessage = document.getElementById('modalMessage');
-            modalMessage.textContent = message;
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
 
         // --- Atualizar Email --- Funciona!
         btnUpdateEmail.addEventListener('click', function(e) {

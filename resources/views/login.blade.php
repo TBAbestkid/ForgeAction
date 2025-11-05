@@ -62,7 +62,7 @@
 
 @include('partials/loading')
 @include('partials/alerts')
-<script src="{{ asset('js/loading.js') }}"></script>
+<script src="{{ asset('js/utils/loading.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('myForm');
