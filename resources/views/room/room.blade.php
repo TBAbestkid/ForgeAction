@@ -609,16 +609,16 @@
 </script>
 {{-- Exporta variáveis PHP para JS --}}
 <script>
-    // const newWsUrl = "/ws";
+    const newWsUrl = "/ws";
 
-    // console.log("WebSocket URL:", newWsUrl);
+    console.log("WebSocket URL:", newWsUrl);
 
 
     window.CHAT_CONFIG = {
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        wsUrl: "{{ env('EXTERNAL_API_URL') }}/ws", // newWsUrl
+        wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
     window.userId = "{{ session('user_id') }}";
