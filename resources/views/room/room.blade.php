@@ -597,16 +597,19 @@
 </script>
 {{-- Exporta variáveis PHP para JS --}}
 <script>
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const newWsUrl = protocol + "//"+ window.location.host + "/ws";
+    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const newWsUrl = protocol + window.location.host + "/ws";
+
+    console.log("WebSocket URL:", newWsUrl); // opcional, só pra debug
+
     window.CHAT_CONFIG = {
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        wsUrl: newWsUrl,
-        // Indica se o usuário é o mestre/dono da sala (usado pelo JS para habilitar controles)
+        wsUrl: newWsUrl,       // 🔹 agora absoluto e correto
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
+
     const csrfToken = "{{ csrf_token() }}";
     const routeSalasIndex = "{{ route('salas.index') }}";
 </script>
