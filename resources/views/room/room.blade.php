@@ -597,16 +597,15 @@
 </script>
 {{-- Exporta variáveis PHP para JS --}}
 <script>
-    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    const newWsUrl = protocol + window.location.host + "/ws";
+    const newWsUrl = "/ws"; // caminho absoluto na raiz do site
 
-    console.log("WebSocket URL:", newWsUrl); // opcional, só pra debug
+    console.log("WebSocket URL:", newWsUrl); // vai mostrar "/ws"
 
     window.CHAT_CONFIG = {
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        wsUrl: newWsUrl,       // 🔹 agora absoluto e correto
+        wsUrl: newWsUrl,   // 🔹 apenas "/ws"
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
 
