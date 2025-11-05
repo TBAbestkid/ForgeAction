@@ -441,7 +441,7 @@
                     });
 
                     $salasContainer.append($list);
-                    attachSalaEvents();
+                    // attachSalaEvents();
                 } else {
                     $salasContainer.html(`
                         <div class="alert alert-info">
@@ -451,31 +451,6 @@
                 }
             }).catch(() => {
                 $salasContainer.html("<p class='text-danger'>Erro ao carregar salas.</p>");
-            });
-        }
-
-        /* -------------------------------------------------------------
-        🗑️ EVENTOS DAS SALAS (excluir / convidar)
-        ------------------------------------------------------------- */
-        function attachSalaEvents() {
-            $(".btn-delete").off("click").on("click", function () {
-                const id = $(this).data("id");
-                if (!confirm("Tem certeza que deseja excluir esta sala?")) return;
-
-                $.ajax({
-                    url: `/api/salas/${id}`,
-                    method: "DELETE",
-                    data: { _token: "{{ csrf_token() }}" },
-                    success: loadSalas,
-                    error: function () {
-                        alert("Erro ao excluir sala.");
-                    }
-                });
-            });
-
-            $(".btn-invite").off("click").on("click", function () {
-                const id = $(this).data("id");
-                showModal("Convite", "Aqui você pode convidar usuários para a sala " + id);
             });
         }
 
@@ -495,6 +470,7 @@
 </script>
 <script src="{{ asset('js/room/invite.js') }}"></script>
 <script src="{{ asset('js/room/exit.js') }}"></script>
+<script src="{{ asset('js/room/delete.js') }}"></script>
 
 {{-- Script de instalação PWA --}}
 <script>

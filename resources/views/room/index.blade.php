@@ -151,6 +151,7 @@
 </script>
 <script src="{{ asset('js/room/invite.js') }}"></script>
 <script src="{{ asset('js/room/exit.js') }}"></script>
+<script src="{{ asset('js/room/delete.js') }}"></script>
 <script>
     // Filtro de salas, a principio só no front-end...
     document.getElementById('filterSalas')?.addEventListener('input', (e) => {
