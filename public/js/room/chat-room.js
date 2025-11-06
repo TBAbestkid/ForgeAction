@@ -1,15 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ======= VARIÁVEIS INJETADAS PELO BLADE =======
-    const { userId, userLogin, salaId, wsUrl } = window.CHAT_CONFIG;
+    const { userId, userLogin, salaId, wsUrl } = window.CHAT_CONFIG || {};
+    if (!wsUrl || !salaId) {
+        console.error('❌ CHAT_CONFIG inválido — wsUrl ou salaId ausente.');
+        return;
+    }
 
     // ======= ELEMENTOS =======
     const messages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
 
+    if (!messages || !chatInput || !chatSend) {
+        console.warn('⚠️ Elementos de chat não encontrados no DOM.');
+        return;
+    }
+
     // ======= CONFIG =======
-    let userName = userLogin || 'Desconhecido';
-    let channel = `${salaId}`;
+    const userName = userLogin || 'Desconhecido';
+    const channel = salaId.toString(); // alternativa explicita
 
     // ======= FUNÇÃO DE ADIÇÃO DE MENSAGEM =======
     function addMessage(text, sender = 'Sistema') {
@@ -28,24 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         messages.scrollTop = messages.scrollHeight;
     }
 
-    // ======= FUNÇÃO DE ENVIO DE MENSAGEM =======
-    function sendMessage() {
-        const msg = chatInput.value.trim();
-        if (!msg || !window.chatStomp.getConnectionStatus()) return;
-
-        const payload = {
-            tipo: 'chat',
-            conteudo: msg,
-            autor: userName,
-            userId,
-            salaId
-        };
-
-        WebSocketService.send('/app/enviar/' + channel, payload);
-        chatInput.value = '';
-        chatInput.focus();
-    }
-
     // ======= PROCESSAR MENSAGEM =======
     function processMessage(data) {
         if (!data) return;
@@ -59,13 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
             bubbles: true
         }));
 
-        // Depois processa mensagens relevantes para o chat
+        // Processa mensagens específicas do chat
         switch (data.tipo) {
             case 'chat':
             case undefined:
-                if (data.conteudo) {
-                    addMessage(data.conteudo, data.autor || 'Sistema');
-                }
+                if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema');
                 break;
             case 'sistema':
                 addMessage(data.conteudo, '🤖 Sistema');
@@ -80,12 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema');
                 break;
             default:
-                // Ignora outros tipos (ex: 'acao') que serão tratados pelo room-manager
+                // outros tipos são tratados por room-manager
                 break;
         }
     }
 
-    // Tornar global pra usar no room-manager
+    // 🔹 Torna global pra room-manager.js
     window.processMessage = processMessage;
 
     // ======= CONECTAR AO WEBSOCKET =======
@@ -95,10 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
         WebSocketService.connect(
             wsUrl,
             channel,
-            processMessage, // callback para mensagens recebidas
+            processMessage,
             () => {
-                // Quando conectar:
-                // addMessage('✅ Conectado ao servidor!', 'Sistema');
+                addMessage('✅ Conectado ao servidor!', 'Sistema');
 
                 const entradaMsg = {
                     tipo: 'entrada',
@@ -124,12 +112,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     bubbles: true,
                     detail: { stompClient: WebSocketService.stompClient }
                 }));
+
+                console.log('📡 Evento stomp.connected disparado.');
             },
             (error) => {
                 console.error('❌ Erro ao conectar:', error);
                 addMessage('⚠️ Falha ao conectar ao chat.', 'Sistema');
+                // Tenta reconectar automaticamente após 3s
+                setTimeout(() => {
+                    console.log('🔁 Tentando reconectar...');
+                    WebSocketService.reconnect(wsUrl, channel, processMessage);
+                }, 3000);
             }
         );
+    }
+
+    // ======= FUNÇÃO DE ENVIO DE MENSAGEM =======
+    function sendMessage() {
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+
+        if (!window.chatStomp?.getConnectionStatus()) {
+            console.warn('⚠️ Chat não conectado, mensagem não enviada.');
+            return;
+        }
+
+        const payload = {
+            tipo: 'chat',
+            conteudo: msg,
+            autor: userName,
+            userId,
+            salaId
+        };
+
+        WebSocketService.send('/app/enviar/' + channel, payload);
+        chatInput.value = '';
+        chatInput.focus();
     }
 
     // ======= EVENTOS =======
@@ -139,5 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ======= INICIAR CHAT =======
-    connectChat();
+    // Pequeno delay pra garantir que WebSocketService está carregado
+    setTimeout(connectChat, 300);
 });
