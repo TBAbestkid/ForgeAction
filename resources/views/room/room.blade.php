@@ -629,17 +629,12 @@
 </script>
 
 {{-- Scripts principais, ordem importante! --}}
+{{-- 1. Serviço WebSocket (fundamental) --}}
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
-<script>
-    // Validação do carregamento do webSocketService
-    if (!window.AppWebSocket) {
-        console.error('❌ AppWebSocket não foi carregado corretamente. Verifique o caminho do arquivo webSocketService.js');
-    } else {
-        console.log('✅ AppWebSocket carregado com sucesso!');
-    }
-</script>
+
+{{-- 2. Gerenciadores da sala --}}
+<script src="{{ asset('js/room/chat-room-unified.js') }}"></script>
 <script src="{{ asset('js/room/room-manager.js') }}"></script>
-<script src="{{ asset('js/room/chat-room.js') }}"></script>
 
 {{-- Scripts auxiliares --}}
 <script src="{{ asset('js/room/exit.js') }}"></script>

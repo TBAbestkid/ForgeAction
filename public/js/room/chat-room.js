@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ======= CONFIG =======
     const userName = userLogin || 'Desconhecido';
-    const channel = salaId.toString(); // alternativa explicita
+    const channel = salaId.toString();
 
     // ======= FUNÇÃO DE ADIÇÃO DE MENSAGEM =======
     function addMessage(text, sender = 'Sistema') {
@@ -49,9 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data) return;
 
         // Primeiro dispara evento para outros módulos poderem reagir
-        // Essa linha cria e dispara um evento personalizado (CustomEvent)
-        // chamado 'ws.message' dentro do document, ou seja:
-        // "Ei, todo mundo que estiver ouvindo o evento ws.message, aqui vai uma nova mensagem WebSocket!"
         document.dispatchEvent(new CustomEvent('ws.message', {
             detail: data,
             bubbles: true
@@ -81,57 +78,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 🔹 Torna global pra room-manager.js
-    window.processMessage = processMessage;
-
     // ======= CONECTAR AO WEBSOCKET =======
     function connectChat() {
         addMessage(`🟢 Conectando ao chat como "${userName}"...`);
 
-        WebSocketService.connect(
-            wsUrl,
-            channel,
-            processMessage,
-            () => {
-                addMessage('✅ Conectado ao servidor!', 'Sistema');
+        // Registra handlers de eventos
+        document.addEventListener('stomp.connected', () => {
+            addMessage('✅ Conectado ao servidor!', 'Sistema');
 
-                const entradaMsg = {
-                    tipo: 'entrada',
-                    conteudo: `${userName} entrou na sala "${channel}"`,
-                    autor: userName,
-                    userId,
-                    salaId
-                };
-                WebSocketService.send('/app/enviar/' + channel, entradaMsg);
+            const entradaMsg = {
+                tipo: 'entrada',
+                conteudo: `${userName} entrou na sala "${channel}"`,
+                autor: userName,
+                userId,
+                salaId
+            };
+            ws.send('/app/enviar/' + channel, entradaMsg);
 
-                // Cria uma variável global chamada chatStomp.
-                // Outros scripts na página podem acessar essa variável para enviar ou
-                // receber mensagens do WebSocket.
-                // Serve pra compartilhar o serviço entre diferentes scripts,
-                // sem precisar importar nada.
-                window.chatStomp = WebSocketService;
+            // Inscreve no canal da sala
+            ws.subscribe(channel, processMessage);
 
-                // Dispara um evento personalizado chamado 'stomp.connected'.
-                // É um sinal de que o WebSocket já está realmente conectado e pronto para uso.
-                // Outros scripts podem “escutar” esse evento e só então começar a interagir com o
-                // WebSocket, garantindo que não vão tentar usar antes da hora.
-                document.dispatchEvent(new CustomEvent('stomp.connected', {
-                    bubbles: true,
-                    detail: { stompClient: WebSocketService.stompClient }
-                }));
+            console.log('📡 Chat conectado e inscrito no canal', channel);
+        });
 
-                console.log('📡 Evento stomp.connected disparado.');
-            },
-            (error) => {
-                console.error('❌ Erro ao conectar:', error);
-                addMessage('⚠️ Falha ao conectar ao chat.', 'Sistema');
-                // Tenta reconectar automaticamente após 3s
-                setTimeout(() => {
-                    console.log('🔁 Tentando reconectar...');
-                    WebSocketService.reconnect(wsUrl, channel, processMessage);
-                }, 3000);
-            }
-        );
+        document.addEventListener('stomp.error', (event) => {
+            console.error('❌ Erro ao conectar:', event.detail?.error);
+            addMessage('⚠️ Falha ao conectar ao chat.', 'Sistema');
+        });
+
+        document.addEventListener('stomp.disconnected', () => {
+            addMessage('🔴 Desconectado do chat.', 'Sistema');
+        });
+
+        // Inicia conexão
+        if (!ws.getStatus().isConnected) {
+            ws.connect(wsUrl, channel, processMessage);
+        } else {
+            // Se já estiver conectado, apenas inscreve no canal
+            ws.subscribe(channel, processMessage);
+        }
     }
 
     // ======= FUNÇÃO DE ENVIO DE MENSAGEM =======
@@ -142,6 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = ws.getStatus();
         if (!status.isConnected) {
             console.warn('⚠️ Chat não conectado, mensagem não enviada.');
+            addMessage('⚠️ Chat não conectado. Tentando reconectar...', 'Sistema');
+            connectChat();
             return;
         }
 
@@ -165,6 +152,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ======= INICIAR CHAT =======
-    // Pequeno delay pra garantir que WebSocketService está carregado
-    setTimeout(connectChat, 300);
+    connectChat();
 });
