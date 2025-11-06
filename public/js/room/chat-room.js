@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Referência ao serviço WebSocket global
+    const ws = window.AppWebSocket;
+    if (!ws) {
+        console.error('❌ AppWebSocket não encontrado. Verifique se webSocketService.js está carregado.');
+        return;
+    }
+
     // ======= VARIÁVEIS INJETADAS PELO BLADE =======
     const { userId, userLogin, salaId, wsUrl } = window.CHAT_CONFIG || {};
     if (!wsUrl || !salaId) {
@@ -132,7 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const msg = chatInput.value.trim();
         if (!msg) return;
 
-        if (!window.chatStomp?.getConnectionStatus()) {
+        const status = ws.getStatus();
+        if (!status.isConnected) {
             console.warn('⚠️ Chat não conectado, mensagem não enviada.');
             return;
         }
@@ -145,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
             salaId
         };
 
-        WebSocketService.send('/app/enviar/' + channel, payload);
+        ws.send('/app/enviar/' + channel, payload);
         chatInput.value = '';
         chatInput.focus();
     }

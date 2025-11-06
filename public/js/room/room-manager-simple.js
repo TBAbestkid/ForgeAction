@@ -1,8 +1,15 @@
 /* room-manager-simple.js
    Versão simplificada focada apenas no sistema de turnos básico
+   Atualizado para usar AppWebSocket global
 */
 (function() {
     // ====== CONFIG / STATE ======
+    const ws = window.AppWebSocket;
+    if (!ws) {
+        console.error('❌ AppWebSocket não encontrado. Verifique se webSocketService.js está carregado.');
+        return;
+    }
+
     const CHAT = window.CHAT_CONFIG || {};
     const userId = String(CHAT.userId ?? '');
     const userLogin = CHAT.userLogin ?? 'PLAYER';
@@ -11,7 +18,7 @@
     const wsUrl = CHAT.wsUrl;
     const channel = String(salaId);
 
-    let stompClient = null;
+    // Estado do jogo
     let ordemTurnos = [];
     let turnoIndex = 0;
     let rodada = 1;
@@ -31,52 +38,17 @@
     // ====== UTILS ======
     function debugLog(...args) { console.log('[RM]', ...args); }
 
-    function enviarMensagem(mensagem, tentativas = 3) {
-        return new Promise((resolve, reject) => {
-            if (!stompClient) {
-                debugLog('❌ Sem cliente STOMP');
-                reject(new Error('Sem cliente STOMP'));
-                return;
-            }
-
-            if (!stompClient.connected) {
-                debugLog('❌ Cliente STOMP não está conectado');
-                reject(new Error('Cliente STOMP não conectado'));
-                return;
-            }
-
-            try {
-                stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify(mensagem));
-                debugLog('📤 Mensagem enviada:', mensagem);
-                resolve();
-            } catch (error) {
-                debugLog('❌ Erro ao enviar mensagem:', error);
-                if (tentativas > 1) {
-                    setTimeout(() => {
-                        enviarMensagem(mensagem, tentativas - 1)
-                            .then(resolve)
-                            .catch(reject);
-                    }, 1000);
-                } else {
-                    reject(error);
-                }
-            }
-        });
-    }
-
     function enviarSistema(msg) {
         if (!salaId) {
             debugLog('❌ Sem salaId definido');
             return;
         }
 
-        enviarMensagem({
+        ws.send('/app/enviar/' + salaId, {
             tipo: 'sistema',
             conteudo: msg,
             autor: '🤖 Sistema',
             salaId: salaId
-        }).catch(error => {
-            console.error('Erro ao enviar mensagem de sistema:', error);
         });
     }
 
@@ -86,13 +58,11 @@
             return;
         }
 
-        enviarMensagem({
+        ws.send('/app/enviar/' + salaId, {
             tipo: 'acao',
             salaId,
             timestamp: Date.now(),
             ...obj
-        }).catch(error => {
-            console.error('Erro ao enviar ação:', error);
         });
     }
 
@@ -476,31 +446,26 @@
     function init() {
         debugLog('🎲 room-manager-simple iniciando...');
 
-        // Garante que o script só inicia após o chat estar pronto
-        if (!window.WebSocketService || !window.chatStomp) {
-            debugLog('⏳ Aguardando serviços essenciais...');
-            setTimeout(init, 500);
-            return;
-        }
-
+        // Configura integração com WebSocket
         setupSocketIntegration();
 
-        // Monitora a conexão a cada 3 segundos
-        setInterval(verificarConexao, 3000);
+        // Registra listeners de interface
+        if (btnRoll) btnRoll.addEventListener('click', () => diceOptions.classList.remove('d-none'));
+        if (btnIniciar) btnIniciar.addEventListener('click', iniciarRodada);
+        if (diceOptions) diceOptions.addEventListener('click', onDiceButtonClick);
+        if (btnSkip) btnSkip.addEventListener('click', proximoTurno);
 
         debugLog('✅ Inicializado. isMestre:', isMestre, 'userId:', userId);
 
         // Expõe funções úteis globalmente para debug
         window.roomManagerDebug = {
             getState: () => ({
-                connected: window.WebSocketService?.getConnectionStatus(),
-                stompConnected: stompClient?.connected,
+                connected: ws.getStatus().isConnected,
                 rodadaAtiva,
                 phase,
                 turnoIndex,
                 currentPlayerId
-            }),
-            forceReconnect: setupSocketIntegration
+            })
         };
     }
 

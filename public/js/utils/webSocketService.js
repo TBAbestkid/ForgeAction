@@ -1,94 +1,191 @@
 // webSocketService.js
-// Serviço simples para lidar com WebSocket via SockJS + STOMP
+// Serviço global unificado para WebSocket via SockJS + STOMP
 
-window.WebSocketService = (() => {
+window.AppWebSocket = (() => {
     // ======== VARIÁVEIS INTERNAS ========
-    let stompClient = null; // Cliente STOMP
-    let isConnected = false; // Indica se a conexão está ativa
+    let stompClient = null;         // Cliente STOMP atual
+    let isConnected = false;        // Status da conexão
+    let reconnectTimer = null;      // Timer para reconexão
+    let subscriptions = new Map();  // Mapa de inscrições ativas
+    let connectionConfig = null;    // Configuração atual da conexão
 
-    // ======== CONECTAR ========
-    function connect(wsUrl, channel, onMessage, onConnect, onError) {
-        console.log('🔌 Conectando ao servidor WebSocket:', wsUrl);
+    // Configurações padrão
+    const DEFAULT_CONFIG = {
+        reconnectDelay: 3000,       // Delay para reconexão (ms)
+        debug: true                 // Modo debug
+    };
 
-        // Cria a conexão SockJS
-        const socket = new SockJS(wsUrl);
+    // ======== UTILITÁRIOS INTERNOS ========
+    function debugLog(...args) {
+        if (DEFAULT_CONFIG.debug) {
+            console.log('[WS]', ...args);
+        }
+    }
 
-        // Usa o protocolo STOMP por cima do SockJS
-        stompClient = Stomp.over(socket);
+    function clearReconnectTimer() {
+        if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+            reconnectTimer = null;
+        }
+    }
 
-        // Faz a conexão
-        stompClient.connect({}, () => {
-            console.log('✅ Conectado com sucesso!');
-            isConnected = true;
+    // ======== GERENCIAMENTO DE EVENTOS ========
+    function dispatchGlobalEvent(eventName, detail) {
+        document.dispatchEvent(new CustomEvent(eventName, {
+            bubbles: true,
+            detail
+        }));
+        debugLog(`📡 Evento disparado: ${eventName}`, detail);
+    }
 
-            // Escuta mensagens do canal indicado
-            const subscriptionPath = '/topic/' + channel;
-            console.log('📡 Inscrito no canal:', subscriptionPath);
+    // ======== GERENCIAMENTO DE SUBSCRIÇÕES ========
+    function subscribe(channel, callback) {
+        if (!stompClient?.connected) {
+            debugLog('❌ Não é possível se inscrever: cliente não conectado');
+            return null;
+        }
 
-            stompClient.subscribe(subscriptionPath, (message) => {
+        try {
+            const topic = '/topic/' + channel;
+            debugLog(`📡 Inscrevendo no canal: ${topic}`);
+
+            const subscription = stompClient.subscribe(topic, (message) => {
                 try {
                     const data = JSON.parse(message.body);
-                    console.log('📩 Mensagem recebida:', data);
-                    if (onMessage) onMessage(data);
+                    // Dispara evento global para qualquer módulo interessado
+                    dispatchGlobalEvent('ws.message', data);
+                    // Executa callback específico se fornecido
+                    if (callback) callback(data);
                 } catch (e) {
-                    console.error('⚠️ Erro ao ler mensagem:', e);
+                    console.error('❌ Erro ao processar mensagem:', e);
                 }
             });
 
-            // Executa callback se fornecido
-            if (onConnect) onConnect(stompClient);
+            // Armazena a subscrição para recriar em reconexões
+            subscriptions.set(channel, { topic, callback });
+            debugLog(`✅ Inscrito com sucesso no canal: ${topic}`);
 
-        }, (error) => {
-            console.error('❌ Falha ao conectar ao WebSocket:', error);
-            isConnected = false;
-            if (onError) onError(error);
+            return subscription;
+        } catch (e) {
+            console.error('❌ Erro ao se inscrever:', e);
+            return null;
+        }
+    }
+
+    function resubscribeAll() {
+        debugLog('🔄 Reinscrevendo em todos os canais...');
+        subscriptions.forEach(({ topic, callback }, channel) => {
+            subscribe(channel, callback);
         });
     }
 
-    // ======== ENVIAR MENSAGEM ========
-    function send(destination, payload) {
-        if (!isConnected || !stompClient) {
-            console.warn('⚠️ Não é possível enviar: não há conexão ativa.');
+    // ======== CONEXÃO PRINCIPAL ========
+    function connect(wsUrl, channel, onMessage) {
+        // Evita conexões duplicadas
+        if (isConnected) {
+            debugLog('ℹ️ Já conectado, ignorando nova tentativa');
             return;
         }
 
-        console.log('📤 Enviando para', destination, payload);
-        stompClient.send(destination, {}, JSON.stringify(payload));
-    }
+        debugLog('� Iniciando conexão:', wsUrl);
 
-    // ======== DESCONECTAR ========
-    function disconnect() {
-        if (stompClient) {
-            stompClient.disconnect(() => {
-                console.log('🔌 Desconectado do servidor WebSocket.');
+        // Armazena configuração para reconexões
+        connectionConfig = { wsUrl, channel, onMessage };
+
+        // Cria conexão SockJS
+        const socket = new SockJS(wsUrl);
+        stompClient = Stomp.over(socket);
+
+        // Desativa logs do STOMP
+        stompClient.debug = DEFAULT_CONFIG.debug ? console.log : null;
+
+        stompClient.connect({},
+            // Sucesso
+            () => {
+                debugLog('✅ Conectado com sucesso!');
+                isConnected = true;
+                clearReconnectTimer();
+
+                // Inscreve no canal principal
+                if (channel) {
+                    subscribe(channel, onMessage);
+                }
+
+                // Reinscreve em todos os canais anteriores
+                resubscribeAll();
+
+                // Notifica todos os módulos
+                dispatchGlobalEvent('stomp.connected', {
+                    stompClient,
+                    isReconnect: reconnectTimer !== null
+                });
+            },
+            // Erro
+            (error) => {
+                console.error('❌ Erro de conexão:', error);
                 isConnected = false;
+
+                // Agenda reconexão
+                clearReconnectTimer();
+                reconnectTimer = setTimeout(() => {
+                    debugLog('🔄 Tentando reconectar...');
+                    connect(connectionConfig.wsUrl,
+                           connectionConfig.channel,
+                           connectionConfig.onMessage);
+                }, DEFAULT_CONFIG.reconnectDelay);
+
+                // Notifica erro
+                dispatchGlobalEvent('stomp.error', { error });
+            }
+        );
+    }
+
+    // ======== ENVIO DE MENSAGENS ========
+    function send(destination, payload) {
+        if (!isConnected || !stompClient?.connected) {
+            console.warn('⚠️ Não é possível enviar: sem conexão ativa');
+            return false;
+        }
+
+        try {
+            stompClient.send(destination, {}, JSON.stringify(payload));
+            debugLog('📤 Mensagem enviada:', destination, payload);
+            return true;
+        } catch (e) {
+            console.error('❌ Erro ao enviar mensagem:', e);
+            return false;
+        }
+    }
+
+    // ======== DESCONEXÃO ========
+    function disconnect() {
+        clearReconnectTimer();
+
+        if (stompClient?.connected) {
+            stompClient.disconnect(() => {
+                debugLog('� Desconectado do servidor');
+                isConnected = false;
+                dispatchGlobalEvent('stomp.disconnected', {});
             });
-        } else {
-            console.warn('⚠️ Nenhum cliente conectado para desconectar.');
         }
+
+        // Limpa estado
+        stompClient = null;
+        isConnected = false;
+        subscriptions.clear();
+        connectionConfig = null;
     }
 
-    // ======== STATUS ========
-    function getConnectionStatus() {
-        return isConnected;
-    }
-
-    // ========= RECONECTAR ========
-    function reconnect(wsUrl, channel, onMessage, onConnect, onError) {
-        if (isConnected) {
-            console.log('🔄 Já conectado, não é necessário reconectar.');
-        } else {
-            console.log('🔄 Tentando reconectar ao WebSocket...');
-            connect(wsUrl, channel, onMessage, onConnect, onError);
-        }
-    }
-
-    // ======== EXPORTAR ========
+    // ======== INTERFACE PÚBLICA ========
     return {
         connect,
-        send,
         disconnect,
-        reconnect,
-        getConnectionStatus,
+        send,
+        subscribe,
+        getStatus: () => ({
+            isConnected,
+            subscriptions: Array.from(subscriptions.keys()),
+            hasReconnectPending: reconnectTimer !== null
+        })
     };
 })();
