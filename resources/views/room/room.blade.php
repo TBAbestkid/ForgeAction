@@ -621,7 +621,7 @@
         wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
-    window.userId = "{{ session('user_id') }}";
+
     window.csrfToken = "{{ csrf_token() }}";
     const csrfToken = "{{ csrf_token() }}";
     const routeSalasIndex = "{{ route('salas.index') }}";
