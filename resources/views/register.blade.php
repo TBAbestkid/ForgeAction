@@ -93,15 +93,15 @@
             const senhaConfirm = document.getElementById('passwordConfirm').value.trim();
 
             if (!email || !login || !senha || !senhaConfirm) {
-                return showModal("Preencha todos os campos para continuar!");
+                return showAlert("Preencha todos os campos para continuar!");
             }
 
             if (senha.length < 6) {
-                return showModal("A senha deve ter no mínimo 6 caracteres!");
+                return showAlert("A senha deve ter no mínimo 6 caracteres!");
             }
 
             if (senha !== senhaConfirm) {
-                return showModal("As senhas não coincidem. Verifique e tente novamente.");
+                return showAlert("As senhas não coincidem. Verifique e tente novamente.");
             }
 
             // -------------------
@@ -138,13 +138,13 @@
                         goToPage(res.redirect || '/', 2000);
                     }, 1500);
                 } else {
-                    showModal(res.message || "Não foi possível criar a conta. Tente novamente.");
+                    showAlert(res.message || "Não foi possível criar a conta. Tente novamente.");
                 }
             })
             .catch(err => {
                 hideLoading();
                 console.error(err);
-                showModal("Erro inesperado. Verifique sua conexão ou tente mais tarde.");
+                showAlert("Erro inesperado. Verifique sua conexão ou tente mais tarde.");
             });
         });
     });
