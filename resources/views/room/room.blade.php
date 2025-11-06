@@ -630,6 +630,14 @@
 
 {{-- Scripts principais, ordem importante! --}}
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
+<script>
+    // Validação do carregamento do webSocketService
+    if (!window.AppWebSocket) {
+        console.error('❌ AppWebSocket não foi carregado corretamente. Verifique o caminho do arquivo webSocketService.js');
+    } else {
+        console.log('✅ AppWebSocket carregado com sucesso!');
+    }
+</script>
 <script src="{{ asset('js/room/room-manager.js') }}"></script>
 <script src="{{ asset('js/room/chat-room.js') }}"></script>
 
