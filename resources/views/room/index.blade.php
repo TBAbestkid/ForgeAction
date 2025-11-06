@@ -13,6 +13,18 @@
                 <i class="fa-solid fa-arrow-left me-1"></i> Voltar para Home
             </a>
         </div>
+
+        <!-- Barra de pesquisa -->
+        <div class="mb-3 position-relative">
+            <label for="filterSalas" class="form-label">Buscar sala</label>
+            <input type="text" id="filterSalas"
+                class="form-control form-control-sm bg-dark text-white border-secondary ps-5" placeholder="Buscar sala...">
+
+            <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                🔍
+            </span>
+        </div>
+
         <div id="salas-container">
             <!-- Minhas Salas -->
             @if(session('user_role') === 'MASTER')
@@ -103,7 +115,7 @@
             <div class="card shadow border-0 h-100 bg-dark text-white">
                 <div class="card-body rounded-3 p-4 d-flex flex-column gap-3">
                     {{-- Tá meio sem sentido isso, a principio precisará de revisão --}}
-                    <h5 class="text-center text-success mb-2">
+                    <h5 class="text-center text-white mb-2">
                         <i class="fa-solid fa-hat-wizard me-2"></i> Painel do Mestre
                     </h5>
                     <hr class="border-secondary">
@@ -121,15 +133,6 @@
                         {{-- <button class="btn btn-outline-secondary w-100" id="btnRefreshSalas">
                             <i class="fa-solid fa-rotate me-2"></i> Atualizar Lista
                         </button> --}}
-                    </div>
-
-                    <hr class="border-secondary">
-
-                    {{-- 🔎 Filtros e Busca --}}
-                    {{-- Esse filtro pode ser jogado acima de todos as salas, dps atualizar --}}
-                    <div>
-                        <input type="text" id="filterSalas" class="form-control form-control-sm bg-dark text-white border-secondary"
-                            placeholder="🔍 Buscar sala...">
                     </div>
 
                 </div>
@@ -153,12 +156,37 @@
 <script src="{{ asset('js/room/exit.js') }}"></script>
 <script src="{{ asset('js/room/delete.js') }}"></script>
 <script>
-    // Filtro de salas, a principio só no front-end...
-    document.getElementById('filterSalas')?.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        document.querySelectorAll('.sala-card').forEach(card => {
-            const nome = card.querySelector('strong')?.innerText.toLowerCase() || '';
-            card.style.display = nome.includes(term) ? '' : 'none';
+    // ======== FILTRO DE SALAS (com debounce e feedback) ========
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('filterSalas');
+        const allCards = document.querySelectorAll('.sala-card');
+        const container = document.getElementById('salas-container');
+
+        // Mensagem padrão para "nenhum resultado"
+        const noResults = document.createElement('div');
+        noResults.className = 'alert alert-info mt-3';
+        noResults.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala encontrada.';
+        noResults.style.display = 'none';
+        container.appendChild(noResults);
+
+        let debounceTimer;
+        input?.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const term = e.target.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                allCards.forEach(card => {
+                    const nome = card.querySelector('strong')?.innerText.toLowerCase() || '';
+                    const desc = card.querySelector('small')?.innerText.toLowerCase() || '';
+                    const match = nome.includes(term) || desc.includes(term);
+                    card.style.display = match ? '' : 'none';
+                    if (match) visibleCount++;
+                });
+
+                // Mostra ou esconde mensagem de "nenhum resultado"
+                noResults.style.display = visibleCount === 0 ? '' : 'none';
+            }, 200);
         });
     });
 </script>
