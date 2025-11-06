@@ -10,9 +10,11 @@
     // ====== CONFIG / STATE ======
     const CHAT = window.CHAT_CONFIG || {};
     const userId = String(CHAT.userId ?? '');
-    const userLogin = CHAT.userLogin ?? 'Player';
+    const userLogin = CHAT.userLogin ?? 'PLAYER';
     const salaId = CHAT.salaId ?? null;
     const isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE');
+    const wsUrl = CHAT.wsUrl;  // URL do WebSocket
+    const channel = String(salaId);  // Canal para comunicação
 
     // stomp client compartilhado (exposto por chat-room.js)
     let stompClient = null;
@@ -281,10 +283,10 @@
         const btnMestre = document.getElementById('btn-lancar-mestre');
         const iconInicio = btnInicio?.querySelector('i');
 
-        // Advanced buttons (commented for now)
-        // const btnPermitir = document.getElementById('btn-permitir-jogada');
-
-        if (!btnMestre || !btnInicio || !btnPermitir) {
+        if (!btnInicio || !btnMestre) {
+            debugLog('⚠️ Botões básicos não encontrados no DOM');
+            return;
+        }        if (!btnMestre || !btnInicio || !btnPermitir) {
             debugLog('⚠️ Botões não encontrados no DOM');
             return;
         }
@@ -1003,20 +1005,45 @@
         // Core functionality
         setupSocketIntegration();
 
-        // Advanced features (commented for now)
-        /*
-        // Setup do modal de valor
-        modalValor = new bootstrap.Modal(document.getElementById('modalValor'));
+        // Basic event listeners
+        if (btnRoll) {
+            btnRoll.addEventListener('click', () => {
+                if (!rodadaAtiva || phase !== 'player') return;
+                const atual = ordemTurnos[turnoIndex];
+                if (String(atual.usuarioId) !== userId) return;
 
-        // Botões do mestre avançados
-        const btnDano = document.getElementById('btn-dano');
-        const btnCurar = document.getElementById('btn-curar');
-        const btnUpar = document.getElementById('btn-upar');
+                // Toggle dice options
+                if (diceOptions.classList.contains('d-none')) {
+                    diceOptions.classList.remove('d-none');
+                } else {
+                    diceOptions.classList.add('d-none');
+                }
+            });
+        }
 
-        if (btnDano) btnDano.addEventListener('click', () => ativarModoMestre('dano'));
-        if (btnCurar) btnCurar.addEventListener('click', () => ativarModoMestre('cura'));
-        if (btnUpar) btnUpar.addEventListener('click', () => ativarModoMestre('up'));
-        */
+        if (btnIniciar) {
+            btnIniciar.addEventListener('click', () => {
+                if (!isMestre) return;
+                debugLog('🎲 Botão iniciar clicado:', { rodadaAtiva, phase });
+
+                if (!rodadaAtiva) {
+                    iniciarRodada();
+                } else if (phase === 'master') {
+                    proximoTurno();
+                }
+            });
+        }
+
+        // Basic card clicks (sem modoMestre por enquanto)
+        personagensContainer.addEventListener('click', (event) => {
+            const card = event.target.closest('.personagem-card');
+            if (!card || !isMestre) return;
+
+            debugLog('🎯 Card clicado:', {
+                id: card.dataset.id,
+                nome: card.dataset.nome
+            });
+        });
 
         // Handler para click nos cards
         function cardClickHandler(event) {
