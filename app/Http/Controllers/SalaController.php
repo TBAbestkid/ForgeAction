@@ -185,65 +185,83 @@ class SalaController extends Controller
         return redirect()->route('salas.index');
     }
 
+    // Se usuario possuir um personagem na sessão, ele pode só entrar direto na sala
     public function acceptInvite($token)
     {
-        Log::info('acceptInvite - iniciado', ['token' => $token]);
+
+        // Log::info('acceptInvite - iniciado', ['token' => $token]);
 
         $data = Cache::get('invite_sala_' . $token);
-        Log::info('acceptInvite - dados do cache', ['data' => $data]);
+        // Log::info('acceptInvite - dados do cache', ['data' => $data]);
 
         if (!$data) {
-            Log::warning('acceptInvite - convite expirado ou inválido', ['token' => $token]);
+            // Log::warning('acceptInvite - convite expirado ou inválido', ['token' => $token]);
             return redirect()->route('salas.index')->withErrors(['token' => 'Convite expirado ou inválido.']);
         }
 
         $salaId = $data['salaId'] ?? null;
         $email = $data['email'] ?? null;
-        Log::info('acceptInvite - dados básicos', ['salaId' => $salaId, 'email' => $email]);
+        // Log::info('acceptInvite - dados básicos', ['salaId' => $salaId, 'email' => $email]);
 
         if (!session('user_id')) {
-            Log::info('acceptInvite - usuário não logado, redirecionando para login', ['token' => $token]);
+            // Log::info('acceptInvite - usuário não logado, redirecionando para login', ['token' => $token]);
             session(['invite_token' => $token]);
             return redirect()->route('login');
         }
 
         $salaOwnerId = $data['donoId'] ?? null;
-        Log::info('acceptInvite - dono da sala', ['donoId' => $salaOwnerId]);
+        // Log::info('acceptInvite - dono da sala', ['donoId' => $salaOwnerId]);
 
         if (!$salaOwnerId) {
-            Log::error('acceptInvite - dono da sala ausente');
+            // Log::error('acceptInvite - dono da sala ausente');
             return redirect()->route('salas.index')->withErrors(['sala' => 'Não foi possível identificar o dono da sala.']);
         }
 
         // 🔹 Busca todas as salas do dono
         $salasResponse = $this->api->get("api/salas/mestre/{$salaOwnerId}");
-        Log::info('acceptInvite - resposta da API salas', ['salasResponse' => $salasResponse]);
+        // Log::info('acceptInvite - resposta da API salas', ['salasResponse' => $salasResponse]);
 
         $salas = isset($salasResponse['data']) ? $salasResponse['data'] : $salasResponse;
         $sala = collect($salas)->firstWhere('id', (int) $salaId);
-        Log::info('acceptInvite - sala filtrada', ['sala' => $sala]);
+        // Log::info('acceptInvite - sala filtrada', ['sala' => $sala]);
 
         if (!$sala) {
-            Log::error('acceptInvite - sala não encontrada', ['salaId' => $salaId]);
+            // Log::error('acceptInvite - sala não encontrada', ['salaId' => $salaId]);
             return redirect()->route('salas.index')->withErrors(['sala' => 'Sala não encontrada.']);
         }
 
         // 🔹 Busca personagens
         $personagensResponse = $this->api->get("api/personagem/usuario/" . session('user_id'));
-        Log::info('acceptInvite - resposta personagens', ['response' => $personagensResponse]);
+        // Log::info('acceptInvite - resposta personagens', ['response' => $personagensResponse]);
 
         if (!isset($personagensResponse['status']) || $personagensResponse['status'] !== 'success') {
-            Log::warning('API retornou erro ao buscar personagens', ['response' => $personagensResponse]);
+            // Log::warning('API retornou erro ao buscar personagens', ['response' => $personagensResponse]);
             $personagens = [];
         } else {
             $personagens = $personagensResponse['data'] ?? [];
         }
 
-        Log::info('acceptInvite - personagens carregados', [
-            'user_id' => session('user_id'),
-            'total' => count($personagens),
-            'nomes' => array_column($personagens, 'nome')
-        ]);
+        // Log::info('acceptInvite - personagens carregados', [
+        //     'user_id' => session('user_id'),
+        //     'total' => count($personagens),
+        //     'nomes' => array_column($personagens, 'nome')
+        // ]);
+
+        if (count($personagens) === 0) {
+            return redirect()->route('personagem.create')
+                ->with('info', 'Você precisa criar um personagem antes de entrar na sala.');
+        }
+
+        if (session()->has('selected_character')) {
+            // {{ url('salas/personagens/adicionar/'.$sala['id']) }}
+            // Eu então pego o id da sala eo id do personagem da sessão e faço a chamada para adicionar o personagem na sala
+            $personagemIdSessao = session('selected_character.id');
+            $this->api->post("api/salas/personagens/adicionar/{$salaId}/{$personagemIdSessao}");
+            // Log::info('acceptInvite - personagem selecionado na sessão, entrando na sala', [
+            //     'personagem' => session('selected_character')
+            // ]);
+            return redirect()->route('room.room', ['id' => $salaId]);
+        }
 
         return view('room.selection', [
             'sala' => $sala,
