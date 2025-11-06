@@ -609,16 +609,17 @@
 </script>
 {{-- Exporta variáveis PHP para JS --}}
 <script>
-    const newWsUrl = "/ws";
+    // const newWsUrl = "/ws";
 
-    console.log("WebSocket URL:", newWsUrl);
+    // console.log("WebSocket URL:", newWsUrl);
 
 
     window.CHAT_CONFIG = {
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
+        // wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
+        wsUrl: "/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
 
@@ -627,13 +628,15 @@
     const routeSalasIndex = "{{ route('salas.index') }}";
 </script>
 
+{{-- Scripts principais, ordem importante! --}}
+<script src="{{ asset('js/utils/webSocketService.js') }}"></script>
+<script src="{{ asset('js/room/room-manager.js') }}"></script>
+<script src="{{ asset('js/room/chat-room.js') }}"></script>
+
+{{-- Scripts auxiliares --}}
 <script src="{{ asset('js/room/exit.js') }}"></script>
 <script src="{{ asset('js/room/invite.js') }}"></script>
 <script src="{{ asset('js/room/delete.js') }}"></script>
-<script src="{{ asset('js/utils/webSocketService.js') }}"></script>
-<script src="{{ asset('js/room/chat-room.js') }}"></script>
-{{-- <script src="{{ asset('js/room/room-manager.js') }}"></script> --}}
-<script src="{{ asset('js/room/room-manager-simple.js') }}"></script>
 
 @endsection
 
