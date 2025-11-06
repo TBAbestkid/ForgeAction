@@ -48,12 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function processMessage(data) {
         if (!data) return;
 
-        // Primeiro dispara evento para outros módulos poderem reagir
-        document.dispatchEvent(new CustomEvent('ws.message', {
-            detail: data,
-            bubbles: true
-        }));
-
         // Processa mensagens específicas do chat
         if (!data.tipo || data.tipo === 'chat') {
             if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema');
@@ -96,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             ws.send('/app/enviar/' + channel, entradaMsg);
 
-            // Inscreve no canal da sala - não precisamos processar a mensagem aqui pois já temos o evento ws.message
-            ws.subscribe(channel);
+            // Inscreve no canal da sala com callback de processamento
+            ws.subscribe(channel, processMessage);
 
             console.log('📡 Chat conectado e inscrito no canal', channel);
         });
@@ -113,10 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Inicia conexão
         if (!ws.getStatus().isConnected) {
-            ws.connect(wsUrl, channel);
+            ws.connect(wsUrl, channel, processMessage);
         } else {
             // Se já estiver conectado, apenas inscreve no canal
-            ws.subscribe(channel);
+            ws.subscribe(channel, processMessage);
         }
     }
 
