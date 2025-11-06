@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Registra handler apenas uma vez com { once: true }
         document.addEventListener('stomp.connected', () => {
             if (isFirstConnect) {
-                addMessage('✅ Conectado ao servidor!', 'Sistema');
+                // addMessage('✅ Conectado ao servidor!', 'Sistema');
                 isFirstConnect = false;
             }
             ws.subscribe(channel, processMessage);

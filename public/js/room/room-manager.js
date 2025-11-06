@@ -308,11 +308,20 @@
         const btnMestre = document.getElementById('btn-lancar-mestre');
         const btnPermitir = document.getElementById('btn-permitir-jogada');
         const iconInicio = btnInicio?.querySelector('i.fa-solid');
+        const btnDano = document.getElementById('btn-dano');
+        const btnCura = document.getElementById('btn-curar');
+        const btnUpar = document.getElementById('btn-upar');
 
-        if (!btnMestre || !btnInicio || !btnPermitir || !iconInicio) return;
+        if (!btnMestre || !btnInicio || !btnPermitir || !iconInicio) {
+            debugLog('⚠️ Alguns botões do mestre não foram encontrados');
+            return;
+        }
 
         // Botão de lançar dados do mestre sempre ativo durante rodada
         btnMestre.disabled = !rodadaAtiva;
+        btnDano.disabled = !rodadaAtiva;
+        btnCura.disabled = !rodadaAtiva;
+        btnUpar.disabled = !rodadaAtiva;
 
         if (!rodadaAtiva) {
             // Estado inicial: botão de play habilitado
@@ -333,6 +342,12 @@
             iconInicio.classList.remove('fa-pause', 'fa-play');
             iconInicio.classList.add('fa-forward');
             btnPermitir.disabled = false;
+
+            // Habilitar ações do mestre
+            btnMestre.disabled = false;
+            btnDano.disabled = false;
+            btnCura.disabled = false;
+            btnUpar.disabled = false;
             return;
         }
 
@@ -343,7 +358,7 @@
             btnInicio.classList.add('btn-outline-secondary');
             iconInicio.classList.remove('fa-play', 'fa-forward');
             iconInicio.classList.add('fa-pause');
-            btnPermitir.disabled = true;
+            btnPermitir.disabled = false; // Permitir que o mestre dê jogadas extras
             return;
         }
     }
@@ -447,6 +462,11 @@
         const valor = Math.floor(Math.random() * sides) + 1;
         const atual = ordemTurnos[turnoIndex];
 
+        if (!rodadaAtiva) {
+            debugLog('⚠️ Não há rodada ativa para lançar dados');
+            return;
+        }
+
         if (isMestre) {
             enviarSistema(`🎲 Mestre rolou D${sides} = ${valor}`);
             enviarAcao({
@@ -460,6 +480,10 @@
             // Passar turno automaticamente após ação do mestre
             setTimeout(() => proximoTurno(), 1000);
         } else {
+            if (!phase === 'player') {
+                debugLog('⚠️ Não é a fase do jogador');
+                return;
+            }
             enviarSistema(`🎲 ${atual.nome} rolou D${sides} = ${valor}`);
             enviarAcao({
                 acao: 'playerActionDone',
@@ -556,24 +580,34 @@
         setupWebSocket();
 
         // Registra listeners de interface
-        if (btnRoll) btnRoll.addEventListener('click', () => diceOptions.classList.remove('d-none'));
+        if (btnRoll) btnRoll.addEventListener('click', () => {
+            if (!rodadaAtiva) {
+                debugLog('⚠️ Não há rodada ativa para lançar dados');
+                return;
+            }
+            diceOptions.classList.remove('d-none');
+        });
+
         if (btnIniciar) btnIniciar.addEventListener('click', () => {
             if (!isMestre) return;
-            if (!rodadaAtiva) iniciarRodada();
-            else if (phase === 'master') proximoTurno();
+            if (!rodadaAtiva) {
+                iniciarRodada();
+            } else if (phase === 'master') {
+                proximoTurno();
+            }
         });
 
         if (diceOptions) diceOptions.addEventListener('click', onDiceButtonClick);
         if (btnSkip) btnSkip.addEventListener('click', () => {
             if (!rodadaAtiva || phase !== 'player') return;
             const atual = ordemTurnos[turnoIndex];
-            if (!atual || String(atual.usuarioId) !== userId) return;
+            if (!atual) return;
 
-            enviarSistema(`⏭️ ${atual.nome} pulou seu turno.`);
+            enviarSistema(`⏭️ ${atual.nome} passou a vez`);
             enviarAcao({
                 acao: 'playerActionDone',
                 personagemId: atual.personagemId,
-                descricao: `${atual.nome} pulou o turno.`,
+                descricao: `${atual.nome} passou a vez`,
                 autor: userLogin
             });
 
@@ -588,56 +622,21 @@
             });
         }
 
-        // Handler para click nos cards
-        function cardClickHandler(event) {
-            const card = event.target.closest('.personagem-card');
-            if (!card || !modoMestre || !isMestre) return;
+        // Configura botão de permitir jogada extra
+        const btnPermitir = document.getElementById('btn-permitir-jogada');
+        if (btnPermitir) {
+            btnPermitir.addEventListener('click', () => {
+                if (!rodadaAtiva || !isMestre) return;
 
-            switch (modoMestre) {
-                case 'dano':
-                case 'cura':
-                    const modalValor = new bootstrap.Modal(document.getElementById('modal-valor'));
-                    const inputValor = document.getElementById('input-valor');
-                    const btnConfirmarValor = document.getElementById('btn-confirmar-valor');
+                const jogadorAtual = ordemTurnos[turnoIndex];
+                if (!jogadorAtual) return;
 
-                    inputValor.value = '';
-                    modalValor.show();
-
-                    btnConfirmarValor.onclick = () => {
-                        const valor = parseInt(inputValor.value);
-                        if (isNaN(valor) || valor < 0) return;
-
-                        handleVidaChange(card.dataset.id, valor, modoMestre);
-                        modalValor.hide();
-                    };
-                    break;
-            }
-        }
-
-        // Adiciona o handler no container pai para usar event delegation
-        personagensContainer.addEventListener('click', cardClickHandler);
-
-        // Debug helpers
-        window.roomManager = {
-            enviarAcao,
-            enviarSistema,
-            iniciarRodada,
-            proximoTurno,
-            ativarModoMestre,
-            getEstado: () => ({
-                connected: ws.getStatus().isConnected,
-                rodadaAtiva,
-                phase,
-                turnoIndex,
-                currentPlayerId,
-                modoMestre
-            })
-        };
-
-        debugLog('✅ Inicializado. isMestre:', isMestre, 'userId:', userId);
-    }
-
-    if (document.readyState === 'loading') {
+                phase = 'player';
+                enviarSistema(`🎯 Mestre permitiu uma jogada extra para ${jogadorAtual.nome}`);
+                setPlayerControlsEnabled(true, jogadorAtual.personagemId);
+                atualizarTurnoUI();
+            });
+        }    if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();

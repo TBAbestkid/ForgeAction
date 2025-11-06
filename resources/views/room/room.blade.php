@@ -424,6 +424,7 @@
                             style="width: 50px; height: 50px;">
                             <i class="fa-solid fa-play fs-4"></i>
                         </button>
+
                         {{-- 🔹 Lançar Dados --}}
                         <button id="btn-lancar-mestre"
                             class="btn btn-outline-warning rounded-circle mx-2 d-flex flex-column align-items-center justify-content-center"
