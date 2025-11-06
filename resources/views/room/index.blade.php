@@ -15,14 +15,16 @@
         </div>
 
         <!-- Barra de pesquisa -->
-        <div class="mb-3 position-relative">
-            <label for="filterSalas" class="form-label">Buscar sala</label>
-            <input type="text" id="filterSalas"
-                class="form-control form-control-sm bg-dark text-white border-secondary ps-5" placeholder="Buscar sala...">
-
-            <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
-                🔍
-            </span>
+        <div class="mb-3">
+            <label for="filterSalas" class="form-label text-light">Buscar sala</label>
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-secondary border-secondary text-light">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="filterSalas"
+                    class="form-control bg-dark text-white border-secondary"
+                    placeholder="Digite o nome da sala...">
+            </div>
         </div>
 
         <div id="salas-container">
