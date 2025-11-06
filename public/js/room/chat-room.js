@@ -117,7 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // É um sinal de que o WebSocket já está realmente conectado e pronto para uso.
                 // Outros scripts podem “escutar” esse evento e só então começar a interagir com o
                 // WebSocket, garantindo que não vão tentar usar antes da hora.
-                document.dispatchEvent(new CustomEvent('stomp.connected', { bubbles: true }));
+                document.dispatchEvent(new CustomEvent('stomp.connected', {
+                    bubbles: true,
+                    detail: { stompClient: WebSocketService.stompClient }
+                }));
             },
             (error) => {
                 console.error('❌ Erro ao conectar:', error);

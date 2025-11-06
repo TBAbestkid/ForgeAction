@@ -834,7 +834,7 @@
         // quando a conexão WebSocket/STOMP foi estabelecida com sucesso
         document.addEventListener('stomp.connected', (ev) => {
             try {
-                stompClient = ev.detail.stompClient; // pega o cliente STOMP que está pronto e guarda localmente
+                stompClient = ev.detail.stompClient || window.chatStomp?.stompClient; // pega o cliente STOMP que está pronto e guarda localmente
                 debugLog('🔌 Conectado ao stomp via chat-room'); // imprime no console para você ver que agora é seguro enviar mensagens
             } catch (e) {
                 console.warn('Erro ao integrar com chat-room:', e);
