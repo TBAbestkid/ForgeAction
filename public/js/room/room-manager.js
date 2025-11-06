@@ -154,10 +154,13 @@
         const donoDoCard = String(card.dataset.usuarioId);
         const souDono = donoDoCard === userId;
 
-        diceOptions.classList.add('d-none');
+        // Esconde opções de dados apenas se não for o mestre
+        if (!isMestre) {
+            diceOptions.classList.add('d-none');
+        }
 
         if (isMestre) {
-            // Mestre sempre pode ver controles mas não pode rolar dados como jogador
+            // Mestre não usa controles de jogador
             turnControls.classList.add('d-none');
             return;
         }
@@ -567,6 +570,18 @@
                     progressBar.textContent = `${vidaAtual}/${vidaMaxima} HP`;
                 }
                 break;
+
+            case 'jogadaExtra':
+                if (!card) return;
+                debugLog('🎯 Recebido evento jogadaExtra:', { cardUserId: card.dataset.usuarioId, myId: userId });
+                if (String(card.dataset.usuarioId) === userId) {
+                    phase = 'player';
+                    setPlayerControlsEnabled(true, data.personagemId);
+                    turnControls.classList.remove('d-none');
+                    atualizarTurnoUI();
+                    debugLog('✅ Jogada extra liberada para o jogador');
+                }
+                break;
         }
     }
 
@@ -657,7 +672,9 @@
                     debugLog('⚠️ Não há rodada ativa');
                     return;
                 }
+                debugLog('🎲 Mestre clicou para lançar dados');
                 diceOptions.classList.remove('d-none');
+                turnControls.classList.remove('d-none'); // Mostrar container de dados
             });
         }
 
@@ -675,6 +692,11 @@
 
                 phase = 'player';
                 enviarSistema(`🎯 Mestre permitiu uma jogada extra para ${jogadorAtual.nome}`);
+                enviarAcao({
+                    acao: 'jogadaExtra',
+                    personagemId: jogadorAtual.personagemId,
+                    autor: 'Mestre'
+                });
                 setPlayerControlsEnabled(true, jogadorAtual.personagemId);
                 atualizarTurnoUI();
             });
