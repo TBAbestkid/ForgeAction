@@ -814,33 +814,15 @@
 
     // Configuração da integração com o WebSocket do chat-room.js
     function setupSocketIntegration() {
-        const { salaId } = window.CHAT_CONFIG || {};
-        const channel = salaId?.toString() || 'default';
-        const onMessage = window.processMessage || (() => {});
-
-        // Tenta reaproveitar o stompClient global já existente
-        if (window.chatStomp && window.chatStomp.stompClient) {
-            stompClient = window.chatStomp.stompClient;
-            debugLog('🔁 Reaproveitando stomp client do chat');
-        } else {
-            debugLog('⚙️ Nenhum stompClient detectado — aguardando evento stomp.connected...');
-
-            // Aguarda o evento stomp.connected disparado pelo chat-room
-            document.addEventListener('stomp.connected', (ev) => {
-                try {
-                    stompClient = ev.detail?.stompClient || window.chatStomp?.stompClient;
-                    if (stompClient) {
-                        debugLog('🔌 Conectado ao stomp via chat-room');
-                    } else {
-                        debugLog('⚠️ Evento stomp.connected recebido, mas sem stompClient válido.');
-                    }
-                } catch (e) {
-                    console.warn('Erro ao integrar com chat-room:', e);
-                }
-            });
+        if (!window.chatStomp || !window.chatStomp.stompClient) {
+            debugLog('⚠️ STOMP ainda não disponível. Aguardando evento...');
+            return;
         }
 
-        // Listener para mensagens do WebSocket
+        stompClient = window.chatStomp.stompClient;
+        debugLog('✅ setupSocketIntegration inicializado. Aguardando mensagens do chat.');
+
+        // Listener para mensagens de ação
         document.addEventListener('ws.message', (ev) => {
             try {
                 const data = ev.detail;
@@ -848,31 +830,10 @@
                     onReceiveAction(data);
                 }
             } catch (e) {
-                console.warn('Erro ao processar mensagem:', e);
+                console.warn('Erro ao processar mensagem do Room Manager:', e);
             }
         });
-
-        debugLog('✅ setupSocketIntegration inicializado. Aguardando mensagens do chat.');
     }
-
-    // Delay para garantir que o chat já tenha inicializado o STOMP
-    document.addEventListener('DOMContentLoaded', () => {
-        let tentativas = 0;
-        const maxTentativas = 10; // 10x * 500ms = 5s
-        debugLog('🕓 Aguardando STOMP do chat-room...');
-
-        const intervalo = setInterval(() => {
-            if (window.chatStomp?.stompClient) {
-                debugLog('✅ STOMP detectado — iniciando integração Room Manager');
-                setupSocketIntegration();
-                clearInterval(intervalo);
-            } else if (++tentativas > maxTentativas) {
-                debugLog('⚠️ STOMP não detectado após 5s — apenas aguardando evento stomp.connected');
-                setupSocketIntegration();
-                clearInterval(intervalo);
-            }
-        }, 500);
-    });
 
     // ========== INIT ==========
 
