@@ -814,18 +814,18 @@
 
     // Configuração da integração com o WebSocket do chat-room.js
     function setupSocketIntegration() {
-        const { wsUrl, salaId } = window.CHAT_CONFIG || {};
+        const { salaId } = window.CHAT_CONFIG || {};
         const channel = salaId?.toString() || 'default';
-        processMessage = window.processMessage || (() => {});
+        const onMessage = window.processMessage || (() => {});
 
         // Tenta reaproveitar o stompClient global já existente
         if (window.chatStomp && window.chatStomp.stompClient) {
             stompClient = window.chatStomp.stompClient;
             debugLog('🔁 Reaproveitando stomp client do chat');
         } else {
-            debugLog('⚙️ Nenhum stompClient encontrado — aguardando conexão ou criando fallback...');
+            debugLog('⚙️ Nenhum stompClient detectado — aguardando evento stomp.connected...');
 
-            // Aguarda o evento stomp.connected (disparado pelo chat-room.js)
+            // Aguarda o evento stomp.connected disparado pelo chat-room
             document.addEventListener('stomp.connected', (ev) => {
                 try {
                     stompClient = ev.detail?.stompClient || window.chatStomp?.stompClient;
@@ -838,27 +838,9 @@
                     console.warn('Erro ao integrar com chat-room:', e);
                 }
             });
-
-            // fallback: se passar um tempo e o stompClient ainda for nulo, cria um novo
-            setTimeout(() => {
-                if (!stompClient) {
-                    debugLog('⏱️ Nenhum stompClient detectado — criando nova conexão local.');
-                    WebSocketService.connect(
-                        wsUrl,
-                        channel,
-                        processMessage,
-                        () => {
-                            stompClient = WebSocketService.stompClient;
-                            window.chatStomp = WebSocketService; // define globalmente
-                            debugLog('🆕 Fallback stompClient criado.');
-                        },
-                        (err) => console.error('❌ Erro ao criar fallback STOMP:', err)
-                    );
-                }
-            }, 3000); // espera 3 segundos antes do fallback
         }
 
-        // Listener para mensagens via WebSocket
+        // Listener para mensagens do WebSocket
         document.addEventListener('ws.message', (ev) => {
             try {
                 const data = ev.detail;
@@ -869,12 +851,14 @@
                 console.warn('Erro ao processar mensagem:', e);
             }
         });
+
+        debugLog('✅ setupSocketIntegration inicializado. Aguardando mensagens do chat.');
     }
 
-    // Delay
+    // Delay para garantir que o chat já tenha inicializado o STOMP
     document.addEventListener('DOMContentLoaded', () => {
         let tentativas = 0;
-        const maxTentativas = 10; // tenta por até 5 segundos (10x * 500ms)
+        const maxTentativas = 10; // 10x * 500ms = 5s
         debugLog('🕓 Aguardando STOMP do chat-room...');
 
         const intervalo = setInterval(() => {
@@ -883,13 +867,12 @@
                 setupSocketIntegration();
                 clearInterval(intervalo);
             } else if (++tentativas > maxTentativas) {
-                debugLog('⚠️ STOMP não detectado após 5s — inicializando mesmo assim');
+                debugLog('⚠️ STOMP não detectado após 5s — apenas aguardando evento stomp.connected');
                 setupSocketIntegration();
                 clearInterval(intervalo);
             }
         }, 500);
     });
-
 
     // ========== INIT ==========
 
