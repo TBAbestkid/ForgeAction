@@ -48,12 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function processMessage(data) {
         if (!data) return;
 
-        // Processa mensagens específicas do chat
+        // Processa mensagens específicas do chat e sistema
         if (!data.tipo || data.tipo === 'chat') {
             if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema');
             return;
         }
 
+        // Mensagens do sistema também aparecem no chat
         switch (data.tipo) {
             case 'sistema':
                 addMessage(data.conteudo, '🤖 Sistema');
@@ -67,57 +68,46 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'erro':
                 addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema');
                 break;
-            default:
-                // outros tipos são tratados por room-manager
-                break;
+            // Ignora outros tipos (ações do jogo são tratadas pelo room-manager)
         }
     }
 
+    let isFirstConnect = true;
+
     // ======= CONECTAR AO WEBSOCKET =======
     function connectChat() {
-        addMessage(`🟢 Conectando ao chat como "${userName}"...`);
+        if (isFirstConnect) {
+            addMessage(`🟢 Conectando ao chat...`, 'Sistema');
+        }
 
-        // Remove antigos para evitar múltiplas execuções
-        document.removeEventListener('stomp.connected', onStompConnected);
-        document.removeEventListener('stomp.error', onStompError);
-        document.removeEventListener('stomp.disconnected', onStompDisconnected);
+        // Registra handler apenas uma vez com { once: true }
+        document.addEventListener('stomp.connected', () => {
+            if (isFirstConnect) {
+                addMessage('✅ Conectado ao servidor!', 'Sistema');
+                isFirstConnect = false;
+            }
+            ws.subscribe(channel, processMessage);
+        }, { once: true });
 
-        // Registra novamente
-        document.addEventListener('stomp.connected', onStompConnected);
-        document.addEventListener('stomp.error', onStompError);
-        document.addEventListener('stomp.disconnected', onStompDisconnected);
+        document.addEventListener('stomp.error', onStompError, { once: true });
+        document.addEventListener('stomp.disconnected', onStompDisconnected, { once: true });
 
         // Inicia conexão
         if (!ws.getStatus().isConnected) {
-            ws.connect(wsUrl, channel, processMessage);
+            ws.connect(wsUrl);
         } else {
-            // Se já estiver conectado, apenas inscreve no canal
             ws.subscribe(channel, processMessage);
         }
     }
 
-    // ======= TRATADOR DE CONECTAR =======
-    function onStompConnected() {
-        addMessage('✅ Conectado ao servidor!', 'Sistema');
-        const entradaMsg = {
-            tipo: 'entrada',
-            conteudo: `${userName} entrou na sala "${channel}"`,
-            autor: userName,
-            userId,
-            salaId
-        };
-        ws.send('/app/enviar/' + channel, entradaMsg);
-        ws.subscribe(channel, processMessage);
-    }
-
     // ======= TRATADORES DE EVENTOS STOMP =======
     function onStompError(event) {
-        addMessage('⚠️ Falha ao conectar ao chat.', 'Sistema');
+        console.error('❌ Erro de conexão:', event.detail?.error);
     }
 
     // ======= TRATADOR DE DESCONECTAR =======
     function onStompDisconnected() {
-        addMessage('🔴 Desconectado do chat.', 'Sistema');
+        console.log('🔴 Chat desconectado');
     }
 
     // ======= FUNÇÃO DE ENVIO DE MENSAGEM =======
