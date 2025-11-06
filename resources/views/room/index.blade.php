@@ -15,16 +15,11 @@
         </div>
 
         <!-- Barra de pesquisa -->
-        <div class="mb-3">
-            <label for="filterSalas" class="form-label text-light">Buscar sala</label>
-            <div class="input-group input-group-sm">
-                <span class="input-group-text bg-secondary border-secondary text-light">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" id="filterSalas"
-                    class="form-control bg-dark text-white border-secondary"
-                    placeholder="Digite o nome da sala...">
-            </div>
+        <div class="input-group mb-4">
+            <span class="input-group-text bg-dark text-light">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" id="filterSalas" class="form-control bg-dark text-white" placeholder="Pesquisar salas por nome ou descrição...">
         </div>
 
         <div id="salas-container">
