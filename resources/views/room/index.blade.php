@@ -15,7 +15,7 @@
         </div>
 
         <!-- Barra de pesquisa -->
-        <div class="input-group mb-4">
+        <div class="input-group mb-4 form-control-lg">
             <span class="input-group-text bg-dark text-light">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </span>
@@ -71,7 +71,7 @@
                     @forelse($outrasSalas as $sala)
                         @if(is_array($sala))
                             <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white"
-                                href="/salas/{{ $sala['id'] }}" style="houve-cursor: pointer;">
+                                href="/salas/{{ $sala['id'] }}" style="houve-cursor: pointer;" onclick="window.location.href='/salas/{{ $sala['id'] }}'">
                                 <div>
                                     <strong>{{ $sala['nome'] ?? '—' }}</strong><br>
                                     <small class="text-light">{{ $sala['descricao'] ?? '' }}</small>
@@ -103,21 +103,21 @@
     </div>
 
     <!-- Coluna lateral: apenas para MASTER -->
-    @if(session('user_role') === 'MASTER')
-        <div class="flex-grow-0 flex-shrink-1" style="flex-basis: 280px; min-width: 200px;">
+    {{-- @if(session('user_role') === 'MASTER') --}}
+        {{-- <div class="flex-grow-0 flex-shrink-1" style="flex-basis: 280px; min-width: 200px;">
             <div class="card shadow border-0 h-100 bg-dark text-white">
-                <div class="card-body rounded-3 p-4 d-flex flex-column gap-3">
+                <div class="card-body rounded-3 p-4 d-flex flex-column gap-3"> --}}
                     {{-- Tá meio sem sentido isso, a principio precisará de revisão --}}
-                    <h5 class="text-center text-white mb-2">
+                    {{-- <h5 class="text-center text-white mb-2">
                         <i class="fa-solid fa-hat-wizard me-2"></i> Painel do Mestre
                     </h5>
-                    <hr class="border-secondary">
+                    <hr class="border-secondary"> --}}
 
                     {{-- 🔹 Gerenciamento de Salas --}}
-                    <div class="d-flex flex-column gap-2">
-                        <a href="{{ route('salas.create') }}" class="btn btn-outline-primary w-100">
+                    {{-- <div class="d-flex flex-column gap-2"> --}}
+                        {{-- <a href="{{ route('salas.create') }}" class="btn btn-outline-primary w-100">
                             <i class="fa-solid fa-plus me-2"></i> Criar Nova Sala
-                        </a>
+                        </a> --}}
                         {{-- Bem isso não funcionará, iremos ocultar --}}
                         {{-- <button class="btn btn-outline-warning w-100" id="btnInviteGeneral">
                             <i class="fa-solid fa-user-plus me-2"></i> Convidar Jogador
@@ -126,12 +126,12 @@
                         {{-- <button class="btn btn-outline-secondary w-100" id="btnRefreshSalas">
                             <i class="fa-solid fa-rotate me-2"></i> Atualizar Lista
                         </button> --}}
-                    </div>
+                    {{-- </div> --}}
 
-                </div>
+                {{-- </div>
             </div>
-        </div>
-    @endif
+        </div> --}}
+    {{-- @endif --}}
 
 </div>
 @include('partials/alerts')
