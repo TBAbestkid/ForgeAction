@@ -172,21 +172,20 @@
         const souDono = donoDoCard === userId;
 
         diceOptions.classList.add('d-none');
-        btnRoll.disabled = !enabled;
-        btnSkip.disabled = !enabled;
 
         if (isMestre) {
+            // Mestre sempre pode ver controles mas não pode rolar dados como jogador
             turnControls.classList.add('d-none');
-            btnRoll.disabled = true;
-            btnSkip.disabled = true;
             return;
         }
 
         if (souDono && enabled) {
+            // Mostrar controles apenas para o dono do personagem atual quando habilitado
             turnControls.classList.remove('d-none');
             btnRoll.disabled = false;
             btnSkip.disabled = false;
         } else {
+            // Esconder/desabilitar para outros jogadores
             turnControls.classList.add('d-none');
             btnRoll.disabled = true;
             btnSkip.disabled = true;
