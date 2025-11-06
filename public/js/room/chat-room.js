@@ -85,6 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Tornar global pra usar no room-manager
+    window.processMessage = processMessage;
+
     // ======= CONECTAR AO WEBSOCKET =======
     function connectChat() {
         addMessage(`🟢 Conectando ao chat como "${userName}"...`);

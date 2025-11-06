@@ -814,6 +814,10 @@
 
     // Configuração da integração com o WebSocket do chat-room.js
     function setupSocketIntegration() {
+        const { wsUrl, salaId } = window.CHAT_CONFIG || {};
+        const channel = salaId?.toString() || 'default';
+        processMessage = window.processMessage || (() => {});
+
         // Tenta reaproveitar o stompClient global já existente
         if (window.chatStomp && window.chatStomp.stompClient) {
             stompClient = window.chatStomp.stompClient;
@@ -866,6 +870,26 @@
             }
         });
     }
+
+    // Delay
+    document.addEventListener('DOMContentLoaded', () => {
+        let tentativas = 0;
+        const maxTentativas = 10; // tenta por até 5 segundos (10x * 500ms)
+        debugLog('🕓 Aguardando STOMP do chat-room...');
+
+        const intervalo = setInterval(() => {
+            if (window.chatStomp?.stompClient) {
+                debugLog('✅ STOMP detectado — iniciando integração Room Manager');
+                setupSocketIntegration();
+                clearInterval(intervalo);
+            } else if (++tentativas > maxTentativas) {
+                debugLog('⚠️ STOMP não detectado após 5s — inicializando mesmo assim');
+                setupSocketIntegration();
+                clearInterval(intervalo);
+            }
+        }, 500);
+    });
+
 
     // ========== INIT ==========
 
