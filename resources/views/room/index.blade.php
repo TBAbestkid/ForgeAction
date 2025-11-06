@@ -29,7 +29,8 @@
                     <h2 class="font-medieval mb-3">Minhas Salas</h2>
                     <div id="minhas-salas" class="d-flex flex-column gap-3">
                         @forelse($minhasSalas as $sala)
-                            <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white">
+                            <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white"
+                                href="/salas/{{ $sala['id'] }}" style="houve-cursor: pointer;">
                                 <div>
                                     <strong>{{ $sala['nome'] }}</strong><br>
                                     <small class="text-light">{{ $sala['descricao'] }}</small>
@@ -51,9 +52,6 @@
                                         <button class="btn btn-sm btn-outline-success btn-invite" data-id="{{ $sala['id'] }}">
                                             <i class="fa-solid fa-user-plus"></i>
                                         </button>
-                                        <a href="/salas/{{ $sala['id'] }}" class="btn btn-sm btn-primary">
-                                            <i class="fa-solid fa-door-open"></i> Entrar
-                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -72,7 +70,8 @@
                 <div id="salas-participando" class="d-flex flex-column gap-3">
                     @forelse($outrasSalas as $sala)
                         @if(is_array($sala))
-                            <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white">
+                            <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white"
+                                href="/salas/{{ $sala['id'] }}" style="houve-cursor: pointer;">
                                 <div>
                                     <strong>{{ $sala['nome'] ?? '—' }}</strong><br>
                                     <small class="text-light">{{ $sala['descricao'] ?? '' }}</small>
@@ -88,9 +87,6 @@
                                         <button class="btn btn-sm btn-outline-danger btn-leave" data-id="{{ $sala['id'] }}">
                                             <i class="fa-solid fa-door-open"></i> Sair
                                         </button>
-                                        <a href="/salas/{{ $sala['id'] ?? '#' }}" class="btn btn-sm btn-primary">
-                                            <i class="fa-solid fa-door-open"></i> Entrar
-                                        </a>
                                     </div>
                                 </div>
                             </div>
