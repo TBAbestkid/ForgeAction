@@ -270,38 +270,42 @@
     function setupSocketIntegration() {
         debugLog('⚙️ Iniciando integração WebSocket...');
 
-        // Primeiro tenta usar o cliente existente
-        if (window.chatStomp?.stompClient) {
-            stompClient = window.chatStomp.stompClient;
-            if (stompClient.connected) {
-                debugLog('✅ Cliente STOMP existente e conectado');
-                return;
-            }
+        // Aguarda o WebSocketService estar disponível
+        if (!window.WebSocketService) {
+            debugLog('⚠️ WebSocketService ainda não disponível, aguardando...');
+            setTimeout(setupSocketIntegration, 500);
+            return;
         }
 
-        // Se não tiver cliente ou não estiver conectado, aguarda conexão
+        // Se já tiver uma conexão global funcionando, usa ela
+        if (window.chatStomp?.getConnectionStatus()) {
+            stompClient = window.chatStomp.stompClient;
+            debugLog('✅ Usando conexão global existente');
+            return;
+        }
+
+        // Se ainda não tem conexão global, aguarda o evento do chat
         document.addEventListener('stomp.connected', (ev) => {
             if (ev.detail?.stompClient) {
                 stompClient = ev.detail.stompClient;
                 debugLog('✅ Conectado via evento stomp.connected');
-
-                // Tenta se inscrever no tópico da sala
-                try {
-                    stompClient.subscribe('/topic/sala.' + salaId, function(message) {
-                        debugLog('📨 Mensagem recebida:', message);
-                        try {
-                            const data = JSON.parse(message.body);
-                            document.dispatchEvent(new CustomEvent('ws.message', { detail: data }));
-                        } catch (e) {
-                            console.warn('Erro ao processar mensagem:', e);
-                        }
-                    });
-                    debugLog('✅ Inscrito no tópico da sala');
-                } catch (e) {
-                    console.error('❌ Erro ao se inscrever no tópico:', e);
-                }
             }
         });
+
+        // Garante que o chat vai iniciar a conexão
+        if (!window.chatStomp) {
+            debugLog('� Iniciando conexão via chat...');
+            // Pequeno delay para garantir que o chat está pronto
+            setTimeout(() => {
+                const chatScript = document.querySelector('script[src*="chat-room.js"]');
+                if (chatScript) {
+                    // Dispara o evento DOMContentLoaded para iniciar o chat
+                    document.dispatchEvent(new Event('DOMContentLoaded'));
+                } else {
+                    debugLog('❌ chat-room.js não encontrado!');
+                }
+            }, 300);
+        }
     }
 
     function onReceiveAction(data) {
@@ -417,20 +421,49 @@
 
     // ====== INIT ======
     function verificarConexao() {
+        // Usa o status do serviço global
+        if (!window.WebSocketService?.getConnectionStatus()) {
+            debugLog('⚠️ Conexão perdida, aguardando reconexão do chat...');
+            // O próprio chat vai tentar reconectar automaticamente
+            return;
+        }
+
+        // Se o serviço está conectado mas nosso cliente não
         if (!stompClient?.connected) {
-            debugLog('⚠️ Conexão perdida, tentando reconectar...');
-            setupSocketIntegration();
+            debugLog('⚠️ Cliente STOMP desconectado, reconectando...');
+            stompClient = window.chatStomp?.stompClient;
         }
     }
 
     function init() {
         debugLog('🎲 room-manager-simple iniciando...');
+
+        // Garante que o script só inicia após o chat estar pronto
+        if (!window.WebSocketService || !window.chatStomp) {
+            debugLog('⏳ Aguardando serviços essenciais...');
+            setTimeout(init, 500);
+            return;
+        }
+
         setupSocketIntegration();
 
-        // Verifica a conexão a cada 5 segundos
-        setInterval(verificarConexao, 5000);
+        // Monitora a conexão a cada 3 segundos
+        setInterval(verificarConexao, 3000);
 
         debugLog('✅ Inicializado. isMestre:', isMestre, 'userId:', userId);
+
+        // Expõe funções úteis globalmente para debug
+        window.roomManagerDebug = {
+            getState: () => ({
+                connected: window.WebSocketService?.getConnectionStatus(),
+                stompConnected: stompClient?.connected,
+                rodadaAtiva,
+                phase,
+                turnoIndex,
+                currentPlayerId
+            }),
+            forceReconnect: setupSocketIntegration
+        };
     }
 
     if (document.readyState === 'loading') {
