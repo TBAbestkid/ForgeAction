@@ -7,12 +7,34 @@
    - personagem-card elements
 */
 (function () {
+    debugLog('🚀 Iniciando room-manager.js');
     // ====== CONFIG / STATE ======
     const CHAT = window.CHAT_CONFIG || {};
+    debugLog('📋 CHAT_CONFIG:', window.CHAT_CONFIG);
+
     const userId = String(CHAT.userId ?? '');
     const userLogin = CHAT.userLogin ?? 'Player';
     const salaId = CHAT.salaId ?? null;
     const isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE');
+
+    debugLog('⚙️ Configuração inicial:', {
+        userId,
+        userLogin,
+        salaId,
+        isMestre,
+        role: CHAT.role,
+        isMestreExplicit: !!CHAT.isMestre,
+        isMestreByRole: CHAT.role?.toUpperCase() === 'MESTRE'
+    });
+
+    // Debug de configuração
+    debugLog('Configuração inicial:', {
+        userId,
+        userLogin,
+        salaId,
+        isMestre,
+        chatConfig: window.CHAT_CONFIG
+    });
 
     // stomp client compartilhado (exposto por chat-room.js)
     let stompClient = null;
@@ -269,8 +291,19 @@
 
     // Função para atualizar o estado dos botões do mestre
     function atualizarBotoesMestre() {
-        debugLog('🎮 Atualizando botões mestre:', { isMestre, phase, rodadaAtiva });
-        if (!isMestre) return;
+        debugLog('🎮 Atualizando botões mestre:', {
+            isMestre,
+            phase,
+            rodadaAtiva,
+            turnoIndex,
+            ordemTurnos: ordemTurnos.length,
+            currentPlayerId
+        });
+
+        if (!isMestre) {
+            debugLog('❌ Usuário não é mestre, saindo da função');
+            return;
+        }
 
         // Garantir que temos referências aos botões
         const btnMestre = document.getElementById('btn-lancar-mestre');
@@ -278,8 +311,21 @@
         const btnPermitir = document.getElementById('btn-permitir-jogada');
         const iconInicio = btnInicio?.querySelector('i');
 
+        debugLog('🔍 Estado dos botões:', {
+            btnMestreExiste: !!btnMestre,
+            btnInicioExiste: !!btnInicio,
+            btnPermitirExiste: !!btnPermitir,
+            btnInicioId: btnInicio?.id,
+            btnInicioClasses: btnInicio?.className,
+            btnInicioDesativado: btnInicio?.disabled
+        });
+
         if (!btnMestre || !btnInicio || !btnPermitir) {
-            debugLog('⚠️ Botões não encontrados no DOM');
+            debugLog('⚠️ Alguns botões não encontrados no DOM:', {
+                btnMestre: !!btnMestre,
+                btnInicio: !!btnInicio,
+                btnPermitir: !!btnPermitir
+            });
             return;
         }
 
@@ -418,18 +464,37 @@
 
     // ========== UI EVENT LISTENERS ==========
 
+    // Adiciona logs detalhados para o botão iniciar
+    debugLog('🔍 Verificando btnIniciar:', !!btnIniciar, 'isMestre:', isMestre);
     if (btnIniciar) {
+        debugLog('✅ Botão iniciar encontrado, adicionando evento click');
         btnIniciar.addEventListener('click', () => {
-            if (!isMestre) return;
+            debugLog('🎯 Botão iniciar clicado', {
+                isMestre,
+                rodadaAtiva,
+                phase,
+                turnoIndex,
+                currentPlayerId,
+                ordemTurnos: ordemTurnos.length
+            });
+
+            if (!isMestre) {
+                debugLog('❌ Clique ignorado: usuário não é mestre');
+                return;
+            }
 
             if (!rodadaAtiva) {
-                // Inicia nova rodada
+                debugLog('🎲 Iniciando nova rodada');
                 iniciarRodada();
             } else if (phase === 'master') {
-                // Avança para próximo jogador
+                debugLog('➡️ Avançando para próximo jogador');
                 proximoTurno();
+            } else {
+                debugLog('⚠️ Estado atual não permite ação:', { rodadaAtiva, phase });
             }
         });
+    } else {
+        debugLog('❌ Botão iniciar não encontrado no DOM. ID esperado: btnIniciarTurno');
     }
 
     if (btnRoll) {
