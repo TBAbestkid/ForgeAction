@@ -307,27 +307,42 @@
         const btnInicio = document.getElementById('btnIniciarTurno');
         const btnMestre = document.getElementById('btn-lancar-mestre');
         const btnPermitir = document.getElementById('btn-permitir-jogada');
+        const iconInicio = btnInicio?.querySelector('i.fa-solid');
 
-        if (!btnMestre || !btnInicio || !btnPermitir) return;
+        if (!btnMestre || !btnInicio || !btnPermitir || !iconInicio) return;
 
+        // Botão de lançar dados do mestre sempre ativo durante rodada
         btnMestre.disabled = !rodadaAtiva;
 
         if (!rodadaAtiva) {
+            // Estado inicial: botão de play habilitado
             btnInicio.disabled = false;
-            btnInicio.textContent = 'Iniciar Rodada';
+            btnInicio.classList.remove('btn-outline-secondary');
+            btnInicio.classList.add('btn-outline-success');
+            iconInicio.classList.remove('fa-pause', 'fa-forward');
+            iconInicio.classList.add('fa-play');
             btnPermitir.disabled = true;
             return;
         }
 
         if (phase === 'master') {
+            // Vez do mestre: botão de avançar habilitado
             btnInicio.disabled = false;
-            btnInicio.textContent = 'Próximo Turno';
+            btnInicio.classList.remove('btn-outline-secondary');
+            btnInicio.classList.add('btn-outline-success');
+            iconInicio.classList.remove('fa-pause', 'fa-play');
+            iconInicio.classList.add('fa-forward');
             btnPermitir.disabled = false;
             return;
         }
 
         if (phase === 'player') {
+            // Vez do jogador: botão pausado e desabilitado
             btnInicio.disabled = true;
+            btnInicio.classList.remove('btn-outline-success');
+            btnInicio.classList.add('btn-outline-secondary');
+            iconInicio.classList.remove('fa-play', 'fa-forward');
+            iconInicio.classList.add('fa-pause');
             btnPermitir.disabled = true;
             return;
         }

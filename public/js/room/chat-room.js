@@ -55,11 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
 
         // Processa mensagens específicas do chat
+        if (!data.tipo || data.tipo === 'chat') {
+            if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema');
+            return;
+        }
+
         switch (data.tipo) {
-            case 'chat':
-            case undefined:
-                if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema');
-                break;
             case 'sistema':
                 addMessage(data.conteudo, '🤖 Sistema');
                 break;
