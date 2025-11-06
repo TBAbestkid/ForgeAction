@@ -516,8 +516,15 @@
     function onReceiveAction(data) {
         // Se não houver dados ou não tiver o campo 'acao', ignora
         if (!data || !data.acao) return;
+
         // Log para debug no console
         debugLog('📥 Ação recebida:', data);
+
+        // Garante que temos o stompClient
+        if (!stompClient) {
+            debugLog('⚠️ Ação recebida mas stompClient não está pronto');
+            return;
+        }
 
         // Pega o "card" do personagem, se houver personagemId na ação
         const card = data.personagemId ? getCardById(String(data.personagemId)) : null;
@@ -814,28 +821,63 @@
 
     // Configuração da integração com o WebSocket do chat-room.js
     function setupSocketIntegration() {
-        if (!window.chatStomp || !window.chatStomp.stompClient) {
-            debugLog('⚠️ STOMP ainda não disponível. Aguardando evento...');
+        // Se já tiver cliente STOMP, usa ele
+        if (window.chatStomp?.stompClient) {
+            stompClient = window.chatStomp.stompClient;
+            debugLog('✅ setupSocketIntegration inicializado com cliente existente');
+            setupListeners();
             return;
         }
 
-        stompClient = window.chatStomp.stompClient;
-        debugLog('✅ setupSocketIntegration inicializado. Aguardando mensagens do chat.');
+        // Se não tiver, aguarda o evento de conexão
+        document.addEventListener('stomp.connected', (ev) => {
+            stompClient = ev.detail.stompClient;
+            debugLog('✅ setupSocketIntegration inicializado via evento stomp.connected');
+            setupListeners();
 
-        // Listener para mensagens de ação
-        document.addEventListener('ws.message', (ev) => {
-            try {
-                const data = ev.detail;
-                if (data.tipo === 'acao') {
-                    onReceiveAction(data);
-                }
-            } catch (e) {
-                console.warn('Erro ao processar mensagem do Room Manager:', e);
+            // Re-envia estado atual para sincronizar
+            if (rodadaAtiva) {
+                enviarAcao({ acao: 'ordemTurnos', ordem: ordemTurnos });
+                enviarAcao({ acao: 'turnoAtual', personagemId: currentPlayerId });
             }
         });
-    }
 
-    // ========== INIT ==========
+        function setupListeners() {
+            // Listener para mensagens de ação
+            document.addEventListener('ws.message', (ev) => {
+                try {
+                    const data = ev.detail;
+                    if (data.tipo === 'acao') {
+                        onReceiveAction(data);
+                    }
+                } catch (e) {
+                    console.warn('Erro ao processar mensagem:', e);
+                }
+            });
+        }    // ========== INIT ==========
+
+    async function initializeManager() {
+        debugLog('🎲 room-manager v2.0 iniciando...');
+
+        // Tenta inicializar o WebSocket primeiro
+        await new Promise((resolve) => {
+            if (window.chatStomp?.stompClient) {
+                resolve();
+            } else {
+                document.addEventListener('stomp.connected', () => resolve(), { once: true });
+            }
+        });
+
+        setupSocketIntegration();
+
+        // Resto da inicialização...
+        try {
+            await window.diceManager?.initialize();
+            debugLog('✅ Sistema de dados 3D inicializado');
+        } catch (err) {
+            console.error('Erro ao inicializar dados 3D:', err);
+        }
+    }
 
     // Manipulação de vida dos personagens
     function handleVidaChange(personagemId, valor, tipo) {
