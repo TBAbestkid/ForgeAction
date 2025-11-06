@@ -6,7 +6,7 @@ $(document).ready(function () {
     ------------------------------------------------------------- */
     $(document).on('click', '.btn-leave', function () {
         const salaId = $(this).data('id');
-        const userId = window.userId;
+        const userId = window.CHAT_CONFIG.userId;
 
         showConfirm('Tem certeza que deseja sair desta sala?', function () {
             showToast('Saindo da sala...');
