@@ -95,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             ws.send('/app/enviar/' + channel, entradaMsg);
 
-            // Inscreve no canal da sala
-            ws.subscribe(channel, processMessage);
+            // Inscreve no canal da sala - não precisamos processar a mensagem aqui pois já temos o evento ws.message
+            ws.subscribe(channel);
 
             console.log('📡 Chat conectado e inscrito no canal', channel);
         });
@@ -112,10 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Inicia conexão
         if (!ws.getStatus().isConnected) {
-            ws.connect(wsUrl, channel, processMessage);
+            ws.connect(wsUrl, channel);
         } else {
             // Se já estiver conectado, apenas inscreve no canal
-            ws.subscribe(channel, processMessage);
+            ws.subscribe(channel);
         }
     }
 
