@@ -281,6 +281,9 @@
         if (window.chatStomp?.getConnectionStatus()) {
             stompClient = window.chatStomp.stompClient;
             debugLog('✅ Usando conexão global existente');
+
+            // Inscreve no tópico da sala
+            subscribeToRoom();
             return;
         }
 
@@ -289,6 +292,9 @@
             if (ev.detail?.stompClient) {
                 stompClient = ev.detail.stompClient;
                 debugLog('✅ Conectado via evento stomp.connected');
+
+                // Inscreve no tópico da sala após conectar
+                subscribeToRoom();
             }
         });
 
@@ -420,6 +426,35 @@
     });
 
     // ====== INIT ======
+    // Função para se inscrever no tópico da sala
+    function subscribeToRoom() {
+        if (!stompClient?.connected) {
+            debugLog('❌ Não pode se inscrever: cliente não está conectado');
+            return false;
+        }
+
+        try {
+            debugLog('📡 Inscrevendo no tópico da sala...');
+            stompClient.subscribe('/topic/sala.' + salaId, function(message) {
+                try {
+                    const data = JSON.parse(message.body);
+                    document.dispatchEvent(new CustomEvent('ws.message', {
+                        detail: data,
+                        bubbles: true
+                    }));
+                    debugLog('📨 Mensagem recebida:', data);
+                } catch (e) {
+                    console.error('❌ Erro ao processar mensagem:', e);
+                }
+            });
+            debugLog('✅ Inscrito com sucesso no tópico da sala');
+            return true;
+        } catch (e) {
+            console.error('❌ Erro ao se inscrever no tópico:', e);
+            return false;
+        }
+    }
+
     function verificarConexao() {
         // Usa o status do serviço global
         if (!window.WebSocketService?.getConnectionStatus()) {
@@ -432,6 +467,9 @@
         if (!stompClient?.connected) {
             debugLog('⚠️ Cliente STOMP desconectado, reconectando...');
             stompClient = window.chatStomp?.stompClient;
+            if (stompClient?.connected) {
+                subscribeToRoom();
+            }
         }
     }
 
