@@ -632,7 +632,8 @@
 <script src="{{ asset('js/room/delete.js') }}"></script>
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
 <script src="{{ asset('js/room/chat-room.js') }}"></script>
-<script src="{{ asset('js/room/room-manager.js') }}"></script>
+{{-- <script src="{{ asset('js/room/room-manager.js') }}"></script> --}}
+<script src="{{ asset('js/room/room-manager-simple.js') }}"></script>
 
 @endsection
 
