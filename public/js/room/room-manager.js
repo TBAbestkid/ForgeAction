@@ -521,7 +521,12 @@
 
                 destacarPersonagem(card);
                 const isMyTurn = String(card.dataset.usuarioId) === userId;
-                setPlayerControlsEnabled(isMyTurn, data.personagemId);
+                if (isMyTurn) {
+                    debugLog('É minha vez!', { phase });
+                    setPlayerControlsEnabled(true, data.personagemId);
+                } else {
+                    setPlayerControlsEnabled(false, data.personagemId);
+                }
                 atualizarTurnoUI();
                 break;
 
@@ -541,9 +546,9 @@
                 if (card) {
                     destacarPersonagem(card);
                 }
-                if (!isMestre) {
-                    setPlayerControlsEnabled(false, data.personagemId);
-                }
+                setPlayerControlsEnabled(false, data.personagemId);
+
+                debugLog('🔄 Ação do jogador recebida:', { phase, currentPlayerId });
 
                 atualizarTurnoUI();
                 atualizarBotoesMestre();
@@ -678,11 +683,13 @@
         // Registra click nos cards para ações do mestre
         personagensContainer.addEventListener('click', (event) => {
             const card = event.target.closest('.personagem-card');
-            if (!card || !modoMestre || !isMestre || !rodadaAtiva) return;
+            if (!card) return;
 
-            const personagemId = card.dataset.id;
-            const isCurrentPlayer = personagemId === currentPlayerId;
-            if (isCurrentPlayer) return;
+            // Se for o mestre e tiver um modo ativo, processa a ação do mestre
+            if (isMestre && modoMestre && rodadaAtiva) {
+                const personagemId = card.dataset.id;
+                const isCurrentPlayer = personagemId === currentPlayerId;
+                if (isCurrentPlayer) return;
 
             if (modoMestre === 'dano' || modoMestre === 'cura') {
                 const modal = document.getElementById('modalValor');
@@ -708,6 +715,17 @@
                         onConfirmar();
                     }
                 }, { once: true });
+                }
+            }
+
+            // Se não for ação do mestre, abre o collapse do card
+            if (!isMestre || !modoMestre) {
+                const collapseId = `info-personagem-${card.dataset.id}`;
+                const collapseEl = document.getElementById(collapseId);
+                if (collapseEl) {
+                    const collapse = new bootstrap.Collapse(collapseEl);
+                    collapse.toggle();
+                }
             }
         });
 
