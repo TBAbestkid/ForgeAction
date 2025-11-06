@@ -1,336 +1,351 @@
 /* room-manager.js
-   Version: 1.0
+   Version: 2.0
    Requirements in the page:
-   - SockJS + Stomp available as global
-   - Bootstrap modal + toasts in the page
-   - window.CHAT_CONFIG = { userId, userLogin, salaId, wsUrl, isMestre (optional), role (optional) }
-   - personagem-card elements with data-id and data-usuario-id and data-vida and data-iniciativa etc.
+   - chat-room.js carregado antes
+   - Bootstrap
+   - window.CHAT_CONFIG = { userId, userLogin, salaId, wsUrl, isMestre, role }
+   - personagem-card elements
 */
-console.log('Gerenciador de sala de RPG iniciado.');
 (function () {
     // ====== CONFIG / STATE ======
     const CHAT = window.CHAT_CONFIG || {};
     const userId = String(CHAT.userId ?? '');
     const userLogin = CHAT.userLogin ?? 'Player';
     const salaId = CHAT.salaId ?? null;
-    const wsUrl = CHAT.wsUrl ?? null;
-    const isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE' || CHAT.role?.toUpperCase() === 'MASTER');
+    const isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE');
 
-    console.log("🧩 DEBUG CONFIG", {
-        userId,
-        userLogin,
-        salaId,
-        wsUrl,
-        isMestre,
-        role: CHAT.role
-    });
-
-    document.querySelectorAll('.personagem-card').forEach(card => {
-        console.log("📜 CARD", {
-            nome: card.dataset.nome,
-            personagemId: card.dataset.id,
-            usuarioId: card.dataset.usuarioId
-        });
-    });
-
-    // DOM elements (assumed present)
-    const personagensContainer = document.getElementById('personagens-container');
-    const chatMessages = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
-    const chatSend = document.getElementById('chat-send');
-    const toastEl = document.getElementById('liveToast');
-    const toastMessage = document.getElementById('toastMessage');
-    const toastBootstrap = bootstrap?.Toast?.getOrCreateInstance(toastEl);
-
-    // Turn / UI controls
-    const btnIniciar = document.getElementById('btnIniciarTurno');
-    const btnRoll = document.getElementById('btn-roll');
-    const btnSkip = document.getElementById('btn-skip');
-    const placeholder = document.getElementById('dice-placeholder');
-    const turnControls = document.getElementById('turn-controls');
-    const btnLancarMestre = document.getElementById('btn-lancar-mestre');
-
-    // Master action buttons (left column)
-    const btnDano = document.getElementById('btn-dano');
-    const btnCurar = document.getElementById('btn-curar');
-    const btnUpar = document.getElementById('btn-upar');
-
-    // Modal unified
-    const modalValorEl = document.getElementById('modalValor');
-    const modalValor = modalValorEl ? new bootstrap.Modal(modalValorEl) : null;
-    const inputValor = document.getElementById('inputValor');
-    const btnConfirmarValor = document.getElementById('btnConfirmarValor');
-
-    // stomp
+    // stomp client compartilhado (exposto por chat-room.js)
     let stompClient = null;
 
     // Game state
-    let ordemTurnos = []; // [{nome, iniciativa, card, personagemId, usuarioId}]
+    let ordemTurnos = [];
     let turnoIndex = 0;
     let rodada = 1;
     let rodadaAtiva = false;
     let phase = 'idle'; // 'player', 'master', 'idle'
-    let currentPlayerId = null; // personagemId of current player's turn
-    let jogadorPodeAgir = false;
+    let currentPlayerId = null;
+    let ultimoDadoRolado = null;
+    let modoMestre = null; // 'dano', 'cura', null
+    let modalValor = null; // Referência ao modal Bootstrap
 
-    // master mode flags
-    let modoDanoAtivo = false;
-    let modoCurarAtivo = false;
-    let modoUparAtivo = false;
+    // ====== UI ELEMENTS ======
+    const personagensContainer = document.getElementById('personagens-container') ||
+                               document.getElementById('games-section') ||
+                               document;
+    const placeholder = document.getElementById('dice-placeholder');
+    const turnControls = document.getElementById('turn-controls');
+    const diceOptions = document.getElementById('dice-options');
+    const btnIniciar = document.getElementById('btnIniciarTurno');
+    const btnRoll = document.getElementById('btn-roll');
+    const btnSkip = document.getElementById('btn-skip');
+    const btnLancarMestre = document.getElementById('btn-lancar-mestre');
+    const btnOcultarDados = document.getElementById('ocultarDados'); // Adicionar para futuramente inserir isso
 
-    let personagemSelecionado = null;
-    let tipoValor = null; // 'dano' or 'cura' or 'up'
-
-    // ========== UTIL / UI ==========
-
+    // ========== UTILS ==========
+    // Função de debug que imprime mensagens no console com um prefixo [RM]
     function debugLog(...args) { console.log('[RM]', ...args); }
 
-    function ChatRoom(text, sender = '🧠 Sistema') {
-        if (!chatMessages) return;
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'd-flex align-items-start gap-2 mb-1';
-        const icon = document.createElement('i');
-        icon.className = sender === '🧠 Sistema' ? 'fa-solid fa-robot text-warning mt-1' : 'fa-solid fa-user text-primary mt-1';
-        messageDiv.appendChild(icon);
-        const msgBox = document.createElement('div');
-        msgBox.className = sender === '🧠 Sistema' ? 'bg-dark text-warning rounded px-2 py-1 small' : 'bg-secondary rounded px-2 py-1';
-        msgBox.innerHTML = `<strong>${sender}:</strong> ${text}`;
-        messageDiv.appendChild(msgBox);
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function showToast(text, type = 'primary') {
-        if (!toastEl || !toastMessage) return;
-        toastMessage.textContent = text;
-        toastEl.className = `toast align-items-center text-bg-${type} border-0`;
-        toastBootstrap?.show();
-    }
-
-    function enviarSistema(payloadText) {
-        // wrapper to send a human-readable system message to all
+    // Função para enviar uma mensagem do tipo "sistema" para a sala via WebSocket
+    function enviarSistema(msg) {
+        // Se o WebSocket não estiver conectado ou não houver sala, não faz nada
         if (!stompClient || !salaId) return;
-        const payload = {
+        // Envia a mensagem para o servidor, no endpoint '/app/enviar/{salaId}'
+        stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify({
             tipo: 'sistema',
-            conteudo: payloadText,
-            autor: '🧠 Sistema',
+            conteudo: msg,
+            autor: '🤖 Sistema',
             salaId: salaId
-        };
-        stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify(payload));
-        debugLog('enviarSistema ->', payload);
+        }));
     }
 
+    // Função para enviar uma ação (tipo evento ou comando) para a sala via WebSocket
     function enviarAcao(obj) {
-        if (!stompClient || !salaId) {
-            console.warn("❌ enviarAcao cancelado: sem conexão ou salaId");
-            return;
-        }
-
-        const payload = { tipo: 'acao', salaId, ...obj };
-        stompClient.send(`/app/enviar/${salaId}`, {}, JSON.stringify(payload));
-        debugLog('📤 enviarAcao ->', payload);
+        if (!stompClient || !salaId) return;
+        stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify({
+            tipo: 'acao',
+            salaId,
+            ...obj
+        }));
     }
 
+    // ========== GAME FLOW ==========
+
+    // Função para obter o card do personagem pelo ID
     function getCardById(pid) {
-        return document.querySelector(`.personagem-card[data-id="${pid}"]`);
-    }
-
-    function getCardMaxHP(card) {
-        if (!card) return 0;
-        const vidaMaxAttr = card.dataset.vidaMax || card.dataset['vida-max'];
-        if (vidaMaxAttr) return parseInt(vidaMaxAttr, 10);
-        const progress = card.querySelector('.progress-bar');
-        if (progress) {
-            const parts = (progress.textContent || '').split('/');
-            if (parts[1]) return parseInt(parts[1], 10);
+        // Procura primeiro no container de personagens da esquerda
+        let card = personagensContainer.querySelector(`.personagem-card[data-id="${pid}"]`);
+        if (!card) {
+            // Se não encontrou, procura em todo o documento
+            card = document.querySelector(`.personagem-card[data-id="${pid}"]`);
         }
-        return parseInt(card.dataset.vida, 10) || 0;
+        // Retorna o card encontrado ou null
+        return card;
     }
 
-    function atualizarBarraVida(card, vidaAtual, vidaMax) {
-        const progress = card.querySelector('.progress-bar');
-        if (!progress) return;
-        const pct = vidaMax > 0 ? Math.max(0, Math.min(100, (vidaAtual / vidaMax) * 100)) : 0;
-        // use CSS transition for smoothness
-        progress.style.transition = 'width 700ms linear';
-        progress.style.width = `${pct}%`;
-        progress.textContent = `${vidaAtual}/${vidaMax} HP`;
-    }
-
-    function animarBarraVida(card, vidaAtual, vidaNova, vidaMax, duracao = 700) {
-        const progress = card.querySelector('.progress-bar');
-        if (!progress) return;
-
-        const inicio = performance.now();
-        const delta = vidaNova - vidaAtual;
-
-        // add temporary color
-        progress.classList.remove('bg-success', 'bg-danger', 'bg-secondary');
-        progress.classList.add(delta < 0 ? 'bg-danger' : 'bg-success');
-
-        function step(ts) {
-            const t = Math.min((ts - inicio) / duracao, 1);
-            const valorInterpolado = Math.round(vidaAtual + delta * t);
-            const pct = vidaMax > 0 ? Math.max(0, Math.min(100, (valorInterpolado / vidaMax) * 100)) : 0;
-            progress.style.width = `${pct}%`;
-            progress.textContent = `${valorInterpolado}/${vidaMax} HP`;
-            if (t < 1) requestAnimationFrame(step);
-            else {
-                // finalize
-                card.dataset.vida = vidaNova;
-                // restore default color after short delay
-                setTimeout(() => {
-                    progress.classList.remove('bg-danger', 'bg-success');
-                    progress.classList.add('bg-secondary');
-                }, 300);
-            }
-        }
-        requestAnimationFrame(step);
-    }
-
-    // Reseta bordas decorativas
-    function resetCardBorders() {
-        document.querySelectorAll('.personagem-card').forEach(card => {
-            card.classList.remove('border-danger', 'border-success', 'border-info', 'border-primary', 'border-warning', 'border-3');
-            card.style.cursor = '';
-        });
-    }
-
+    // Função para destacar visualmente o card do personagem atual
     function destacarPersonagem(card) {
+        // Remove destaque de todos os cards
         document.querySelectorAll('.personagem-card').forEach(c => {
             c.classList.remove('border-warning', 'border-3');
         });
+
+        // Se não houver card, sai da função
         if (!card) return;
+
+        // Adicionar classes de destaque
         card.classList.add('border', 'border-warning', 'border-3');
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // Enable/disable player's local controls (roll/skip)
+    // Função para habilitar/desabilitar controles do jogador
     function setPlayerControlsEnabled(enabled, personagemId) {
+        // Obtém o card do personagem
         const card = getCardById(personagemId);
 
-        // Caso não exista o card
-        if (!card) {
-            console.warn("❌ Nenhum card encontrado para personagemId:", personagemId);
-            return;
-        }
+        // Se não houver card, sai da função
+        if (!card) return;
 
+        // Obtém o dono do card
         const donoDoCard = String(card.dataset.usuarioId);
+
+        // Verifica se o usuário atual é o dono do personagem
         const souDono = donoDoCard === userId;
 
-        console.log("🎯 DEBUG TURNO", {
-            personagemEmTurno: personagemId,
-            donoDoCard,
-            userId,
-            souDono,
-            enabled,
-            isMestre,
-            nome: card.dataset.nome
-        });
+        // Reset estado dos controles
+        diceOptions.classList.add('d-none');
+        btnRoll.disabled = false;
+        btnSkip.disabled = false;
+        ultimoDadoRolado = null;
 
-        // 🔒 Se for o mestre, nunca mostrar botões de jogador
+        // Se for mestre, desabilita controles
         if (isMestre) {
-            console.log("🧙 É o mestre, escondendo botões de jogador.");
-            if (turnControls) turnControls.classList.add('d-none');
-            if (btnRoll) btnRoll.disabled = true;
-            if (btnSkip) btnSkip.disabled = true;
+            turnControls.classList.add('d-none');
+            btnRoll.disabled = true;
+            btnSkip.disabled = true;
             return;
         }
 
-        // 🎯 Se é o dono e é o turno dele
+        // Se for dono do personagem e controles habilitados
         if (souDono && enabled) {
-            console.log(`✅ É sua vez, ${userLogin} (ID ${userId}) - Personagem: ${card.dataset.nome}`);
             turnControls.classList.remove('d-none');
-            if (btnRoll) btnRoll.disabled = false;
-            if (btnSkip) btnSkip.disabled = false;
+            btnRoll.disabled = false;
+            btnSkip.disabled = false;
         } else {
-            console.log(`⏳ Não é sua vez (${userLogin}), ou o personagem não pertence a você.`);
+            // Caso contrário, desabilita controles
             turnControls.classList.add('d-none');
-            if (btnRoll) btnRoll.disabled = true;
-            if (btnSkip) btnSkip.disabled = true;
+            btnRoll.disabled = true;
+            btnSkip.disabled = true;
         }
     }
 
-    function notifyOrderToAll() {
-        // broadcast ordemTurnos so everyone sees the order
-        const ordem = ordemTurnos.map(o => ({ personagemId: o.personagemId, nome: o.nome, usuarioId: o.usuarioId }));
-        enviarAcao({ acao: 'ordemTurnos', ordem });
-    }
-
-    // ========== TURN FLOW ==========
-
+    // Função para ordenar personagens por iniciativa
     function ordenarIniciativas(personagens) {
+
+        // Cria uma lista de objetos com nome, iniciativa, card, personagemId e usuarioId
         let lista = personagens.map(card => ({
+            // Pega o nome do personagem
             nome: card.dataset.nome,
+            // Pega a iniciativa como número inteiro
             iniciativa: parseInt(card.dataset.iniciativa || 0, 10),
+            // o card em si
             card,
+            // o id do personagem como string
             personagemId: String(card.dataset.id),
+            // o id do usuario dono do personagem como string
             usuarioId: String(card.dataset.usuarioId || '')
         }));
+
+        // Ordena a lista por iniciativa decrescente
         lista.sort((a, b) => b.iniciativa - a.iniciativa);
+
+        // ===================== EMBARALHAMENTO DE INICIATIVAS IGUAIS =====================
         // tie-break shuffle
+        // Percorre a lista de personagens ordenada por iniciativa
         for (let i = 0; i < lista.length - 1; i++) {
+            // Se dois personagens consecutivos têm a mesma iniciativa
             if (lista[i].iniciativa === lista[i + 1].iniciativa) {
+                // Troca a posição deles aleatoriamente com 50% de chance
+                // Isso evita que sempre o mesmo personagem com iniciativa igual vá primeiro
+                // [lista[i], lista[i + 1]] = [lista[i + 1], lista[i]] é a sintaxe de destruturação do JS
+                // que troca os valores sem precisar de variável temporária
                 if (Math.random() < 0.5) [lista[i], lista[i + 1]] = [lista[i + 1], lista[i]];
             }
         }
+
         return lista;
     }
 
+    // Função para iniciar uma nova rodada
     function iniciarRodada() {
+        // Pega todos os cards de personagens
         const cards = Array.from(document.querySelectorAll('.personagem-card'));
+
+        // Se não houver personagens, sai da função
         if (cards.length === 0) return;
 
+        // Cria a ordem dos turnos e já ordena inicialmente
         ordemTurnos = ordenarIniciativas(cards);
+
+        // Inicializa variáveis de estado
         turnoIndex = 0;
+
+        // Rodada começa ativa
         rodadaAtiva = true;
+
+        // Fase agora é PLAYER
         phase = 'player';
+
+        // Rodada começa em 1
         rodada = rodada || 1;
 
+        // Define o jogador atual como o primeiro da ordem
         const primeiro = ordemTurnos[turnoIndex];
+
+        // Define o currentPlayerId
         currentPlayerId = primeiro.personagemId;
 
+        // Destaca o personagem inicial
         destacarPersonagem(primeiro.card);
+
+        // Envia mensagens com as funções iniciadas
         enviarSistema(`🕒 Rodada ${rodada} iniciada! Ordem de turnos: ${ordemTurnos.map(p => p.nome).join(', ')}`);
-        notifyOrderToAll();
-
-        // ⚔️ Habilita controles locais do jogador atual (apenas no mestre)
-        setPlayerControlsEnabled(true, currentPlayerId);
-
-        // 🧩 Envia evento WS para todos os clientes
+        // Enviando a ordem dos turnos para todos os clientes
+        enviarAcao({ acao: 'ordemTurnos', ordem: ordemTurnos });
+        // Enviando o turno atual
         enviarAcao({ acao: 'turnoAtual', personagemId: currentPlayerId });
 
+        //
+        setPlayerControlsEnabled(true, currentPlayerId);
         atualizarTurnoUI();
+        atualizarBotoesMestre();
     }
 
+    // Função para atualizar a UI do turno atual
     function atualizarTurnoUI() {
+        debugLog('🔄 Atualizando UI do turno:', { rodadaAtiva, turnoIndex, currentPlayerId });
+
         if (!rodadaAtiva) {
             if (placeholder) placeholder.textContent = '🎲 Aguardando início do turno...';
             if (btnRoll) btnRoll.disabled = true;
             if (btnSkip) btnSkip.disabled = true;
+            diceOptions.classList.add('d-none');
             return;
         }
+
         const atual = ordemTurnos[turnoIndex];
-        if (!atual) return;
-        if (placeholder) placeholder.textContent = `🕒 Turno de ${atual.nome}`;
-        // highlight
+        if (!atual) {
+            debugLog('⚠️ Jogador atual não encontrado no índice:', turnoIndex);
+            return;
+        }
+
+        if (placeholder) {
+            placeholder.textContent = `🕒 Turno de ${atual.nome}`;
+            // Verifica se é minha vez usando tanto usuarioId quanto currentPlayerId
+            const isMyTurn = String(atual.usuarioId) === userId &&
+                           String(atual.personagemId) === currentPlayerId;
+
+            if (isMyTurn) {
+                placeholder.textContent += ' (Sua vez!)';
+            }
+        }
+
         destacarPersonagem(atual.card);
-        // if local user is owner, they will see turnControls via setPlayerControlsEnabled
+
+        // Atualiza controles do jogador
+        const isMyTurn = String(atual.usuarioId) === userId &&
+                        String(atual.personagemId) === currentPlayerId;
+        setPlayerControlsEnabled(isMyTurn && phase === 'player', atual.personagemId);
+
+        atualizarBotoesMestre();
+
+        // Debug do estado final
+        debugLog('Estado após atualização UI:', {
+            jogadorAtual: atual.nome,
+            isMyTurn: String(atual.usuarioId) === userId,
+            phase,
+            currentPlayerId
+        });
     }
 
+    // Função para atualizar o estado dos botões do mestre
+    function atualizarBotoesMestre() {
+        debugLog('🎮 Atualizando botões mestre:', { isMestre, phase, rodadaAtiva });
+        if (!isMestre) return;
+
+        // Garantir que temos referências aos botões
+        const btnMestre = document.getElementById('btn-lancar-mestre');
+        const btnInicio = document.getElementById('btnIniciarTurno');
+        const btnPermitir = document.getElementById('btn-permitir-jogada');
+        const iconInicio = btnInicio?.querySelector('i');
+
+        if (!btnMestre || !btnInicio || !btnPermitir) {
+            debugLog('⚠️ Botões não encontrados no DOM');
+            return;
+        }
+
+        // Debug do estado atual
+        debugLog('Estado dos botões antes:', {
+            btnMestre: btnMestre.disabled,
+            btnInicio: btnInicio.disabled,
+            btnPermitir: btnPermitir.disabled,
+            phase,
+            rodadaAtiva
+        });
+
+        // Configuração do botão de dados do mestre (sempre disponível durante rodada)
+        btnMestre.disabled = !rodadaAtiva;
+
+        // Se não há rodada ativa
+        if (!rodadaAtiva) {
+            btnInicio.disabled = false;
+            btnPermitir.disabled = true;
+            btnInicio.title = 'Iniciar Rodada';
+            if (iconInicio) {
+                iconInicio.className = 'fa-solid fa-play fs-4';
+            }
+            debugLog('🔄 Rodada inativa - configurado para iniciar');
+            return;
+        }
+
+        // Durante a fase do mestre (após ação do jogador)
+        if (phase === 'master') {
+            btnInicio.disabled = false;  // Pode avançar para próximo
+            btnPermitir.disabled = false; // Pode permitir jogada extra
+            btnInicio.title = 'Avançar para Próximo Jogador';
+            if (iconInicio) {
+                iconInicio.className = 'fa-solid fa-forward fs-4';
+            }
+            debugLog('🎯 Fase do mestre - configurado para avançar');
+            return;
+        }
+
+        // Durante a fase do jogador
+        if (phase === 'player') {
+            btnInicio.disabled = true;   // Não pode avançar durante jogada
+            btnPermitir.disabled = true;  // Não pode permitir durante jogada
+            btnInicio.title = 'Aguardando Jogador';
+            if (iconInicio) {
+                iconInicio.className = 'fa-solid fa-pause fs-4';
+            }
+            debugLog('👥 Fase do jogador - aguardando ação');
+            return;
+        }
+
+        // Estado idle com rodada ativa não deveria acontecer
+        debugLog('⚠️ Estado inesperado:', { phase, rodadaAtiva });
+        btnInicio.disabled = true;
+        btnPermitir.disabled = true;
+    }
+
+    // Função para avançar para a fase do mestre após ação do jogador
     function proximoPhaseDepoisDaAcaoDoJogador() {
-        // chamado quando jogador executou ação (roll/skip)
-        // disable player's controls and move to master phase
         setPlayerControlsEnabled(false, currentPlayerId);
         phase = 'master';
-        // inform everyone
-        enviarSistema(`👉 Jogador terminou sua ação. Agora é a vez do Mestre decidir.`);
-        // On clients, master UI already visible for isMestre
-        // Wait for master actions (master can: roll, apply damage/curar/up, or re-enable player to allow extra roll)
+        enviarSistema(`👉 Jogador terminou sua ação. Aguardando Mestre...`);
+        atualizarBotoesMestre();
     }
 
     function proximoTurno() {
-        // finish master, go next player
         turnoIndex++;
         if (turnoIndex >= ordemTurnos.length) {
             enviarSistema(`🏁 Fim da rodada ${rodada}.`);
@@ -338,298 +353,97 @@ console.log('Gerenciador de sala de RPG iniciado.');
             rodadaAtiva = false;
             phase = 'idle';
             currentPlayerId = null;
-            // hide player controls everywhere
             setPlayerControlsEnabled(false, null);
-            // show start button for master
-            if (btnIniciar) btnIniciar.disabled = false;
-            if (turnControls) turnControls.classList.add('d-none');
             if (placeholder) placeholder.textContent = '🎲 Aguardando início do turno...';
+            atualizarBotoesMestre();
             return;
         }
 
         const proximo = ordemTurnos[turnoIndex];
         currentPlayerId = proximo.personagemId;
-        phase = 'player';
-        // tell everyone whose turn is now
+    phase = 'player';
+    // novo jogador começou — mestre não pode avançar até ação do jogador
+    if (btnLancarMestre) btnLancarMestre.disabled = true;
         enviarSistema(`👉 Turno de ${proximo.nome}`);
         enviarAcao({ acao: 'turnoAtual', personagemId: currentPlayerId });
-        // enable the new player's controls (only that player will see)
         setPlayerControlsEnabled(true, currentPlayerId);
         atualizarTurnoUI();
     }
 
-    // ========== MODES (MASTER) ==========
+    // ========== EVENT HANDLERS ==========
 
-    function desativarTodosOsModos() {
-        modoDanoAtivo = modoCurarAtivo = modoUparAtivo = false;
-        resetCardBorders();
-    }
+    function onDiceButtonClick(e) {
+        const btn = e.target.closest('.dice-btn');
+        if (!btn) return;
 
-    function ativarModoDano() {
-        desativarTodosOsModos();
-        modoDanoAtivo = true;
-        document.querySelectorAll('.personagem-card').forEach(c => {
-            c.classList.add('border', 'border-danger');
-            c.style.cursor = 'pointer';
-        });
-        enviarSistema('💥 Modo DANO ativado pelo Mestre.');
-        showToast('💥 Modo DANO ativado. Clique em um personagem.', 'danger');
-    }
+        const sides = parseInt(btn.dataset.sides, 10);
+        if (isNaN(sides)) return;
 
-    function ativarModoCura() {
-        desativarTodosOsModos();
-        modoCurarAtivo = true;
-        document.querySelectorAll('.personagem-card').forEach(c => {
-            c.classList.add('border', 'border-success');
-            c.style.cursor = 'pointer';
-        });
-        enviarSistema('❤️ Modo CURA ativado pelo Mestre.');
-        showToast('❤️ Modo CURA ativado. Clique em um personagem.', 'success');
-    }
+        const valor = Math.floor(Math.random() * sides) + 1;
+        const atual = ordemTurnos[turnoIndex];
 
-    function ativarModoUp() {
-        desativarTodosOsModos();
-        modoUparAtivo = true;
-        document.querySelectorAll('.personagem-card').forEach(c => {
-            c.classList.add('border', 'border-info', 'border-3');
-            c.style.cursor = 'pointer';
-        });
-        enviarSistema('✨ Modo UP ativado pelo Mestre.');
-        showToast('✨ Modo UP ativado. Clique em um personagem.', 'info');
-    }
-
-    // aplicar ação mestre (after modal confirm)
-    function confirmarModalAplicarValor() {
-        const valor = parseInt(inputValor?.value ?? 0, 10);
-        if (!personagemSelecionado || !tipoValor || isNaN(valor) || valor <= 0) {
-            showToast('Valor inválido.', 'warning');
-            return;
-        }
-
-        // apply locally (master sees instant)
-        if (tipoValor === 'dano' || tipoValor === 'cura') {
-            // animate via enviarAcao which everyone listens to
-            const pid = String(personagemSelecionado.dataset.id);
-            const vidaAtual = parseInt(personagemSelecionado.dataset.vida ?? 0, 10);
-            const vidaMax = getCardMaxHP(personagemSelecionado);
-            const vidaNova = tipoValor === 'dano' ? Math.max(0, vidaAtual - Math.abs(valor)) : Math.min(vidaMax, vidaAtual + Math.abs(valor));
-            animarBarraVida(personagemSelecionado, vidaAtual, vidaNova, vidaMax);
-
-            // send action object so everyone updates visually
+        if (isMestre) {
+            // Rolagem do mestre - não afeta o fluxo do jogo
+            enviarSistema(`🎲 Mestre rolou D${sides} = ${valor}`);
             enviarAcao({
-                acao: tipoValor === 'dano' ? 'aplicarDano' : 'curar',
-                personagemId: pid,
-                valor: valor,
-                autor: userLogin
+                acao: 'mestreRolou',
+                dado: sides,
+                valor,
+                autor: 'Mestre'
             });
 
-            // also send a readable system message
-            enviarSistema(`${tipoValor === 'dano' ? '💥' : '❤️'} ${personagemSelecionado.dataset.nome} ${tipoValor === 'dano' ? 'sofreu' : 'recuperou'} ${valor} de HP!`);
-        } else if (tipoValor === 'up') {
-            // increment level and announce. The owner will receive a 'permitirDistribuirPontos' control.
-            let level = parseInt(personagemSelecionado.dataset.level ?? 1, 10) + 1;
-            personagemSelecionado.dataset.level = level;
-            const levelText = personagemSelecionado.querySelector('.level-text');
-            if (levelText) levelText.textContent = `Lv. ${level}`;
+            // Mantém os dados visíveis para permitir mais rolagens
+            ultimoDadoRolado = { sides, valor };
+        } else {
+            // Rolagem do jogador - segue o fluxo normal
+            enviarSistema(`🎲 ${atual.nome} rolou D${sides} = ${valor}`);
             enviarAcao({
-                acao: 'upar',
-                personagemId: String(personagemSelecionado.dataset.id),
-                novoLevel: level,
-                autor: userLogin
-            });
-            enviarSistema(`⚡ ${personagemSelecionado.dataset.nome} subiu para o nível ${level}! Dono poderá distribuir +5 pontos.`);
-            // send control so only the owner opens a distribution UI (not implemented here)
-            enviarAcao({ acao: 'permitirDistribuir', personagemId: personagemSelecionado.dataset.id, pontos: 5 });
-        }
-
-        // clear modal state
-        personagemSelecionado = null;
-        tipoValor = null;
-        inputValor.value = '';
-        modalValor?.hide();
-        desativarTodosOsModos();
-    }
-
-    // =================== SOCKET HANDLERS ===================
-    function onReceiveAction(data) {
-        if (!data || !data.acao) return;
-        debugLog('📥 Ação recebida:', data);
-
-        const card = data.personagemId ? getCardById(String(data.personagemId)) : null;
-
-        switch (data.acao) {
-            case 'aplicarDano':
-            case 'curar': {
-                if (!card) return;
-                const vidaAtual = parseInt(card.dataset.vida ?? 0, 10);
-                const vidaMax = getCardMaxHP(card);
-                const valor = Math.abs(parseInt(data.valor || 0, 10));
-                const vidaNova = data.acao === 'aplicarDano'
-                    ? Math.max(0, vidaAtual - valor)
-                    : Math.min(vidaMax, vidaAtual + valor);
-                animarBarraVida(card, vidaAtual, vidaNova, vidaMax);
-                break;
-            }
-
-            case 'ordemTurnos': {
-                const ordemNames = (data.ordem || []).map(o => o.nome).join(', ');
-                ChatRoom(`🕒 Ordem de Iniciativa: ${ordemNames}`, '🧠 Sistema');
-                break;
-            }
-
-            case 'turnoAtual': {
-                if (!card) return;
-                destacarPersonagem(card);
-                const isMyTurn = String(card.dataset.usuarioId) === userId;
-                setPlayerControlsEnabled(isMyTurn, data.personagemId);
-                ChatRoom(isMyTurn ? '✅ É sua vez!' : `⏳ Turno de ${card.dataset.nome}`, '🧠 Sistema');
-                break;
-            }
-
-            case 'permitirDistribuir': {
-                if (card && String(card.dataset.usuarioId) === userId) {
-                    ChatRoom(`✨ Você pode distribuir ${data.pontos} pontos em atributos!`, userLogin);
-                }
-                break;
-            }
-
-            case 'permitirJogada': {
-                if (String(data.personagemId) === String(currentPlayerId)) {
-                    setPlayerControlsEnabled(true, currentPlayerId);
-                    enviarSistema(`🔁 Mestre permitiu jogada extra para ${card?.dataset.nome}`);
-                }
-                break;
-            }
-
-            case 'playerActionDone': {
-                if (isMestre) {
-                    ChatRoom(`🧾 ${data.descricao}`, '🧠 Sistema');
-                }
-                break;
-            }
-
-            case 'upar': {
-                if (card && data.novoLevel) {
-                    card.dataset.level = data.novoLevel;
-                    const levelText = card.querySelector('.level-text');
-                    if (levelText) levelText.textContent = `Lv. ${data.novoLevel}`;
-                }
-                break;
-            }
-
-            default:
-                console.warn('⚠️ Ação desconhecida:', data.acao);
-                ChatRoom(`🟡 Ação desconhecida recebida (${data.acao}).`, '🧠 Sistema');
-        }
-    }
-
-    // ========== SOCKET CONNECT ==========
-    function connectSocket() {
-        if (!wsUrl || !salaId) {
-            debugLog('⚠️ WS URL ou salaId ausente. Conexão ignorada.');
-            return;
-        }
-
-        const socket = new SockJS(wsUrl);
-        stompClient = Stomp.over(socket);
-
-        stompClient.connect({}, () => {
-            debugLog('🔌 Conectado ao WebSocket com sucesso!');
-            stompClient.subscribe('/topic/' + salaId, handleSocketMessage);
-
-            // Anunciar entrada na sala
-            const entrada = {
-                tipo: 'entrada',
+                acao: 'playerActionDone',
+                personagemId: atual.personagemId,
+                descricao: `${atual.nome} rolou D${sides} = ${valor}`,
                 autor: userLogin,
-                conteudo: `${userLogin} entrou na sala.`,
-                salaId,
-            };
-            stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify(entrada));
+                dado: sides,
+                valor
+            });
 
-        }, (err) => {
-            console.error('❌ Falha ao conectar ao WebSocket:', err);
-        });
-    }
+            // Desabilita botões após rolar
+            btnRoll.disabled = true;
+            diceOptions.classList.add('d-none');
+            ultimoDadoRolado = { sides, valor };
 
-    // ========== SOCKET MESSAGE HANDLER ==========
-    function handleSocketMessage(message) {
-        try {
-            const data = JSON.parse(message.body);
-            if (!data) return;
-
-            debugLog('📨 Mensagem recebida:', data);
-
-            switch (data.tipo) {
-                case 'acao':
-                    onReceiveAction(data);
-                    break;
-
-                case 'chat':
-                    ChatRoom(data.conteudo, data.autor || 'Jogador');
-                    break;
-
-                case 'sistema':
-                    ChatRoom(data.conteudo, data.autor || '🧠 Sistema');
-                    break;
-
-                case 'entrada':
-                    ChatRoom(`🔵 ${data.autor} entrou na sala.`, '🧠 Sistema');
-                    // exemplo: animarEntradaUsuario(data.autor);
-                    break;
-
-                case 'saida':
-                    ChatRoom(`🔴 ${data.autor} saiu da sala.`, '🧠 Sistema');
-                    // exemplo: animarSaidaUsuario(data.autor);
-                    break;
-
-                case 'erro':
-                    ChatRoom(`⚠️ ${data.conteudo}`, '❌ Sistema');
-                    break;
-
-                default:
-                    console.warn('⚠️ Tipo de mensagem desconhecido:', data.tipo, data);
-                    ChatRoom(`🟡 Mensagem desconhecida recebida (${data.tipo}).`, '🧠 Sistema');
-            }
-
-        } catch (err) {
-            console.error('Erro ao processar mensagem WS:', err);
+            // Move para fase do mestre
+            proximoPhaseDepoisDaAcaoDoJogador();
         }
     }
 
-    // ========== EVENTS: UI interactions ==========
+    // ========== UI EVENT LISTENERS ==========
 
-    // Master action buttons
     if (btnIniciar) {
         btnIniciar.addEventListener('click', () => {
-            if (!isMestre) {
-                showToast('Somente o Mestre pode iniciar a rodada.', 'warning');
-                return;
+            if (!isMestre) return;
+
+            if (!rodadaAtiva) {
+                // Inicia nova rodada
+                iniciarRodada();
+            } else if (phase === 'master') {
+                // Avança para próximo jogador
+                proximoTurno();
             }
-            if (rodadaAtiva) {
-                showToast('Rodada já ativa.', 'warning');
-                return;
-            }
-            btnIniciar.disabled = true;
-            iniciarRodada();
         });
     }
 
     if (btnRoll) {
         btnRoll.addEventListener('click', () => {
-            // only allowed when it's player's phase and they are owner
             if (!rodadaAtiva || phase !== 'player') return;
             const atual = ordemTurnos[turnoIndex];
-            const isOwner = String(atual.usuarioId) === userId;
-            if (!isOwner) return;
-            // roll dice (player chooses dice type from diceOptions - fallback to d20)
-            const lados = [4, 6, 8, 10, 12, 20];
-            const dado = lados[Math.floor(Math.random() * lados.length)];
-            const valor = Math.floor(Math.random() * dado) + 1;
-            ChatRoom(`🎲 ${atual.nome} rolou um D${dado} e tirou ${valor}`, userLogin);
-            // send a player action done so master can react
-            enviarAcao({ acao: 'playerActionDone', personagemId: atual.personagemId, descricao: `${atual.nome} rolou D${dado} = ${valor}`, autor: userLogin });
-            // move to master phase
-            proximoPhaseDepoisDaAcaoDoJogador();
+            if (String(atual.usuarioId) !== userId) return;
+
+            // Toggle dice options
+            if (diceOptions.classList.contains('d-none')) {
+                diceOptions.classList.remove('d-none');
+            } else {
+                diceOptions.classList.add('d-none');
+            }
         });
     }
 
@@ -637,190 +451,722 @@ console.log('Gerenciador de sala de RPG iniciado.');
         btnSkip.addEventListener('click', () => {
             if (!rodadaAtiva || phase !== 'player') return;
             const atual = ordemTurnos[turnoIndex];
-            const isOwner = String(atual.usuarioId) === userId;
-            if (!isOwner) return;
-            ChatRoom(`⏭️ ${atual.nome} decidiu pular o turno.`, userLogin);
-            enviarAcao({ acao: 'playerActionDone', personagemId: atual.personagemId, descricao: `${atual.nome} pulou.`, autor: userLogin });
+            if (String(atual.usuarioId) !== userId) return;
+
+            enviarSistema(`⏭️ ${atual.nome} pulou seu turno.`);
+            enviarAcao({
+                acao: 'playerActionDone',
+                personagemId: atual.personagemId,
+                descricao: `${atual.nome} pulou o turno.`,
+                autor: userLogin
+            });
+
+            // Desabilita controles e move para fase do mestre
+            btnRoll.disabled = true;
+            btnSkip.disabled = true;
+            diceOptions.classList.add('d-none');
             proximoPhaseDepoisDaAcaoDoJogador();
         });
     }
 
-    // Master roll button
+    if (diceOptions) {
+        diceOptions.addEventListener('click', onDiceButtonClick);
+    }
+
+    // Botão para lançar dado do mestre
     if (btnLancarMestre) {
         btnLancarMestre.addEventListener('click', () => {
             if (!isMestre || !rodadaAtiva) return;
-            // master rolls a die (secret unless reveal true)
-            const lados = [4, 6, 8, 10, 12, 20];
-            const dado = lados[Math.floor(Math.random() * lados.length)];
-            const valor = Math.floor(Math.random() * dado) + 1;
-            // For simplicity master chooses to reveal via confirm
-            const revelar = confirm(`Revelar rolagem do Mestre? (D${dado} = ${valor})`);
-            if (revelar) {
-                enviarSistema(`🎲 Mestre rolou D${dado} = ${valor}`);
-                enviarAcao({ acao: 'mestreRolou', dado, valor, autor: userLogin });
+
+            // Mostrar opções de dados para o mestre (mesmo painel dos jogadores)
+            if (diceOptions.classList.contains('d-none')) {
+                diceOptions.classList.remove('d-none');
+                turnControls.classList.remove('d-none'); // Mostra o container dos dados
+
+                // Esconde os botões de controle do jogador
+                if (btnRoll) btnRoll.style.display = 'none';
+                if (btnSkip) btnSkip.style.display = 'none';
             } else {
-                enviarSistema(`⏳ Mestre rolou dados (valor oculto).`);
-                enviarAcao({ acao: 'mestreRolou', dado, valor: null, autor: userLogin });
+                diceOptions.classList.add('d-none');
+                turnControls.classList.add('d-none');
             }
-            // after master action, decide: if master ends turn, advance to next turn
-            // Provide UI to master to "Continuar" (we'll use proximoTurno when master confirms via prompt)
-            const continuar = confirm('Deseja encerrar a vez do Mestre e passar para o próximo jogador?');
-            if (continuar) proximoTurno();
-            else {
-                // master might re-enable player's controls for extra roll
-                const permitir = confirm('Permitir que o jogador atual jogue novamente?');
-                if (permitir) {
-                    enviarAcao({ acao: 'permitirJogada', personagemId: currentPlayerId });
+        });
+    }
+
+    // Botão para permitir jogada extra
+    const btnPermitirJogada = document.getElementById('btn-permitir-jogada');
+    if (btnPermitirJogada) {
+        btnPermitirJogada.addEventListener('click', () => {
+            if (!isMestre || !rodadaAtiva || phase !== 'master') return;
+
+            // Permite jogada extra diretamente, sem confirmação
+            phase = 'player';
+            enviarSistema(`🔄 Mestre permitiu jogada extra para ${ordemTurnos[turnoIndex].nome}`);
+            enviarAcao({
+                acao: 'permitirJogada',
+                personagemId: currentPlayerId
+            });
+            setPlayerControlsEnabled(true, currentPlayerId);
+            atualizarBotoesMestre();
+        });
+    }
+
+    // ========== WEBSOCKET INTEGRATION ==========
+    // Função que processa todas as ações recebidas via WebSocket do tipo "acao"
+    function onReceiveAction(data) {
+        // Se não houver dados ou não tiver o campo 'acao', ignora
+        if (!data || !data.acao) return;
+        // Log para debug no console
+        debugLog('📥 Ação recebida:', data);
+
+        // Pega o "card" do personagem, se houver personagemId na ação
+        const card = data.personagemId ? getCardById(String(data.personagemId)) : null;
+
+        // Switch para tratar cada tipo de ação específica
+        switch (data.acao) {
+            // ===================== ORDEM DOS TURNOS =====================
+            case 'ordemTurnos':
+                // Atualiza a ordem de turno com base no que veio do servidor
+                ordemTurnos = (data.ordem || []).map(o => ({
+                    nome: o.nome,
+                    personagemId: String(o.personagemId),
+                    usuarioId: String(o.usuarioId || ''),
+                    card: getCardById(String(o.personagemId)) // pega o card de cada personagem
+                }));
+                debugLog('ordemTurnos recebida:', ordemTurnos);
+                break;
+
+            // ===================== TURNO ATUAL =====================
+            case 'turnoAtual':
+                if (!card) { // se não achar o card, loga e retorna
+                    debugLog('⚠️ Card não encontrado para personagemId:', data.personagemId);
+                    return;
+                }
+
+                // Atualiza estado do jogo
+                rodadaAtiva = true;
+                // Fase agora é PLAYER
+                phase = 'player';
+                currentPlayerId = String(data.personagemId);
+
+                // Procura no array 'ordemTurnos' a posição do personagem atual
+                // 'turnoIndex' é usado para controlar quem é o próximo na ordem de turno
+                const turnoAtualIndex = ordemTurnos.findIndex(p => p.personagemId === currentPlayerId);
+
+                // Se encontrado, atualiza a variável global 'turnoIndex'
+                if (turnoAtualIndex !== -1) {
+                    turnoIndex = turnoAtualIndex;
+                    debugLog('🎯 Atualizando turnoIndex para:', turnoIndex);
+                }
+
+                // Destaca o personagem atual visualmente
+                destacarPersonagem(card);
+
+                // Verifica se é o jogador atual
+                const isMyTurn = String(card.dataset.usuarioId) === userId;
+
+                // Habilita ou desabilita controles do jogador
+                setPlayerControlsEnabled(isMyTurn, data.personagemId);
+
+                // Atualiza a UI do turno
+                atualizarTurnoUI();
+
+                // Debug do estado após atualização
+                debugLog('Estado após turnoAtual:', {
+                    currentPlayerId,
+                    turnoIndex,
+                    isMyTurn,
+                    phase
+                });
+                break;
+
+            // ===================== AÇÃO DO JOGADOR FINALIZADA =====================
+            case 'playerActionDone':
+                // Quando um jogador finaliza a ação, o mestre deve ser notificado
+                // Atualiza estado geral
+                rodadaAtiva = true;
+                phase = 'master'; // passa o controle para o mestre
+                currentPlayerId = String(data.personagemId);
+
+                // Loga a ação
+                debugLog('🎯 Jogador finalizou ação:', {
+                    phase,
+                    isMestre,
+                    personagemId: currentPlayerId,
+                    btnLancarMestre: document.getElementById('btn-lancar-mestre')?.disabled
+                });
+
+                // Destaca o card do personagem
+                if (card) destacarPersonagem(card);
+
+                // Se não for mestre, desativa controles do jogador
+                if (!isMestre) {
+                    // para clientes players, garantir que controles do jogador estejam desativados
+                    setPlayerControlsEnabled(false, currentPlayerId);
+                }
+
+                // Forçar atualização do estado dos botões
+                atualizarBotoesMestre();
+                atualizarTurnoUI();
+
+                // Dupla verificação: corrige caso botão do mestre ainda esteja desabilitado
+                setTimeout(() => {
+                    if (isMestre && phase === 'master' && document.getElementById('btn-lancar-mestre')?.disabled) {
+                        debugLog('⚠️ Correção: btnLancarMestre ainda desabilitado após playerActionDone');
+                        atualizarBotoesMestre();
+                    }
+                }, 100);
+                break;
+
+            // ===================== PERMITIR JOGADA EXTRA =====================
+            case 'permitirJogada':
+                // Ativa controles do jogador atual para uma jogada extra
+                if (String(data.personagemId) === String(currentPlayerId)) {
+                    phase = 'player';
                     setPlayerControlsEnabled(true, currentPlayerId);
                 }
+                break;
+
+            case 'mestreRolou':
+                // Apenas mostra a rolagem, sem afetar o estado do jogo
+                debugLog('🎲 Mestre rolou:', data);
+                break;
+
+            // ===================== UP DISPONÍVEL PARA ATRIBUTOS =====================
+            case 'upDisponivel':
+                // Verifica se o jogador atual é o dono do personagem
+                if (String(data.usuarioId) === userId) {
+                    debugLog('🔼 Up disponível para:', data);
+
+                    const collapse = document.getElementById('collapseAtributos');
+                    collapse.classList.add('show'); // Abre o collapse da ficha do personagem
+
+                    // Remove todos os botões + e - que podem ter sido criados em atualizações anteriores
+                    collapse.querySelectorAll('.btn-up-atributo').forEach(btn => btn.remove());
+
+                    const atributos = collapse.querySelectorAll('.bg-dark'); // Seleciona cada div que representa um atributo
+                    let pontosDisponiveis = 5; // Número total de pontos que o jogador pode distribuir
+                    let pontosDistribuidos = {}; // Armazena quantos pontos cada atributo recebeu
+
+                    // Contém texto de pontos disponíveis + botões Reset e Salvar
+                    const headerContainer = document.createElement('div');
+                    headerContainer.className = 'd-flex justify-content-center align-items-center gap-2 mt-2 mb-3';
+
+                    // Texto de pontos disponíveis
+                    const spanPontos = document.createElement('div');
+                    spanPontos.className = 'text-warning';
+                    spanPontos.textContent = `Pontos disponíveis: ${pontosDisponiveis}`;
+                    headerContainer.appendChild(spanPontos);
+
+                    // Botão para resetar distribuição
+                    const btnReset = document.createElement('button');
+                    btnReset.className = 'btn btn-sm btn-outline-warning';
+                    btnReset.textContent = 'Resetar Distribuição';
+                    btnReset.disabled = true; // Desabilitado inicialmente, será habilitado quando houver pontos distribuídos
+                    headerContainer.appendChild(btnReset);
+
+                    // Botão de salvar (com ícone fa-save)
+                    const btnSalvar = document.createElement('button');
+                    btnSalvar.className = 'btn btn-sm btn-outline-success';
+                    btnSalvar.innerHTML = '<i class="fas fa-save"></i> Salvar';
+                    headerContainer.appendChild(btnSalvar);
+
+                    // Insere o header no topo do collapse, antes do primeiro filho da card-body
+                    collapse.querySelector('.card-body').insertBefore(
+                        headerContainer,
+                        collapse.querySelector('.card-body').firstChild
+                    );
+
+                    // ===================== FUNÇÃO DE ATUALIZAÇÃO DA INTERFACE =====================
+                    function atualizarInterface() {
+                        // Atualiza o texto de pontos disponíveis
+                        spanPontos.textContent = `Pontos disponíveis: ${pontosDisponiveis}`;
+
+                        // Habilita/desabilita botão Reset dependendo se há pontos distribuídos
+                        btnReset.disabled = Object.values(pontosDistribuidos).every(v => v === 0);
+
+                        // Atualiza cada atributo visualmente
+                        atributos.forEach(div => {
+                            const nome = div.dataset.nome; // Nome do atributo (forca, agilidade, etc.)
+                            const adicional = pontosDistribuidos[nome] || 0; // Pontos distribuídos nesse atributo
+
+                            // Procura span existente para mostrar pontos adicionais ou cria novo
+                            const spanAdicional = div.querySelector('.text-info') || div.querySelector('span') || document.createElement('span');
+                            spanAdicional.className = 'text-info ms-1';
+                            spanAdicional.textContent = adicional > 0 ? ` (+${adicional})` : '';
+                            spanAdicional.style.display = adicional > 0 ? 'inline' : 'none';
+
+                            // Garante que o span está no DOM
+                            div.appendChild(spanAdicional);
+
+                            // Envia atualização para o backend/WebSocket em tempo real
+                            enviarAcao({
+                                acao: 'atributoUpado',
+                                personagemId: data.personagemId,
+                                atributo: nome.toLowerCase(),
+                                valorBase: parseInt(div.dataset.valorBase, 10),
+                                adicional: adicional
+                            });
+                        });
+                    }
+
+                    // ===================== BOTÕES + E - PARA CADA ATRIBUTO =====================
+                    atributos.forEach(div => {
+                        const nome = div.dataset.nome; // Nome do atributo
+                        const valorBase = parseInt(div.dataset.valorBase, 10); // Valor base do atributo
+                        pontosDistribuidos[nome] = 0; // Inicializa contador de pontos distribuídos
+
+                        // Container para os botões + e -
+                        const botoesContainer = document.createElement('div');
+                        botoesContainer.className = 'ms-2 d-flex gap-1 align-items-center';
+
+                        // Botão de remover ponto
+                        const btnMenos = document.createElement('button');
+                        btnMenos.className = 'btn btn-sm btn-outline-danger btn-up-atributo';
+                        btnMenos.innerHTML = '<i class="fa-solid fa-minus"></i>';
+                        btnMenos.disabled = true; // Desabilitado inicialmente, pois não há pontos distribuídos
+
+                        // Botão de adicionar ponto
+                        const btnMais = document.createElement('button');
+                        btnMais.className = 'btn btn-sm btn-outline-info btn-up-atributo';
+                        btnMais.innerHTML = '<i class="fa-solid fa-plus"></i>';
+
+                        // Funções de clique
+                        btnMais.onclick = () => {
+                            if (pontosDisponiveis > 0) {
+                                pontosDistribuidos[nome]++;
+                                pontosDisponiveis--;
+                                atualizarInterface(); // Atualiza UI e envia WS
+                            }
+                        };
+                        btnMenos.onclick = () => {
+                            if (pontosDistribuidos[nome] > 0) {
+                                pontosDistribuidos[nome]--;
+                                pontosDisponiveis++;
+                                atualizarInterface(); // Atualiza UI e envia WS
+                            }
+                        };
+
+                        // Adiciona os botões ao container
+                        botoesContainer.appendChild(btnMenos);
+                        botoesContainer.appendChild(btnMais);
+
+                        // Adiciona o container dentro da div do atributo
+                        div.appendChild(botoesContainer);
+                    });
+
+                    // ===================== EVENTOS DO HEADER =====================
+                    // Resetar todos os pontos
+                    btnReset.onclick = () => {
+                        Object.keys(pontosDistribuidos).forEach(attr => pontosDistribuidos[attr] = 0);
+                        pontosDisponiveis = 5;
+                        atualizarInterface();
+                    };
+
+                    // Botão salvar: aqui você implementaria o envio dos dados para o backend
+                    btnSalvar.onclick = () => {
+                        console.log('💾 Salvando atributos...', pontosDistribuidos);
+                        /*
+                            Exemplo de payload para enviar ao backend:
+                            {
+                                "forca": x,
+                                "agilidade": x,
+                                "inteligencia": x,
+                                "destreza": x,
+                                "vitalidade": x,
+                                "percepcao": x,
+                                "sabedoria": x,
+                                "carisma": x
+                            }
+                        */
+                    };
+                }
+                break;
+
+
+            case 'danoRecebido':
+            case 'curaRecebida':
+                // Pega o card do personagem que sofreu dano ou recebeu cura
+                const cardVida = getCardById(String(data.personagemId));
+                if (!cardVida) return; // Se não existir card correspondente, sai da função
+
+                // Atualiza a barra de vida do personagem
+                const progressBar = cardVida.querySelector('.progress-bar'); // procura o elemento da barra de progresso
+                if (progressBar) {
+                    // vidaMaxima vem do dataset do card (atributo data-vida-max)
+                    const vidaMaxima = parseInt(cardVida.dataset.vidaMax, 10);
+                    // Calcula largura percentual da barra de vida com base no valor atual
+                    progressBar.style.width = `${(data.vidaAtual / vidaMaxima) * 100}%`;
+                    // Atualiza o texto visível da barra para mostrar "vidaAtual/vidaMaxima HP"
+                    progressBar.textContent = `${data.vidaAtual}/${vidaMaxima} HP`;
+                }
+
+                // Atualiza o dataset do card para manter o valor de vida atual sincronizado com o DOM
+                // Isso é útil caso outras funções precisem ler o valor atual da vida diretamente do card
+                cardVida.dataset.vida = data.vidaAtual;
+                break;
+
+            default:
+                debugLog('Ação ignorada:', data.acao);
+                break;
+        }
+    }
+
+    // Configuração da integração com o WebSocket do chat-room.js
+    function setupSocketIntegration() {
+        const { wsUrl, salaId } = window.CHAT_CONFIG || {};
+        const channel = salaId?.toString() || 'default';
+        processMessage = window.processMessage || (() => {});
+
+        // Tenta reaproveitar o stompClient global já existente
+        if (window.chatStomp && window.chatStomp.stompClient) {
+            stompClient = window.chatStomp.stompClient;
+            debugLog('🔁 Reaproveitando stomp client do chat');
+        } else {
+            debugLog('⚙️ Nenhum stompClient encontrado — aguardando conexão ou criando fallback...');
+
+            // Aguarda o evento stomp.connected (disparado pelo chat-room.js)
+            document.addEventListener('stomp.connected', (ev) => {
+                try {
+                    stompClient = ev.detail?.stompClient || window.chatStomp?.stompClient;
+                    if (stompClient) {
+                        debugLog('🔌 Conectado ao stomp via chat-room');
+                    } else {
+                        debugLog('⚠️ Evento stomp.connected recebido, mas sem stompClient válido.');
+                    }
+                } catch (e) {
+                    console.warn('Erro ao integrar com chat-room:', e);
+                }
+            });
+
+            // fallback: se passar um tempo e o stompClient ainda for nulo, cria um novo
+            setTimeout(() => {
+                if (!stompClient) {
+                    debugLog('⏱️ Nenhum stompClient detectado — criando nova conexão local.');
+                    WebSocketService.connect(
+                        wsUrl,
+                        channel,
+                        processMessage,
+                        () => {
+                            stompClient = WebSocketService.stompClient;
+                            window.chatStomp = WebSocketService; // define globalmente
+                            debugLog('🆕 Fallback stompClient criado.');
+                        },
+                        (err) => console.error('❌ Erro ao criar fallback STOMP:', err)
+                    );
+                }
+            }, 3000); // espera 3 segundos antes do fallback
+        }
+
+        // Listener para mensagens via WebSocket
+        document.addEventListener('ws.message', (ev) => {
+            try {
+                const data = ev.detail;
+                if (data.tipo === 'acao') {
+                    onReceiveAction(data);
+                }
+            } catch (e) {
+                console.warn('Erro ao processar mensagem:', e);
             }
         });
     }
 
-    // Master mode toggles
-    if (btnDano) {
-        btnDano.addEventListener('click', () => {
-            if (!isMestre) { showToast('Apenas Mestre', 'warning'); return; }
-            if (!modoDanoAtivo) ativarModoDano();
-            else { desativarTodosOsModos(); enviarSistema('💥 Modo DANO desativado pelo Mestre.'); }
+    // Delay
+    document.addEventListener('DOMContentLoaded', () => {
+        let tentativas = 0;
+        const maxTentativas = 10; // tenta por até 5 segundos (10x * 500ms)
+        debugLog('🕓 Aguardando STOMP do chat-room...');
+
+        const intervalo = setInterval(() => {
+            if (window.chatStomp?.stompClient) {
+                debugLog('✅ STOMP detectado — iniciando integração Room Manager');
+                setupSocketIntegration();
+                clearInterval(intervalo);
+            } else if (++tentativas > maxTentativas) {
+                debugLog('⚠️ STOMP não detectado após 5s — inicializando mesmo assim');
+                setupSocketIntegration();
+                clearInterval(intervalo);
+            }
+        }, 500);
+    });
+
+
+    // ========== INIT ==========
+
+    // Manipulação de vida dos personagens
+    function handleVidaChange(personagemId, valor, tipo) {
+        if (!isMestre || !rodadaAtiva) return;
+
+        const card = getCardById(personagemId);
+        if (!card) return;
+
+        const vidaAtual = parseInt(card.dataset.vida, 10);
+        const vidaMaxima = parseInt(card.dataset.vidaMax, 10);
+        let novaVida;
+
+        if (tipo === 'dano') {
+            novaVida = Math.max(0, vidaAtual - valor);
+            enviarSistema(`💥 ${card.dataset.nome} recebeu ${valor} de dano!`);
+        } else {
+            novaVida = Math.min(vidaMaxima, vidaAtual + valor);
+            enviarSistema(`❤️ ${card.dataset.nome} foi curado em ${valor} pontos!`);
+        }
+
+        // Atualizar barra de vida
+        const progressBar = card.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = `${(novaVida / vidaMaxima) * 100}%`;
+            progressBar.textContent = `${novaVida}/${vidaMaxima} HP`;
+        }
+
+        // Atualizar dataset
+        card.dataset.vida = novaVida;
+
+        // Enviar ação para todos
+        enviarAcao({
+            acao: tipo === 'dano' ? 'danoRecebido' : 'curaRecebida',
+            personagemId,
+            valor,
+            vidaAtual: novaVida
+        });
+
+        // Resetar seleção mantendo o modo ativo
+        document.querySelectorAll('.personagem-card').forEach(c => {
+            const isCurrentPlayer = String(c.dataset.id) === String(currentPlayerId);
+
+            // Remove classes de seleção
+            c.classList.remove('card-selecionavel', 'card-selecionado');
+
+            // Reseta para borda azul se não for o jogador atual
+            if (!isCurrentPlayer) {
+                c.classList.remove('border-danger', 'border-success', 'border-info', 'border-warning');
+                c.classList.add('border', 'border-primary', 'border-3');
+            }
         });
     }
 
-    if (btnCurar) {
-        btnCurar.addEventListener('click', () => {
-            if (!isMestre) { showToast('Apenas Mestre', 'warning'); return; }
-            if (!modoCurarAtivo) ativarModoCura();
-            else { desativarTodosOsModos(); enviarSistema('❤️ Modo CURA desativado pelo Mestre.'); }
+    function ativarModoMestre(modo) {
+        if (!isMestre || !rodadaAtiva) return;
+        debugLog('🎯 Ativando modo mestre:', modo);
+
+        // Referências aos botões
+        const btnDano = document.getElementById('btn-dano');
+        const btnCurar = document.getElementById('btn-curar');
+        const btnUpar = document.getElementById('btn-upar');
+
+        // Reseta estado visual dos botões
+        [btnDano, btnCurar, btnUpar].forEach(btn => {
+            if (btn) {
+                btn.classList.remove('active');
+                btn.setAttribute('data-active', 'false');
+            }
         });
+
+        // Reseta estado dos cards mantendo a borda de turno ativo
+        document.querySelectorAll('.personagem-card').forEach(c => {
+            const isCurrentPlayer = String(c.dataset.id) === String(currentPlayerId);
+
+            // Remove todas as bordas de modo
+            c.classList.remove(
+                'border-primary', 'border-danger',
+                'border-success', 'border-info'
+            );
+
+            // Remove border-3 apenas se não for o jogador atual
+            if (!isCurrentPlayer) {
+                c.classList.remove('border-3');
+            }
+
+            c.style.cursor = 'default';
+        });
+
+        // Se clicar no mesmo modo, desativa
+        if (modoMestre === modo) {
+            debugLog('🔄 Desativando modo:', modo);
+            modoMestre = null;
+            return;
+        }
+
+        // Ativa o novo modo
+        modoMestre = modo;
+
+        // Atualiza estado visual do botão ativo
+        const btnAtivo = modo === 'dano' ? btnDano :
+                        modo === 'cura' ? btnCurar :
+                        modo === 'up' ? btnUpar : null;
+        if (btnAtivo) {
+            btnAtivo.classList.add('active');
+            btnAtivo.setAttribute('data-active', 'true');
+        }
+
+        // Destacar todos os personagens como selecionáveis
+        const cards = document.querySelectorAll('.personagem-card');
+        cards.forEach(c => {
+            const isCurrentPlayer = String(c.dataset.id) === String(currentPlayerId);
+
+            // Adiciona borda azul para cards não ativos
+            if (!isCurrentPlayer) {
+                c.classList.add('border', 'border-primary', 'border-3');
+            }
+
+            c.style.cursor = 'pointer';
+        });
+
+        debugLog('✅ Modo ativado:', modo, 'Cards encontrados:', cards.length);
     }
 
-    if (btnUpar) {
-        btnUpar.addEventListener('click', () => {
-            if (!isMestre) { showToast('Apenas Mestre', 'warning'); return; }
-            if (!modoUparAtivo) ativarModoUp();
-            else { desativarTodosOsModos(); enviarSistema('✨ Modo UP desativado pelo Mestre.'); }
-        });
-    }
+    function init() {
+        debugLog('🎲 room-manager v2.0 iniciando...');
+        setupSocketIntegration();
 
-    // Click on character cards (for master modes or for owners)
-    if (personagensContainer) {
-        personagensContainer.addEventListener('click', (e) => {
-            const card = e.target.closest('.personagem-card');
-            if (!card) return;
+        // Setup do modal de valor
+        modalValor = new bootstrap.Modal(document.getElementById('modalValor'));
 
-            // If master has a mode active, clicking triggers modal for damage/cura/up
-            if (isMestre && (modoDanoAtivo || modoCurarAtivo || modoUparAtivo)) {
-                personagemSelecionado = card;
-                if (modoDanoAtivo) {
-                    tipoValor = 'dano';
-                    abrirModalValor('dano');
-                } else if (modoCurarAtivo) {
-                    tipoValor = 'cura';
-                    abrirModalValor('cura');
-                } else if (modoUparAtivo) {
-                    tipoValor = 'up';
-                    // For UP we might not need a numeric value, but we'll still use modal to confirm
-                    abrirModalValor('up');
+        // Botões do mestre
+        const btnDano = document.getElementById('btn-dano');
+        const btnCurar = document.getElementById('btn-curar');
+
+        if (btnDano) {
+            btnDano.addEventListener('click', () => ativarModoMestre('dano'));
+        }
+
+        if (btnCurar) {
+            btnCurar.addEventListener('click', () => ativarModoMestre('cura'));
+        }
+
+        const btnUpar = document.getElementById('btn-upar');
+        if (btnUpar) {
+            btnUpar.addEventListener('click', () => ativarModoMestre('up'));
+        }
+
+        // Handler para click nos cards
+        function cardClickHandler(event) {
+            const card = event.target.closest('.personagem-card');
+            if (!card || !modoMestre || !isMestre) return;
+
+            debugLog('🎯 Card clicado:', {
+                id: card.dataset.id,
+                nome: card.dataset.nome,
+                modo: modoMestre
+            });
+
+            // Reseta bordas mantendo o estado do jogador atual
+            document.querySelectorAll('.personagem-card').forEach(c => {
+                const isCurrentPlayer = String(c.dataset.id) === String(currentPlayerId);
+
+                // Remove todas as bordas de modo
+                c.classList.remove('border-danger', 'border-success', 'border-info');
+
+                // Para os cards que não são o atual nem o clicado, adiciona borda azul
+                if (!isCurrentPlayer && c !== card) {
+                    c.classList.remove('border-warning');
+                    c.classList.add('border', 'border-primary', 'border-3');
                 }
+            });
+
+            // Adiciona a borda específica do modo no card clicado
+            card.classList.remove('border-primary');
+            const borderClass = modoMestre === 'dano' ? 'border-danger' :
+                              modoMestre === 'cura' ? 'border-success' :
+                              modoMestre === 'up' ? 'border-info' : 'border-primary';
+            card.classList.add(borderClass);
+
+            // Se for modo up, envia notificação para o jogador
+            if (modoMestre === 'up') {
+                // Envia ação para todos
+                enviarAcao({
+                    acao: 'upDisponivel',
+                    personagemId: card.dataset.id,
+                    usuarioId: card.dataset.usuarioId,
+                    nome: card.dataset.nome
+                });
+
+                // Notifica o sistema
+                enviarSistema(`🔼 ${card.dataset.nome} pode distribuir 5 pontos em seus atributos!`);
                 return;
             }
 
-            // If it's the player owner's click during their turn, maybe open a quick info or allow local actions (not roll/dano)
-            const atual = ordemTurnos[turnoIndex];
-            const isOwnerOfClicked = String(card.dataset.usuarioId) === userId;
-            if (rodadaAtiva && phase === 'player' && atual && String(atual.personagemId) === String(card.dataset.id) && isOwnerOfClicked) {
-                // Player clicked on own card during their turn - we can allow local quick actions or show details
-                // For simplicity, just flash feedback
-                showToast(`É seu turno: ${card.dataset.nome}`, 'primary');
-            }
-        });
-    }
+            // Reseta modal e input
+            const btnConfirmar = document.getElementById('btnConfirmarValor');
+            const inputValor = document.getElementById('inputValor');
+            inputValor.value = '';
 
-    // Modal open helper
-    function abrirModalValor(tipo) {
-        if (!modalValorEl) return;
-        const titulo = modalValorEl.querySelector('.modal-title');
-        const btn = btnConfirmarValor;
-        if (tipo === 'dano') {
-            titulo.textContent = 'Aplicar Dano';
-            if (btn) btn.className = 'btn btn-danger';
-            inputValor.placeholder = 'Valor de dano (ex: 5)';
-            inputValor.value = '';
-        } else if (tipo === 'cura') {
-            titulo.textContent = 'Aplicar Cura';
-            if (btn) btn.className = 'btn btn-success';
-            inputValor.placeholder = 'Valor de cura (ex: 5)';
-            inputValor.value = '';
-        } else if (tipo === 'up') {
-            titulo.textContent = 'Upar Personagem (confirme)';
-            if (btn) btn.className = 'btn btn-info';
-            inputValor.placeholder = 'Confirmar aumento de nível';
-            inputValor.value = '1';
+            // Configura título do modal baseado no modo
+            const modalTitle = document.querySelector('#modalValor .modal-title');
+            if (modalTitle) {
+                modalTitle.textContent = modoMestre === 'dano' ? 'Aplicar Dano' : 'Aplicar Cura';
+            }
+
+            // Configura botão confirmar
+            const btnModal = document.getElementById('btnConfirmarValor');
+            if (btnModal) {
+                btnModal.className = modoMestre === 'dano' ?
+                    'btn btn-danger' : 'btn btn-success';
+                btnModal.textContent = modoMestre === 'dano' ?
+                    'Aplicar Dano' : 'Aplicar Cura';
+            }
+
+            modalValor.show();
+
+            // Focus no input após modal abrir
+            modalValor._element.addEventListener('shown.bs.modal', () => {
+                inputValor.focus();
+            }, { once: true });
+
+            // Handler para confirmar valor
+            const confirmarHandler = () => {
+                const valor = parseInt(inputValor.value, 10);
+                if (isNaN(valor) || valor < 0) return;
+
+                debugLog('💫 Aplicando', modoMestre, 'valor:', valor);
+
+                // Remove todas as classes de seleção
+                document.querySelectorAll('.personagem-card').forEach(c => {
+                    c.classList.remove('card-selecionavel', 'card-selecionado');
+                    c.style.cursor = 'default';
+                });
+
+                handleVidaChange(card.dataset.id, valor, modoMestre);
+                modalValor.hide();
+
+                // Mantém o botão ativo e o modo
+                debugLog('✅ Valor aplicado, mantendo modo:', modoMestre);
+
+                // Limpar handler
+                btnConfirmar.removeEventListener('click', confirmarHandler);
+            };
+
+            // Remove handlers anteriores e adiciona o novo
+            btnConfirmar.removeEventListener('click', confirmarHandler);
+            btnConfirmar.addEventListener('click', confirmarHandler);
         }
-        modalValor?.show();
+
+        // Adiciona o handler no container pai para usar event delegation
+        personagensContainer.addEventListener('click', cardClickHandler);
+
+        // Debug helpers
+        window.roomManager = {
+            enviarAcao,
+            enviarSistema,
+            iniciarRodada,
+            proximoTurno,
+            getEstado: () => ({
+                ordemTurnos,
+                turnoIndex,
+                rodadaAtiva,
+                phase,
+                currentPlayerId,
+                isMestre,
+                ultimoDadoRolado
+            })
+        };
+
+        debugLog('✅ Inicializado. isMestre:', isMestre, 'userId:', userId);
     }
 
-    if (btnConfirmarValor) {
-        btnConfirmarValor.addEventListener('click', () => {
-            confirmarModalAplicarValor();
-        });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
-
-    // Chat send
-    if (chatSend && chatInput) {
-        chatSend.addEventListener('click', () => {
-            const text = chatInput.value.trim();
-            if (!text || !stompClient) return;
-            const payload = { tipo: 'chat', conteudo: text, autor: userLogin, userId, salaId };
-            stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify(payload));
-            chatInput.value = '';
-        });
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') chatSend.click();
-        });
-    }
-
-    // ========== INIT: populate initial hp bars & connect ==========
-    function initCards() {
-        document.querySelectorAll('.personagem-card').forEach(card => {
-            const vidaAtual = parseInt(card.dataset.vida ?? 0, 10);
-            const vidaMax = getCardMaxHP(card);
-            atualizarBarraVida(card, vidaAtual, vidaMax);
-        });
-    }
-    // ====== Clique nas cartas (para mestre) ======
-    document.querySelectorAll('.personagem-card').forEach(card => {
-        card.addEventListener('click', () => {
-            // Só aplica se algum modo estiver ativo
-            if (modoDanoAtivo) tipoValor = 'dano';
-            else if (modoCurarAtivo) tipoValor = 'cura';
-            else if (modoUparAtivo) tipoValor = 'up';
-            else return; // nenhum modo ativo
-
-            personagemSelecionado = card;
-
-            // Se for dano ou cura, abre modal para inserir valor
-            if (tipoValor === 'dano' || tipoValor === 'cura') {
-                modalValor?.show();
-            } else if (tipoValor === 'up') {
-                // aplica diretamente Up
-                confirmarModalAplicarValor();
-            }
-        });
-    });
-
-    // Start socket and init
-    connectSocket();
-    initCards();
-
-    // Expose some functions for debug in console (optional)
-    window.roomManager = {
-        enviarAcao,
-        enviarSistema,
-        iniciarRodada,
-        proximoTurno,
-        getEstado: () => ({ ordemTurnos, turnoIndex, rodadaAtiva, phase, currentPlayerId, isMestre })
-    };
-
-    debugLog('room-manager inicializado. isMestre=', isMestre, 'userId=', userId);
 })();
