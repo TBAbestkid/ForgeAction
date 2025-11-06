@@ -31,23 +31,69 @@
     // ====== UTILS ======
     function debugLog(...args) { console.log('[RM]', ...args); }
 
+    function enviarMensagem(mensagem, tentativas = 3) {
+        return new Promise((resolve, reject) => {
+            if (!stompClient) {
+                debugLog('❌ Sem cliente STOMP');
+                reject(new Error('Sem cliente STOMP'));
+                return;
+            }
+
+            if (!stompClient.connected) {
+                debugLog('❌ Cliente STOMP não está conectado');
+                reject(new Error('Cliente STOMP não conectado'));
+                return;
+            }
+
+            try {
+                stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify(mensagem));
+                debugLog('📤 Mensagem enviada:', mensagem);
+                resolve();
+            } catch (error) {
+                debugLog('❌ Erro ao enviar mensagem:', error);
+                if (tentativas > 1) {
+                    setTimeout(() => {
+                        enviarMensagem(mensagem, tentativas - 1)
+                            .then(resolve)
+                            .catch(reject);
+                    }, 1000);
+                } else {
+                    reject(error);
+                }
+            }
+        });
+    }
+
     function enviarSistema(msg) {
-        if (!stompClient || !salaId) return;
-        stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify({
+        if (!salaId) {
+            debugLog('❌ Sem salaId definido');
+            return;
+        }
+
+        enviarMensagem({
             tipo: 'sistema',
             conteudo: msg,
             autor: '🤖 Sistema',
             salaId: salaId
-        }));
+        }).catch(error => {
+            console.error('Erro ao enviar mensagem de sistema:', error);
+        });
     }
 
     function enviarAcao(obj) {
-        if (!stompClient || !salaId) return;
-        stompClient.send('/app/enviar/' + salaId, {}, JSON.stringify({
+        if (!salaId) {
+            debugLog('❌ Sem salaId definido');
+            return;
+        }
+
+        enviarMensagem({
             tipo: 'acao',
             salaId,
+            timestamp: Date.now(),
             ...obj
-        }));
+        }).catch(error => {
+            console.error('Erro ao enviar ação:', error);
+        });
     }
 
     // ====== GAME FLOW ======
@@ -224,15 +270,37 @@
     function setupSocketIntegration() {
         debugLog('⚙️ Iniciando integração WebSocket...');
 
+        // Primeiro tenta usar o cliente existente
         if (window.chatStomp?.stompClient) {
             stompClient = window.chatStomp.stompClient;
-            debugLog('✅ Cliente STOMP existente encontrado');
-            return;
+            if (stompClient.connected) {
+                debugLog('✅ Cliente STOMP existente e conectado');
+                return;
+            }
         }
 
+        // Se não tiver cliente ou não estiver conectado, aguarda conexão
         document.addEventListener('stomp.connected', (ev) => {
-            stompClient = ev.detail.stompClient;
-            debugLog('✅ Conectado via evento stomp.connected');
+            if (ev.detail?.stompClient) {
+                stompClient = ev.detail.stompClient;
+                debugLog('✅ Conectado via evento stomp.connected');
+
+                // Tenta se inscrever no tópico da sala
+                try {
+                    stompClient.subscribe('/topic/sala.' + salaId, function(message) {
+                        debugLog('📨 Mensagem recebida:', message);
+                        try {
+                            const data = JSON.parse(message.body);
+                            document.dispatchEvent(new CustomEvent('ws.message', { detail: data }));
+                        } catch (e) {
+                            console.warn('Erro ao processar mensagem:', e);
+                        }
+                    });
+                    debugLog('✅ Inscrito no tópico da sala');
+                } catch (e) {
+                    console.error('❌ Erro ao se inscrever no tópico:', e);
+                }
+            }
         });
     }
 
@@ -348,9 +416,20 @@
     });
 
     // ====== INIT ======
+    function verificarConexao() {
+        if (!stompClient?.connected) {
+            debugLog('⚠️ Conexão perdida, tentando reconectar...');
+            setupSocketIntegration();
+        }
+    }
+
     function init() {
         debugLog('🎲 room-manager-simple iniciando...');
         setupSocketIntegration();
+
+        // Verifica a conexão a cada 5 segundos
+        setInterval(verificarConexao, 5000);
+
         debugLog('✅ Inicializado. isMestre:', isMestre, 'userId:', userId);
     }
 
