@@ -112,7 +112,7 @@
         document.addEventListener('stomp.connected', () => {
             debugLog('✅ WebSocket conectado!');
             ws.subscribe(channel, onReceiveAction);
-            
+
             // Envia mensagem de entrada
             enviarSistema(`🟢 ${userLogin} entrou na sala`);
         });
@@ -147,7 +147,7 @@
 
     // Resto do código do room-manager.js aqui...
     // (getCardById, destacarPersonagem, setPlayerControlsEnabled, etc.)
-    
+
     // ====== GAME FLOW ======
     function getCardById(pid) {
         return personagensContainer.querySelector(`.personagem-card[data-id="${pid}"]`) ||
@@ -297,7 +297,7 @@
         destacarPersonagem(atual.card);
         const isMyTurn = String(atual.usuarioId) === userId;
         setPlayerControlsEnabled(isMyTurn && phase === 'player', atual.personagemId);
-        
+
         atualizarBotoesMestre();
     }
 
@@ -442,6 +442,8 @@
                 dado: sides,
                 valor
             });
+            // Passar turno automaticamente após ação do mestre
+            setTimeout(() => proximoTurno(), 1000);
         } else {
             enviarSistema(`🎲 ${atual.nome} rolou D${sides} = ${valor}`);
             enviarAcao({
@@ -501,7 +503,7 @@
                         autor: data.autor
                     };
                 }
-                
+
                 rodadaAtiva = true;
                 phase = 'master';
                 currentPlayerId = String(data.personagemId);
@@ -510,7 +512,7 @@
                 if (!isMestre) {
                     setPlayerControlsEnabled(false, currentPlayerId);
                 }
-                
+
                 atualizarTurnoUI();
                 atualizarBotoesMestre();
                 break;
@@ -520,7 +522,7 @@
                 if (!card) return;
                 const vidaAtual = data.vidaAtual;
                 const vidaMaxima = parseInt(card.dataset.vidaMax, 10);
-                
+
                 card.dataset.vida = vidaAtual;
                 const progressBar = card.querySelector('.progress-bar');
                 if (progressBar) {
@@ -562,7 +564,7 @@
 
             proximoPhaseDepoisDaAcaoDoJogador();
         });
-        
+
         // Configura listeners para botões do mestre
         if (btnLancarMestre) {
             btnLancarMestre.addEventListener('click', () => {
@@ -582,14 +584,14 @@
                     const modalValor = new bootstrap.Modal(document.getElementById('modal-valor'));
                     const inputValor = document.getElementById('input-valor');
                     const btnConfirmarValor = document.getElementById('btn-confirmar-valor');
-                    
+
                     inputValor.value = '';
                     modalValor.show();
-                    
+
                     btnConfirmarValor.onclick = () => {
                         const valor = parseInt(inputValor.value);
                         if (isNaN(valor) || valor < 0) return;
-                        
+
                         handleVidaChange(card.dataset.id, valor, modoMestre);
                         modalValor.hide();
                     };
