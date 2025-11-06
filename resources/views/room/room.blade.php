@@ -633,7 +633,7 @@
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
 
 {{-- 2. Gerenciadores da sala --}}
-<script src="{{ asset('js/room/chat-room-unified.js') }}"></script>
+<script src="{{ asset('js/room/chat-room.js') }}"></script>
 <script src="{{ asset('js/room/room-manager.js') }}"></script>
 
 {{-- Scripts auxiliares --}}
