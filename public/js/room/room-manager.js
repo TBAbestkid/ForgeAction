@@ -7,48 +7,30 @@
    - personagem-card elements
 */
 (function () {
-    debugLog('🚀 Iniciando room-manager.js');
     // ====== CONFIG / STATE ======
     const CHAT = window.CHAT_CONFIG || {};
-    debugLog('📋 CHAT_CONFIG:', window.CHAT_CONFIG);
-
     const userId = String(CHAT.userId ?? '');
     const userLogin = CHAT.userLogin ?? 'Player';
     const salaId = CHAT.salaId ?? null;
     const isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE');
 
-    debugLog('⚙️ Configuração inicial:', {
-        userId,
-        userLogin,
-        salaId,
-        isMestre,
-        role: CHAT.role,
-        isMestreExplicit: !!CHAT.isMestre,
-        isMestreByRole: CHAT.role?.toUpperCase() === 'MESTRE'
-    });
-
-    // Debug de configuração
-    debugLog('Configuração inicial:', {
-        userId,
-        userLogin,
-        salaId,
-        isMestre,
-        chatConfig: window.CHAT_CONFIG
-    });
-
     // stomp client compartilhado (exposto por chat-room.js)
     let stompClient = null;
 
-    // Game state
+    // Game state - Core states
     let ordemTurnos = [];
     let turnoIndex = 0;
     let rodada = 1;
     let rodadaAtiva = false;
     let phase = 'idle'; // 'player', 'master', 'idle'
     let currentPlayerId = null;
+
+    // Advanced features (commented for now)
+    /*
     let ultimoDadoRolado = null;
     let modoMestre = null; // 'dano', 'cura', null
     let modalValor = null; // Referência ao modal Bootstrap
+    */
 
     // ====== UI ELEMENTS ======
     const personagensContainer = document.getElementById('personagens-container') ||
@@ -291,41 +273,19 @@
 
     // Função para atualizar o estado dos botões do mestre
     function atualizarBotoesMestre() {
-        debugLog('🎮 Atualizando botões mestre:', {
-            isMestre,
-            phase,
-            rodadaAtiva,
-            turnoIndex,
-            ordemTurnos: ordemTurnos.length,
-            currentPlayerId
-        });
+        debugLog('🎮 Atualizando botões mestre:', { isMestre, phase, rodadaAtiva });
+        if (!isMestre) return;
 
-        if (!isMestre) {
-            debugLog('❌ Usuário não é mestre, saindo da função');
-            return;
-        }
-
-        // Garantir que temos referências aos botões
-        const btnMestre = document.getElementById('btn-lancar-mestre');
+        // Core buttons only
         const btnInicio = document.getElementById('btnIniciarTurno');
-        const btnPermitir = document.getElementById('btn-permitir-jogada');
+        const btnMestre = document.getElementById('btn-lancar-mestre');
         const iconInicio = btnInicio?.querySelector('i');
 
-        debugLog('🔍 Estado dos botões:', {
-            btnMestreExiste: !!btnMestre,
-            btnInicioExiste: !!btnInicio,
-            btnPermitirExiste: !!btnPermitir,
-            btnInicioId: btnInicio?.id,
-            btnInicioClasses: btnInicio?.className,
-            btnInicioDesativado: btnInicio?.disabled
-        });
+        // Advanced buttons (commented for now)
+        // const btnPermitir = document.getElementById('btn-permitir-jogada');
 
         if (!btnMestre || !btnInicio || !btnPermitir) {
-            debugLog('⚠️ Alguns botões não encontrados no DOM:', {
-                btnMestre: !!btnMestre,
-                btnInicio: !!btnInicio,
-                btnPermitir: !!btnPermitir
-            });
+            debugLog('⚠️ Botões não encontrados no DOM');
             return;
         }
 
@@ -464,37 +424,18 @@
 
     // ========== UI EVENT LISTENERS ==========
 
-    // Adiciona logs detalhados para o botão iniciar
-    debugLog('🔍 Verificando btnIniciar:', !!btnIniciar, 'isMestre:', isMestre);
     if (btnIniciar) {
-        debugLog('✅ Botão iniciar encontrado, adicionando evento click');
         btnIniciar.addEventListener('click', () => {
-            debugLog('🎯 Botão iniciar clicado', {
-                isMestre,
-                rodadaAtiva,
-                phase,
-                turnoIndex,
-                currentPlayerId,
-                ordemTurnos: ordemTurnos.length
-            });
-
-            if (!isMestre) {
-                debugLog('❌ Clique ignorado: usuário não é mestre');
-                return;
-            }
+            if (!isMestre) return;
 
             if (!rodadaAtiva) {
-                debugLog('🎲 Iniciando nova rodada');
+                // Inicia nova rodada
                 iniciarRodada();
             } else if (phase === 'master') {
-                debugLog('➡️ Avançando para próximo jogador');
+                // Avança para próximo jogador
                 proximoTurno();
-            } else {
-                debugLog('⚠️ Estado atual não permite ação:', { rodadaAtiva, phase });
             }
         });
-    } else {
-        debugLog('❌ Botão iniciar não encontrado no DOM. ID esperado: btnIniciarTurno');
     }
 
     if (btnRoll) {
@@ -581,15 +522,8 @@
     function onReceiveAction(data) {
         // Se não houver dados ou não tiver o campo 'acao', ignora
         if (!data || !data.acao) return;
-
         // Log para debug no console
         debugLog('📥 Ação recebida:', data);
-
-        // Garante que temos o stompClient
-        if (!stompClient) {
-            debugLog('⚠️ Ação recebida mas stompClient não está pronto');
-            return;
-        }
 
         // Pega o "card" do personagem, se houver personagemId na ação
         const card = data.personagemId ? getCardById(String(data.personagemId)) : null;
@@ -886,63 +820,60 @@
 
     // Configuração da integração com o WebSocket do chat-room.js
     function setupSocketIntegration() {
-        // Se já tiver cliente STOMP, usa ele
-        if (window.chatStomp?.stompClient) {
+        // Tenta reaproveitar o stompClient global já existente
+        if (window.chatStomp && window.chatStomp.stompClient) {
             stompClient = window.chatStomp.stompClient;
-            debugLog('✅ setupSocketIntegration inicializado com cliente existente');
-            setupListeners();
-            return;
-        }
+            debugLog('🔁 Reaproveitando stomp client do chat');
+        } else {
+            debugLog('⚙️ Nenhum stompClient encontrado — aguardando conexão ou criando fallback...');
 
-        // Se não tiver, aguarda o evento de conexão
-        document.addEventListener('stomp.connected', (ev) => {
-            stompClient = ev.detail.stompClient;
-            debugLog('✅ setupSocketIntegration inicializado via evento stomp.connected');
-            setupListeners();
-
-            // Re-envia estado atual para sincronizar
-            if (rodadaAtiva) {
-                enviarAcao({ acao: 'ordemTurnos', ordem: ordemTurnos });
-                enviarAcao({ acao: 'turnoAtual', personagemId: currentPlayerId });
-            }
-        });
-
-        function setupListeners() {
-            // Listener para mensagens de ação
-            document.addEventListener('ws.message', (ev) => {
+            // Aguarda o evento stomp.connected (disparado pelo chat-room.js)
+            document.addEventListener('stomp.connected', (ev) => {
                 try {
-                    const data = ev.detail;
-                    if (data.tipo === 'acao') {
-                        onReceiveAction(data);
+                    stompClient = ev.detail?.stompClient || window.chatStomp?.stompClient;
+                    if (stompClient) {
+                        debugLog('🔌 Conectado ao stomp via chat-room');
+                    } else {
+                        debugLog('⚠️ Evento stomp.connected recebido, mas sem stompClient válido.');
                     }
                 } catch (e) {
-                    console.warn('Erro ao processar mensagem:', e);
+                    console.warn('Erro ao integrar com chat-room:', e);
                 }
             });
-        }    // ========== INIT ==========
 
-    async function initializeManager() {
-        debugLog('🎲 room-manager v2.0 iniciando...');
+            // fallback: se passar um tempo e o stompClient ainda for nulo, cria um novo
+            setTimeout(() => {
+                if (!stompClient) {
+                    debugLog('⏱️ Nenhum stompClient detectado — criando nova conexão local.');
+                    WebSocketService.connect(
+                        wsUrl,
+                        channel,
+                        processMessage,
+                        () => {
+                            stompClient = WebSocketService.stompClient;
+                            window.chatStomp = WebSocketService; // define globalmente
+                            debugLog('🆕 Fallback stompClient criado.');
+                        },
+                        (err) => console.error('❌ Erro ao criar fallback STOMP:', err)
+                    );
+                }
+            }, 3000); // espera 3 segundos antes do fallback
+        }
 
-        // Tenta inicializar o WebSocket primeiro
-        await new Promise((resolve) => {
-            if (window.chatStomp?.stompClient) {
-                resolve();
-            } else {
-                document.addEventListener('stomp.connected', () => resolve(), { once: true });
+        // Listener para mensagens via WebSocket
+        document.addEventListener('ws.message', (ev) => {
+            try {
+                const data = ev.detail;
+                if (data.tipo === 'acao') {
+                    onReceiveAction(data);
+                }
+            } catch (e) {
+                console.warn('Erro ao processar mensagem:', e);
             }
         });
-
-        setupSocketIntegration();
-
-        // Resto da inicialização...
-        try {
-            await window.diceManager?.initialize();
-            debugLog('✅ Sistema de dados 3D inicializado');
-        } catch (err) {
-            console.error('Erro ao inicializar dados 3D:', err);
-        }
     }
+
+    // ========== INIT ==========
 
     // Manipulação de vida dos personagens
     function handleVidaChange(personagemId, valor, tipo) {
@@ -1068,27 +999,24 @@
 
     function init() {
         debugLog('🎲 room-manager v2.0 iniciando...');
+
+        // Core functionality
         setupSocketIntegration();
 
+        // Advanced features (commented for now)
+        /*
         // Setup do modal de valor
         modalValor = new bootstrap.Modal(document.getElementById('modalValor'));
 
-        // Botões do mestre
+        // Botões do mestre avançados
         const btnDano = document.getElementById('btn-dano');
         const btnCurar = document.getElementById('btn-curar');
-
-        if (btnDano) {
-            btnDano.addEventListener('click', () => ativarModoMestre('dano'));
-        }
-
-        if (btnCurar) {
-            btnCurar.addEventListener('click', () => ativarModoMestre('cura'));
-        }
-
         const btnUpar = document.getElementById('btn-upar');
-        if (btnUpar) {
-            btnUpar.addEventListener('click', () => ativarModoMestre('up'));
-        }
+
+        if (btnDano) btnDano.addEventListener('click', () => ativarModoMestre('dano'));
+        if (btnCurar) btnCurar.addEventListener('click', () => ativarModoMestre('cura'));
+        if (btnUpar) btnUpar.addEventListener('click', () => ativarModoMestre('up'));
+        */
 
         // Handler para click nos cards
         function cardClickHandler(event) {
