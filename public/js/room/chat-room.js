@@ -77,33 +77,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function connectChat() {
         addMessage(`🟢 Conectando ao chat como "${userName}"...`);
 
-        // Registra handlers de eventos
-        document.addEventListener('stomp.connected', () => {
-            addMessage('✅ Conectado ao servidor!', 'Sistema');
+        // Remove antigos para evitar múltiplas execuções
+        document.removeEventListener('stomp.connected', onStompConnected);
+        document.removeEventListener('stomp.error', onStompError);
+        document.removeEventListener('stomp.disconnected', onStompDisconnected);
 
-            const entradaMsg = {
-                tipo: 'entrada',
-                conteudo: `${userName} entrou na sala "${channel}"`,
-                autor: userName,
-                userId,
-                salaId
-            };
-            ws.send('/app/enviar/' + channel, entradaMsg);
-
-            // Inscreve no canal da sala com callback de processamento
-            ws.subscribe(channel, processMessage);
-
-            console.log('📡 Chat conectado e inscrito no canal', channel);
-        });
-
-        document.addEventListener('stomp.error', (event) => {
-            console.error('❌ Erro ao conectar:', event.detail?.error);
-            addMessage('⚠️ Falha ao conectar ao chat.', 'Sistema');
-        });
-
-        document.addEventListener('stomp.disconnected', () => {
-            addMessage('🔴 Desconectado do chat.', 'Sistema');
-        });
+        // Registra novamente
+        document.addEventListener('stomp.connected', onStompConnected);
+        document.addEventListener('stomp.error', onStompError);
+        document.addEventListener('stomp.disconnected', onStompDisconnected);
 
         // Inicia conexão
         if (!ws.getStatus().isConnected) {
@@ -112,6 +94,30 @@ document.addEventListener('DOMContentLoaded', () => {
             // Se já estiver conectado, apenas inscreve no canal
             ws.subscribe(channel, processMessage);
         }
+    }
+
+    // ======= TRATADOR DE CONECTAR =======
+    function onStompConnected() {
+        addMessage('✅ Conectado ao servidor!', 'Sistema');
+        const entradaMsg = {
+            tipo: 'entrada',
+            conteudo: `${userName} entrou na sala "${channel}"`,
+            autor: userName,
+            userId,
+            salaId
+        };
+        ws.send('/app/enviar/' + channel, entradaMsg);
+        ws.subscribe(channel, processMessage);
+    }
+
+    // ======= TRATADORES DE EVENTOS STOMP =======
+    function onStompError(event) {
+        addMessage('⚠️ Falha ao conectar ao chat.', 'Sistema');
+    }
+
+    // ======= TRATADOR DE DESCONECTAR =======
+    function onStompDisconnected() {
+        addMessage('🔴 Desconectado do chat.', 'Sistema');
     }
 
     // ======= FUNÇÃO DE ENVIO DE MENSAGEM =======
