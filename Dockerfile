@@ -71,11 +71,9 @@ RUN npm run build \
     && composer dump-autoload \
     && php artisan package:discover
 
-# === CORREÇÃO DE PERMISSÕES - APENAS ESTA PARTE FOI MODIFICADA ===
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html \
-    && chmod -R 775 storage bootstrap/cache \
-    && chown -R www-data:www-data /var/www/html/public/build
+# Ajusta permissões APENAS nas pastas essenciais
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 # Copia entrypoint
 COPY entrypoint.sh /entrypoint.sh
