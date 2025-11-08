@@ -15,10 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ======= ELEMENTOS =======
     const messages = document.getElementById('chat-messages');
+    const systemLogs = document.getElementById('system-logs');
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
 
-    if (!messages || !chatInput || !chatSend) {
+    if (!messages || !chatInput || !chatSend || !systemLogs) {
         console.warn('⚠️ Elementos de chat não encontrados no DOM.');
         return;
     }
@@ -44,29 +45,47 @@ document.addEventListener('DOMContentLoaded', () => {
         messages.scrollTop = messages.scrollHeight;
     }
 
+    // ======= FUNÇÕES DE ADIÇÃO DE MENSAGEM =======
+    function addMessage(text, sender = 'Sistema', isSystemMessage = false) {
+        const container = isSystemMessage ? systemLogs : messages;
+        const div = document.createElement('div');
+        const isSelf = !isSystemMessage && sender === userName;
+
+        div.className = `d-flex flex-column mb-2 ${isSelf ? 'align-items-end' : 'align-items-start'}`;
+        div.innerHTML = `
+            <div class="p-2 rounded ${isSelf ? 'bg-primary text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-secondary text-light'}">
+                <small class="d-block fw-bold opacity-75">${sender}</small>
+                <span>${text}</span>
+            </div>
+        `;
+
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
     // ======= PROCESSAR MENSAGEM =======
     function processMessage(data) {
         if (!data) return;
 
-        // Processa mensagens específicas do chat e sistema
+        // Processa mensagens específicas do chat
         if (!data.tipo || data.tipo === 'chat') {
-            if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema');
+            if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema', false);
             return;
         }
 
-        // Mensagens do sistema também aparecem no chat
+        // Processa mensagens do sistema
         switch (data.tipo) {
             case 'sistema':
-                addMessage(data.conteudo, '🤖 Sistema');
+                addMessage(data.conteudo, '🤖 Sistema', true);
                 break;
             case 'entrada':
-                addMessage(`🟢 ${data.autor} entrou na sala`, '🤖 Sistema');
+                addMessage(`🟢 ${data.autor} entrou na sala`, '🤖 Sistema', true);
                 break;
             case 'saida':
-                addMessage(`🔴 ${data.autor} saiu da sala`, '🤖 Sistema');
+                addMessage(`🔴 ${data.autor} saiu da sala`, '🤖 Sistema', true);
                 break;
             case 'erro':
-                addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema');
+                addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema', true);
                 break;
             // Ignora outros tipos (ações do jogo são tratadas pelo room-manager)
         }
