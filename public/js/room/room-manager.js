@@ -4,6 +4,8 @@
    - webSocketService.js loaded
    - Bootstrap
    - window.CHAT_CONFIG = { userId, userLogin, salaId, wsUrl, isMestre, role }
+   - Revisar codigo js do chat-room.js
+   - Separar funcoes de mestre e player
 */
 (function () {
     // ====== CONFIG / STATE ======
