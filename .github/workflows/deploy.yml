@@ -1,0 +1,88 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Baixar código
+        uses: actions/checkout@v4
+
+      - name: 🔧 Instalar ZeroTier
+        run: |
+          curl -s https://install.zerotier.com | sudo bash
+
+      - name: 🌐 Conectar e autorizar na ZeroTier
+        run: |
+          echo "📡 Entrando na rede ZeroTier..."
+          sudo zerotier-cli join ${{ secrets.ZEROTIER_NETWORK_ID }}
+          sleep 10
+
+          echo "🆔 Obtendo Node ID..."
+          NODE_ID=$(sudo zerotier-cli info | cut -d ' ' -f 3)
+          echo "Node ID: $NODE_ID"
+
+          echo "🔑 Autorizando node via API..."
+          curl -X POST \
+            -H "Authorization: bearer ${{ secrets.ZEROTIER_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"config\": {\"authorized\": true}}" \
+            "https://api.zerotier.com/api/v1/network/${{ secrets.ZEROTIER_NETWORK_ID }}/member/$NODE_ID"
+
+          echo "⏳ Aguardando configuração de rede..."
+          sleep 15
+
+          echo "🌐 Testando conectividade com o servidor..."
+          ping -c 3 ${{ secrets.ZEROTIER_SERVER_IP }} || echo "Ping não respondeu, mas continuando..."
+
+      - name: 🔑 Configurar SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 🚀 Executar deploy no servidor
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.ZEROTIER_SERVER_IP }} << 'EOF'
+            cd /var/www/forgeaction/Forgeaction
+            git pull origin main
+            docker rm forgeaction-front -f
+            docker build -t forgeaction-front:latest .
+            docker run -d   --name forgeaction-front   --network bridge   -p 80:8080   -p 8080:8080   forgeaction-front:latest
+            echo "✅ Deploy concluído!"
+          EOF
+
+      - name: 🧹 Remover node da ZeroTier
+        if: always()
+        run: |
+          echo "🧹 Iniciando limpeza do ZeroTier..."
+
+          # Tentar obter Node ID atual
+          NODE_ID=""
+          if command -v zerotier-cli > /dev/null 2>&1; then
+            NODE_ID=$(sudo zerotier-cli info 2>/dev/null | cut -d ' ' -f 3) || true
+            echo "Node ID para remover: $NODE_ID"
+          fi
+
+          # Remover da rede localmente
+          echo "Removendo da rede localmente..."
+          sudo zerotier-cli leave ${{ secrets.ZEROTIER_NETWORK_ID }} 2>/dev/null || true
+          sleep 2
+
+          # Remover via API se temos Node ID e Token
+          if [ ! -z "$NODE_ID" ] && [ ! -z "${{ secrets.ZEROTIER_API_TOKEN }}" ]; then
+            echo "Removendo node $NODE_ID via API..."
+            curl -s -X DELETE \
+              -H "Authorization: bearer ${{ secrets.ZEROTIER_API_TOKEN }}" \
+              "https://api.zerotier.com/api/v1/network/${{ secrets.ZEROTIER_NETWORK_ID }}/member/$NODE_ID" > /dev/null 2>&1 || echo "API delete falhou (pode ser normal)"
+          else
+            echo "Não foi possível remover via API (Node ID ou Token faltando)"
+          fi
+
+          # Parar serviço ZeroTier para garantir
+          sudo systemctl stop zerotier-one > /dev/null 2>&1 || true
+
+          echo "✅ Limpeza do ZeroTier concluída!"
