@@ -58,7 +58,7 @@ class SalaController extends Controller
     public function invite()
     {
         return response()->json(
-            $this->api->get("api/usuarios")
+            $this->api->get("api/usuario")
         );
     }
 
