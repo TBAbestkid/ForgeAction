@@ -42,7 +42,7 @@ $(document).ready(function () {
 
                 // 2️⃣ Depois busca todos os usuários
                 $.ajax({
-                    url: '/usuarios',
+                    url: '/usuario',
                     type: 'GET',
                     success: function (response) {
                         if (response.status !== 'success' || !Array.isArray(response.data)) {

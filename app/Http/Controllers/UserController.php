@@ -17,7 +17,7 @@ class UserController extends Controller
     }
 
     /**
-     * GET /api/usuarios
+     * GET /api/usuario
      * Retorna todos os usuarios
      */
     public function get() {
@@ -27,7 +27,7 @@ class UserController extends Controller
     }
 
     /**
-     * GET /api/usuarios/{id}
+     * GET /api/usuario/{id}
      * Retorna o usuario pelo ID
      */
     public function getById($usuarioId) {

@@ -92,10 +92,10 @@ Route::put('/perfil/email', [UserController::class, 'updateEmail'])->name('profi
 Route::put('/perfil/role', [UserController::class, 'updateRole'])->name('profile.updateRole');
 Route::put('/perfil/senha', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
 // 🔹 Rota para listar todos os usuários
-Route::get('/usuarios', [UserController::class, 'get'])->name('api.users.list');
+Route::get('/usuario', [UserController::class, 'get'])->name('api.users.list');
 
 // 🔹 Rota para buscar um usuário específico
-Route::get('/usuarios/{usuarioId}', [UserController::class, 'getById'])->name('api.users.show');
+Route::get('/usuario/{usuarioId}', [UserController::class, 'getById'])->name('api.users.show');
 
 /*
  *--------------------------------------------
@@ -145,7 +145,7 @@ Route::prefix('api')->group(function () {
     Route::delete('/salas/personagens/remover/{salaId}/{personagemId}', [SalaApiController::class, 'removerPersonagem'])->name('api.salas.personagens.remover');
 
     // ---------- CONVITES / USUÁRIOS ----------
-    Route::get('/usuarios', [SalaController::class, 'invite'])->name('api.usuarios.invite');
+    Route::get('/usuario', [SalaController::class, 'invite'])->name('api.usuarios.invite');
     Route::post('/enviar-invite', [SalaController::class, 'sendInvite'])->name('api.enviar.invite');
     Route::get('/convite/{token}', [SalaController::class, 'acceptInvite'])->name('api.invite.accept');
 });
