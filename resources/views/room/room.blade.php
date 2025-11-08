@@ -471,19 +471,36 @@
             @endif
 
             {{-- Botão para abrir/fechar chat --}}
-            <button id="chat-toggle-btn"
-                    class="btn btn-sm btn-warning mt-2 d-flex align-items-center gap-1"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#chat-container"
-                    aria-expanded="false"
-                    aria-controls="chat-container">
-                <i class="fa-solid fa-comment"></i> Chat
-            </button>
+            {{-- Container de Chat e Logs --}}
+            <div class="d-flex gap-2 mt-2">
+                {{-- Botão para abrir/fechar chat --}}
+                <button id="chat-toggle-btn"
+                        class="btn btn-sm btn-warning flex-grow-1 d-flex align-items-center justify-content-center gap-1"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#chat-container"
+                        aria-expanded="false"
+                        aria-controls="chat-container">
+                    <i class="fa-solid fa-comment"></i> Chat
+                </button>
 
-            {{-- Chat com collapse --}}
-            <div id="chat-container" class="collapse mt-2">
-                <div class="d-flex flex-column bg-dark rounded p-3 text-white"
+                {{-- Botão para abrir/fechar logs --}}
+                <button id="logs-toggle-btn"
+                        class="btn btn-sm btn-info flex-grow-1 d-flex align-items-center justify-content-center gap-1"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#logs-container"
+                        aria-expanded="false"
+                        aria-controls="logs-container">
+                    <i class="fa-solid fa-list-ul"></i> Logs
+                </button>
+            </div>
+
+            {{-- Container do sistema de mensagens --}}
+            <div class="d-flex gap-2 mt-2">
+                {{-- Chat com collapse --}}
+                <div id="chat-container" class="collapse flex-grow-1">
+                    <div class="d-flex flex-column bg-dark rounded p-3 text-white h-100"
                     style="min-height:150px; max-height:40vh; overflow:hidden;">
                     <strong>Chat da Sala:</strong>
                     <div id="chat-messages" class="flex-grow-1 d-flex flex-column gap-2 overflow-auto">
@@ -492,6 +509,13 @@
                     <div class="d-flex mt-2">
                         <input type="text" class="form-control me-2" placeholder="Digite sua mensagem..." id="chat-input">
                         <button class="btn btn-primary" id="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                {{-- Logs com collapse --}}
+                <div id="logs-container" class="collapse flex-grow-1">
+                    <div class="d-flex flex-column bg-dark rounded p-3 text-white h-100">
+                        <div id="system-logs" class="flex-grow-1 overflow-auto" style="max-height: 300px;"></div>
                     </div>
                 </div>
             </div>
