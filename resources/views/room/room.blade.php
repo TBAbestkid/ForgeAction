@@ -471,6 +471,7 @@
             @endif
 
             {{-- Botão para abrir/fechar chat --}}
+            {{-- Isso foi? --}}
             {{-- Container de Chat e Logs --}}
             <div class="d-flex gap-2 mt-2">
                 {{-- Botão para abrir/fechar chat --}}
