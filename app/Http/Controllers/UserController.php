@@ -17,22 +17,22 @@ class UserController extends Controller
     }
 
     /**
-     * GET /api/usuario
+     * GET /usuario
      * Retorna todos os usuarios
      */
     public function get() {
         return response()->json(
-            $this->api->get("api/usuario")
+            $this->api->get("usuario")
         );
     }
 
     /**
-     * GET /api/usuario/{id}
+     * GET /usuario/{id}
      * Retorna o usuario pelo ID
      */
     public function getById($usuarioId) {
         return response()->json(
-            $this->api->get("api/usuario/{$usuarioId}")
+            $this->api->get("usuario/{$usuarioId}")
         );
     }
 
