@@ -634,13 +634,12 @@
 
                         // Habilita/desabilita botões + e - baseado nos pontos
                         atributos.forEach(div => {
-                            const nome = div.dataset.nome;
+                            const nome = div.dataset.nome; // Nome do atributo (forca, agilidade, etc.)
                             const btnMenos = div.querySelector('.btn-outline-danger');
                             const btnMais = div.querySelector('.btn-outline-info');
 
                             if (btnMenos) btnMenos.disabled = !pontosDistribuidos[nome];
                             if (btnMais) btnMais.disabled = pontosDisponiveis <= 0;
-                            const nome = div.dataset.nome; // Nome do atributo (forca, agilidade, etc.)
                             const adicional = pontosDistribuidos[nome] || 0; // Pontos distribuídos nesse atributo
                             // Procura span existente para mostrar pontos adicionais ou cria novo
                             const spanAdicional = div.querySelector('.text-info') || div.querySelector('span') || document.createElement('span');
@@ -661,7 +660,8 @@
                             });
                         });
                     }
-                     // ===================== BOTÕES + E - PARA CADA ATRIBUTO =====================
+
+                    // ===================== BOTÕES + E - PARA CADA ATRIBUTO =====================
                     atributos.forEach(div => {
                         const nome = div.dataset.nome; // Nome do atributo
                         const valorBase = parseInt(div.dataset.valorBase, 10); // Valor base do atributo
