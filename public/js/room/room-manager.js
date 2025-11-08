@@ -582,6 +582,166 @@
                     debugLog('✅ Jogada extra liberada para o jogador');
                 }
                 break;
+            case 'playerPassed':
+                // Pode ser usado para outras lógicas se necessário
+                break;
+            case 'upgradeReceived':
+                if (String(data.usuarioId) === userId) {
+                    debugLog('🎉 Você recebeu um upgrade!');
+                    const collapse = document.getElementById('collapseAtributos');
+                    collapse.classList.add('show');
+
+                    collapse.querySelectorAll('.btn-up-atributo').forEach(btn => btn.remove());
+
+                    const atributos = collapse.querySelectorAll('.bg-dark'); // Seleciona cada div que representa um atributo
+                    let pontosDisponiveis = 5; // Número total de pontos que o jogador pode distribuir
+                    let pontosDistribuidos = {};
+
+                    // Contém texto de pontos disponíveis + botões Reset e Salvar
+                    const headerContainer = document.createElement('div');
+                    headerContainer.className = 'd-flex justify-content-center align-items-center gap-2 mt-2 mb-3';
+
+                    // Texto de pontos disponíveis
+                    const spanPontos = document.createElement('div');
+                    spanPontos.className = 'text-warning';
+                    spanPontos.textContent = `Pontos disponíveis: ${pontosDisponiveis}`;
+                    headerContainer.appendChild(spanPontos);
+
+                    // Botão para resetar distribuição
+                    const btnReset = document.createElement('button');
+                    btnReset.className = 'btn btn-sm btn-outline-warning';
+                    btnReset.textContent = 'Resetar Distribuição';
+                    btnReset.disabled = true; // Desabilitado inicialmente, será habilitado quando houver pontos distribuídos
+                    headerContainer.appendChild(btnReset);
+
+                    // Botão de salvar (com ícone fa-save)
+                    const btnSalvar = document.createElement('button');
+                    btnSalvar.className = 'btn btn-sm btn-outline-success';
+                    btnSalvar.innerHTML = '<i class="fas fa-save"></i> Salvar';
+                    headerContainer.appendChild(btnSalvar);
+
+                    // Insere o header no topo do collapse, antes do primeiro filho da card-body
+                    collapse.querySelector('.card-body').insertBefore(
+                        headerContainer,
+                        collapse.querySelector('.card-body').firstChild
+                    );
+
+                    function atualizarInterface() {
+                        // Atualiza o texto de pontos disponíveis
+                        spanPontos.textContent = `Pontos disponíveis: ${pontosDisponiveis}`;
+                        // Habilita/desabilita botão Reset dependendo se há pontos distribuídos
+                        btnReset.disabled = Object.values(pontosDistribuidos).every(v => v === 0);
+
+                        // Habilita/desabilita botões + e - baseado nos pontos
+                        atributos.forEach(div => {
+                            const nome = div.dataset.nome;
+                            const btnMenos = div.querySelector('.btn-outline-danger');
+                            const btnMais = div.querySelector('.btn-outline-info');
+
+                            if (btnMenos) btnMenos.disabled = !pontosDistribuidos[nome];
+                            if (btnMais) btnMais.disabled = pontosDisponiveis <= 0;
+                            const nome = div.dataset.nome; // Nome do atributo (forca, agilidade, etc.)
+                            const adicional = pontosDistribuidos[nome] || 0; // Pontos distribuídos nesse atributo
+                            // Procura span existente para mostrar pontos adicionais ou cria novo
+                            const spanAdicional = div.querySelector('.text-info') || div.querySelector('span') || document.createElement('span');
+                            spanAdicional.className = 'text-info ms-1';
+                            spanAdicional.textContent = adicional > 0 ? ` (+${adicional})` : '';
+                            spanAdicional.style.display = adicional > 0 ? 'inline' : 'none';
+
+                            // Garante que o span está no DOM
+                            div.appendChild(spanAdicional);
+
+                            // Envia atualização para o backend/WebSocket em tempo real
+                            enviarAcao({
+                                acao: 'atributoUpado',
+                                personagemId: data.personagemId,
+                                atributo: nome.toLowerCase(),
+                                valorBase: parseInt(div.dataset.valorBase, 10),
+                                adicional: adicional
+                            });
+                        });
+                    }
+                     // ===================== BOTÕES + E - PARA CADA ATRIBUTO =====================
+                    atributos.forEach(div => {
+                        const nome = div.dataset.nome; // Nome do atributo
+                        const valorBase = parseInt(div.dataset.valorBase, 10); // Valor base do atributo
+                        pontosDistribuidos[nome] = 0; // Inicializa contador de pontos distribuídos
+
+                        // Container para os botões + e -
+                        const botoesContainer = document.createElement('div');
+                        botoesContainer.className = 'ms-2 d-flex gap-1 align-items-center';
+
+                        // Botão de remover ponto
+                        const btnMenos = document.createElement('button');
+                        btnMenos.className = 'btn btn-sm btn-outline-danger btn-up-atributo';
+                        btnMenos.innerHTML = '<i class="fa-solid fa-minus"></i>';
+                        btnMenos.disabled = true; // Desabilitado inicialmente, pois não há pontos distribuídos
+
+                        // Botão de adicionar ponto
+                        const btnMais = document.createElement('button');
+                        btnMais.className = 'btn btn-sm btn-outline-info btn-up-atributo';
+                        btnMais.innerHTML = '<i class="fa-solid fa-plus"></i>';
+
+                        // Funções de clique
+                        btnMais.onclick = () => {
+                            if (pontosDisponiveis > 0) {
+                                pontosDistribuidos[nome]++;
+                                pontosDisponiveis--;
+                                atualizarInterface(); // Atualiza UI e envia WS
+                            }
+                        };
+                        btnMenos.onclick = () => {
+                            if (pontosDistribuidos[nome] > 0) {
+                                pontosDistribuidos[nome]--;
+                                pontosDisponiveis++;
+                                atualizarInterface(); // Atualiza UI e envia WS
+                            }
+                        };
+
+                        // Adiciona os botões ao container
+                        botoesContainer.appendChild(btnMenos);
+                        botoesContainer.appendChild(btnMais);
+
+                        // Adiciona o container dentro da div do atributo
+                        div.appendChild(botoesContainer);
+                    });
+
+                    // ===================== EVENTOS DO HEADER =====================
+                    // Resetar todos os pontos
+                    btnReset.onclick = () => {
+                        Object.keys(pontosDistribuidos).forEach(attr => pontosDistribuidos[attr] = 0);
+                        pontosDisponiveis = 5;
+                        atualizarInterface();
+                    };
+
+                    // Botão salvar: aqui você implementaria o envio dos dados para o backend
+                    btnSalvar.onclick = () => {
+                        if (pontosDisponiveis > 0) {
+                            modalShow('Você ainda tem pontos disponíveis para distribuir!');
+                            return;
+                        }
+
+                        console.log('💾 Salvando atributos...', pontosDistribuidos);
+                        /*
+                            Exemplo de payload para enviar ao backend:
+                            {
+                                "forca": x,
+                                "agilidade": x,
+                                "inteligencia": x,
+                                "destreza": x,
+                                "vitalidade": x,
+                                "percepcao": x,
+                                "sabedoria": x,
+                                "carisma": x
+                            }
+                        */
+
+                        // Desativar modo de upgrade
+                        ativarModoMestre(null);
+                    };
+                }
+            break;
+
         }
     }
 
