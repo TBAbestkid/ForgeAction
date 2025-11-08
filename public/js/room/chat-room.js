@@ -1,3 +1,4 @@
+// E isso também foi?
 document.addEventListener('DOMContentLoaded', () => {
     // Referência ao serviço WebSocket global
     const ws = window.AppWebSocket;
