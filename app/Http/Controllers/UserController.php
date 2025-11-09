@@ -22,7 +22,7 @@ class UserController extends Controller
      */
     public function get() {
         return response()->json(
-            $this->api->get("view/usuario")
+            $this->api->get("api/usuario")
         );
     }
 
@@ -32,7 +32,7 @@ class UserController extends Controller
      */
     public function getById($usuarioId) {
         return response()->json(
-            $this->api->get("view/usuario/{$usuarioId}")
+            $this->api->get("api/usuario/{$usuarioId}")
         );
     }
 

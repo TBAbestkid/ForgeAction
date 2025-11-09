@@ -299,7 +299,7 @@ class SalaController extends Controller
 
         // 🔹 Monta mapa de usuários (idealmente com endpoint em lote)
         $usuarios = $membros->pluck('usuarioId')->unique()->mapWithKeys(function ($idUsuario) {
-            $res = $this->api->get("view/usuario/{$idUsuario}");
+            $res = $this->api->get("api/usuario/{$idUsuario}");
             return [$idUsuario => $res['data']['login'] ?? 'Desconhecido'];
         });
 
