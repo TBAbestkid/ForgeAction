@@ -99,7 +99,7 @@ class UserController extends Controller
             'senhaNova'  => $request->senha,
         ]);
 
-        $loginResponse = $this->api->post('login', [
+        $loginResponse = $this->api->post('api/login', [
             'login' => session('user_login'),
             'senha' => $request->senhaAtual,
         ]);
