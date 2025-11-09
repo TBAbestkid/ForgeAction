@@ -122,6 +122,7 @@ Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
 Route::get('/salas/criar', [SalaController::class, 'createRoom'])->name('salas.create');
 Route::get('/salas/{id}', [SalaController::class, 'room'])->name('room.room');
 Route::post('/salas/personagens/adicionar/{salaId}', [SalaController::class, 'adicionarPersonagem']);
+Route::get('/salas/entrar/codigo', [SalaController::class, 'enterByCode'])->name('salas.codigo.entrar');
 
 
 // ---------- ROTAS DE API PARA SALAS ----------
@@ -148,4 +149,8 @@ Route::prefix('api')->group(function () {
     Route::get('/usuario', [SalaController::class, 'invite'])->name('api.usuarios.invite');
     Route::post('/enviar-invite', [SalaController::class, 'sendInvite'])->name('api.enviar.invite');
     Route::get('/convite/{token}', [SalaController::class, 'acceptInvite'])->name('api.invite.accept');
+
+    // ---------- CODIGO DE SALA ----------
+    Route::get('/codigo/{codigo}', [SalaApiController::class, 'getByCode'])->name('api.salas.codigo');
+    Route::post('/codigo/adicionar', [SalaApiController::class, 'adicionarPersonagemByCode'])->name('api.salas.codigo.adiciona');
 });

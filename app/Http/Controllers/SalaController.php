@@ -79,9 +79,6 @@ class SalaController extends Controller
 
     public function sendInvite(Request $request)
     {
-        // Log do request
-        // Log::info('sendInvite - request recebido', $request->all());
-
         $request->validate([
             'email' => 'required|email',
             'salaId' => 'required|integer'
@@ -263,6 +260,53 @@ class SalaController extends Controller
             return redirect()->route('room.room', ['id' => $salaId]);
         }
 
+        return view('room.selection', [
+            'sala' => $sala,
+            'personagens' => $personagens
+        ]);
+    }
+
+    public function enterByCode(Request $request)
+    {
+        $code = $request->query('codigo');
+        $userId = session('user_id');
+
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Você precisa estar logado para entrar na sala.');
+        }
+
+        // Busca sala pelo código
+        $salaResponse = $this->api->get("api/codigo/{$code}");
+
+        if (!isset($salaResponse['status']) || $salaResponse['status'] !== 'success') {
+            return redirect()->route('salas.index')->withErrors(['codigo' => 'Código inválido ou sala não encontrada.']);
+        }
+
+        $sala = $salaResponse['data'] ?? null;
+        if (!$sala) {
+            return redirect()->route('salas.index')->withErrors(['codigo' => 'Sala não encontrada.']);
+        }
+
+        // Busca personagens do usuário
+        $personagensResponse = $this->api->get("api/personagem/usuario/{$userId}");
+        $personagens = $personagensResponse['data'] ?? [];
+
+        if (empty($personagens)) {
+            return redirect()->route('personagem.create')
+                ->with('info', 'Você precisa criar um personagem antes de entrar na sala.');
+        }
+
+        // Se já tiver personagem selecionado, adiciona automaticamente
+        if (session()->has('selected_character')) {
+            $personagemId = session('selected_character.id');
+
+            // 🔹 Faz a requisição POST para a rota API de adicionar personagem
+            $this->api->post("api/codigo/{$code}/personagens/{$personagemId}");
+
+            return redirect()->route('room.room', ['id' => $sala['id']]);
+        }
+
+        // Caso contrário, manda pra tela de seleção
         return view('room.selection', [
             'sala' => $sala,
             'personagens' => $personagens

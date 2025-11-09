@@ -130,4 +130,25 @@ class SalaApiController extends Controller
         );
     }
 
+    // ---------- Code by Sala ----------
+
+    /**
+     * GET /api/codigo/{code}
+     * Retorna o código único de uma sala
+     */
+    public function getByCode($code) {
+        return response()->json(
+            $this->api->get("api/codigo/{$code}")
+        );
+    }
+
+    /**
+     * POST /api/codigo/{code}/personagens/{personagemId}
+     * Adiciona um personagem a uma sala usando o código único
+     */
+    public function adicionarPersonagemByCode($code, $personagemId) {
+        return response()->json(
+            $this->api->post("api/codigo/{$code}/personagens/{$personagemId}")
+        );
+    }
 }

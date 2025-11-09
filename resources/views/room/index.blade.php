@@ -9,54 +9,73 @@
 
         <!-- Botão de Voltar -->
         <div class="text-start">
-            <a href="{{ url('/') }}" class="btn btn-outline-light mb-4">
-                <i class="fa-solid fa-arrow-left me-1"></i> Voltar para Home
+            <a href="{{ url('/') }}" class="btn btn-outline-light mb-4 px-4 py-2 rounded-pill shadow-sm">
+                <i class="fa-solid fa-arrow-left me-2"></i> Voltar para Home
             </a>
         </div>
 
-        <!-- Barra de pesquisa -->
-        <div class="input-group mb-4 form-control-lg">
-            <span class="input-group-text bg-dark text-light">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </span>
-            <input type="text" id="filterSalas" class="form-control bg-dark text-white" placeholder="Pesquisar salas por nome ou descrição...">
+        <!-- Barra de pesquisa + botão Entrar -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+            <!-- Barra de pesquisa -->
+            <div class="search-wrapper flex-grow-1">
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-secondary text-light border-0">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="filterSalas"
+                        class="form-control bg-dark text-white border-0"
+                        placeholder="Pesquisar salas por nome ou descrição...">
+                </div>
+            </div>
+
+            <!-- Botão de entrar -->
+            <div class="text-end">
+                <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm"
+                        data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
+                    <i class="fa-solid fa-door-open me-2"></i> Entrar em Sala
+                </button>
+            </div>
         </div>
 
-        <div id="salas-container">
+        <!-- Lista de Salas -->
+        <div id="salas-container" class="d-flex flex-column gap-5">
+
             <!-- Minhas Salas -->
             @if(session('user_role') === 'MASTER')
                 <div>
-                    <h2 class="font-medieval mb-3">Minhas Salas</h2>
+                    <h2 class="font-medieval mb-3 text-warning">Minhas Salas</h2>
                     <div id="minhas-salas" class="d-flex flex-column gap-3">
                         @forelse($minhasSalas as $sala)
-                            <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white"
-                                href="/salas/{{ $sala['id'] }}" style="houve-cursor: pointer;">
+                            <div class="sala-card p-3 rounded-4 bg-dark text-white shadow-sm hover-glow d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>{{ $sala['nome'] }}</strong><br>
-                                    <small class="text-light">{{ $sala['descricao'] }}</small>
+                                    <strong class="fs-5">{{ $sala['nome'] }}</strong><br>
+                                    <small class="text-light opacity-75">{{ $sala['descricao'] }}</small>
                                 </div>
 
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-secondary me-2">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="badge bg-secondary px-3 py-2 rounded-pill">
                                         {{ $sala['total_jogadores'] ?? 0 }} jogador(es)
                                     </span>
 
-                                    {{-- 🔹 Botões de ação iguais aos do JS --}}
-                                    <div class="btn-group">
-                                        <a href="#" class="btn btn-sm btn-outline-warning">
+                                    <div class="btn-group" role="group">
+                                        <a href="#" class="btn btn-sm btn-outline-warning" title="Editar">
                                             <i class="fa-solid fa-pen"></i>
                                         </a>
-                                        <button class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ $sala['id'] }}">
+                                        <button class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ $sala['id'] }}" title="Excluir">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-success btn-invite" data-id="{{ $sala['id'] }}">
+                                        <button class="btn btn-sm btn-outline-success btn-invite" data-id="{{ $sala['id'] }}" title="Convidar">
                                             <i class="fa-solid fa-user-plus"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-light btn-copy" value="{{ $sala['codigo'] }}" title="Copiar código" id="btnCopyCode">
+                                            <i class="fa-solid fa-clipboard"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         @empty
-                            <div class="alert alert-info">
+                            <div class="alert alert-info bg-opacity-10 border-light text-light">
                                 <i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala criada.
                             </div>
                         @endforelse
@@ -66,40 +85,36 @@
 
             <!-- Salas que participo -->
             <div>
-                <h2 class="font-medieval mb-3">Salas que participo</h2>
+                <h2 class="font-medieval mb-3 text-warning">Salas que participo</h2>
                 <div id="salas-participando" class="d-flex flex-column gap-3">
                     @forelse($outrasSalas as $sala)
                         @if(is_array($sala))
-                            <div class="sala-card p-3 rounded d-flex justify-content-between align-items-center bg-dark text-white"
-                                href="/salas/{{ $sala['id'] }}" style="houve-cursor: pointer;" onclick="window.location.href='/salas/{{ $sala['id'] }}'">
+                            <div class="sala-card p-3 rounded-4 bg-dark text-white shadow-sm hover-glow d-flex justify-content-between align-items-center"
+                                onclick="window.location.href='/salas/{{ $sala['id'] }}'">
                                 <div>
-                                    <strong>{{ $sala['nome'] ?? '—' }}</strong><br>
-                                    <small class="text-light">{{ $sala['descricao'] ?? '' }}</small>
+                                    <strong class="fs-5">{{ $sala['nome'] ?? '—' }}</strong><br>
+                                    <small class="text-light opacity-75">{{ $sala['descricao'] ?? '' }}</small>
                                 </div>
 
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-secondary me-2">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="badge bg-secondary px-3 py-2 rounded-pill">
                                         {{ $sala['total_jogadores'] ?? 0 }} jogador(es)
                                     </span>
 
-                                    {{-- 🔹 Apenas botão de sair para jogador --}}
-                                    <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-danger btn-leave" data-id="{{ $sala['id'] }}">
-                                            <i class="fa-solid fa-door-open"></i> Sair
-                                        </button>
-                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger btn-leave" data-id="{{ $sala['id'] }}" title="Sair da sala">
+                                        <i class="fa-solid fa-door-open"></i> Sair
+                                    </button>
                                 </div>
                             </div>
                         @endif
                     @empty
-                        <div class="alert alert-info">
+                        <div class="alert alert-info bg-opacity-10 border-light text-light">
                             <i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala participando.
                         </div>
                     @endforelse
                 </div>
             </div>
         </div>
-
     </div>
 
     <!-- Coluna lateral: apenas para MASTER -->
@@ -132,7 +147,29 @@
             </div>
         </div> --}}
     {{-- @endif --}}
-
+    <!-- Modal: Inserir Código -->
+    <div class="modal fade" id="modalSalabyCode" tabindex="-1" aria-labelledby="modalCodeLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-dark">
+                <div class="modal-header bg-light">
+                    <h1 class="modal-title fs-5 d-flex align-items-center" id="modalCodeLabel">
+                        <i class="fa-solid fa-key text-primary me-2"></i> Entrar na sala com código
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary mb-3">Digite o código da sala que você recebeu:</p>
+                    <input type="text" id="inputCodigoSala" class="form-control form-control-lg text-center" placeholder="Ex: ABC123" maxlength="10">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnEntrarSalaCodigo">
+                        <i class="fa-solid fa-door-open me-1"></i> Entrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @include('partials/alerts')
 @include('partials/invite')
@@ -149,6 +186,50 @@
 <script src="{{ asset('js/room/exit.js') }}"></script>
 <script src="{{ asset('js/room/delete.js') }}"></script>
 <script>
+    const btnCopyCode = document.getElementById('btnCopyCode');
+
+    // ======== COPIAR CÓDIGO DA SALA ========
+    btnCopyCode?.addEventListener('click', () => {
+        const code = btnCopyCode.value;
+        navigator.clipboard.writeText(code).then(() => {
+            showToast('success', 'Código copiado para a área de transferência!');
+        }).catch(() => {
+            showToast('error', 'Falha ao copiar o código.');
+        });
+    });
+
+    // ======== ENTRAR NA SALA PELO CÓDIGO ========
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnEntrarSalaCodigo = document.getElementById('btnEntrarSalaCodigo');
+        const inputCodigoSala = document.getElementById('inputCodigoSala');
+
+        btnEntrarSalaCodigo?.addEventListener('click', async () => {
+            const codigo = inputCodigoSala.value.trim();
+            if (!codigo) {
+                showToast('error', 'Por favor, insira um código.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/codigo/${codigo}`, { headers: { 'Accept': 'application/json' } });
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+
+                if (data?.status === 'success' && data?.data?.id) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalSalabyCode'));
+                    modal?.hide();
+
+                    // 🔹 Redireciona o usuário para o fluxo controlado por Laravel
+                    window.location.href = `/salas/entrar/codigo?codigo=${codigo}`;
+                } else {
+                    showToast('error', 'Código inválido ou sala não encontrada.');
+                }
+            } catch (e) {
+                showToast('error', 'Código inválido ou sala não encontrada.');
+            }
+        });
+    });
+
     // ======== FILTRO DE SALAS (com debounce e feedback) ========
     document.addEventListener('DOMContentLoaded', () => {
         const input = document.getElementById('filterSalas');
