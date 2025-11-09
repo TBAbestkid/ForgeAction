@@ -123,6 +123,7 @@ class UserController extends Controller
 
         Log::info('✅ Login validado com sucesso. Atualizando senha...');
 
+        Log::info('Enviando email: ' . session('user_email') . ' para atualização de senha.');
         $updateResponse = $this->api->put('api/login/forgot-password', [
             'email' => session('user_email'),
             'senha' => $request->senha,
