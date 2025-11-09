@@ -71,18 +71,20 @@ class UserController extends Controller
     public function updateRole(Request $request)
     {
         $login = session('user_login');
+        $email = session('user_email');
         if (!$login) {
             return ApiResponse::error('Usuário não autenticado', 401);
         }
 
         $response = $this->api->put('api/login/update', [
             'login' => $login,
+            'email' => $email,
             'role'  => $request->role,
         ]);
 
         if (($response['status'] ?? '') === 'success') {
             session(['user_email' => $request->email, 'user_role' => $request->role]);
-            return ApiResponse::success($response['data'] ?? null, $response['message'] ?? 'Email atualizado!');
+            return ApiResponse::success($response['data'] ?? null, $response['message'] ?? 'Role atualizado com sucesso!');
         }
 
         return response()->json($response);

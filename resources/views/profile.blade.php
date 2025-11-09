@@ -128,11 +128,11 @@
             .then(res => res.json())
             .then(res => {
                 if(res.status === 'success') showToast(res.message, 'success');
-                else showModal(res.message || 'Erro ao atualizar email');
+                else showAlert(res.message || 'Erro ao atualizar email');
             })
             .catch(err => {
                 console.error(err);
-                showModal('Erro na requisição');
+                showAlert('Erro na requisição');
             });
         });
 
@@ -143,8 +143,8 @@
             const senhaAtual = senhaAtualInput.value.trim();
             const senhaConfirm = senhaConfirmInput.value.trim();
 
-            if(!senha || !senhaConfirm || !senhaAtual) return showModal('Preencha os três campos de senha');
-            if(senha !== senhaConfirm) return showModal('As senhas não coincidem');
+            if(!senha || !senhaConfirm || !senhaAtual) return showAlert('Preencha os três campos de senha');
+            if(senha !== senhaConfirm) return showAlert('As senhas não coincidem');
 
             fetch("{{ route('profile.updatePassword') }}", {
                 method: 'PUT',
@@ -161,11 +161,11 @@
                     senhaInput.value = '';
                     senhaAtualInput.value = '';
                     senhaConfirmInput.value = '';
-                } else showModal(res.message || 'Erro ao atualizar senha');
+                } else showAlert(res.message || 'Erro ao atualizar senha');
             })
             .catch(err => {
                 console.error(err);
-                showModal('Erro na requisição');
+                showAlert('Erro na requisição');
             });
         });
 
@@ -188,12 +188,12 @@
                     roleLabel.classList.add('text-light');
                     showToast(`Role alterado para ${newRole}`, 'success');
                 } else {
-                    showModal(res.message || 'Erro ao atualizar role');
+                    showAlert(res.message || 'Erro ao atualizar role');
                 }
             })
             .catch(err => {
                 console.error('Erro no fetch:', err);
-                showModal('Erro na requisição');
+                showAlert('Erro na requisição');
             });
         });
 
