@@ -111,6 +111,9 @@
 
         let editMode = false;
 
+        const emailLog = "{{ $user['email'] }}";
+        const loginLog = "{{ $user['login'] }}";
+        console.log('Perfil carregado para o usuário:', loginLog, 'com email:', emailLog);
         // --- Atualizar Email --- Funciona!
         btnUpdateEmail.addEventListener('click', function(e) {
             e.preventDefault();
