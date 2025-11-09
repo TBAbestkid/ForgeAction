@@ -93,36 +93,53 @@ class UserController extends Controller
 
     public function updatePassword(Request $request)
     {
-        Log::info('Iniciando processo de atualização de senha para o usuário: ' .
-            session('user_login') . ' e com senha ' . $request->senhaAtual);
+        Log::info('🔹 Iniciando processo de atualização de senha', [
+            'user_login' => session('user_login'),
+            'senhaAtual' => $request->senhaAtual,
+            'senhaNova'  => $request->senha,
+        ]);
 
         $loginResponse = $this->api->post('login', [
             'login' => session('user_login'),
             'senha' => $request->senhaAtual,
         ]);
+
+        Log::info('🔸 Resposta da API (login)', [
+            'response' => $loginResponse,
+        ]);
+
         if ($loginResponse === null) {
-            Log::error('Falha na comunicação com a API ao tentar validar a senha atual.');
+            Log::error('❌ Falha na comunicação com a API ao tentar validar a senha atual.');
             return ApiResponse::error('Erro de comunicação com a API', 500);
         }
 
         if (($loginResponse['status'] ?? '') !== 'success') {
+            Log::warning('⚠️ Senha incorreta ou erro na resposta da API.', [
+                'status' => $loginResponse['status'] ?? '(sem status)',
+                'body'   => $loginResponse,
+            ]);
             return ApiResponse::error('Senha atual incorreta', 401);
         }
 
-        if (($loginResponse['status'] ?? '') == 'success') {
-            Log::info('Login deu néh.');
-        }
-
-        Log::info('Login realizado com sucesso. Procedendo para atualização da senha.');
+        Log::info('✅ Login validado com sucesso. Atualizando senha...');
 
         $updateResponse = $this->api->put('api/login/forgot-password', [
             'email' => session('user_email'),
             'senha' => $request->senha,
         ]);
 
+        Log::info('🔸 Resposta da API (update)', [
+            'response' => $updateResponse,
+        ]);
+
         if (($updateResponse['status'] ?? '') === 'success') {
+            Log::info('🎉 Senha atualizada com sucesso!');
             return ApiResponse::success(null, $updateResponse['message'] ?? 'Senha atualizada com sucesso!');
         }
+
+        Log::error('❌ Erro ao atualizar senha', [
+            'response' => $updateResponse,
+        ]);
 
         return ApiResponse::error($updateResponse['message'] ?? 'Erro ao atualizar senha', $updateResponse['code'] ?? 400);
     }
