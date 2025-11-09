@@ -61,7 +61,7 @@ class UserController extends Controller
         ]);
 
         if (($response['status'] ?? '') === 'success') {
-            session(['user_email' => $request->email, 'user_role' => $request->role]);
+            session(['user_email' => $request->email]);
             return ApiResponse::success($response['data'] ?? null, $response['message'] ?? 'Email atualizado!');
         }
 
@@ -72,6 +72,7 @@ class UserController extends Controller
     {
         $login = session('user_login');
         $email = session('user_email');
+
         if (!$login) {
             return ApiResponse::error('Usuário não autenticado', 401);
         }
@@ -83,7 +84,7 @@ class UserController extends Controller
         ]);
 
         if (($response['status'] ?? '') === 'success') {
-            session(['user_email' => $request->email, 'user_role' => $request->role]);
+            session(['user_role' => $request->role]);
             return ApiResponse::success($response['data'] ?? null, $response['message'] ?? 'Role atualizado com sucesso!');
         }
 
@@ -92,30 +93,30 @@ class UserController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $request->validate([
-            'senhaAtual' => 'required|string',
-            'senha' => 'required|string|min:6',
-        ]);
-
-        $userEmail = session('user_email');
-        $userLogin = session('user_login');
-
-        Log::info('Sessão no updatePassword:', [
-            'email' => session('user_email'),
-            'login' => session('user_login')
-        ]);
+        Log::info('Iniciando processo de atualização de senha para o usuário: ' .
+            session('user_login') . ' e com senha ' . $request->senhaAtual);
 
         $loginResponse = $this->api->post('login', [
-            'login' => $userLogin,
+            'login' => session('user_login'),
             'senha' => $request->senhaAtual,
         ]);
+        if ($loginResponse === null) {
+            Log::error('Falha na comunicação com a API ao tentar validar a senha atual.');
+            return ApiResponse::error('Erro de comunicação com a API', 500);
+        }
 
         if (($loginResponse['status'] ?? '') !== 'success') {
             return ApiResponse::error('Senha atual incorreta', 401);
         }
 
+        if (($loginResponse['status'] ?? '') == 'success') {
+            Log::info('Login deu néh.');
+        }
+
+        Log::info('Login realizado com sucesso. Procedendo para atualização da senha.');
+
         $updateResponse = $this->api->put('api/login/forgot-password', [
-            'email' => $userEmail,
+            'email' => session('user_email'),
             'senha' => $request->senha,
         ]);
 
