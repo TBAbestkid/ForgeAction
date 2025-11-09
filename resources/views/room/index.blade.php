@@ -68,14 +68,14 @@
                                         <button class="btn btn-sm btn-outline-success btn-invite" data-id="{{ $sala['id'] }}" title="Convidar">
                                             <i class="fa-solid fa-user-plus"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-light btn-copy" value="{{ $sala['codigo'] }}" title="Copiar código" id="btnCopyCode">
+                                        <button class="btn btn-sm btn-outline-light btn-copy" data-code="{{ $sala['codigo'] }}" title="Copiar código" id="btnCopyCode">
                                             <i class="fa-solid fa-clipboard"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         @empty
-                            <div class="alert alert-info bg-opacity-10 border-light text-dark">
+                            <div class="alert alert-info bg-opacity-10 border-dark text-dark">
                                 <i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala criada.
                             </div>
                         @endforelse
@@ -108,7 +108,7 @@
                             </div>
                         @endif
                     @empty
-                        <div class="alert alert-info bg-opacity-10 border-light text-light">
+                        <div class="alert alert-info bg-opacity-10 border-dark text-dark">
                             <i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala participando.
                         </div>
                     @endforelse
@@ -186,17 +186,6 @@
 <script src="{{ asset('js/room/exit.js') }}"></script>
 <script src="{{ asset('js/room/delete.js') }}"></script>
 <script>
-    const btnCopyCode = document.getElementById('btnCopyCode');
-
-    // ======== COPIAR CÓDIGO DA SALA ========
-    btnCopyCode?.addEventListener('click', () => {
-        const code = btnCopyCode.value;
-        navigator.clipboard.writeText(code).then(() => {
-            showToast('success', 'Código copiado para a área de transferência!');
-        }).catch(() => {
-            showToast('error', 'Falha ao copiar o código.');
-        });
-    });
 
     // ======== ENTRAR NA SALA PELO CÓDIGO ========
     document.addEventListener('DOMContentLoaded', () => {
@@ -226,6 +215,37 @@
                 }
             } catch (e) {
                 showToast('error', 'Código inválido ou sala não encontrada.');
+            }
+        });
+
+        // ======== COPIAR CÓDIGO DA SALA ========
+        const btnCopyCode = document.getElementById('btnCopyCode');
+
+        btnCopyCode?.addEventListener('click', async () => {
+            const code = btnCopyCode.dataset.code;
+
+            if (!code) {
+                showToast('error', 'Nenhum código disponível para copiar.');
+                return;
+            }
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(code);
+                } else {
+                    // 🔸 fallback para browsers sem suporte ou sem HTTPS
+                    const tempInput = document.createElement('input');
+                    tempInput.value = code;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+
+                showToast('success', 'Código copiado para a área de transferência!');
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Falha ao copiar o código.');
             }
         });
     });
