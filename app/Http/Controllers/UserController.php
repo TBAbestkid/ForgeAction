@@ -54,10 +54,14 @@ class UserController extends Controller
 
     public function updateEmail(Request $request)
     {
+        Log::info('📧 Iniciando processo de atualização de email para usuário: ' . session('user_login') . ' e email da sessão: ' . session('user_email') . ' e o email enVIADO: ' . $request->email);
         $response = $this->api->put('api/login/update', [
             'login' => session('user_login'),
             'email' => $request->email,
-            'role'  => $request->role, // talvez eu remova...
+        ]);
+
+        Log::info('🔸 Resposta da API (update email)', [
+            'response' => $response,
         ]);
 
         if (($response['status'] ?? '') === 'success') {
@@ -71,16 +75,8 @@ class UserController extends Controller
 
     public function updateRole(Request $request)
     {
-        $login = session('user_login');
-        $email = session('user_email');
-
-        if (!$login) {
-            return ApiResponse::error('Usuário não autenticado', 401);
-        }
-
         $response = $this->api->put('api/login/update', [
-            'login' => $login,
-            'email' => $email,
+            'login' => session('user_login'),
             'role'  => $request->role,
         ]);
 
