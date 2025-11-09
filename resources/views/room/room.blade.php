@@ -202,56 +202,14 @@
             {{-- Área principal de jogos (personagens + DiceBox) --}}
             <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: 50vh;">
 
-                {{-- Coluna esquerda (personagens) --}}
+                {{-- Coluna esquerda (Logs) --}}
                 <div class="d-flex flex-column gap-2 overflow-auto" style="flex:1 1 auto; min-width:120px;">
-                    @foreach ($membros->slice(0, ceil($membros->count() / 3)) as $m)
-                        <div id="info-personagem-{{ $m['personagemId'] }}" class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#info-personagem-{{ $m['personagemId'] }}"
-                            aria-expanded="false"
-                            aria-controls="info-personagem-{{ $m['personagemId'] }}"
-                            style="houver-cursor: pointer;"
-                            data-id="{{ $m['personagemId'] }}"
-                            data-vida-max="{{ $m['vida'] }}"
-                            data-nome="{{ $m['nome'] }}"
-                            data-raca="{{ $m['raca'] }}"
-                            data-classe="{{ $m['classe'] }}"
-                            data-level="{{ $m['level'] }}"
-                            data-vida="{{ $m['vida'] }}"
-                            data-mana="{{ $m['mana'] }}"
-                            data-usuario-id="{{ $m['usuarioId'] }}"
-                            data-forca="{{ $m['forca'] }}"
-                            data-agilidade="{{ $m['agilidade'] }}"
-                            data-inteligencia="{{ $m['inteligencia'] }}"
-                            data-destreza="{{ $m['destreza'] }}"
-                            data-vitalidade="{{ $m['vitalidade'] }}"
-                            data-percepcao="{{ $m['percepcao'] }}"
-                            data-sabedoria="{{ $m['sabedoria'] }}"
-                            data-carisma="{{ $m['carisma'] }}"
-                            data-ataque-magico="{{ $m['ataqueMagico'] }}"
-                            data-ataque-corpo="{{ $m['ataqueFisicoCorpo'] }}"
-                            data-ataque-distancia="{{ $m['ataqueFisicoDistancia'] }}"
-                            data-defesa="{{ $m['defesaPersonagem'] }}"
-                            data-esquiva="{{ $m['esquivaPersonagem'] }}"
-                            data-iniciativa="{{ $m['iniciativa'] }}">
-                            <strong class="small">{{ $m['nome'] }}</strong>
-                            <div class="progress mt-1 w-100" style="height: 16px; font-size:0.7rem;">
-                                <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
-                                    role="progressbar"
-                                    style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
-                                    {{ $m['vida'] }}/{{ $m['vida'] }} HP
-                                </div>
-                            </div>
-                            <div id="info-personagem-{{ $m['personagemId'] }}" class="collapse mt-2"
-                                style="min-height:150px; max-height:40vh; overflow:hidden;">
-                                <div class="bg-dark rounded p-2 text-start text-light small">
-                                    <strong>Raça:</strong> {{ $m['raca'] }}<br>
-                                    <strong>Classe:</strong> {{ $m['classe'] }}<br>
-                                    <strong>Nível:</strong> {{ $m['level'] }}<br>
-                                </div>
-                            </div>
+                    {{-- Logs com collapse --}}
+                    <div id="logs-container" class="collapse flex-grow-1">
+                        <div class="d-flex flex-column bg-dark rounded p-3 text-white h-100">
+                            <div id="system-logs" class="flex-grow-1 overflow-auto" style="max-height: 300px;"></div>
                         </div>
-                    @endforeach
+                    </div>
                 </div>
 
                 {{-- Coluna central (DiceBox) --}}
@@ -283,7 +241,7 @@
 
                 {{-- Coluna direita (personagens) --}}
                 <div class="d-flex flex-column gap-2 overflow-auto" style="flex:1 1 auto; min-width:120px;">
-                    @foreach ($membros->slice(ceil($membros->count() / 3)) as $m)
+                    @foreach ($membros as $m)
                         <div id="info-personagem-{{ $m['personagemId'] }}" class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-bs-toggle="collapse"
                             data-bs-target="#info-personagem-{{ $m['personagemId'] }}"
@@ -486,7 +444,7 @@
                 </button>
 
                 {{-- Botão para abrir/fechar logs --}}
-                <button id="logs-toggle-btn"
+                {{-- <button id="logs-toggle-btn"
                         class="btn btn-sm btn-info flex-grow-1 d-flex align-items-center justify-content-center gap-1"
                         type="button"
                         data-bs-toggle="collapse"
@@ -494,13 +452,13 @@
                         aria-expanded="false"
                         aria-controls="logs-container">
                     <i class="fa-solid fa-list-ul"></i> Logs
-                </button>
+                </button> --}}
             </div>
 
             {{-- Container do sistema de mensagens --}}
             <div class="d-flex gap-2 mt-2">
                 {{-- Chat com collapse --}}
-                <div id="chat-container" class="collapse flex-grow-1">
+                <div id="chat-container" class="collapse show flex-grow-1">
                     <div class="d-flex flex-column bg-dark rounded p-3 text-white h-100"
                     style="min-height:150px; max-height:40vh; overflow:hidden;">
                     <strong>Chat da Sala:</strong>
@@ -510,13 +468,6 @@
                     <div class="d-flex mt-2">
                         <input type="text" class="form-control me-2" placeholder="Digite sua mensagem..." id="chat-input">
                         <button class="btn btn-primary" id="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
-                    </div>
-                </div>
-
-                {{-- Logs com collapse --}}
-                <div id="logs-container" class="collapse flex-grow-1">
-                    <div class="d-flex flex-column bg-dark rounded p-3 text-white h-100">
-                        <div id="system-logs" class="flex-grow-1 overflow-auto" style="max-height: 300px;"></div>
                     </div>
                 </div>
             </div>
