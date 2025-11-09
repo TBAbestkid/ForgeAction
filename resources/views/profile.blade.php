@@ -95,7 +95,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const editBtn = document.getElementById("btnEditProfile");
-        const inputs = document.querySelectorAll("#email, #senha, #senhaAtual, #senhaConfirm");
+        const inputs = document.querySelectorAll("#email, #senha, #senhaAtual, #senhaConfirm, #toggleRole");
         const buttons = document.querySelectorAll("#btnUpdateEmail, #btnUpdatePassword");
 
         const emailInput = document.getElementById('email');

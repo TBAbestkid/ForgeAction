@@ -57,7 +57,7 @@ class UserController extends Controller
         $response = $this->api->put('api/login/update', [
             'login' => session('user_login'),
             'email' => $request->email,
-            'role'  => $request->role,
+            'role'  => $request->role, // talvez eu remova...
         ]);
 
         if (($response['status'] ?? '') === 'success') {
@@ -70,22 +70,14 @@ class UserController extends Controller
 
     public function updateRole(Request $request)
     {
-        $newRole = $request->input('role');
-
-        $payload = [
+        $response = $this->api->put('api/login/update', [
             'login' => session('user_login'),
-            'role' => $newRole,
-        ];
-
-        Log::info('UpdateRole Payload:', $payload);
-
-        $response = $this->api->put('api/login/update', $payload);
-
-        // log completo da resposta
-        Log::info('UpdateRole Response:', ['response' => $response]);
+            'role'  => $request->role,
+        ]);
 
         if (($response['status'] ?? '') === 'success') {
-            session(['user_role' => $newRole]);
+            session(['user_email' => $request->email, 'user_role' => $request->role]);
+            return ApiResponse::success($response['data'] ?? null, $response['message'] ?? 'Email atualizado!');
         }
 
         return response()->json($response);
@@ -100,6 +92,11 @@ class UserController extends Controller
 
         $userEmail = session('user_email');
         $userLogin = session('user_login');
+
+        Log::info('Sessão no updatePassword:', [
+            'email' => session('user_email'),
+            'login' => session('user_login')
+        ]);
 
         $loginResponse = $this->api->post('login', [
             'login' => $userLogin,
