@@ -9,7 +9,7 @@
 
         <!-- Botão de Voltar -->
         <div class="text-start">
-            <a href="{{ url('/') }}" class="btn btn-outline-light mb-4 px-4 py-2 rounded-pill shadow-sm">
+            <a href="{{ url('/') }}" class="btn btn-outline-light mb-4 px-4 py-2 shadow-sm">
                 <i class="fa-solid fa-arrow-left me-2"></i> Voltar para Home
             </a>
         </div>
@@ -31,7 +31,7 @@
 
             <!-- Botão de entrar -->
             <div class="text-end">
-                <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm"
+                <button class="btn btn-primary px-4 py-2 shadow-sm"
                         data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
                     <i class="fa-solid fa-door-open me-2"></i> Entrar em Sala
                 </button>
@@ -54,7 +54,7 @@
                                 </div>
 
                                 <div class="d-flex align-items-center gap-3">
-                                    <span class="badge bg-secondary px-3 py-2 rounded-pill">
+                                    <span class="badge bg-secondary px-3 py-2">
                                         {{ $sala['total_jogadores'] ?? 0 }} jogador(es)
                                     </span>
 
@@ -75,7 +75,7 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="alert alert-info bg-opacity-10 border-light text-light">
+                            <div class="alert alert-info bg-opacity-10 border-light text-dark">
                                 <i class="fa-solid fa-circle-exclamation"></i> Nenhuma sala criada.
                             </div>
                         @endforelse
@@ -97,7 +97,7 @@
                                 </div>
 
                                 <div class="d-flex align-items-center gap-3">
-                                    <span class="badge bg-secondary px-3 py-2 rounded-pill">
+                                    <span class="badge bg-secondary px-3 py-2">
                                         {{ $sala['total_jogadores'] ?? 0 }} jogador(es)
                                     </span>
 
