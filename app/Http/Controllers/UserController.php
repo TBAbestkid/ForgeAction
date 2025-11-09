@@ -62,6 +62,7 @@ class UserController extends Controller
 
         if (($response['status'] ?? '') === 'success') {
             session(['user_email' => $request->email]);
+            Log::info('📧 Email atualizado na sessão: ' . $request->email);
             return ApiResponse::success($response['data'] ?? null, $response['message'] ?? 'Email atualizado!');
         }
 
