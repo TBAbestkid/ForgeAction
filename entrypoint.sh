@@ -20,19 +20,23 @@ echo "EXTERNAL_API_URL=${EXTERNAL_API_URL:-http://172.17.0.2:9001}" >> .env
 echo "EXTERNAL_API_USER=${EXTERNAL_API_USER:-admin}" >> .env
 echo "EXTERNAL_API_PASS=${EXTERNAL_API_PASS:-admin}" >> .env
 
-# Força canal de log
 if grep -q "^LOG_CHANNEL=" .env; then
-  sed -i 's/^LOG_CHANNEL=.*/LOG_CHANNEL=single/' .env
+  sed -i 's/^LOG_CHANNEL=.*/LOG_CHANNEL=stack/' .env
 else
-  echo "LOG_CHANNEL=single" >> .env
+  echo "LOG_CHANNEL=stack" >> .env
 fi
 
-php artisan config:clear
-php artisan cache:clear
-php artisan optimize:clear
+# remove LOG_STACK se existir (pra evitar confusão)
+sed -i '/^LOG_STACK=/d' .env
 
-echo "➡️  Canal de log forçado para 'single'"
+# limpa caches do Laravel
+php artisan config:clear || true
+php artisan cache:clear || true
+php artisan optimize:clear || true
 
+echo "➡️  Canal de log forçado para 'stack' (saída em stderr)"
+
+# registra log de teste direto na saída
 php artisan tinker --execute="use Illuminate\Support\Facades\Log; Log::info('🚀 Laravel iniciou com LOG_CHANNEL=' . config('logging.default'));"
 
 echo "➡️  Verificação de permissões de storage e bootstrap..."
