@@ -195,7 +195,7 @@
         btnEntrarSalaCodigo?.addEventListener('click', async () => {
             const codigo = inputCodigoSala.value.trim();
             if (!codigo) {
-                showToast('Por favor, insira um código.', 'error');
+                showToast('Por favor, insira um código.', 'danger');
                 return;
             }
 
@@ -211,10 +211,10 @@
                     // 🔹 Redireciona o usuário para o fluxo controlado por Laravel
                     window.location.href = `/salas/entrar/codigo?codigo=${codigo}`;
                 } else {
-                    showToast('Código inválido ou sala não encontrada.', 'error');
+                    showToast('Código inválido ou sala não encontrada.', 'danger');
                 }
             } catch (e) {
-                showToast('Código inválido ou sala não encontrada.', 'error');
+                showToast('Código inválido ou sala não encontrada.', 'danger');
             }
         });
 
@@ -225,7 +225,7 @@
             const code = btnCopyCode.dataset.code;
 
             if (!code) {
-                showToast('error', 'Nenhum código disponível para copiar.');
+                showToast('Nenhum código disponível para copiar.', 'danger');
                 return;
             }
 
@@ -245,7 +245,7 @@
                 showToast('Código copiado para a área de transferência!', 'success');
             } catch (err) {
                 console.error(err);
-                showToast('Falha ao copiar o código.', 'error');
+                showToast('Falha ao copiar o código.', 'danger');
             }
         });
     });
