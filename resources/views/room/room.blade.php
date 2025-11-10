@@ -21,6 +21,11 @@
                 <span class="d-none d-md-inline">Convidar</span>
             </button>
 
+            <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center btn-copy">
+                <i class="fa-solid fa-clipboard me-1"></i>
+                <span class="d-none d-md-inline">Copiar Código</span>
+            </button>
+
             <!-- Botão de Editar à direita -->
             <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center"
                     type="button" data-bs-toggle="modal" data-bs-target="#editSalaModal">
@@ -205,9 +210,11 @@
                 {{-- Coluna esquerda (Logs) --}}
                 <div class="d-flex flex-column gap-2 overflow-auto" style="flex:1 1 auto; min-width:120px;">
                     {{-- Logs com collapse --}}
-                    <div id="logs-container" class="collapse flex-grow-1">
+                    <div id="logs-container" class="flex-grow-1">
                         <div class="d-flex flex-column bg-dark rounded p-3 text-white h-100">
-                            <div id="system-logs" class="flex-grow-1 overflow-auto" style="max-height: 300px;"></div>
+                            <div id="system-logs" class="flex-grow-1 overflow-auto" style="max-height: 300px;">
+                                <!-- Logs -->
+                            </div>
                         </div>
                     </div>
                 </div>
