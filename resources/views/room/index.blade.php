@@ -48,7 +48,7 @@
                     <div id="minhas-salas" class="d-flex flex-column gap-3">
                         @forelse($minhasSalas as $sala)
                             <div class="sala-card p-3 rounded-4 bg-dark text-white shadow-sm hover-glow d-flex justify-content-between align-items-center">
-                                <a href="/salas/{{ $sala['id'] }}" class="stretched-link text-decoration-none text-white">
+                                <a href="/salas/{{ $sala['id'] }}" class="text-decoration-none text-white">
                                     <strong class="fs-5">{{ $sala['nome'] }}</strong><br>
                                     <small class="text-light opacity-75">{{ $sala['descricao'] }}</small>
                                 </a>
