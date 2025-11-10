@@ -48,10 +48,10 @@
                     <div id="minhas-salas" class="d-flex flex-column gap-3">
                         @forelse($minhasSalas as $sala)
                             <div class="sala-card p-3 rounded-4 bg-dark text-white shadow-sm hover-glow d-flex justify-content-between align-items-center">
-                                <div>
+                                <a href="/salas/{{ $sala['id'] }}" class="stretched-link text-decoration-none text-white">
                                     <strong class="fs-5">{{ $sala['nome'] }}</strong><br>
                                     <small class="text-light opacity-75">{{ $sala['descricao'] }}</small>
-                                </div>
+                                </a>
 
                                 <div class="d-flex align-items-center gap-3">
                                     <span class="badge bg-secondary px-3 py-2">
@@ -91,10 +91,10 @@
                         @if(is_array($sala))
                             <div class="sala-card p-3 rounded-4 bg-dark text-white shadow-sm hover-glow d-flex justify-content-between align-items-center"
                                 onclick="window.location.href='/salas/{{ $sala['id'] }}'">
-                                <div>
+                                <a href="/salas/{{ $sala['id'] }}" class="stretched-link text-decoration-none text-white">
                                     <strong class="fs-5">{{ $sala['nome'] ?? '—' }}</strong><br>
                                     <small class="text-light opacity-75">{{ $sala['descricao'] ?? '' }}</small>
-                                </div>
+                                </a>
 
                                 <div class="d-flex align-items-center gap-3">
                                     <span class="badge bg-secondary px-3 py-2">
