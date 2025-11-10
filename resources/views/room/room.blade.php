@@ -13,40 +13,41 @@
             </div>
         </div>
 
-        @if ($isDono)
-            <!-- Botão de Convidar à direita -->
-            <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center btn-invite"
-                data-id="{{ $sala['id'] }}">
-                <i class="fa-solid fa-user-plus me-1"></i>
-                <span class="d-none d-md-inline">Convidar</span>
+        <div class="d-flex flex-wrap justify-content-end gap-2 mt-2 mt-md-0">
+            @if ($isDono)
+                <button class="btn btn-outline-light d-flex align-items-center btn-invite" data-id="{{ $sala['id'] }}">
+                    <i class="fa-solid fa-user-plus me-1"></i>
+                    <span class="d-none d-md-inline">Convidar</span>
+                </button>
+
+                <button class="btn btn-outline-light d-flex align-items-center btn-copy">
+                    <i class="fa-solid fa-clipboard me-1"></i>
+                    <span class="d-none d-md-inline">Copiar Código</span>
+                </button>
+
+                <button class="btn btn-outline-light d-flex align-items-center" type="button"
+                        data-bs-toggle="modal" data-bs-target="#editSalaModal">
+                    <i class="fa-solid fa-pen-to-square me-1"></i>
+                    <span class="d-none d-md-inline">Editar Sala</span>
+                </button>
+            @endif
+
+            <button class="btn btn-outline-light d-flex align-items-center"
+                    type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMembers"
+                    aria-controls="offcanvasMembers">
+                <i class="fa-solid fa-users me-1"></i>
+                <span class="d-none d-md-inline">Membros</span>
             </button>
 
-            <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center btn-copy">
-                <i class="fa-solid fa-clipboard me-1"></i>
-                <span class="d-none d-md-inline">Copiar Código</span>
-            </button>
-
-            <!-- Botão de Editar à direita -->
-            <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center"
-                    type="button" data-bs-toggle="modal" data-bs-target="#editSalaModal">
-                <i class="fa-solid fa-pen-to-square me-1"></i>
-                <span class="d-none d-md-inline">Editar Sala</span>
-            </button>
-        @endif
-
-        <!-- Botão de membros à direita -->
-        <button class="btn btn-outline-light mt-2 mt-md-0 ms-md-auto px-3 py-2 d-flex align-items-center"
-                type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMembers"
-                aria-controls="offcanvasMembers">
-            <i class="fa-solid fa-users me-1"></i>
-            <span class="d-none d-md-inline">Membros</span>
-        </button>
-        @if(!$isDono)
-            <button class="btn btn-sm btn-outline-danger btn-leave mt-2 mt-md-0 ms-md-3 px-3 py-2 d-flex align-items-center"
-                    data-id="{{ $sala['id'] }}">
-                <i class="fa-solid fa-door-open me-1"></i> Sair da Sala
-            </button>
-        @endif
+            @if(!$isDono)
+                <a href="/home" class="btn btn-sm btn-outline-danger d-flex align-items-center">
+                    <i class="fa-solid fa-door-open me-1"></i> Sair da sala
+                </a>
+                <button class="btn btn-sm btn-outline-danger d-flex align-items-center" data-id="{{ $sala['id'] }}">
+                    <i class="fa-solid fa-door-open me-1"></i> Abandonar aventura
+                </button>
+            @endif
+        </div>
     </nav>
 
     {{-- Estrutura principal com 3 colunas --}}
