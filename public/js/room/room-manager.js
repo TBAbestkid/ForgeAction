@@ -61,10 +61,12 @@
             enviarSistema(`🟢 ${userLogin} entrou na sala`);
         });
 
+        // Eventos de erro e desconexão
         document.addEventListener('stomp.error', (event) => {
             debugLog('❌ Erro de conexão:', event.detail?.error);
         });
 
+        // Evento de desconexão
         document.addEventListener('stomp.disconnected', () => {
             debugLog('🔴 WebSocket desconectado');
         });
@@ -77,15 +79,19 @@
         }
     }
 
+    // ===== MESSAGE SENDING ======
     function enviarSistema(msg) {
         if (!salaId) {
             debugLog('❌ Sem salaId definido');
             return;
         }
 
+        // Verifica conexão
         const status = ws.getStatus();
         if (!status.isConnected) {
+            // Aguarda conexão antes de enviar
             debugLog('⚠️ WebSocket não conectado, aguardando conexão...');
+            // Usa { once: true } para evitar múltiplos listeners
             document.addEventListener('stomp.connected', () => {
                 ws.send('/app/enviar/' + salaId, {
                     tipo: 'sistema',
@@ -97,6 +103,7 @@
             return;
         }
 
+        // Envia mensagem de sistema
         ws.send('/app/enviar/' + salaId, {
             tipo: 'sistema',
             conteudo: msg,
@@ -105,15 +112,18 @@
         });
     }
 
+    // Envia ação genérica
     function enviarAcao(obj) {
         if (!salaId) {
             debugLog('❌ Sem salaId definido');
             return;
         }
 
+        // Verifica conexão
         const status = ws.getStatus();
         if (!status.isConnected) {
             debugLog('⚠️ WebSocket não conectado, aguardando conexão...');
+            // Usa { once: true } para evitar múltiplos listeners
             document.addEventListener('stomp.connected', () => {
                 ws.send('/app/enviar/' + salaId, {
                     tipo: 'acao',
@@ -125,6 +135,7 @@
             return;
         }
 
+        // Envia ação
         ws.send('/app/enviar/' + salaId, {
             tipo: 'acao',
             salaId,
