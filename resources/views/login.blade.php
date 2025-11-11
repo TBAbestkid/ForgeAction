@@ -59,7 +59,7 @@
                 <i class="fa-solid fa-paper-plane me-1"></i> Entre
             </button>
             <div class="text-center mt-3">
-                <a href="{{ route('login') }}" class="text-light text-decoration-none">
+                <a href="{{ route('register') }}" class="text-light text-decoration-none">
                     <i class="fa-solid fa-arrow-left me-1"></i> Não tem uma conta? Faça cadastro
                 </a>
             </div>
