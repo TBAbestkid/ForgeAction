@@ -32,11 +32,11 @@
             <img class="mb-4 mx-auto d-block" src="{{ asset('assets/images/forgeicon.png') }}" alt="" width="72" height="57">
             <h1 class="h3 mb-3 fw-normal text-center font-medieval text-white">Faça login</h1>
 
-            <div class="form-floating mb-3 text-dark">
+            <div class="form-floating mb-3 text-light">
                 <input type="text" name="login" class="form-control" id="floatingInput" placeholder="Insira usuario">
                 <label for="floatingInput"><i class="fa-solid fa-user me-1"></i> Usuario</label>
             </div>
-            <div class="form-floating mb-3 text-dark">
+            <div class="form-floating mb-3 text-light">
                 <input type="password" name="senha" class="form-control" id="floatingPassword" placeholder="Insira a Senha">
                 <label for="floatingPassword"><i class="fa-solid fa-lock me-1"></i>Senha</label>
             </div>

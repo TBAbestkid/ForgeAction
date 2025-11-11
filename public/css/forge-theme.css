@@ -74,6 +74,104 @@
   color: #111;
 }
 
+/* ===== Botões Outline (vazados) ===== */
+.btn-outline-primary {
+  background: transparent;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  color: #9ca3af;
+  border: 2px solid #6b7280;
+}
+
+.btn-outline-success {
+  background: transparent;
+  color: #22c55e;
+  border: 2px solid #22c55e;
+}
+
+.btn-outline-danger {
+  background: transparent;
+  color: #ef4444;
+  border: 2px solid #ef4444;
+}
+
+.btn-outline-warning {
+  background: transparent;
+  color: #eab308;
+  border: 2px solid #eab308;
+}
+
+.btn-outline-info {
+  background: transparent;
+  color: #38bdf8;
+  border: 2px solid #38bdf8;
+}
+
+.btn-outline-dark {
+  background: transparent;
+  color: #f8f9fa;
+  border: 2px solid #374151;
+}
+
+.btn-outline-light {
+  background: transparent;
+  color: #d1d5db;
+  border: 2px solid #d1d5db;
+}
+
+/* ===== Hover dos Outline — ativa o gradiente! ===== */
+.btn-outline-primary:hover {
+  background-image: var(--forge-gradient-primary);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background-image: var(--forge-gradient-secondary);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-outline-success:hover {
+  background-image: var(--forge-gradient-success);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-outline-danger:hover {
+  background-image: var(--forge-gradient-danger);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-outline-warning:hover {
+  background-image: var(--forge-gradient-warning);
+  color: #111;
+  border-color: transparent;
+}
+
+.btn-outline-info:hover {
+  background-image: var(--forge-gradient-info);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-outline-dark:hover {
+  background-image: var(--forge-gradient-dark);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-outline-light:hover {
+  background-image: var(--forge-gradient-light);
+  color: #111;
+  border-color: transparent;
+}
+
 /* ===== Hover Effects ===== */
 .btn:hover {
   opacity: 0.9;

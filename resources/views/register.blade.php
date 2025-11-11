@@ -34,7 +34,7 @@
             <!-- Aba 1: Dados Cadastrais -->
             <form action="{{ route('register.post') }}" id="registerForm" method="post">
                 @csrf
-                <div class="text-dark" id="login">
+                <div class="text-light" id="login">
                     <div class="form-floating mb-3">
                         <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
                         <label for="email"><i class="fa-solid fa-envelope me-1"></i> Email</label>
