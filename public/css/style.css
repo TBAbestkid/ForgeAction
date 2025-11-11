@@ -1,6 +1,13 @@
 /* deixando o fundo escuro com letra branca
 *  também colocando uma fonte do google medieval
 */
+:root {
+    --bs-body-bg: #0f0f0f;
+    --bs-body-color: #f8f9fa;
+    --bs-primary: #d97706; /* dourado */
+    --bs-secondary: #343a40; /* aço */
+    --bs-danger: #b91c1c; /* brasa */
+}
 
 body {
     background-color: #1a1a1a; /* Fallback */
