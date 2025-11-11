@@ -335,6 +335,9 @@
                                     <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
                                         <i class="fa-solid fa-user-plus"></i>
                                     </button>
+                                    <button class="btn btn-sm btn-outline-light btn-copy" data-code="${sala.codigo}" title="Copiar código" id="btnCopyCode">
+                                        <i class="fa-solid fa-clipboard"></i>
+                                    </button>
                                 </div>
                             `;
                         } else {
@@ -377,6 +380,38 @@
         loadSalas();
     });
 
+    document.addEventListener('DOMContentLoaded', function() {
+        // ======== COPIAR CÓDIGO DA SALA ========
+        document.querySelectorAll('.btn-copy').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const code = btn.dataset.code;
+
+                if (!code) {
+                    showToast('Nenhum código disponível para copiar.', 'danger');
+                    return;
+                }
+
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(code);
+                    } else {
+                        // 🔸 fallback para browsers sem HTTPS
+                        const tempInput = document.createElement('input');
+                        tempInput.value = code;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                    }
+
+                    showToast('Código copiado para a área de transferência!', 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('Falha ao copiar o código.', 'danger');
+                }
+            });
+        });
+    });
 </script>
 {{-- Passando infos do Blade para o script... --}}
 <script>

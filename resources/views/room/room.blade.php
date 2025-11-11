@@ -20,7 +20,7 @@
                     <span class="d-none d-md-inline">Convidar</span>
                 </button>
 
-                <button class="btn btn-outline-light d-flex align-items-center btn-copy">
+                <button class="btn btn-outline-light d-flex align-items-center btn-copy" data-code="{{ $sala['codigo'] }}">
                     <i class="fa-solid fa-clipboard me-1"></i>
                     <span class="d-none d-md-inline">Copiar Código</span>
                 </button>
@@ -591,6 +591,37 @@
             // bootstrap não carregado ainda; será criado pelo script do bundle quando disponível
             console.warn('[room] bootstrap.Tooltip não disponível no momento.');
         }
+
+        // ======== COPIAR CÓDIGO DA SALA ========
+        const btnCopyCode = document.getElementById('btnCopyCode');
+
+        btnCopyCode?.addEventListener('click', async () => {
+            const code = btnCopyCode.dataset.code;
+
+            if (!code) {
+                showToast('Nenhum código disponível para copiar.', 'danger');
+                return;
+            }
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(code);
+                } else {
+                    // 🔸 fallback para browsers sem suporte ou sem HTTPS
+                    const tempInput = document.createElement('input');
+                    tempInput.value = code;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+
+                showToast('Código copiado para a área de transferência!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Falha ao copiar o código.', 'danger');
+            }
+        });
     });
 </script>
 {{-- Exporta variáveis PHP para JS --}}
