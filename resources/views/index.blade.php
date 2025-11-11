@@ -11,123 +11,91 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
     @if(session('user_login'))
-        <div class="container-fluid">
-            <div class="container mt-4">
-                <h1 class="font-medieval text-start mb-4">Seus Personagens</h1>
+        <div class="container-fluid py-5">
+            <div class="container">
+                <div class="d-flex flex-wrap justify-content-center align-items-start gap-5">
 
-                <div class="d-flex flex-wrap gap-4 justify-content-center">
-                    <!-- Coluna 1: Personagem Selecionado -->
-                    <div class="flex-fill" style="min-width: 320px; max-width: 380px;">
-                        <div class="card shadow-lg border-0 h-100">
-                            <div class="card-body text-white rounded-3 p-4">
-                                <h5 class="card-title mb-4 fw-bold">
-                                    <i class="fa-solid fa-user-astronaut me-2"></i> Personagem Selecionado
-                                </h5>
-
-                               @if(session('selected_character'))
-                                    <div class="d-flex align-items-center mb-3">
-                                        <i class="fa-solid fa-chess-knight fa-3x text-secondary"></i>
-                                        <div class="ms-3">
-                                            <strong class="fs-5 d-block">{{ session('selected_character.nome') }}</strong>
-                                            <span class="badge bg-success">Equipado</span>
-                                            <p class="mb-0">{{ session('selected_character.raca') }} | {{ session('selected_character.classe') }}</p>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="d-flex align-items-center mb-4">
-                                        <i class="fa-regular fa-circle-user fa-3x text-secondary"></i>
-                                        <div class="ms-3">
-                                            <strong class="fs-5 d-block">Nenhum personagem</strong>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Coluna 2: Lista de Personagens -->
-                    <div class="flex-fill" style="min-width: 320px; max-width: 400px;">
-                        <div class="card shadow-lg border-0 text-white h-100">
+                    <!-- Personagens -->
+                    <div class="flex-fill" style="min-width: 350px; max-width: 450px;">
+                        <div class="card bg-dark bg-opacity-75 text-white shadow-lg border-0">
                             <div class="card-body rounded-3 p-4">
-                                <h6 class="fw-bold text-light mb-3"><i class="fa-solid fa-users me-2"></i> Personagens Disponíveis</h6>
+                                <h3 class="fw-bold text-center mb-4">
+                                    <i class="fa-solid fa-users me-2"></i> Personagens
+                                </h3>
 
+                                {{-- Busca --}}
                                 <div class="input-group mb-3">
                                     <span class="input-group-text bg-dark text-light border-secondary">
                                         <i class="fa-solid fa-magnifying-glass"></i>
                                     </span>
-                                    <input type="text" id="searchCharacter" class="form-control text-white border-secondary"
+                                    <input type="text" id="searchCharacter"
+                                        class="form-control text-white border-secondary"
                                         placeholder="Pesquisar por nome, raça ou classe...">
                                 </div>
 
-                                <ul id="characterList" class="list-group list-group-flush bg-dark" style="max-height: 400px; overflow-y: auto;">
+                                {{-- Lista de personagens --}}
+                                <ul id="characterList"
+                                    class="list-group list-group-flush bg-dark"
+                                    style="max-height: 400px; overflow-y: auto;">
                                     <li class="list-group-item bg-dark text-white text-center" id="loadingCharacters">
                                         <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando personagens...
                                     </li>
                                 </ul>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Coluna 3: Botões de Ação -->
-                    <div class="flex-fill" style="min-width: 200px; max-width: 300px;">
-                        <div class="card text-start shadow-sm h-100">
-                            <div class="card-body rounded d-flex flex-column justify-content-center">
-                                <div class="d-grid gap-2">
+                                {{-- Botões --}}
+                                <div class="d-grid gap-2 mt-4">
                                     <a href="{{ route('registerPerson') }}" class="btn btn-outline-light">
-                                        <i class="fa-solid fa-user-plus me-1"></i> Adicionar Personagem
+                                        <i class="fa-solid fa-user-plus me-1"></i> Criar personagem
                                     </a>
-                                    <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
-                                        <i class="fa-solid fa-id-card me-1"></i> Ver Fichas
-                                    </a>
-                                    <button class="btn btn-outline-success">
-                                        <i class="fa-solid fa-shield-halved me-1"></i> Equipamentos
-                                    </button>
                                     <button class="btn btn-outline-danger">
-                                        <i class="fa-solid fa-trash me-1"></i> Remover
+                                        <i class="fa-solid fa-trash me-1"></i> Excluir
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Salas -->
-                <div class="container mt-5">
-                    <h1 class="font-medieval text-start mb-4">Salas</h1>
-                    <div class="d-flex flex-wrap gap-4 justify-content-center align-items-start">
-                        <!-- Card principal -->
-                        <div class="flex-grow-1 flex-shrink-1" style="flex-basis: 600px; min-width: 320px;">
-                            <div class="card shadow border-0 h-100">
-                                <div class="card-body text-white rounded-3 p-4" id="salas-container">
+                    <!-- Espaço central livre -->
+                    <div class="flex-fill d-none d-md-block" style="max-width: 150px;"></div>
+
+                    <!-- Salas -->
+                    <div class="flex-fill" style="min-width: 350px; max-width: 450px;">
+                        <div class="card bg-dark bg-opacity-75 text-white shadow-lg border-0">
+                            <div class="card-body rounded-3 p-4">
+                                <h3 class="fw-bold text-center mb-4">
+                                    <i class="fa-solid fa-door-open me-2"></i> Salas
+                                </h3>
+
+                                {{-- Lista de salas --}}
+                                <div id="salas-container">
                                     <div class="d-flex align-items-center justify-content-center gap-2 bg-dark text-light fw-bold rounded-3 p-3 shadow-sm">
                                         <li class="list-group-item bg-dark text-white text-center" id="loadingRoom">
                                             <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando salas...
                                         </li>
                                     </div>
                                 </div>
+
+                                {{-- Botão --}}
+                                <div class="text-center mt-4">
+                                    <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
+                                        <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Entrar sala
+                                    </a>
+                                </div>
+
+                                @if (session('user_role') === 'MASTER')
+                                    <div class="d-grid gap-2 mt-3">
+                                        <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
+                                            <i class="fa-solid fa-user-group me-1"></i> Criar sala
+                                        </a>
+                                        <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
+                                            <i class="fa-solid fa-trash me-1"></i> Remover sala
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
-                        @if (session('user_role') === 'MASTER')
-                            <!-- Botões pra Mestre -->
-                            <div class="flex-grow-0 flex-shrink-1 master-only" style="flex-basis: 300px; min-width: 200px;" @if(session('user_role') !== 'MASTER') style="display:none" @endif>
-                                <div class="card shadow border-0 h-100">
-                                    <div class="card-body text-white rounded-3 p-4 d-flex flex-column justify-content-start">
-                                        <div class="d-grid gap-2">
-                                            <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
-                                                <i class="fa-solid fa-user-plus"></i> Todas as salas
-                                            </a>
-                                            <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
-                                                <i class="fa-solid fa-user-group"></i> Criar Sala
-                                            </a>
-                                            <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
-                                                <i class="fa-solid fa-trash me-1"></i> Remover Sala
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
                     </div>
+
                 </div>
             </div>
         </div>
