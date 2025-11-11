@@ -3,7 +3,11 @@
 */
 
 body {
-    background-color: #1a1a1a;
+    background-color: #1a1a1a; /* Fallback */
+    background-image: url('/assets/images/forje.jpg');
+    background-size: cover;        /* cobre toda a tela */
+    background-position: center;   /* centraliza a imagem */
+    background-repeat: no-repeat;  /* não repete */
     color: #f8f9fa;
 }
 
