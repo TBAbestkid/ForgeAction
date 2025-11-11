@@ -103,7 +103,7 @@
         <div class="container text-white d-flex flex-column align-items-center justify-content-center py-5">
             <div class="card text-center mb-5 bg-dark p-4 rounded-3 shadow-lg">
                 <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction Logo"
-                    class="logo-center mb-3" style="max-width:150px;">
+                    class="logo-center mb-3 text-center justify-content-center" style="max-width:150px;">
                 <h1>ForgeAction</h1>
                 <p class="lead">Prepare-se para a aventura épica!</p>
             </div>
