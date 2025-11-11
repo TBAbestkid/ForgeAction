@@ -58,7 +58,7 @@
                             data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}&background=0D8ABC&color=fff"
                                     class="rounded-circle me-2" width="32" height="32" alt="Avatar">
-                                <span>{{ session('user_login') }}</span>
+                                {{-- <span>{{ session('user_login') }}</span> --}}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>
