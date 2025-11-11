@@ -79,7 +79,7 @@
                                 <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
                                     <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Visualizar salas
                                 </a>
-                                <button class="btn btn-primary px-4 py-2 shadow-sm"
+                                <button class="btn btn-outline-primary px-4 py-2 shadow-sm"
                                         data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
                                     <i class="fa-solid fa-door-open me-2"></i> Entrar em Sala
                                 </button>
