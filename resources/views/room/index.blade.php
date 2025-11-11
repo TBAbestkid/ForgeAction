@@ -147,32 +147,10 @@
             </div>
         </div> --}}
     {{-- @endif --}}
-    <!-- Modal: Inserir Código -->
-    <div class="modal fade" id="modalSalabyCode" tabindex="-1" aria-labelledby="modalCodeLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-dark">
-                <div class="modal-header bg-light">
-                    <h1 class="modal-title fs-5 d-flex align-items-center" id="modalCodeLabel">
-                        <i class="fa-solid fa-key text-primary me-2"></i> Entrar na sala com código
-                    </h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-secondary mb-3">Digite o código da sala que você recebeu:</p>
-                    <input type="text" id="inputCodigoSala" class="form-control form-control-lg text-center" placeholder="Ex: ABC123" maxlength="10">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btnEntrarSalaCodigo">
-                        <i class="fa-solid fa-door-open me-1"></i> Entrar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 @include('partials/alerts')
 @include('partials/invite')
+@include('partials/entercode')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
@@ -185,70 +163,8 @@
 <script src="{{ asset('js/room/invite.js') }}"></script>
 <script src="{{ asset('js/room/exit.js') }}"></script>
 <script src="{{ asset('js/room/delete.js') }}"></script>
+<script src="{{ asset('js/room/enter-code.js') }}"></script>
 <script>
-
-    // ======== ENTRAR NA SALA PELO CÓDIGO ========
-    document.addEventListener('DOMContentLoaded', () => {
-        const btnEntrarSalaCodigo = document.getElementById('btnEntrarSalaCodigo');
-        const inputCodigoSala = document.getElementById('inputCodigoSala');
-
-        btnEntrarSalaCodigo?.addEventListener('click', async () => {
-            const codigo = inputCodigoSala.value.trim();
-            if (!codigo) {
-                showToast('Por favor, insira um código.', 'danger');
-                return;
-            }
-
-            try {
-                const response = await fetch(`/codigo/${codigo}`, { headers: { 'Accept': 'application/json' } });
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-
-                if (data?.status === 'success' && data?.data?.id) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalSalabyCode'));
-                    modal?.hide();
-
-                    // 🔹 Redireciona o usuário para o fluxo controlado por Laravel
-                    window.location.href = `/salas/entrar/codigo?codigo=${codigo}`;
-                } else {
-                    showToast('Código inválido ou sala não encontrada.', 'danger');
-                }
-            } catch (e) {
-                showToast('Código inválido ou sala não encontrada.', 'danger');
-            }
-        });
-
-        // ======== COPIAR CÓDIGO DA SALA ========
-        const btnCopyCode = document.getElementById('btnCopyCode');
-
-        btnCopyCode?.addEventListener('click', async () => {
-            const code = btnCopyCode.dataset.code;
-
-            if (!code) {
-                showToast('Nenhum código disponível para copiar.', 'danger');
-                return;
-            }
-
-            try {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    await navigator.clipboard.writeText(code);
-                } else {
-                    // 🔸 fallback para browsers sem suporte ou sem HTTPS
-                    const tempInput = document.createElement('input');
-                    tempInput.value = code;
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempInput);
-                }
-
-                showToast('Código copiado para a área de transferência!', 'success');
-            } catch (err) {
-                console.error(err);
-                showToast('Falha ao copiar o código.', 'danger');
-            }
-        });
-    });
 
     // ======== FILTRO DE SALAS (com debounce e feedback) ========
     document.addEventListener('DOMContentLoaded', () => {

@@ -77,8 +77,12 @@
                             {{-- Botões --}}
                             <div class="d-grid gap-2 mt-3">
                                 <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
-                                    <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Entrar sala
+                                    <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Visualizar salas
                                 </a>
+                                <button class="btn btn-primary px-4 py-2 shadow-sm"
+                                        data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
+                                    <i class="fa-solid fa-door-open me-2"></i> Entrar em Sala
+                                </button>
                                     @if (session('user_role') === 'MASTER')
                                     <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
                                         <i class="fa-solid fa-user-group me-1"></i> Criar sala
@@ -156,10 +160,12 @@
 @include('partials/loading')
 @include('partials/alerts')
 @include('partials/invite')
+@include('partials/entercode')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
+<script src="{{ asset('js/room/enter-code.js') }}"></script>
 
 <script>
 
