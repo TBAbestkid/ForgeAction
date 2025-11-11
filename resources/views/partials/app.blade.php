@@ -53,14 +53,26 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     @if(session('user_login'))
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/perfil') }}">
-                                <i class="fa-solid fa-user-cog"></i> {{ session('user_login') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                <i class="fa-solid fa-right-from-bracket"></i> Logout
+                         <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}&background=0D8ABC&color=fff"
+                                    class="rounded-circle me-2" width="32" height="32" alt="Avatar">
+                                <span>{{ session('user_login') }}</span>
                             </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url('/perfil') }}">
+                                        <i class="fa-solid fa-user-cog me-2"></i> Configurações
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                        <i class="fa-solid fa-right-from-bracket me-2"></i> Sair
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     @else
                         <li class="nav-item">
