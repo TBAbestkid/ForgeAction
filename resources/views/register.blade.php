@@ -25,43 +25,43 @@
         </div>
     @endif
 
-<div class="container mt-5">
-    <div class="mx-auto p-4 bg-dark rounded-3 shadow-lg" style="max-width: 600px;">
-        <img class="mb-4 mx-auto d-block" src="{{ asset('assets/images/forgeicon.png') }}" alt="" width="72" height="57">
-        <h1 class="h3 mb-3 fw-normal text-center font-medieval text-white">Faça cadastro!</h1>
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+    <div class="form-signin w-100 bg-dark rounded-3 p-4 shadow-lg" style="max-width: 400px;">
+        <form id="registerForm" method="POST" action="{{ route('register.post') }}">
+            @csrf
+            <img class="mb-4 mx-auto d-block" src="{{ asset('assets/images/forgeicon.png') }}" alt="" width="72" height="57">
+            <h1 class="h3 mb-3 fw-normal text-center font-medieval text-white">Faça seu cadastro</h1>
 
-        <div class="tab-content mt-3">
-            <!-- Aba 1: Dados Cadastrais -->
-            <form action="{{ route('register.post') }}" id="registerForm" method="post">
-                @csrf
-                <div class="text-light" id="login">
-                    <div class="form-floating mb-3">
-                        <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
-                        <label for="email"><i class="fa-solid fa-envelope me-1"></i> Email</label>
-                    </div>
+            <div class="form-floating mb-3 text-light">
+                <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
+                <label for="email"><i class="fa-solid fa-envelope me-1"></i> Email</label>
+            </div>
 
-                    <div class="form-floating mb-3">
-                        <input type="text" name="login" class="form-control" id="login" placeholder="Nome Usuario" required>
-                        <label for="login"><i class="fa-solid fa-user me-1"></i> Nome usuário</label>
-                    </div>
+            <div class="form-floating mb-3 text-light">
+                <input type="text" name="login" class="form-control" id="login" placeholder="Nome de usuário" required>
+                <label for="login"><i class="fa-solid fa-user me-1"></i> Nome de usuário</label>
+            </div>
 
-                    <div class="form-floating mb-3">
-                        <input type="password" name="senha" class="form-control" id="senha" placeholder="Senha" required>
-                        <label for="senha"><i class="fa-solid fa-lock me-1"></i> Senha</label>
-                    </div>
+            <div class="form-floating mb-3 text-light">
+                <input type="password" name="senha" class="form-control" id="senha" placeholder="Senha" required>
+                <label for="senha"><i class="fa-solid fa-lock me-1"></i> Senha</label>
+            </div>
 
-                    <div class="form-floating mb-3">
-                        <input type="password" id="passwordConfirm" class="form-control" placeholder="Confirme a senha" required>
-                        <label for="passwordConfirm"><i class="fa-solid fa-check-double me-1"></i> Confirme a senha</label>
-                    </div>
+            <div class="form-floating mb-4 text-light">
+                <input type="password" id="passwordConfirm" class="form-control" placeholder="Confirme a senha" required>
+                <label for="passwordConfirm"><i class="fa-solid fa-check-double me-1"></i> Confirmar senha</label>
+            </div>
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fa-solid fa-paper-plane me-1"></i> Enviar
-                    </button>
-                </div>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-primary w-100 py-2">
+                <i class="fa-solid fa-paper-plane me-1"></i> Cadastrar
+            </button>
 
+            <div class="text-center mt-3">
+                <a href="{{ route('login') }}" class="text-light text-decoration-none">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Já tem uma conta? Faça login
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 

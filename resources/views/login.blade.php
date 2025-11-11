@@ -55,7 +55,14 @@
                     </a>
                 </div>
             </div>
-            <button class="btn btn-primary w-100 py-2 btn-submit" type="submit"><i class="fa-solid fa-paper-plane me-1"></i> Entre</button>
+            <button class="btn btn-primary w-100 py-2 btn-submit" type="submit">
+                <i class="fa-solid fa-paper-plane me-1"></i> Entre
+            </button>
+            <div class="text-center mt-3">
+                <a href="{{ route('login') }}" class="text-light text-decoration-none">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Não tem uma conta? Faça cadastro
+                </a>
+            </div>
         </form>
     </div>
 </div>
