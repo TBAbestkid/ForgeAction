@@ -26,7 +26,7 @@
     @endif
 
 <div class="container mt-5">
-    <div class="mx-auto p-4" style="max-width: 600px;">
+    <div class="mx-auto p-4 bg-dark rounded-3" style="max-width: 600px;">
         <img class="mb-4 mx-auto d-block" src="{{ asset('assets/images/forgeicon.png') }}" alt="" width="72" height="57">
         <h1 class="h3 mb-3 fw-normal text-center font-medieval text-white">Faça cadastro!</h1>
 
