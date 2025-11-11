@@ -97,7 +97,7 @@
     @else
         {{-- Bloco dos cards de login, cadastro, sobre e download --}}
         <div class="container text-white d-flex flex-column align-items-center justify-content-center py-5">
-            <div class="text-center mb-5">
+            <div class="text-center mb-5 bg-dark p-4 rounded-3 shadow-lg">
                 <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction Logo"
                     class="logo-center mb-3" style="max-width:150px;">
                 <h1>ForgeAction</h1>
