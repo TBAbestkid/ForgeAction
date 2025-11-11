@@ -1,0 +1,108 @@
+/* ======= 🎨 ForgeAction RPG Theme ======= */
+:root {
+  /* ===== Base ===== */
+  --bs-body-bg: #0b0b0d;
+  --bs-body-color: #f8f9fa;
+
+  /* ===== Gradientes Principais ===== */
+  --forge-gradient-primary: linear-gradient(135deg, #1e3a8a, #3b82f6); /* 💎 Lápis-lazúli */
+  --forge-gradient-secondary: linear-gradient(135deg, #4b5563, #1f2937); /* ⚙️ Aço */
+  --forge-gradient-success: linear-gradient(135deg, #166534, #22c55e); /* 🌿 Esmeralda */
+  --forge-gradient-danger: linear-gradient(135deg, #7f1d1d, #dc2626); /* 🔥 Brasa */
+  --forge-gradient-warning: linear-gradient(135deg, #ca8a04, #facc15); /* 🧱 Ouro */
+  --forge-gradient-info: linear-gradient(135deg, #38bdf8, #0ea5e9); /* 💠 Diamante */
+  --forge-gradient-light: linear-gradient(135deg, #f3f4f6, #d1d5db); /* ☁️ Névoa */
+  --forge-gradient-dark: linear-gradient(135deg, #111827, #1f2937); /* 🌑 Sombra */
+
+  /* ===== Paleta sólida (para fallback e componentes padrão) ===== */
+  --bs-primary: #1e3a8a;
+  --bs-secondary: #4b5563;
+  --bs-success: #22c55e;
+  --bs-danger: #b91c1c;
+  --bs-warning: #eab308;
+  --bs-info: #38bdf8;
+  --bs-light: #f3f4f6;
+  --bs-dark: #111827;
+}
+
+/* ===== Botões Forge (usa gradientes!) ===== */
+.btn-primary {
+  background-image: var(--forge-gradient-primary);
+  border: none;
+  color: #fff;
+}
+
+.btn-secondary {
+  background-image: var(--forge-gradient-secondary);
+  border: none;
+  color: #fff;
+}
+
+.btn-success {
+  background-image: var(--forge-gradient-success);
+  border: none;
+  color: #fff;
+}
+
+.btn-danger {
+  background-image: var(--forge-gradient-danger);
+  border: none;
+  color: #fff;
+}
+
+.btn-warning {
+  background-image: var(--forge-gradient-warning);
+  border: none;
+  color: #111;
+}
+
+.btn-info {
+  background-image: var(--forge-gradient-info);
+  border: none;
+  color: #fff;
+}
+
+.btn-dark {
+  background-image: var(--forge-gradient-dark);
+  border: none;
+  color: #fff;
+}
+
+.btn-light {
+  background-image: var(--forge-gradient-light);
+  border: none;
+  color: #111;
+}
+
+/* ===== Hover Effects ===== */
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  transition: 0.2s;
+}
+
+/* ===== Bordas e cartões ===== */
+.card {
+  background: var(--forge-gradient-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Inputs ===== */
+.form-control,
+.input-group-text {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  color: #f8f9fa;
+}
+
+/* ===== Texto utilitário ===== */
+.text-primary { background: var(--forge-gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.text-danger { background: var(--forge-gradient-danger); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.text-success { background: var(--forge-gradient-success); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.text-warning { background: var(--forge-gradient-warning); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.text-info { background: var(--forge-gradient-info); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* ===== Sombras suaves para vibe RPG ===== */
+.btn, .card {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}

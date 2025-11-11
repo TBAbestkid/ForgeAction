@@ -1,15 +1,6 @@
 /* deixando o fundo escuro com letra branca
 *  também colocando uma fonte do google medieval
 */
-:root {
-    --bs-body-bg: #0f0f0f;
-    --bs-body-color: #f8f9fa;
-    /* Gradientes customizados */
-    --forge-gradient-primary: linear-gradient(135deg, #f59e0b, #b45309);
-    --forge-gradient-danger: linear-gradient(135deg, #ef4444, #7f1d1d);
-    --forge-gradient-steel: linear-gradient(135deg, #4b5563, #1f2937);
-}
-
 body {
     background-color: #1a1a1a; /* Fallback */
     background-image: url('/assets/images/forge.png');
