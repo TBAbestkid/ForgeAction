@@ -4,9 +4,10 @@
 :root {
     --bs-body-bg: #0f0f0f;
     --bs-body-color: #f8f9fa;
-    --bs-primary: #d97706; /* dourado */
-    --bs-secondary: #343a40; /* aço */
-    --bs-danger: #b91c1c; /* brasa */
+    /* Gradientes customizados */
+    --forge-gradient-primary: linear-gradient(135deg, #f59e0b, #b45309);
+    --forge-gradient-danger: linear-gradient(135deg, #ef4444, #7f1d1d);
+    --forge-gradient-steel: linear-gradient(135deg, #4b5563, #1f2937);
 }
 
 body {
