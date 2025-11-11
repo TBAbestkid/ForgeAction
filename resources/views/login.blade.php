@@ -26,7 +26,7 @@
 @endif
 
 <div class="d-flex justify-content-center align-items-center min-vh-100">
-    <div class="form-signin w-100 bg-dark rounded-3 p-4 shadow-lg" style="max-width: 400px;">
+    <div class="card form-signin w-100 bg-dark rounded-3 p-4 shadow-lg" style="max-width: 400px;">
         <form id="myForm" method="POST" action="{{ route('login.post') }}">
             @csrf
             <img class="mb-4 mx-auto d-block" src="{{ asset('assets/images/forgeicon.png') }}" alt="" width="72" height="57">
