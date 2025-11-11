@@ -11,92 +11,87 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
     @if(session('user_login'))
-        <div class="container-fluid py-5">
-            <div class="container">
-                <div class="d-flex flex-wrap justify-content-center align-items-start gap-5">
+        <div class="container py-5">
+            <div class="d-flex flex-wrap justify-content-center align-items-start gap-5">
 
-                    <!-- Personagens -->
-                    <div class="flex-fill" style="min-width: 350px; max-width: 450px;">
-                        <div class="card bg-dark bg-opacity-75 text-white shadow-lg border-0">
-                            <div class="card-body rounded-3 p-4">
-                                <h3 class="fw-bold text-center mb-4">
-                                    <i class="fa-solid fa-users me-2"></i> Personagens
-                                </h3>
+                <!-- Personagens -->
+                <div class="flex-fill" style="min-width: 350px; max-width: 450px;">
+                    <div class="card bg-dark text-white shadow-lg border-0">
+                        <div class="card-body rounded-3 p-4">
+                            <h3 class="fw-bold text-center mb-4">
+                                <i class="fa-solid fa-users me-2"></i> Personagens
+                            </h3>
 
-                                {{-- Busca --}}
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text bg-dark text-light border-secondary">
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-                                    </span>
-                                    <input type="text" id="searchCharacter"
-                                        class="form-control text-white border-secondary"
-                                        placeholder="Pesquisar por nome, raça ou classe...">
-                                </div>
+                            {{-- Busca --}}
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-dark text-light border-secondary">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </span>
+                                <input type="text" id="searchCharacter"
+                                    class="form-control text-white border-secondary"
+                                    placeholder="Pesquisar por nome, raça ou classe...">
+                            </div>
 
-                                {{-- Lista de personagens --}}
-                                <ul id="characterList"
-                                    class="list-group list-group-flush bg-dark"
-                                    style="max-height: 400px; overflow-y: auto;">
-                                    <li class="list-group-item bg-dark text-white text-center" id="loadingCharacters">
-                                        <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando personagens...
-                                    </li>
-                                </ul>
+                            {{-- Lista de personagens --}}
+                            <ul id="characterList"
+                                class="list-group list-group-flush bg-dark"
+                                style="max-height: 400px; overflow-y: auto;">
+                                <li class="list-group-item bg-dark text-white text-center" id="loadingCharacters">
+                                    <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando personagens...
+                                </li>
+                            </ul>
 
-                                {{-- Botões --}}
-                                <div class="d-grid gap-2 mt-4">
-                                    <a href="{{ route('registerPerson') }}" class="btn btn-outline-light">
-                                        <i class="fa-solid fa-user-plus me-1"></i> Criar personagem
-                                    </a>
-                                    <button class="btn btn-outline-danger">
-                                        <i class="fa-solid fa-trash me-1"></i> Excluir
-                                    </button>
-                                </div>
+                            {{-- Botões --}}
+                            <div class="d-grid gap-2 mt-4">
+                                <a href="{{ route('registerPerson') }}" class="btn btn-outline-light">
+                                    <i class="fa-solid fa-user-plus me-1"></i> Criar personagem
+                                </a>
+                                <button class="btn btn-outline-danger">
+                                    <i class="fa-solid fa-trash me-1"></i> Excluir
+                                </button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Espaço central livre -->
-                    <div class="flex-fill d-none d-md-block" style="max-width: 150px;"></div>
+                <!-- Espaço central livre -->
+                <div class="flex-fill d-none d-md-block" style="max-width: 150px;"></div>
 
-                    <!-- Salas -->
-                    <div class="flex-fill" style="min-width: 350px; max-width: 450px;">
-                        <div class="card bg-dark bg-opacity-75 text-white shadow-lg border-0">
-                            <div class="card-body rounded-3 p-4">
-                                <h3 class="fw-bold text-center mb-4">
-                                    <i class="fa-solid fa-door-open me-2"></i> Salas
-                                </h3>
+                <!-- Salas -->
+                <div class="flex-fill" style="min-width: 350px; max-width: 450px;">
+                    <div class="card bg-dark text-white shadow-lg border-0">
+                        <div class="card-body rounded-3 p-4">
+                            <h3 class="fw-bold text-center mb-4">
+                                <i class="fa-solid fa-door-open me-2"></i> Salas
+                            </h3>
 
-                                {{-- Lista de salas --}}
-                                <div id="salas-container">
-                                    <div class="d-flex align-items-center justify-content-center gap-2 bg-dark text-light fw-bold rounded-3 p-3 shadow-sm">
-                                        <li class="list-group-item bg-dark text-white text-center" id="loadingRoom">
-                                            <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando salas...
-                                        </li>
-                                    </div>
+                            {{-- Lista de salas --}}
+                            <div id="salas-container">
+                                <div class="d-flex align-items-center justify-content-center gap-2 bg-dark text-light fw-bold rounded-3 p-3 shadow-sm">
+                                    <li class="list-group-item bg-dark text-white text-center" id="loadingRoom">
+                                        <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando salas...
+                                    </li>
                                 </div>
+                            </div>
 
-                                {{-- Botão --}}
-                                <div class="text-center mt-4">
-                                    <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
-                                        <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Entrar sala
+                            {{-- Botões --}}
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
+                                    <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Entrar sala
+                                </a>
+                                    @if (session('user_role') === 'MASTER')
+                                    <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
+                                        <i class="fa-solid fa-user-group me-1"></i> Criar sala
                                     </a>
-                                </div>
-
-                                @if (session('user_role') === 'MASTER')
-                                    <div class="d-grid gap-2 mt-3">
-                                        <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
-                                            <i class="fa-solid fa-user-group me-1"></i> Criar sala
-                                        </a>
-                                        <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
-                                            <i class="fa-solid fa-trash me-1"></i> Remover sala
-                                        </a>
-                                    </div>
+                                    <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
+                                        <i class="fa-solid fa-trash me-1"></i> Remover sala
+                                    </a>
                                 @endif
                             </div>
                         </div>
                     </div>
-
                 </div>
+
             </div>
         </div>
     @else
@@ -250,9 +245,6 @@
                                             Classe: ${classes[p.classe] ?? p.classe}
                                         </small>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-success select-btn" data-character='${JSON.stringify(p)}'>
-                                        <i class="fa-solid fa-check me-1"></i> Selecionar
-                                    </button>
                                 </div>
                             `);
                         });
@@ -273,55 +265,6 @@
                         </div>
                     `);
                 }
-            });
-        }
-
-        /* -------------------------------------------------------------
-        🧩 SELECIONAR PERSONAGEM (AJAX)
-        ------------------------------------------------------------- */
-        function attachCharacterEvents() {
-            $(".select-btn").off("click").on("click", function () {
-                const character = $(this).data("character");
-
-                $.ajax({
-                    url: "{{ route('character.select') }}",
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(character),
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                    success: function (data) {
-                        if (data.success) {
-                            // Mostra toast ou feedback visual
-                            showToast("Personagem selecionado com sucesso!", "success");
-                            location.reload();
-                        } else {
-                            showAlert(data.message || "Erro ao selecionar personagem.");
-                        }
-                    },
-                    error: function (xhr) {
-                        showAlert("Erro na requisição: " + xhr.status);
-                    }
-                });
-            });
-        }
-
-        /* -------------------------------------------------------------
-        🧩 DESELECIONAR PERSONAGEM (AJAX)
-        ------------------------------------------------------------- */
-        function attachDeselectEvents() {
-            $(".deselect-btn").off("click").on("click", function () {
-
-                $.ajax({
-                    url: "{{ route('character.deselect') }}",
-                    method: "POST",
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                    success: function (data) {
-                        if (data.success) location.reload();
-                    },
-                    error: function () {
-                        alert("Erro ao deselecionar personagem.");
-                    }
-                });
             });
         }
 
@@ -461,32 +404,5 @@
         deferredPrompt = null;
     });
 </script>
-{{-- Estilos animados --}}
-<style>
-    @keyframes glow {
-        0%, 100% { box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.6); }
-        50% { box-shadow: 0 0 20px 6px rgba(255, 215, 0, 1); }
-    }
 
-    @keyframes fadeInScale {
-        from {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    .glow-btn {
-        animation: glow 1.8s infinite ease-in-out;
-        font-weight: bold;
-        letter-spacing: 0.5px;
-    }
-
-    .fade-in-card.show-card {
-        animation: fadeInScale 0.6s ease forwards;
-    }
-</style>
 @endsection
