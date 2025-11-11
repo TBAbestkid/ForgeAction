@@ -257,7 +257,7 @@
                         attachCharacterEvents(); // reativa os botões
                     } else {
                         $characterList.html(`
-                            <div class="text-center text-light py-3 bg-dark rounded">
+                            <div class="text-center text-light py-3 bg-dark rounded border-light shadow">
                                 <i class="fa-solid fa-circle-exclamation"></i> Nenhum personagem encontrado.
                             </div>
                         `);
@@ -265,7 +265,7 @@
                 },
                 error: function () {
                     $characterList.html(`
-                        <div class="text-center text-danger py-3 bg-dark rounded">
+                        <div class="text-center text-danger py-3 bg-dark rounded border-light shadow">
                             <i class="fa-solid fa-triangle-exclamation"></i> Erro ao carregar personagens.
                         </div>
                     `);
