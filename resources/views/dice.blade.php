@@ -15,7 +15,7 @@
     <div id="dice-container" style="width:100%;height:500px;"></div>
 </div>
 <script type="module">
-import { initDice } from '/js/dice3d.js';
+import { initDice } from '/js/room/dice3d.js';
 
 (async () => {
     const { rollWithValue } = await initDice('#dice-container');
