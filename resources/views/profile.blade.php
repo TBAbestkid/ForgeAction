@@ -7,7 +7,7 @@
     <div class="card shadow p-4 mx-auto" style="max-width: 800px;">
         <!-- Botão de Voltar -->
         <div class="text-start">
-            <a href="{{ url('/') }}" class="btn btn-light mb-4 px-4 py-2 shadow-sm">
+            <a href="{{ url('/') }}" class="btn btn-outline-light mb-4 px-4 py-2 shadow-sm">
                 <i class="fa-solid fa-arrow-left me-2"></i> Voltar para Home
             </a>
         </div>
