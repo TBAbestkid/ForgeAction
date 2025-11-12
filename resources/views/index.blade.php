@@ -56,23 +56,20 @@
                             </h3>
 
                             {{-- Lista de salas --}}
-                            <div id="salas-container">
-                                <div class="d-flex align-items-center justify-content-center gap-2 bg-dark text-light fw-bold rounded-3 p-3 shadow-sm">
-                                    <li class="list-group-item bg-dark text-white text-center" id="loadingRoom">
-                                        <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando salas...
-                                    </li>
-                                </div>
-                            </div>
+                            <ul id="salasList"
+                                class="list-group list-group-flush bg-dark scroll-invisible"
+                                style="max-height: 400px; overflow-y: auto;">
+                                <li class="list-group-item bg-dark text-white text-center" id="loadingRoom">
+                                    <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando salas...
+                                </li>
+                            </ul>
 
                             {{-- Botões --}}
-                            <div class="d-grid gap-2 mt-3">
+                            <div class="d-grid gap-2 mt-4">
                                 @if (session('user_role') === 'MASTER')
                                     <a href="{{ route('salas.create') }}" class="btn btn-outline-success">
                                         <i class="fa-solid fa-user-group me-1"></i> Criar sala
                                     </a>
-                                    {{-- <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
-                                        <i class="fa-solid fa-trash me-1"></i> Remover sala
-                                    </a> --}}
                                 @else
                                     <button class="btn btn-outline-success px-4 py-2 shadow-sm"
                                             data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
