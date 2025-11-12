@@ -52,10 +52,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function createDice(sides) {
         const size = 10;
 
-        // Carrega textura do DiceBox (exemplo: classic D6)
+        // Carrega texturas do DiceBox (classic)
         const loader = new THREE.TextureLoader();
-        const texture = loader.load(`/assets/themes/classic/d${sides}.png`);
+        const diffuse = loader.load('/assets/themes/classic/diffuse-light.png');
+        const normal = loader.load('/assets/themes/classic/normal.png');
+        const specular = loader.load('/assets/themes/classic/specular.jpg');
 
+        // Material único usando as texturas
+        const material = new THREE.MeshStandardMaterial({
+            map: diffuse,
+            normalMap: normal,
+            metalnessMap: specular,
+            roughness: 0.5,
+        });
+
+        // Geometria do dado
         let geometry;
         switch(sides){
             case 4:  geometry = new THREE.TetrahedronGeometry(size); break;
@@ -66,10 +77,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             default: geometry = new THREE.BoxGeometry(size, size, size);
         }
 
-        const material = new THREE.MeshStandardMaterial({ map: texture });
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
 
+        // Corpo físico Cannon-es
         const shape = new CANNON.Box(new CANNON.Vec3(size/2, size/2, size/2));
         const body = new CANNON.Body({ mass: 1, shape });
         body.position.set(0, 50, 0);
