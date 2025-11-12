@@ -19,10 +19,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         const { default: DiceBox } = await import(
-            "https://cdn.jsdelivr.net/npm/@3d-dice/dice-box@1.2.1/dist/dice-box.es.min.js"
+            "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js"
         );
 
-        // ⚙️ Inicializa corretamente com a nova API
+        // 🔧 Inicializa o DiceBox
         const diceBox = new DiceBox({
             container: "#dice-container",
             assetPath: "/assets/",
@@ -38,29 +38,61 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         await diceBox.init();
 
-        /**
-         * 🧙 Função que rola o dado com animação e depois força o valor desejado.
-         * @param {number} diceType  Ex: 4, 6, 10, 12, 20
-         * @param {number} value     Valor que deve cair
-         */
+        // 🧙 Função que rola o dado e força o valor visualmente
         async function rollControlled(diceType, value) {
             console.log(`🎲 Rolando D${diceType} com valor controlado: ${value}`);
 
-            // Etapa 1: rola de forma normal
+            // Rola normalmente
             await diceBox.roll(`1d${diceType}`);
 
-            // Etapa 2: espera o tempo da animação física (~1.5s)
+            // Aguarda a animação física (~1.5s)
             setTimeout(() => {
-                // Mostra o resultado visualmente forçado
-                diceBox.showResult(`1d${diceType}`, [value]);
-                console.log(`✨ Resultado manipulado: D${diceType} caiu em ${value}`);
+                const die = diceBox.dice?.[0];
+
+                // Caminho 1: tenta API nativa (se existir)
+                if (die && typeof die.setResult === "function") {
+                    die.setResult(value);
+                    console.log(`✨ Valor forçado via API interna: ${value}`);
+                    return;
+                }
+
+                // Caminho 2: fallback visual (overlay 2D)
+                console.warn("⚠️ setResult() não disponível — usando overlay visual");
+
+                const overlay = document.createElement("div");
+                overlay.className = "forced-result";
+                overlay.textContent = value;
+                Object.assign(overlay.style, {
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    color: "#fff",
+                    fontSize: "6rem",
+                    fontWeight: "bold",
+                    textShadow: "0 0 25px rgba(0,0,0,0.9)",
+                    opacity: "0",
+                    pointerEvents: "none",
+                    transition: "opacity 0.4s ease-out",
+                    zIndex: "999",
+                });
+
+                const container = document.querySelector("#dice-container");
+                container.style.position = "relative";
+                container.appendChild(overlay);
+
+                setTimeout(() => (overlay.style.opacity = "1"), 1000);
+                setTimeout(() => {
+                    overlay.style.opacity = "0";
+                    setTimeout(() => overlay.remove(), 400);
+                }, 3000);
             }, 1500);
         }
 
-        // 🎮 Botões interativos
+        // 🎮 Liga os botões
         [4, 6, 10, 12, 20].forEach(faces => {
             document.querySelector(`#btn-d${faces}`).addEventListener('click', async () => {
-                const value = Math.floor(Math.random() * faces) + 1; // gera valor controlado
+                const value = Math.floor(Math.random() * faces) + 1;
                 await rollControlled(faces, value);
             });
         });
