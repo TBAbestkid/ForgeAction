@@ -34,22 +34,22 @@
                     @csrf
                     <div class="form-floating mb-3">
                         <input type="text" name="nome" id="nome" class="form-control" placeholder="Nome" required>
-                        <label for="nome">Nome do Personagem</label>
+                        <label for="nome" class="text-light">Nome do Personagem</label>
                     </div>
 
                     <div class="form-floating mb-3">
                         <select id="classe" name="classe" class="form-control" required></select>
-                        <label for="classe">Classe</label>
+                        <label for="classe" class="text-light">Classe</label>
                     </div>
 
                     <div class="form-floating mb-3">
                         <select id="raca" name="raca" class="form-control" required></select>
-                        <label for="raca">Raça</label>
+                        <label for="raca" class="text-light">Raça</label>
                     </div>
 
                     <div class="form-floating mb-3">
                         <input type="number" name="idade" id="idade" class="form-control" placeholder="Idade" required>
-                        <label for="idade">Idade</label>
+                        <label for="idade" class="text-light">Idade</label>
                     </div>
 
                     <div class="form-floating mb-3">
@@ -61,7 +61,7 @@
                             <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option>
                             <option value="Outro">Outro</option>
                         </select>
-                        <label for="genero">Identificação</label>
+                        <label for="genero" class="text-light">Identificação</label>
                     </div>
 
                     <div class="d-flex justify-content-end">
@@ -78,7 +78,7 @@
                         @foreach(['forca','agilidade','inteligencia','sabedoria','destreza','vitalidade','percepcao','carisma'] as $attr)
                             <div class="col-md-6 form-floating">
                                 <input type="number" name="{{ $attr }}" class="form-control" placeholder="{{ ucfirst($attr) }}" required min="1" value="1">
-                                <label>{{ ucfirst($attr) }}</label>
+                                <label class="text-light">{{ ucfirst($attr) }}</label>
                             </div>
                         @endforeach
                     </div>
