@@ -15,17 +15,16 @@
     <div id="dice-container" style="width:100%;height:500px; position: relative;"></div>
 </div>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/controls/OrbitControls.js';
-import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
-// Aqui o caminho para threejs‑dice ajustado:
-import { DiceManager, DiceD4, DiceD6, DiceD10, DiceD12, DiceD20 }
-  from 'https://cdn.jsdelivr.net/npm/threejs-dice@1.0.0/lib/index.module.js';
+<!-- Carrega Three.js, Cannon‑es e threejs‑dice como script global -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.162.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/threejs-dice@1.1.0/lib/dice.min.js"></script>
 
-console.log("🚀 DOM carregado, iniciando cena 3D de dados...");
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    console.log("🚀 DOM carregado, iniciando cena 3D de dados...");
 
-async function initDice(containerId = '#dice-container') {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x222222);
 
@@ -34,9 +33,9 @@ async function initDice(containerId = '#dice-container') {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.querySelector(containerId).appendChild(renderer.domElement);
+    document.querySelector("#dice-container").appendChild(renderer.domElement);
 
-    const controls = new OrbitControls(camera, renderer.domElement);
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
 
     const world = new CANNON.World();
@@ -51,13 +50,13 @@ async function initDice(containerId = '#dice-container') {
     ground.quaternion.setFromEuler(-Math.PI/2, 0, 0);
     world.addBody(ground);
 
-    async function rollWithValue(sides, value) {
+    function rollWithValue(sides, value) {
         console.log(`\n🎲 Rolando D${sides} → valor desejado: ${value}`);
 
         let dice;
         switch(sides) {
-            case 4:  dice = new DiceD4({ size: 15 });  break;
-            case 6:  dice = new DiceD6({ size: 15 });  break;
+            case 4:  dice = new DiceD4({ size: 15 }); break;
+            case 6:  dice = new DiceD6({ size: 15 }); break;
             case 10: dice = new DiceD10({ size: 15 }); break;
             case 12: dice = new DiceD12({ size: 15 }); break;
             case 20: dice = new DiceD20({ size: 15 }); break;
@@ -69,13 +68,10 @@ async function initDice(containerId = '#dice-container') {
         scene.add(dice.getObject());
         dice.updateBodyFromMesh();
 
-        // **Define o valor antes da rolagem**
         DiceManager.prepareValues([{ dice: dice, value: value }]);
 
-        // Lança o dado
         dice.throwRandom();
 
-        // Loop de animação
         function animate() {
             world.step(1/60);
             dice.updateMeshFromBody();
@@ -89,15 +85,6 @@ async function initDice(containerId = '#dice-container') {
         animate();
     }
 
-    window.rollWithValue = rollWithValue;
-    console.log("✅ rollWithValue() disponível globalmente");
-
-    return { scene, camera, renderer, world, rollWithValue };
-}
-
-(async () => {
-    const { rollWithValue } = await initDice('#dice-container');
-
     [4,6,10,12,20].forEach(sides => {
         document.querySelector(`#btn-d${sides}`).addEventListener('click', () => {
             const value = Math.floor(Math.random() * sides) + 1;
@@ -105,6 +92,8 @@ async function initDice(containerId = '#dice-container') {
             rollWithValue(sides, value);
         });
     });
-})();
+
+    console.log("✅ Setup completo — pronto para rolagens");
+});
 </script>
 @endsection
