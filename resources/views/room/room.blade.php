@@ -59,21 +59,28 @@
             <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: 50vh;">
 
                 {{-- Coluna esquerda (Logs) --}}
-                <nav class="nav flex-column nav-pills bg-dark p-3 rounded d-none d-md-flex" style="min-width: 150px;">
-                    {{-- Tabs --}}
-                    <button class="nav-link active d-flex align-items-center gap-1" id="tab-chat" data-bs-toggle="pill" data-bs-target="#chat-tab" type="button" aria-controls="chat-tab" aria-selected="true">
-                        <i class="fa-solid fa-comment"></i> Chat
-                    </button>
-                    <button class="nav-link d-flex align-items-center gap-1" id="tab-logs" data-bs-toggle="pill" data-bs-target="#logs-tab" type="button" aria-controls="logs-tab" aria-selected="false">
-                        <i class="fa-solid fa-list-ul"></i> Logs
-                    </button>
+                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="min-width: 200px; flex: 1 1 auto;">
+
+                    {{-- Botões horizontais --}}
+                    <ul class="nav nav-pills mb-3" id="chatLogsTabs" role="tablist">
+                        <li class="nav-item flex-fill" role="presentation">
+                            <button class="nav-link active w-100 text-center" id="tab-chat" data-bs-toggle="pill" data-bs-target="#chat-tab" type="button" role="tab" aria-controls="chat-tab" aria-selected="true">
+                                <i class="fa-solid fa-comment"></i> Chat
+                            </button>
+                        </li>
+                        <li class="nav-item flex-fill" role="presentation">
+                            <button class="nav-link w-100 text-center" id="tab-logs" data-bs-toggle="pill" data-bs-target="#logs-tab" type="button" role="tab" aria-controls="logs-tab" aria-selected="false">
+                                <i class="fa-solid fa-list-ul"></i> Logs
+                            </button>
+                        </li>
+                    </ul>
 
                     {{-- Conteúdo das Tabs --}}
-                    <div class="tab-content mt-3 flex-grow-1">
+                    <div class="tab-content flex-grow-1" style="height: calc(100% - 50px);">
                         {{-- Chat --}}
-                        <div class="tab-pane fade show active d-flex flex-column" id="chat-tab" role="tabpanel" aria-labelledby="tab-chat">
+                        <div class="tab-pane fade show active d-flex flex-column h-100" id="chat-tab" role="tabpanel" aria-labelledby="tab-chat">
                             <strong class="mb-2">Chat da Sala:</strong>
-                            <div id="chat-messages" class="flex-grow-1 d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="min-height:150px; max-height:40vh;">
+                            <div id="chat-messages" class="flex-grow-1 d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="min-height:150px;">
                                 <!-- Mensagens -->
                             </div>
                             <div class="d-flex mt-2">
@@ -83,8 +90,8 @@
                         </div>
 
                         {{-- Logs --}}
-                        <div class="tab-pane fade d-flex flex-column" id="logs-tab" role="tabpanel" aria-labelledby="tab-logs">
-                            <div class="d-flex flex-column bg-dark rounded p-3 text-white flex-grow-1 scroll-invisible" style="max-height:300px;">
+                        <div class="tab-pane fade d-flex flex-column h-100" id="logs-tab" role="tabpanel" aria-labelledby="tab-logs">
+                            <div class="d-flex flex-column bg-dark rounded p-3 text-white flex-grow-1 scroll-invisible">
                                 <div id="system-logs">
                                     <!-- Logs -->
                                 </div>
@@ -300,31 +307,32 @@
             @endif
 
             {{-- Botão para abrir/fechar chat --}}
-            {{-- Container de Chat, Logs e Players--}}
-            <div class="d-flex d-md-none fixed-bottom bg-dark border-top" style="z-index: 1050;">
-                <ul class="nav nav-tabs nav-fill w-100" id="mobileTabs" role="tablist">
+            {{-- Container mobile de Chat, Logs e Players --}}
+            <div class="d-md-none mt-3 w-100">
+                {{-- Tabs --}}
+                <ul class="nav nav-tabs nav-fill mb-2" id="mobileTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active text-white" id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
-                            <i class="fa-solid fa-comment"></i>
+                            <i class="fa-solid fa-comment"></i> Chat
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-white" id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
-                            <i class="fa-solid fa-list-ul"></i>
+                            <i class="fa-solid fa-list-ul"></i> Logs
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-white" id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
-                            <i class="fa-solid fa-users"></i>
+                            <i class="fa-solid fa-users"></i> Players
                         </button>
                     </li>
                 </ul>
 
                 {{-- Conteúdo das tabs --}}
-                <div class="tab-content w-100 bg-dark" style="max-height: 50vh; overflow:auto;">
+                <div class="tab-content bg-dark rounded p-2">
                     {{-- Chat --}}
-                    <div class="tab-pane fade show active p-2" id="mobile-chat" role="tabpanel" aria-labelledby="mobile-chat-tab">
-                        <div id="chat-messages-mobile" class="d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="max-height:30vh;">
+                    <div class="tab-pane fade show active" id="mobile-chat" role="tabpanel" aria-labelledby="mobile-chat-tab">
+                        <div id="chat-messages-mobile" class="d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="max-height: 300px;">
                             <!-- Mensagens -->
                         </div>
                         <div class="d-flex mt-2">
@@ -334,15 +342,15 @@
                     </div>
 
                     {{-- Logs --}}
-                    <div class="tab-pane fade p-2" id="mobile-logs" role="tabpanel" aria-labelledby="mobile-logs-tab">
-                        <div id="system-logs-mobile" class="d-flex flex-column scroll-invisible" style="max-height:30vh;">
+                    <div class="tab-pane fade" id="mobile-logs" role="tabpanel" aria-labelledby="mobile-logs-tab">
+                        <div id="system-logs-mobile" class="d-flex flex-column scroll-invisible" style="max-height: 300px;">
                             <!-- Logs -->
                         </div>
                     </div>
 
                     {{-- Players --}}
-                    <div class="tab-pane fade p-2" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
-                        <div class="d-flex flex-column gap-2 scroll-invisible" style="max-height:30vh;">
+                    <div class="tab-pane fade" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
+                        <div class="d-flex flex-column gap-2 scroll-invisible" style="max-height: 300px;">
                             @foreach ($membros as $m)
                                 <div class="bg-dark rounded p-2 text-white text-center">
                                     <strong>{{ $m['nome'] }}</strong>
@@ -357,8 +365,6 @@
                     </div>
                 </div>
             </div>
-
-
         </div>
 
         <!-- Offcanvas direita -->
