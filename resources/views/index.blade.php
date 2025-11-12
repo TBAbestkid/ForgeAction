@@ -22,19 +22,9 @@
                                 <i class="fa-solid fa-users me-2"></i> Personagens
                             </h3>
 
-                            {{-- Busca --}}
-                            <div class="input-group mb-3">
-                                <span class="input-group-text bg-dark text-light border-secondary">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </span>
-                                <input type="text" id="searchCharacter"
-                                    class="form-control text-white border-secondary"
-                                    placeholder="Pesquisar por nome, raça ou classe...">
-                            </div>
-
                             {{-- Lista de personagens --}}
                             <ul id="characterList"
-                                class="list-group list-group-flush bg-dark"
+                                class="list-group list-group-flush bg-dark scroll-invisible"
                                 style="max-height: 400px; overflow-y: auto;">
                                 <li class="list-group-item bg-dark text-white text-center" id="loadingCharacters">
                                     <i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando personagens...
@@ -43,7 +33,7 @@
 
                             {{-- Botões --}}
                             <div class="d-grid gap-2 mt-4">
-                                <a href="{{ route('registerPerson') }}" class="btn btn-outline-light">
+                                <a href="{{ route('registerPerson') }}" class="btn btn-outline-success">
                                     <i class="fa-solid fa-user-plus me-1"></i> Criar personagem
                                 </a>
                                 <button class="btn btn-outline-danger">
@@ -175,27 +165,6 @@
     $(document).ready(function () {
 
         /* -------------------------------------------------------------
-        🔍 PESQUISA DE PERSONAGENS
-        ------------------------------------------------------------- */
-        const $searchInput = $("#searchCharacter");
-
-        $searchInput.on("input", function () {
-            const query = $(this).val().toLowerCase();
-
-            $(".personagem-item").each(function () {
-                const nome = $(this).data("nome");
-                const raca = $(this).data("raca");
-                const classe = $(this).data("classe");
-
-                if (nome.includes(query) || raca.includes(query) || classe.includes(query)) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            });
-        });
-
-        /* -------------------------------------------------------------
         🧙‍♂️ CARREGAR PERSONAGENS (AJAX)
         ------------------------------------------------------------- */
         const $characterList = $("#characterList");
@@ -245,16 +214,47 @@
                             };
 
                             $characterList.append(`
-                                <div class="personagem-card bg-dark text-white p-3 mb-2 rounded-3 d-flex justify-content-between align-items-center"
-                                    data-nome="${p.nome.toLowerCase()}"
-                                    data-raca="${p.raca.toLowerCase()}"
-                                    data-classe="${p.classe.toLowerCase()}">
-                                    <div>
-                                        <strong class="fs-5">${p.nome}</strong><br>
-                                        <small>
-                                            Raça: ${racas[p.raca] ?? p.raca} |
-                                            Classe: ${classes[p.classe] ?? p.classe}
-                                        </small>
+                                <div class="personagem-card bg-dark text-white p-3 mb-2 rounded-3 border border-secondary">
+                                    <div class="d-flex justify-content-between align-items-center"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse-${p.id}"
+                                        aria-expanded="false"
+                                        aria-controls="collapse-${p.id}"
+                                        style="cursor: pointer;">
+
+                                        <div>
+                                            <strong class="fs-5">${p.nome}</strong><br>
+                                            <small>
+                                                ${racas[p.raca] ?? p.raca} |
+                                                ${classes[p.classe] ?? p.classe}
+                                            </small>
+                                        </div>
+
+                                        <i class="fa-solid fa-chevron-down transition"></i>
+                                    </div>
+
+                                    <div id="collapse-${p.id}" class="collapse mt-2">
+                                        <div class="bg-secondary bg-opacity-25 rounded p-2">
+                                            <div class="row g-2">
+                                                <div class="col-6"><small><strong>Nível:</strong> ${p.level}</small></div>
+                                                <div class="col-6"><small><strong>Força:</strong> ${p.forca}</small></div>
+                                                <div class="col-6"><small><strong>Agilidade:</strong> ${p.agilidade}</small></div>
+                                                <div class="col-6"><small><strong>Inteligência:</strong> ${p.inteligencia}</small></div>
+                                                <div class="col-6"><small><strong>Destreza:</strong> ${p.destreza}</small></div>
+                                                <div class="col-6"><small><strong>Vitalidade:</strong> ${p.vitalidade}</small></div>
+                                                <div class="col-6"><small><strong>Percepção:</strong> ${p.percepcao}</small></div>
+                                                <div class="col-6"><small><strong>Sabedoria:</strong> ${p.sabedoria}</small></div>
+                                                <div class="col-6"><small><strong>Carisma:</strong> ${p.carisma}</small></div>
+                                                <div class="col-6"><small><strong>Vida:</strong> ${p.vida}</small></div>
+                                                <div class="col-6"><small><strong>Mana:</strong> ${p.mana}</small></div>
+                                                <div class="col-6"><small><strong>Iniciativa:</strong> ${p.iniciativa}</small></div>
+                                                <div class="col-6"><small><strong>Atk Mágico:</strong> ${p.ataqueMagico}</small></div>
+                                                <div class="col-6"><small><strong>Atk Corpo:</strong> ${p.ataqueFisicoCorpo}</small></div>
+                                                <div class="col-6"><small><strong>Atk Distância:</strong> ${p.ataqueFisicoDistancia}</small></div>
+                                                <div class="col-6"><small><strong>Defesa:</strong> ${p.defesaPersonagem}</small></div>
+                                                <div class="col-6"><small><strong>Esquiva:</strong> ${p.esquivaPersonagem}</small></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             `);
@@ -387,6 +387,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
+
         // ======== COPIAR CÓDIGO DA SALA ========
         document.querySelectorAll('.btn-copy').forEach(btn => {
             btn.addEventListener('click', async () => {
@@ -416,6 +417,27 @@
                     showToast('Falha ao copiar o código.', 'danger');
                 }
             });
+        });
+
+        // ======== TOGGLE ÍCONES DE COLAPSO ========
+        document.addEventListener('click', function(e) {
+            const toggle = e.target.closest('[data-bs-toggle="collapse"]');
+            if (!toggle) return;
+
+            const icon = toggle.querySelector('i.fa-chevron-down');
+            if (!icon) return;
+
+            // Aguardar o colapso terminar para saber o estado final
+            const targetId = toggle.getAttribute('data-bs-target');
+            const target = document.querySelector(targetId);
+
+            if (target.classList.contains('show')) {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
         });
     });
 </script>

@@ -104,26 +104,13 @@ body {
 #chat-messages.scroll-bottom {
     scroll-behavior: smooth;
 }
-.drawer {
-    position: relative;
-    width: 0;
-    overflow: hidden;
-    transition: width 0.4s ease;
-    min-height: 100%;
-    border-right: 1px solid #444;
+
+.scroll-invisible::-webkit-scrollbar {
+  width: 0; /* Chrome, Safari */
+  height: 0;
 }
 
-.drawer.open {
-    width: 360px;
-}
-
-.drawer-body {
-    overflow-y: auto;
-    max-height: calc(100vh - 80px);
-}
-
-/* Suaviza o conteúdo principal empurrando */
-body.drawer-open main {
-    margin-left: 360px;
-    transition: margin-left 0.4s ease;
+.scroll-invisible {
+  -ms-overflow-style: none;  /* IE e Edge */
+  scrollbar-width: none;     /* Firefox */
 }
