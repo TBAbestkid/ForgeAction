@@ -327,16 +327,13 @@
                         if (isMestre) {
                             botoes = `
                                 <div class="btn-group">
-                                    <a href="#" class="btn btn-sm btn-outline-warning">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </a>
                                     <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
                                         <i class="fa-solid fa-user-plus"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-light btn-copy" data-code="${sala.codigo}" title="Copiar código" id="btnCopyCode">
+                                    <button class="btn btn-sm btn-outline-light btn-copy" data-code="${sala.codigo}" title="Copiar código">
                                         <i class="fa-solid fa-clipboard"></i>
                                     </button>
                                 </div>
