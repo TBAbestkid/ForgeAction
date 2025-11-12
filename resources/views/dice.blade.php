@@ -22,7 +22,7 @@ import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cann
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("🚀 DOM carregado, iniciando cena de dados 3D...");
 
-    // ======== Setup da cena ========
+    // ======== Cena ========
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x222222);
 
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     scene.add(light);
     scene.add(new THREE.AmbientLight(0x888888));
 
-    // ======== Setup da física ========
+    // ======== Física ========
     const world = new CANNON.World();
     world.gravity.set(0, -9.8, 0);
 
@@ -48,9 +48,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     groundBody.quaternion.setFromEuler(-Math.PI/2, 0, 0);
     world.addBody(groundBody);
 
-    // ======== Função para criar dado ========
-    function createDice(sides) {
+    // ======== Função para criar dado com visual DiceBox ========
+    async function createDice(sides) {
         const size = 10;
+
+        // Carrega textura do DiceBox (exemplo: classic D6)
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load(`/assets/themes/classic/d${sides}.png`);
+
         let geometry;
         switch(sides){
             case 4:  geometry = new THREE.TetrahedronGeometry(size); break;
@@ -60,12 +65,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             case 20: geometry = new THREE.IcosahedronGeometry(size); break;
             default: geometry = new THREE.BoxGeometry(size, size, size);
         }
-        const material = new THREE.MeshStandardMaterial({color: 0xff4444});
+
+        const material = new THREE.MeshStandardMaterial({ map: texture });
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
 
         const shape = new CANNON.Box(new CANNON.Vec3(size/2, size/2, size/2));
-        const body = new CANNON.Body({ mass: 1, shape: shape });
+        const body = new CANNON.Body({ mass: 1, shape });
         body.position.set(0, 50, 0);
         world.addBody(body);
 
@@ -73,28 +79,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // ======== Função de rolagem controlada ========
-    function rollDiceControlled(sides, value) {
+    async function rollDiceControlled(sides, value) {
         console.log(`🎲 Rolando D${sides} → valor desejado: ${value}`);
 
-        const dice = createDice(sides);
+        const dice = await createDice(sides);
 
-        // Ajuste inicial de rotação para que o valor desejado fique para cima
-        // (exemplo básico: para D6, mapeia valor para rotação)
-        if (sides === 6) {
+        // Mapeamento simples para D6, para outros dados você pode expandir
+        if(sides === 6){
             const rotations = [
-                [0,0,0],                  // 1
-                [Math.PI/2,0,0],          // 2
-                [Math.PI,0,0],            // 3
-                [-Math.PI/2,0,0],         // 4
-                [0,0,Math.PI/2],          // 5
-                [0,0,-Math.PI/2]          // 6
+                [0,0,0], [Math.PI/2,0,0], [Math.PI,0,0],
+                [-Math.PI/2,0,0], [0,0,Math.PI/2], [0,0,-Math.PI/2]
             ];
             const r = rotations[value-1];
             dice.body.quaternion.setFromEuler(r[0], r[1], r[2]);
         }
-        // Para outros dados, você pode criar mapeamentos semelhantes
 
-        // Aplica rotação aleatória inicial para simular “rolagem”
+        // Rotação inicial aleatória
         dice.body.angularVelocity.set(Math.random()*10, Math.random()*10, Math.random()*10);
 
         // Loop de animação
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             dice.mesh.quaternion.copy(dice.body.quaternion);
             renderer.render(scene, camera);
 
-            if (dice.body.position.y > 10 || dice.body.angularVelocity.length() > 0.1) {
+            if(dice.body.position.y > 10 || dice.body.angularVelocity.length() > 0.1){
                 requestAnimationFrame(animate);
             } else {
                 console.log(`✅ Dado parado → valor final: ${value}`);
