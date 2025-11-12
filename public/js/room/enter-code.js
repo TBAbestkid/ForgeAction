@@ -30,11 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ======== COPIAR CÓDIGO DA SALA ========
-    const btnCopyCode = document.getElementById('btnCopyCode');
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-copy');
+        if (!btn) return;
 
-    btnCopyCode?.addEventListener('click', async () => {
-        const code = btnCopyCode.dataset.code;
-
+        const code = btn.dataset.code;
         if (!code) {
             showToast('Nenhum código disponível para copiar.', 'danger');
             return;
@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(code);
             } else {
-                // 🔸 fallback para browsers sem suporte ou sem HTTPS
                 const tempInput = document.createElement('input');
                 tempInput.value = code;
                 document.body.appendChild(tempInput);

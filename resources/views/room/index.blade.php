@@ -59,9 +59,6 @@
                                     </span>
 
                                     <div class="btn-group" role="group">
-                                        <a href="#" class="btn btn-sm btn-outline-warning" title="Editar">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </a>
                                         <button class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ $sala['id'] }}" title="Excluir">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
