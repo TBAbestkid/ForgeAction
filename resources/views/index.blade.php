@@ -274,90 +274,75 @@
         /* -------------------------------------------------------------
         🚪 LISTAGEM DE SALAS (AJAX)
         ------------------------------------------------------------- */
-        const $salasContainer = $("#salas-container");
+        const $salasList = $("#salasList");
 
         function loadSalas() {
             const userId = "{{ session('user_id') }}";
             const userRole = "{{ session('user_role') }}";
 
-            $salasContainer.html("<li class='list-group-item bg-dark text-white text-center' id='loadingRoom'> <i class='fa-solid fa-spinner fa-spin me-2'></i> Carregando salas... </li>");
-
-            // 🔹 Função auxiliar para buscar as salas (por tipo)
-            function fetchSalas(url) {
-                return $.ajax({ url, method: "GET" })
-                    .then(response => Array.isArray(response) ? response : (response.data || []))
-                    .catch(() => []);
-            }
-
-
-            // 🔹 Define as rotas que serão chamadas
+            // 🔹 Define as rotas
             const rotas = [];
-
             if (userRole === "PLAYER") {
-                // Jogador → apenas as salas onde ele participa
                 rotas.push(`/api/salas/jogador/${userId}`);
-            }
-            else if (userRole === "MASTER") {
-                // Mestre → salas que ele criou + salas que participa como jogador
+            } else if (userRole === "MASTER") {
                 rotas.push(`/api/salas/mestre/${userId}`);
-                rotas.push(`/api/salas/jogador/${userId}`);
             }
 
-            // 🔹 Faz todas as requisições e junta os resultados
-            Promise.all(rotas.map(fetchSalas)).then(results => {
-                // Junta e remove duplicadas (por ID)
-                const salas = results.flat().reduce((acc, sala) => {
-                    if (!acc.find(s => s.id === sala.id)) acc.push(sala);
-                    return acc;
-                }, []);
+            // 🔹 Faz todas as requisições
+            Promise.all(rotas.map(url =>
+                $.ajax({ url, method: "GET" })
+                    .then(r => Array.isArray(r) ? r : (r.data || []))
+                    .catch(() => [])
+            ))
+            .then(results => {
+                const salas = results.flat().filter(
+                    (s, i, arr) => arr.findIndex(x => x.id === s.id) === i
+                );
 
-                $salasContainer.empty();
+                // Limpa o loading
+                $salasList.empty();
 
-                if (salas.length > 0) {
-                    const $list = $("<ul class='list-group'></ul>");
+                // 🔹 Monta cada sala
+                salas.forEach(sala => {
+                    const isMestre = sala.mestre == userId;
 
-                    salas.forEach((sala) => {
-                        const isMestre = sala.mestre == userId;
-
-                        let botoes = '';
-
-                        if (isMestre) {
-                            botoes = `
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
-                                        <i class="fa-solid fa-user-plus"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-light btn-copy" data-code="${sala.codigo}" title="Copiar código">
-                                        <i class="fa-solid fa-clipboard"></i>
-                                    </button>
-                                </div>
-                            `;
-                        } else {
-                            botoes = `
-                                <button class="btn btn-sm btn-outline-danger btn-leave" data-id="${sala.id}">
-                                    <i class="fa-solid fa-door-open"></i> Sair
+                    const botoes = isMestre
+                        ? `
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
+                                    <i class="fa-solid fa-trash"></i>
                                 </button>
-                            `;
-                        }
+                                <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary btn-copy" data-code="${sala.codigo}" title="Copiar código">
+                                    <i class="fa-solid fa-clipboard"></i>
+                                </button>
+                            </div>
+                        `
+                        : `
+                            <button class="btn btn-sm btn-outline-danger btn-leave" data-id="${sala.id}">
+                                <i class="fa-solid fa-door-open"></i> Sair
+                            </button>
+                        `;
 
-                        $list.append(`
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>
-                                    <i class="fa-solid fa-door-open me-2 text-primary"></i>
-                                    <a href="/salas/${sala.id}" class="text-decoration-none">${sala.nome}</a>
-                                </span>
-                                ${botoes}
-                            </li>
-                        `);
-                    });
-
-                    $salasContainer.append($list);
-                }
-            }).catch(() => {
-                $salasContainer.html("<p class='text-danger'>Erro ao carregar salas.</p>");
+                    $salasList.append(`
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fa-solid fa-door-open me-2 text-primary"></i>
+                                <a href="/salas/${sala.id}" class="text-decoration-none">${sala.nome}</a>
+                            </span>
+                            ${botoes}
+                        </li>
+                    `);
+                });
+            })
+            .catch(() => {
+                $salasList.html(`
+                    <li class="list-group-item text-danger text-center">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i> Erro ao carregar salas.
+                    </li>
+                `);
             });
         }
 
