@@ -153,7 +153,6 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
-<script src="{{ asset('js/room/enter-code.js') }}"></script>
 
 <script>
 
@@ -376,57 +375,25 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-
-        // ======== COPIAR CÓDIGO DA SALA ========
-        document.querySelectorAll('.btn-copy').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const code = btn.dataset.code;
-
-                if (!code) {
-                    showToast('Nenhum código disponível para copiar.', 'danger');
-                    return;
-                }
-
-                try {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        await navigator.clipboard.writeText(code);
-                    } else {
-                        // 🔸 fallback para browsers sem HTTPS
-                        const tempInput = document.createElement('input');
-                        tempInput.value = code;
-                        document.body.appendChild(tempInput);
-                        tempInput.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(tempInput);
-                    }
-
-                    showToast('Código copiado para a área de transferência!', 'success');
-                } catch (err) {
-                    console.error(err);
-                    showToast('Falha ao copiar o código.', 'danger');
-                }
-            });
-        });
-
-        // ======== TOGGLE ÍCONES DE COLAPSO ========
-        document.addEventListener('click', function(e) {
-            const toggle = e.target.closest('[data-bs-toggle="collapse"]');
-            if (!toggle) return;
-
-            const icon = toggle.querySelector('i.fa-chevron-down');
-            if (!icon) return;
-
-            // Aguardar o colapso terminar para saber o estado final
+        // Seleciona todos os collapses da página
+        document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(toggle => {
             const targetId = toggle.getAttribute('data-bs-target');
             const target = document.querySelector(targetId);
+            const icon = toggle.querySelector('i');
 
-            if (target.classList.contains('show')) {
-                icon.classList.remove('fa-chevron-up');
-                icon.classList.add('fa-chevron-down');
-            } else {
+            if (!target || !icon) return;
+
+            // Quando o collapse abrir
+            target.addEventListener('shown.bs.collapse', () => {
                 icon.classList.remove('fa-chevron-down');
                 icon.classList.add('fa-chevron-up');
-            }
+            });
+
+            // Quando o collapse fechar
+            target.addEventListener('hidden.bs.collapse', () => {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            });
         });
     });
 </script>
@@ -439,6 +406,7 @@
 <script src="{{ asset('js/room/invite.js') }}"></script>
 <script src="{{ asset('js/room/exit.js') }}"></script>
 <script src="{{ asset('js/room/delete.js') }}"></script>
+<script src="{{ asset('js/room/enter-code.js') }}"></script>
 
 {{-- Script de instalação PWA --}}
 <script>

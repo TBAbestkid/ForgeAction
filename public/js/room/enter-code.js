@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`/codigo/${codigo}`, { headers: { 'Accept': 'application/json' } });
+            const response = await fetch(`/api/codigo/${codigo}`, { headers: { 'Accept': 'application/json' } });
             if (!response.ok) throw new Error();
             const data = await response.json();
 
