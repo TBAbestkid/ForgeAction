@@ -19,7 +19,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/controls/OrbitControls.js';
 import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
-import { DiceManager, DiceD4, DiceD6, DiceD10, DiceD12, DiceD20 } from 'https://cdn.jsdelivr.net/npm/threejs-dice@1.0.5/dist/threejs-dice.module.js';
+import { DiceManager, DiceD6, DiceD20 } from 'https://cdn.jsdelivr.net/npm/threejs-dice@1.1.0/dist/threejs-dice.module.js';
 
 console.log("🚀 DOM carregado, iniciando cena 3D de dados...");
 
