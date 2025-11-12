@@ -12,88 +12,68 @@
         <button id="btn-d20">🎲 D20</button>
     </div>
 
-    <div id="dice-container" style="width:100%;height:500px; position: relative;"></div>
+    <div id="dice-container" style="width:100%; height:500px; position: relative;"></div>
 </div>
 
-<!-- Carrega Three.js, Cannon‑es e threejs‑dice como script global -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.162.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/threejs-dice@1.1.0/lib/dice.min.js"></script>
-
-<script>
+<script type="module">
 document.addEventListener("DOMContentLoaded", async () => {
-    console.log("🚀 DOM carregado, iniciando cena 3D de dados...");
+    console.log("🚀 DOM carregado, iniciando DiceBox 3D...");
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x222222);
+    // ✅ Importa DiceBox 3D via CDN (ESM)
+    const { default: DiceBox } = await import(
+        "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js"
+    );
 
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 50, 100);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.querySelector("#dice-container").appendChild(renderer.domElement);
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-
-    const world = new CANNON.World();
-    world.gravity.set(0, -9.8, 0);
-    DiceManager.setWorld(world);
-
-    const ground = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Plane(),
-        material: new CANNON.Material(),
+    const diceBox = new DiceBox({
+        container: "#dice-container",
+        assetPath: "/assets/",   // pasta dos assets do DiceBox
+        theme: "classic",
+        scale: 25,
+        gravity: 9.8,
+        friction: 0.9,
+        delay: 200,
+        onRollComplete: result => {
+            console.log("🎯 onRollComplete callback:", result);
+        }
     });
-    ground.quaternion.setFromEuler(-Math.PI/2, 0, 0);
-    world.addBody(ground);
 
-    function rollWithValue(sides, value) {
-        console.log(`\n🎲 Rolando D${sides} → valor desejado: ${value}`);
+    await diceBox.init();
+    console.log("✅ DiceBox inicializado com sucesso");
 
-        let dice;
-        switch(sides) {
-            case 4:  dice = new DiceD4({ size: 15 }); break;
-            case 6:  dice = new DiceD6({ size: 15 }); break;
-            case 10: dice = new DiceD10({ size: 15 }); break;
-            case 12: dice = new DiceD12({ size: 15 }); break;
-            case 20: dice = new DiceD20({ size: 15 }); break;
-            default:
-                console.warn("⚠️ Tipo de dado não suportado, usando D6");
-                dice = new DiceD6({ size: 15 });
-        }
+    // Função que rola dado e força o valor desejado
+    async function rollWithValue(sides, value) {
+        console.log(`\n🎲 [INÍCIO] Rolagem D${sides} → valor desejado: ${value}`);
 
-        scene.add(dice.getObject());
-        dice.updateBodyFromMesh();
+        // 1️⃣ Rola o dado normalmente (animação física)
+        console.log("⏳ Chamando diceBox.roll()...");
+        await diceBox.roll(`1d${sides}`);
+        console.log("✅ diceBox.roll() concluído");
 
-        DiceManager.prepareValues([{ dice: dice, value: value }]);
-
-        dice.throwRandom();
-
-        function animate() {
-            world.step(1/60);
-            dice.updateMeshFromBody();
-            renderer.render(scene, camera);
-            if (!dice.isSleeping()) {
-                requestAnimationFrame(animate);
-            } else {
-                console.log("✅ Dado parado → resultado:", dice.getResult());
+        // 2️⃣ Espera a física terminar (~1.5s) e força o resultado
+        setTimeout(() => {
+            console.log("⏱️ Tempo de animação expirou, aplicando valor controlado...");
+            try {
+                diceBox.showResult(`1d${sides}`, [value]);
+                console.log(`✨ Valor final do dado definido: ${value}`);
+            } catch (err) {
+                console.error("❌ Não foi possível aplicar valor controlado:", err);
             }
-        }
-        animate();
+        }, 1500);
     }
 
-    [4,6,10,12,20].forEach(sides => {
+    // Botões de controle
+    [4, 6, 10, 12, 20].forEach(sides => {
         document.querySelector(`#btn-d${sides}`).addEventListener('click', () => {
+            // 🎯 Gera valor aleatório
             const value = Math.floor(Math.random() * sides) + 1;
             console.log(`🎮 Botão D${sides} clicado → valor gerado: ${value}`);
             rollWithValue(sides, value);
         });
     });
 
-    console.log("✅ Setup completo — pronto para rolagens");
+    // Exporta globalmente (opcional)
+    window.rollWithValue = rollWithValue;
+    console.log("✅ Função rollWithValue() disponível globalmente");
 });
 </script>
 @endsection
