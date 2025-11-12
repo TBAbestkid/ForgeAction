@@ -34,11 +34,11 @@
 
             <div class="form-floating mb-3 text-light">
                 <input type="text" name="login" class="form-control" id="floatingInput" placeholder="Insira usuario">
-                <label for="floatingInput"><i class="fa-solid fa-user me-1"></i> Usuario</label>
+                <label for="floatingInput" class="text-light"><i class="fa-solid fa-user me-1"></i> Usuario</label>
             </div>
             <div class="form-floating mb-3 text-light">
                 <input type="password" name="senha" class="form-control" id="floatingPassword" placeholder="Insira a Senha">
-                <label for="floatingPassword"><i class="fa-solid fa-lock me-1"></i>Senha</label>
+                <label for="floatingPassword" class="text-light"><i class="fa-solid fa-lock me-1"></i>Senha</label>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">

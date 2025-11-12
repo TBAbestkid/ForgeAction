@@ -34,22 +34,22 @@
 
             <div class="form-floating mb-3 text-light">
                 <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
-                <label for="email"><i class="fa-solid fa-envelope me-1"></i> Email</label>
+                <label for="email" class="text-light"><i class="fa-solid fa-envelope me-1"></i> Email</label>
             </div>
 
             <div class="form-floating mb-3 text-light">
                 <input type="text" name="login" class="form-control" id="login" placeholder="Nome de usuário" required>
-                <label for="login"><i class="fa-solid fa-user me-1"></i> Nome de usuário</label>
+                <label for="login" class="text-light"><i class="fa-solid fa-user me-1"></i> Nome de usuário</label>
             </div>
 
             <div class="form-floating mb-3 text-light">
                 <input type="password" name="senha" class="form-control" id="senha" placeholder="Senha" required>
-                <label for="senha"><i class="fa-solid fa-lock me-1"></i> Senha</label>
+                <label for="senha" class="text-light"><i class="fa-solid fa-lock me-1"></i> Senha</label>
             </div>
 
             <div class="form-floating mb-4 text-light">
                 <input type="password" id="passwordConfirm" class="form-control" placeholder="Confirme a senha" required>
-                <label for="passwordConfirm"><i class="fa-solid fa-check-double me-1"></i> Confirmar senha</label>
+                <label for="passwordConfirm" class="text-light"><i class="fa-solid fa-check-double me-1"></i> Confirmar senha</label>
             </div>
 
             <button type="submit" class="btn btn-primary w-100 py-2">
