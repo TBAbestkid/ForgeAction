@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     await box.init();
+    await box.roll('1d20@18');
 
     document.querySelector('#roll-btn').addEventListener('click', () => {
         const notation = document.querySelector('#dice-notation').value || '1d20';
