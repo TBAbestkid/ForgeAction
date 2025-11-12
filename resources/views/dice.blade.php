@@ -18,10 +18,12 @@
 <script type="module">
 document.addEventListener("DOMContentLoaded", async () => {
     try {
+        // ✅ Usa a versão estável e compatível do DiceBox
         const { default: DiceBox } = await import(
             "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js"
         );
 
+        // ⚙️ Inicializa corretamente com a nova API
         const diceBox = new DiceBox({
             container: "#dice-container",
             assetPath: "/assets/",
@@ -29,21 +31,38 @@ document.addEventListener("DOMContentLoaded", async () => {
             scale: 25,
             gravity: 9.8,
             friction: 0.9,
-            onRollComplete: result => console.log("🎯 Resultado da rolagem:", result)
+            delay: 200,
+            onRollComplete: result => {
+                console.log("🎯 Resultado real (antes da manipulação):", result);
+            }
         });
 
         await diceBox.init();
 
-        async function rollWithValue(diceType, value) {
-            console.log(`🎲 Rolando D${diceType} com valor forçado: ${value}`);
-            await diceBox.roll(`1d${diceType}`, { presetResults: [value] });
+        /**
+         * 🧙 Função que rola o dado com animação e depois força o valor desejado.
+         * @param {number} diceType  Ex: 4, 6, 10, 12, 20
+         * @param {number} value     Valor que deve cair
+         */
+        async function rollControlled(diceType, value) {
+            console.log(`🎲 Rolando D${diceType} com valor controlado: ${value}`);
+
+            // Etapa 1: rola de forma normal
+            await diceBox.roll(`1d${diceType}`);
+
+            // Etapa 2: espera o tempo da animação física (~1.5s)
+            setTimeout(() => {
+                // Mostra o resultado visualmente forçado
+                diceBox.showResult(`1d${diceType}`, [value]);
+                console.log(`✨ Resultado manipulado: D${diceType} caiu em ${value}`);
+            }, 1500);
         }
 
+        // 🎮 Botões interativos
         [4, 6, 10, 12, 20].forEach(faces => {
             document.querySelector(`#btn-d${faces}`).addEventListener('click', async () => {
-                const value = Math.floor(Math.random() * faces) + 1;
-                console.log(`🎲 Forçando D${faces} → ${value}`);
-                await rollWithValue(faces, value);
+                const value = Math.floor(Math.random() * faces) + 1; // gera valor controlado
+                await rollControlled(faces, value);
             });
         });
 
