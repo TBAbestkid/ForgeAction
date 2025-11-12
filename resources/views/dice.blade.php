@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js"
         );
 
-        const diceBox = new DiceBox("#dice-container", {
+        const diceBox = new DiceBox({
+            container: "#dice-container",
             assetPath: "/assets/",
             theme: "classic",
             scale: 25,
@@ -33,25 +34,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         await diceBox.init();
 
-        // Função para "forçar" um valor no dado
         async function rollWithValue(diceType, value) {
-            // Exemplo: "1d20@15" força cair 15
-            await diceBox.roll(`1d${diceType}@${value}`);
+            console.log(`🎲 Rolando D${diceType} com valor forçado: ${value}`);
+            await diceBox.roll(`1d${diceType}`, { presetResults: [value] });
         }
 
-        // Listener dos botões
         [4, 6, 10, 12, 20].forEach(faces => {
             document.querySelector(`#btn-d${faces}`).addEventListener('click', async () => {
-                const value = Math.floor(Math.random() * faces) + 1; // valor aleatório
-                console.log(`🎲 Forçando D${faces} para cair em ${value}`);
+                const value = Math.floor(Math.random() * faces) + 1;
+                console.log(`🎲 Forçando D${faces} → ${value}`);
                 await rollWithValue(faces, value);
             });
         });
 
     } catch (err) {
         console.error("Erro ao carregar DiceBox:", err);
-        const container = document.querySelector("#dice-container");
-        container.innerHTML = `
+        document.querySelector("#dice-container").innerHTML = `
             <p style="color:red; text-align:center; padding-top:200px;">
                 Não foi possível carregar os dados 3D.<br>
                 Verifique se a pasta /assets/themes/classic/ e /assets/ammo/ existem e estão corretas.
