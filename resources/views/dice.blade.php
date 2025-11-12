@@ -18,9 +18,8 @@
 <script type="module">
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // ✅ Usa a versão estável e compatível do DiceBox
         const { default: DiceBox } = await import(
-            "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js"
+            "https://cdn.jsdelivr.net/npm/@3d-dice/dice-box@1.2.1/dist/dice-box.es.min.js"
         );
 
         // ⚙️ Inicializa corretamente com a nova API
