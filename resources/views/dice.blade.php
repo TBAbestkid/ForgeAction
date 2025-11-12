@@ -1,34 +1,13 @@
 @extends('partials.app')
-
-@section('title', 'Dados Teste - Controle Total')
-
+@section('title', 'Simulador de Rolagem de Dados')
 @section('content')
+<div class="container my-4">
+  <h1>Simulador de Rolagem</h1>
 
-<div id="scene-container" style="width: 400px; height: 400px;"></div>
+  <input id="dice-notation" class="form-control" placeholder="1d20" />
+  <button id="roll-btn" class="btn btn-primary">Rolar</button>
+  <div id="scene-container" style="width: 400px; height: 400px;"></div>
+</div>
 
-<script type="module">
-    // import DiceBox from 'https://unpkg.com/@3d-dice/dice-box-threejs/dist/dice-box-threejs.es.js';
-    import DiceBox from '@3d-dice/dice-box-threejs';
-
-    const Box = new DiceBox("#scene-container", {
-        assetPath: 'https://unpkg.com/@3d-dice/dice-box-threejs/dist/',
-        scale: 5,
-        theme: 'default',
-        onRollComplete: (result) => {
-            console.log('Roll result:', result);
-        }
-    });
-
-    Box.initalize()
-        .then(() => {
-            setTimeout(() => {
-                Box.roll('1d20@18');
-            }, 1000);
-        })
-        .catch((error) => {
-            console.error('Error initializing DiceBox:', error);
-        });
-
-    console.log('DiceBox initialized');
-</script>
+@vite(['resources/js/dice.js'])
 @endsection
