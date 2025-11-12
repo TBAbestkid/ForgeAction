@@ -5,10 +5,10 @@
 <div class="container-fluid mt-4 d-flex flex-column gap-3">
 
     {{-- Mini Navbar da Sala --}}
-    <nav class="navbar navbar-dark bg-dark rounded px-3 py-2 mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+    <nav class="navbar navbar-dark bg-dark rounded px-3 py-1 mb-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
         <div class="d-flex flex-column flex-md-row align-items-md-center">
             <div class="d-flex flex-column">
-                <h2 class="font-medieval text-white mb-0">{{ $sala['nome'] }}</h2>
+                <h2 class="font-medieval text-white mb-0 fs-5">{{ $sala['nome'] }}</h2>
                 <p class="text-light mb-0 small">{{ $sala['descricao'] }}</p>
             </div>
         </div>
@@ -52,156 +52,6 @@
 
     {{-- Estrutura principal com 3 colunas --}}
     <div class="d-flex flex-grow-1 gap-3">
-
-        {{-- @if (!$isDono) --}}
-            {{-- Coluna 1: Ficha do Personagem --}}
-            {{-- <div class="flex-shrink-0 d-flex flex-column align-items-center justify-content-center"
-                style="width: 50px; min-width: 50px; background-color: transparent;">
-                <button class="btn btn-warning rounded-circle"
-                        type="button" data-bs-toggle="offcanvas" data-bs-target="#personagemDrawer"
-                        aria-controls="personagemDrawer" title="Abrir Ficha">
-                    ☰
-                </button>
-            </div> --}}
-
-            {{-- 🔸 Drawer lateral da Ficha --}}
-            {{-- <div class="offcanvas offcanvas-start bg-dark text-light" tabindex="-1" id="personagemDrawer"
-                aria-labelledby="personagemDrawerLabel" style="width: 360px;">
-                <div class="offcanvas-header">
-                    <h5 id="personagemDrawerLabel" class="text-warning">Ficha do Personagem</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
-                </div>
-
-                <div class="offcanvas-body d-flex flex-column gap-3"> --}}
-
-                    {{-- 🔹 Identidade --}}
-                    {{-- <div class="card bg-secondary text-light">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseIdentidade" style="cursor:pointer;">
-                            <h6 class="mb-0 text-warning">Identidade</h6>
-                        </div>
-                        <div id="collapseIdentidade" class="collapse show">
-                            <div class="card-body">
-                                <div><strong>Nome:</strong> {{ $personagem['nome'] ?? 'Desconhecido' }}</div>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <div class="flex-fill bg-dark rounded p-2">Raça: {{ $personagem['racaDescricao'] ?? '?' }}</div>
-                                    <div class="flex-fill bg-dark rounded p-2">Classe: {{ $personagem['classeDescricao'] ?? '?' }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <div class="flex-fill bg-dark rounded p-2">Idade: {{ $personagem['idade'] ?? '?' }}</div>
-                                    <div class="flex-fill bg-dark rounded p-2">Gênero: {{ $personagem['genero'] ?? '?' }}</div>
-                                </div>
-                                <div class="text-center bg-dark rounded p-2 mt-2"><strong>Nível:</strong> {{ $personagem['level'] ?? 1 }}</div>
-                            </div>
-                        </div>
-                    </div> --}}
-
-                    {{-- 🔹 Atributos --}}
-                    {{-- <div class="card bg-secondary text-light">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseAtributos" style="cursor:pointer;">
-                            <h6 class="mb-0 text-warning">Atributos</h6>
-                        </div>
-                        <div id="collapseAtributos" class="collapse">
-                            <div class="card-body">
-                                <div class="d-flex flex-wrap gap-2">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Força: {{ $personagem['forca'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Agilidade: {{ $personagem['agilidade'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Inteligência: {{ $personagem['inteligencia'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Destreza: {{ $personagem['destreza'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Vitalidade: {{ $personagem['vitalidade'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Percepção: {{ $personagem['percepcao'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Sabedoria: {{ $personagem['sabedoria'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Carisma: {{ $personagem['carisma'] ?? 0 }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-
-                    {{-- 🔹 Status de Combate --}}
-                    {{-- <div class="card bg-secondary text-light">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseCombate" style="cursor:pointer;">
-                            <h6 class="mb-0 text-warning">Status de Combate</h6>
-                        </div>
-                        <div id="collapseCombate" class="collapse">
-                            <div class="card-body">
-                                <div class="d-flex flex-wrap gap-2">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">HP: {{ $personagem['vida'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Mana: {{ $personagem['mana'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Iniciativa: {{ $personagem['iniciativa'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Defesa: {{ $personagem['defesaPersonagem'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Esquiva: {{ $personagem['esquivaPersonagem'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Atk Corpo: {{ $personagem['ataqueFisicoCorpo'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Atk Distância: {{ $personagem['ataqueFisicoDistancia'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Atk Mágico: {{ $personagem['ataqueMagico'] ?? 0 }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div> --}}
-        {{-- @else --}}
-            {{-- Coluna 1: Ações de Mestre --}}
-            {{-- <div class="flex-shrink-0 d-flex flex-column align-items-center justify-content-start gap-3 p-2 bg-dark rounded-4 shadow"
-                style="width: 70px; min-width: 70px;"> --}}
-
-                {{-- 🔹 Iniciar/Avançar Turno --}}
-                {{-- <button id="btnIniciarTurno" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Iniciar/Avançar Turno"
-                    style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-play fs-4"></i>
-                </button> --}}
-
-                {{-- 🔹 Causar Dano --}}
-                {{-- <button id="btn-dano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Causar Dano"
-                    style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-burst fs-4"></i>
-                </button> --}}
-
-                {{-- 🔹 Curar --}}
-                {{-- <button id="btn-curar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Curar"
-                    style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-heart-pulse fs-4"></i>
-                </button> --}}
-
-                {{-- 🔹 Upar Personagem --}}
-                {{-- <button id="btn-upar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Upar Personagem"
-                    style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-arrow-up fs-4"></i>
-                </button> --}}
-
-                {{-- 🔹 Lançar Dados --}}
-                {{-- <button id="btn-lancar-mestre"
-                    class="btn btn-outline-warning rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
-                    style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-dice-d20 fs-4"></i>
-                </button> --}}
-
-                {{-- 🔹 Permitir Dados --}}
-                {{-- <button id="btn-permitir-jogada"
-                    class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
-                    data-bs-toggle="tooltip" title="Permitir Jogada Extra"
-                    style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-user-check fs-4"></i>
-                </button>
-            </div> --}}
-        {{-- @endif --}}
-
         {{-- Coluna 2: Área de imagens + chat --}}
         <div class="d-flex flex-column flex-grow-1" style="min-height: 100vh; width: 100%;">
 
@@ -209,16 +59,39 @@
             <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: 50vh;">
 
                 {{-- Coluna esquerda (Logs) --}}
-                <div class="d-flex flex-column gap-2 overflow-auto" style="flex:1 1 auto; min-width:120px;">
-                    {{-- Logs com collapse --}}
-                    <div id="logs-container" class="flex-grow-1">
-                        <div class="d-flex flex-column bg-dark rounded p-3 text-white h-100">
-                            <div id="system-logs" class="flex-grow-1 overflow-auto" style="max-height: 300px;">
-                                <!-- Logs -->
+                <nav class="nav flex-column nav-pills bg-dark p-3 rounded d-none d-md-flex" style="min-width: 150px;">
+                    {{-- Tabs --}}
+                    <button class="nav-link active d-flex align-items-center gap-1" id="tab-chat" data-bs-toggle="pill" data-bs-target="#chat-tab" type="button" aria-controls="chat-tab" aria-selected="true">
+                        <i class="fa-solid fa-comment"></i> Chat
+                    </button>
+                    <button class="nav-link d-flex align-items-center gap-1" id="tab-logs" data-bs-toggle="pill" data-bs-target="#logs-tab" type="button" aria-controls="logs-tab" aria-selected="false">
+                        <i class="fa-solid fa-list-ul"></i> Logs
+                    </button>
+
+                    {{-- Conteúdo das Tabs --}}
+                    <div class="tab-content mt-3 flex-grow-1">
+                        {{-- Chat --}}
+                        <div class="tab-pane fade show active d-flex flex-column" id="chat-tab" role="tabpanel" aria-labelledby="tab-chat">
+                            <strong class="mb-2">Chat da Sala:</strong>
+                            <div id="chat-messages" class="flex-grow-1 d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="min-height:150px; max-height:40vh;">
+                                <!-- Mensagens -->
+                            </div>
+                            <div class="d-flex mt-2">
+                                <input type="text" class="form-control me-2" placeholder="Digite sua mensagem..." id="chat-input">
+                                <button class="btn btn-primary" id="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+
+                        {{-- Logs --}}
+                        <div class="tab-pane fade d-flex flex-column" id="logs-tab" role="tabpanel" aria-labelledby="tab-logs">
+                            <div class="d-flex flex-column bg-dark rounded p-3 text-white flex-grow-1 scroll-invisible" style="max-height:300px;">
+                                <div id="system-logs">
+                                    <!-- Logs -->
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </nav>
 
                 {{-- Coluna central (DiceBox) --}}
                 <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center"
@@ -248,14 +121,14 @@
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div class="d-flex flex-column gap-2 overflow-auto" style="flex:1 1 auto; min-width:120px;">
+                <div class="d-flex flex-column gap-2 overflow-auto d-none d-lg-flex" style="flex:1 1 auto; min-width:120px;">
                     @foreach ($membros as $m)
                         <div id="info-personagem-{{ $m['personagemId'] }}" class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-bs-toggle="collapse"
                             data-bs-target="#info-personagem-{{ $m['personagemId'] }}"
                             aria-expanded="false"
                             aria-controls="info-personagem-{{ $m['personagemId'] }}"
-                            style="houver-cursor: pointer;"
+                            style="cursor: pointer;"
                             data-id="{{ $m['personagemId'] }}"
                             data-vida-max="{{ $m['vida'] }}"
                             data-nome="{{ $m['nome'] }}"
@@ -302,78 +175,68 @@
             </div>
             @if(!$isDono)
                 {{-- View de infos personagem --}}
-                <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-4 p-2 bg-dark rounded-4 shadow mt-3">
+                <div class="d-flex flex-column flex-md-row flex-wrap align-items-stretch gap-3 p-2 bg-dark rounded-4 shadow mt-3">
 
                     {{-- 🔹 Identidade --}}
-                    <div class="card bg-warning text-dark">
+                    <div class="card bg-warning text-dark flex-fill">
                         <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseIdentidade" style="cursor:pointer;">
                             <h6 class="mb-0 text-dark">Identidade</h6>
                         </div>
                         <div id="collapseIdentidade" class="collapse">
                             <div class="card-body">
-                                <div><strong>Nome:</strong> {{ $personagem['nome'] ?? 'Desconhecido' }}</div>
-                                <div class="d-flex flex-wrap gap-2 mt-2 text-white">
-                                    <div class="flex-fill bg-dark rounded p-2">Raça: {{ $personagem['racaDescricao'] ?? '?' }}</div>
-                                    <div class="flex-fill bg-dark rounded p-2">Classe: {{ $personagem['classeDescricao'] ?? '?' }}</div>
+                                <div class="mb-2"><strong>Nome:</strong> {{ $personagem['nome'] ?? 'Desconhecido' }}</div>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    <div class="flex-fill bg-dark rounded p-2 text-white text-center">Raça: {{ $personagem['racaDescricao'] ?? '?' }}</div>
+                                    <div class="flex-fill bg-dark rounded p-2 text-white text-center">Classe: {{ $personagem['classeDescricao'] ?? '?' }}</div>
                                 </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2 text-white">
-                                    <div class="flex-fill bg-dark rounded p-2">Idade: {{ $personagem['idade'] ?? '?' }}</div>
-                                    <div class="flex-fill bg-dark rounded p-2">Gênero: {{ $personagem['genero'] ?? '?' }}</div>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    <div class="flex-fill bg-dark rounded p-2 text-white text-center">Idade: {{ $personagem['idade'] ?? '?' }}</div>
+                                    <div class="flex-fill bg-dark rounded p-2 text-white text-center">Gênero: {{ $personagem['genero'] ?? '?' }}</div>
                                 </div>
-                                <div class="text-center bg-dark rounded p-2 mt-2 text-white"><strong>Nível:</strong> {{ $personagem['level'] ?? 1 }}</div>
+                                <div class="bg-dark rounded p-2 text-white text-center"><strong>Nível:</strong> {{ $personagem['level'] ?? 1 }}</div>
                             </div>
                         </div>
                     </div>
 
                     {{-- 🔹 Atributos --}}
-                    <div class="card bg-warning text-dark">
+                    <div class="card bg-warning text-dark flex-fill">
                         <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseAtributos" style="cursor:pointer;">
                             <h6 class="mb-0 text-dark">Atributos</h6>
                         </div>
                         <div id="collapseAtributos" class="collapse">
                             <div class="card-body">
-                                <div class="d-flex flex-wrap gap-2 text-white">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Força: {{ $personagem['forca'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Agilidade: {{ $personagem['agilidade'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2 text-white">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Inteligência: {{ $personagem['inteligencia'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Destreza: {{ $personagem['destreza'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2 text-white">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Vitalidade: {{ $personagem['vitalidade'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Percepção: {{ $personagem['percepcao'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2 text-white">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Sabedoria: {{ $personagem['sabedoria'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Carisma: {{ $personagem['carisma'] ?? 0 }}</div>
+                                <div class="row g-2 text-white text-center">
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Força: {{ $personagem['forca'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Agilidade: {{ $personagem['agilidade'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Inteligência: {{ $personagem['inteligencia'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Destreza: {{ $personagem['destreza'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Vitalidade: {{ $personagem['vitalidade'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Percepção: {{ $personagem['percepcao'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Sabedoria: {{ $personagem['sabedoria'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Carisma: {{ $personagem['carisma'] ?? 0 }}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {{-- 🔹 Status de Combate --}}
-                    <div class="card bg-warning text-dark">
+                    <div class="card bg-warning text-dark flex-fill">
                         <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseCombate" style="cursor:pointer;">
                             <h6 class="mb-0 text-dark">Status de Combate</h6>
                         </div>
                         <div id="collapseCombate" class="collapse">
                             <div class="card-body">
-                                <div class="d-flex flex-wrap gap-2 text-white">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">HP: {{ $personagem['vida'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Mana: {{ $personagem['mana'] ?? 0 }}</div>
+                                <div class="row g-2 text-white text-center mb-2">
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">HP: {{ $personagem['vida'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Mana: {{ $personagem['mana'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Iniciativa: {{ $personagem['iniciativa'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Defesa: {{ $personagem['defesaPersonagem'] ?? 0 }}</div>
                                 </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2 text-white">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Iniciativa: {{ $personagem['iniciativa'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Defesa: {{ $personagem['defesaPersonagem'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2 text-white">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Esquiva: {{ $personagem['esquivaPersonagem'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Atk Corpo: {{ $personagem['ataqueFisicoCorpo'] ?? 0 }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2 text-white">
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Atk Distância: {{ $personagem['ataqueFisicoDistancia'] ?? 0 }}</div>
-                                    <div class="p-2 bg-dark rounded flex-fill text-center">Atk Mágico: {{ $personagem['ataqueMagico'] ?? 0 }}</div>
+                                <div class="row g-2 text-white text-center">
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Esquiva: {{ $personagem['esquivaPersonagem'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Atk Corpo: {{ $personagem['ataqueFisicoCorpo'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Atk Distância: {{ $personagem['ataqueFisicoDistancia'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Atk Mágico: {{ $personagem['ataqueMagico'] ?? 0 }}</div>
                                 </div>
                             </div>
                         </div>
@@ -437,48 +300,64 @@
             @endif
 
             {{-- Botão para abrir/fechar chat --}}
-            {{-- Isso foi? --}}
-            {{-- Container de Chat e Logs --}}
-            <div class="d-flex gap-2 mt-2">
-                {{-- Botão para abrir/fechar chat --}}
-                <button id="chat-toggle-btn"
-                        class="btn btn-sm btn-warning flex-grow-1 d-flex align-items-center justify-content-center gap-1"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#chat-container"
-                        aria-expanded="false"
-                        aria-controls="chat-container">
-                    <i class="fa-solid fa-comment"></i> Chat
-                </button>
+            {{-- Container de Chat, Logs e Players--}}
+            <div class="d-flex d-md-none fixed-bottom bg-dark border-top" style="z-index: 1050;">
+                <ul class="nav nav-tabs nav-fill w-100" id="mobileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active text-white" id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
+                            <i class="fa-solid fa-comment"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-white" id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
+                            <i class="fa-solid fa-list-ul"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-white" id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
+                            <i class="fa-solid fa-users"></i>
+                        </button>
+                    </li>
+                </ul>
 
-                {{-- Botão para abrir/fechar logs --}}
-                {{-- <button id="logs-toggle-btn"
-                        class="btn btn-sm btn-info flex-grow-1 d-flex align-items-center justify-content-center gap-1"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#logs-container"
-                        aria-expanded="false"
-                        aria-controls="logs-container">
-                    <i class="fa-solid fa-list-ul"></i> Logs
-                </button> --}}
-            </div>
-
-            {{-- Container do sistema de mensagens --}}
-            <div class="d-flex gap-2 mt-2">
-                {{-- Chat com collapse --}}
-                <div id="chat-container" class="collapse show flex-grow-1">
-                    <div class="d-flex flex-column bg-dark rounded p-3 text-white h-100"
-                    style="min-height:150px; max-height:40vh; overflow:hidden;">
-                    <strong>Chat da Sala:</strong>
-                    <div id="chat-messages" class="flex-grow-1 d-flex flex-column gap-2 overflow-auto">
-                        <!-- Mensagens -->
+                {{-- Conteúdo das tabs --}}
+                <div class="tab-content w-100 bg-dark" style="max-height: 50vh; overflow:auto;">
+                    {{-- Chat --}}
+                    <div class="tab-pane fade show active p-2" id="mobile-chat" role="tabpanel" aria-labelledby="mobile-chat-tab">
+                        <div id="chat-messages-mobile" class="d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="max-height:30vh;">
+                            <!-- Mensagens -->
+                        </div>
+                        <div class="d-flex mt-2">
+                            <input type="text" class="form-control me-2" placeholder="Digite sua mensagem..." id="chat-input-mobile">
+                            <button class="btn btn-primary" id="chat-send-mobile"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
                     </div>
-                    <div class="d-flex mt-2">
-                        <input type="text" class="form-control me-2" placeholder="Digite sua mensagem..." id="chat-input">
-                        <button class="btn btn-primary" id="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+
+                    {{-- Logs --}}
+                    <div class="tab-pane fade p-2" id="mobile-logs" role="tabpanel" aria-labelledby="mobile-logs-tab">
+                        <div id="system-logs-mobile" class="d-flex flex-column scroll-invisible" style="max-height:30vh;">
+                            <!-- Logs -->
+                        </div>
+                    </div>
+
+                    {{-- Players --}}
+                    <div class="tab-pane fade p-2" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
+                        <div class="d-flex flex-column gap-2 scroll-invisible" style="max-height:30vh;">
+                            @foreach ($membros as $m)
+                                <div class="bg-dark rounded p-2 text-white text-center">
+                                    <strong>{{ $m['nome'] }}</strong>
+                                    <div class="progress mt-1" style="height: 12px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
+                                            {{ $m['vida'] }}/{{ $m['vida'] }} HP
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
+
 
         </div>
 
