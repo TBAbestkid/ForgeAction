@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "@3d-dice/dice-box": "^1.1.4",
+        "@3d-dice/dice-box-threejs": "^0.0.12",
         "cannon-es": "^0.20.0",
         "three": "^0.181.1",
         "threejs-dice": "^1.1.0"
