@@ -66,20 +66,18 @@
 
                             {{-- Botões --}}
                             <div class="d-grid gap-2 mt-3">
-                                <a href="{{ route('salas.index') }}" class="btn btn-outline-success">
-                                    <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Visualizar salas
-                                </a>
-                                <button class="btn btn-outline-primary px-4 py-2 shadow-sm"
-                                        data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
-                                    <i class="fa-solid fa-door-open me-2"></i> Entrar em Sala
-                                </button>
-                                    @if (session('user_role') === 'MASTER')
-                                    <a href="{{ route('salas.create') }}" class="btn btn-outline-primary">
+                                @if (session('user_role') === 'MASTER')
+                                    <a href="{{ route('salas.create') }}" class="btn btn-outline-success">
                                         <i class="fa-solid fa-user-group me-1"></i> Criar sala
                                     </a>
-                                    <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
+                                    {{-- <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
                                         <i class="fa-solid fa-trash me-1"></i> Remover sala
-                                    </a>
+                                    </a> --}}
+                                @else
+                                    <button class="btn btn-outline-success px-4 py-2 shadow-sm"
+                                            data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
+                                        <i class="fa-solid fa-door-open me-2"></i> Entrar em Sala
+                                    </button>
                                 @endif
                             </div>
                         </div>
@@ -259,8 +257,6 @@
                                 </div>
                             `);
                         });
-
-                        attachCharacterEvents(); // reativa os botões
                     } else {
                         $characterList.html(`
                             <div class="text-center text-light py-3 bg-dark rounded border-light shadow">
@@ -366,13 +362,6 @@
                     });
 
                     $salasContainer.append($list);
-                    // attachSalaEvents();
-                } else {
-                    $salasContainer.html(`
-                        <div class="alert alert-info">
-                            <i class="fa-solid fa-circle-exclamation"></i> Não há salas!
-                        </div>
-                    `);
                 }
             }).catch(() => {
                 $salasContainer.html("<p class='text-danger'>Erro ao carregar salas.</p>");

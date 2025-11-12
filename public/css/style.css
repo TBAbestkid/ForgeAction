@@ -105,12 +105,13 @@ body {
     scroll-behavior: smooth;
 }
 
-.scroll-invisible::-webkit-scrollbar {
-  width: 0; /* Chrome, Safari */
-  height: 0;
-}
-
 .scroll-invisible {
-  -ms-overflow-style: none;  /* IE e Edge */
-  scrollbar-width: none;     /* Firefox */
+  overflow-y: auto !important;
+  max-height: 400px !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+.scroll-invisible::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
 }
