@@ -39,51 +39,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     await diceBox.init();
     console.log("✅ DiceBox inicializado");
 
+    // Função que gera a rolagem controlada
     async function rollWithValue(sides, value) {
-        console.log(`\n🎲 [INÍCIO] Rolagem D${sides} → valor desejado: ${value}`);
+        console.log(`\n🎲 Rolando D${sides} → valor desejado: ${value}`);
 
-        // Rola normalmente
-        await diceBox.roll(`1d${sides}`);
-        console.log("✅ diceBox.roll() concluído");
-
-        // Força o valor no primeiro dado da rolagem
-        const die = diceBox.dice[0]; // pega o primeiro dado
-        if (die && typeof die.setResult === "function") {
-            die.setResult(value);
-            console.log(`✨ Valor forçado no dado: ${value}`);
-        } else {
-            console.warn("⚠️ setResult() não disponível, usando overlay visual");
-
-            const overlay = document.createElement("div");
-            overlay.textContent = value;
-            Object.assign(overlay.style, {
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                fontSize: "6rem",
-                fontWeight: "bold",
-                color: "#fff",
-                textShadow: "0 0 25px rgba(0,0,0,0.9)",
-                opacity: "0",
-                pointerEvents: "none",
-                zIndex: "999",
-                transition: "opacity 0.4s"
-            });
-
-            const container = document.querySelector("#dice-container");
-            container.style.position = "relative";
-            container.appendChild(overlay);
-
-            setTimeout(() => overlay.style.opacity = "1", 1000);
-            setTimeout(() => {
-                overlay.style.opacity = "0";
-                setTimeout(() => overlay.remove(), 400);
-            }, 3000);
-        }
+        // ✅ Passa o valor desejado no próprio roll
+        await diceBox.roll([{ sides: sides, value: value }]);
+        console.log("✅ diceBox.roll() concluído com valor controlado");
     }
 
-    // Botões
+    // Liga os botões
     [4,6,10,12,20].forEach(sides => {
         document.querySelector(`#btn-d${sides}`).addEventListener('click', () => {
             const value = Math.floor(Math.random() * sides) + 1;
