@@ -28,7 +28,7 @@
 
     // Init async com IIFE
     (async () => {
-        await box.init();
+        await box.initialize();
 
         document.getElementById('roll-btn').addEventListener('click', () => {
             const notationInput = document.getElementById('dice-notation').value || '1d6';
