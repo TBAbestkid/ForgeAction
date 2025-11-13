@@ -121,20 +121,23 @@
         async function carregarSelect(url, select, labelPadrao) {
             try {
                 const res = await fetch(url);
-                const data = await res.json();
+                const json = await res.json();
 
-                // Limpa opções antigas e adiciona a opção padrão
+                // Confere se o formato da resposta está correto
+                const data = Array.isArray(json.data) ? json.data : [];
+
+                // Limpa e adiciona opção padrão
                 select.innerHTML = `<option value="" disabled selected>${labelPadrao}</option>`;
 
-                // Adiciona as opções vindas da API
+                // Popula as opções
                 data.forEach(item => {
                     const opt = document.createElement('option');
-                    opt.value = item.id ?? item.nome ?? item; // depende do formato que sua API retorna
-                    opt.textContent = item.nome ?? item.toString();
+                    opt.value = item.constante;
+                    opt.textContent = item.descricao;
                     select.appendChild(opt);
                 });
             } catch (err) {
-                console.error('Erro ao carregar opções de', url, err);
+                console.error('❌ Erro ao carregar opções de', url, err);
                 select.innerHTML = `<option disabled>Erro ao carregar</option>`;
             }
         }
