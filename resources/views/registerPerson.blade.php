@@ -53,8 +53,8 @@
                         <option value="" disabled selected>Selecione seu gênero</option>
                         <option value="Masculino">Masculino</option>
                         <option value="Feminino">Feminino</option>
-                        <option value="Geladeira Electrolux Frost Free">Geladeira Electrolux Frost Free</option>
-                        <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option>
+                        {{-- <option value="Geladeira Electrolux Frost Free">Geladeira Electrolux Frost Free</option>
+                        <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option> --}}
                         <option value="Outro">Outro</option>
                     </select>
                     <label for="genero" class="text-light">Identificação</label>
@@ -111,6 +111,36 @@
     document.addEventListener('DOMContentLoaded', () => {
         const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
         popoverTriggerList.map(el => new bootstrap.Popover(el));
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const classeSelect = document.getElementById('classe');
+        const racaSelect = document.getElementById('raca');
+
+        async function carregarSelect(url, select, labelPadrao) {
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                // Limpa opções antigas e adiciona a opção padrão
+                select.innerHTML = `<option value="" disabled selected>${labelPadrao}</option>`;
+
+                // Adiciona as opções vindas da API
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id ?? item.nome ?? item; // depende do formato que sua API retorna
+                    opt.textContent = item.nome ?? item.toString();
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error('Erro ao carregar opções de', url, err);
+                select.innerHTML = `<option disabled>Erro ao carregar</option>`;
+            }
+        }
+
+        await carregarSelect('/enums/classes', classeSelect, 'Selecione a classe');
+        await carregarSelect('/enums/racas', racaSelect, 'Selecione a raça');
     });
 </script>
 <script>
