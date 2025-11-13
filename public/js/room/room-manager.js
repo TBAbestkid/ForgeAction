@@ -536,9 +536,9 @@
         }
 
         // Faz o dado rolar localmente
-        if (typeof window.funcaoChamarDados === 'function') {
-            window.funcaoChamarDados(sides, valor);
-        }
+        // if (typeof window.funcaoChamarDados === 'function') {
+        //     window.funcaoChamarDados(sides, valor);
+        // }
 
         if (isMestre) {
             debugLog('🎲 Mestre rolando dados');
