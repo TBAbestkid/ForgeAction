@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="container mt-5">
-    <div class="text-dark mx-auto border-0 rounded-3 p-4" style="max-width: 600px;">
+    <div class="text-light bg-dark mx-auto border-0 rounded-3 p-4" style="max-width: 600px;">
         <img class="mb-4 mx-auto d-block" src="{{ asset('assets/images/forgeicon.png') }}" alt="" width="72" height="57">
         <h2 class="text-center font-medieval text-white mb-4">Criar Sala</h2>
 
@@ -12,12 +12,12 @@
 
             <div class="form-floating mb-3">
                 <input type="text" name="nome" class="form-control" placeholder="Nome da Sala" required>
-                <label><i class="fa-solid fa-door-open"></i> Nome da Sala</label>
+                <label class="text-ligh"><i class="fa-solid fa-door-open"></i> Nome da Sala</label>
             </div>
 
             <div class="form-floating mb-3">
                 <textarea name="descricao" class="form-control" placeholder="Descrição da Sala" style="height:100px;"></textarea>
-                <label><i class="fa-solid fa-align-left mt-2"></i> Descrição</label>
+                <label class="text-ligh"><i class="fa-solid fa-align-left mt-2"></i> Descrição</label>
             </div>
 
             <button type="button" id="btnCreateSala" class="btn btn-primary w-100">
@@ -99,7 +99,7 @@
                     }, 1000);
                 } else {
                     setTimeout(() => {
-                        goToPage('{{ route("salas.index") }}', 1500); // fallback
+                        goToPage('{{ route("home") }}', 1500); // fallback
                     }, 1000);
                 }
 

@@ -2,7 +2,7 @@
 @section('title', 'Esqueci senha - ForgeAction')
 @section('content')
 <div class="d-flex justify-content-center align-items-center min-vh-100">
-    <div class="text-center text-light" style="max-width: 400px; width: 100%;">
+    <div class="card bg-dark shadow-lg border-0 rounded-4 p-4 text-center text-light" style="max-width: 400px; width: 100%;">
         <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction" width="80" class="mb-3">
         <h2 class="mb-3">Esqueceu sua senha?</h2>
         <p class="text-secondary mb-4">Informe seu e-mail e enviaremos um link para redefinir sua senha.</p>

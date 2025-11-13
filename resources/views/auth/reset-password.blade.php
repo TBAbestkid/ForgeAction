@@ -2,7 +2,7 @@
 @section('title', 'Redefinir senha - ForgeAction')
 @section('content')
 <div class="d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card shadow-lg border-0 rounded-4 p-4" style="max-width: 450px; width: 100%; background-color: #1e1e1e;">
+    <div class="card shadow-lg bg-dark border-0 rounded-4 p-4" style="max-width: 450px; width: 100%; background-color: #1e1e1e;">
         <div class="text-center mb-4">
             <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction" width="70" class="mb-3">
             <h2 class="font-medieval text-warning">Redefinir Senha</h2>
@@ -37,7 +37,8 @@
 </div>
 @include('partials/loading')
 @include('partials/alerts')
-<script src="{{ asset('js/loading.js') }}"></script>
+<script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script>
     document.getElementById('resetForm').addEventListener('submit', function(e) {
         const password = document.getElementById('password').value;
@@ -45,35 +46,16 @@
 
         if(password !== confirm) {
             e.preventDefault(); // impede o envio do formulário
-            showModal('As senhas não coincidem!'); // função para mostrar modal
+            showAlert('As senhas não coincidem!'); // função para mostrar modal
             return false;
         }
 
         if(password.length < 6) {
             e.preventDefault();
-            showModal('A senha deve ter no mínimo 6 caracteres!');
+            showAlert('A senha deve ter no mínimo 6 caracteres!');
             return false;
         }
     });
 
-    // Função para exibir modal
-    function showModal(message) {
-        const modalMessage = document.getElementById('modalMessage');
-        modalMessage.textContent = message;
-
-        const modal = new bootstrap.Modal(document.getElementById('modalAlert'));
-        modal.show();
-    }
-
-    // Exemplo de função para toast (opcional)
-    /* function showToast(message, type = 'success') {
-        const toastMessage = document.getElementById('toastMessage');
-        const toastEl = document.getElementById('liveToast');
-        toastMessage.textContent = message;
-        toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning');
-        toastEl.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-    } */
 </script>
 @endsection
