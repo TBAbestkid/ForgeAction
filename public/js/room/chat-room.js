@@ -1,57 +1,46 @@
 // E isso também foi?
 document.addEventListener('DOMContentLoaded', () => {
-    // Referência ao serviço WebSocket global
     const ws = window.AppWebSocket;
     if (!ws) {
         console.error('❌ AppWebSocket não encontrado. Verifique se webSocketService.js está carregado.');
         return;
     }
 
-    // ======= VARIÁVEIS INJETADAS PELO BLADE =======
     const { userId, userLogin, salaId, wsUrl } = window.CHAT_CONFIG || {};
     if (!wsUrl || !salaId) {
         console.error('❌ CHAT_CONFIG inválido — wsUrl ou salaId ausente.');
         return;
     }
 
-    // ======= ELEMENTOS =======
-    const messages = document.getElementById('chat-messages');
+    // ======= ELEMENTOS (desktop + mobile) =======
+    const messagesDesktop = document.getElementById('chat-messages');
+    const messagesMobile = document.getElementById('chat-messages-mobile');
     const systemLogs = document.getElementById('system-logs');
+    const systemLogsMobile = document.getElementById('system-logs-mobile');
+
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
+    const chatInputMobile = document.getElementById('chat-input-mobile');
+    const chatSendMobile = document.getElementById('chat-send-mobile');
 
-    if (!messages || !chatInput || !chatSend || !systemLogs) {
-        console.warn('⚠️ Elementos de chat não encontrados no DOM.');
-        return;
-    }
+    // Fallback warnings but continue (mobile or desktop might be missing)
+    if (!messagesDesktop && !messagesMobile) console.warn('⚠️ Nenhum container de mensagens encontrado.');
+    if (!systemLogs && !systemLogsMobile) console.warn('⚠️ Nenhum container de logs do sistema encontrado.');
 
-    // ======= CONFIG =======
     const userName = userLogin || 'Desconhecido';
     const channel = salaId.toString();
 
-    // ======= FUNÇÃO DE ADIÇÃO DE MENSAGEM =======
-    function addMessage(text, sender = 'Sistema') {
-        const div = document.createElement('div');
-        const isSelf = sender === userName;
-
-        div.className = `d-flex flex-column mb-2 ${isSelf ? 'align-items-end' : 'align-items-start'}`;
-        div.innerHTML = `
-            <div class="p-2 rounded ${isSelf ? 'bg-primary text-white' : 'bg-secondary text-light'}">
-                <small class="d-block fw-bold opacity-75">${sender}</small>
-                <span>${text}</span>
-            </div>
-        `;
-
-        messages.appendChild(div);
-        messages.scrollTop = messages.scrollHeight;
+    function appendToContainers(containers, el) {
+        containers.forEach(c => {
+            if (!c) return;
+            c.appendChild(el.cloneNode(true));
+            c.scrollTop = c.scrollHeight;
+        });
     }
 
-    // ======= FUNÇÕES DE ADIÇÃO DE MENSAGEM =======
-    function addMessage(text, sender = 'Sistema', isSystemMessage = false) {
-        const container = isSystemMessage ? systemLogs : messages;
+    function makeMessageDiv(text, sender, isSystemMessage) {
         const div = document.createElement('div');
         const isSelf = !isSystemMessage && sender === userName;
-
         div.className = `d-flex flex-column mb-2 ${isSelf ? 'align-items-end' : 'align-items-start'}`;
         div.innerHTML = `
             <div class="p-2 rounded ${isSelf ? 'bg-primary text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-secondary text-light'}">
@@ -59,22 +48,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span>${text}</span>
             </div>
         `;
-
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
+        return div;
     }
 
-    // ======= PROCESSAR MENSAGEM =======
+    function addMessage(text, sender = 'Sistema', isSystemMessage = false) {
+        const containers = isSystemMessage ? [systemLogs, systemLogsMobile] : [messagesDesktop, messagesMobile];
+        const el = makeMessageDiv(text, sender, isSystemMessage);
+        appendToContainers(containers, el);
+    }
+
     function processMessage(data) {
         if (!data) return;
-
-        // Processa mensagens específicas do chat
         if (!data.tipo || data.tipo === 'chat') {
             if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema', false);
             return;
         }
 
-        // Processa mensagens do sistema
         switch (data.tipo) {
             case 'sistema':
                 addMessage(data.conteudo, '🤖 Sistema', true);
@@ -88,31 +77,30 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'erro':
                 addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema', true);
                 break;
-            // Ignora outros tipos (ações do jogo são tratadas pelo room-manager)
         }
     }
 
     let isFirstConnect = true;
 
-    // ======= CONECTAR AO WEBSOCKET =======
     function connectChat() {
-        if (isFirstConnect) {
-            addMessage(`🟢 Conectando ao chat...`, 'Sistema');
-        }
+        if (isFirstConnect) addMessage(`🟢 Conectando ao chat...`, 'Sistema', true);
 
-        // Registra handler apenas uma vez com { once: true }
         document.addEventListener('stomp.connected', () => {
-            if (isFirstConnect) {
-                // addMessage('✅ Conectado ao servidor!', 'Sistema');
-                isFirstConnect = false;
-            }
-            ws.subscribe(channel, processMessage);
+            if (isFirstConnect) isFirstConnect = false;
+            ws.subscribe(channel, (msg) => {
+                try {
+                    const data = typeof msg === 'string' ? JSON.parse(msg) : msg;
+                    processMessage(data);
+                } catch (err) {
+                    // some ws libs pass already-parsed objects
+                    processMessage(msg);
+                }
+            });
         }, { once: true });
 
         document.addEventListener('stomp.error', onStompError, { once: true });
         document.addEventListener('stomp.disconnected', onStompDisconnected, { once: true });
 
-        // Inicia conexão
         if (!ws.getStatus().isConnected) {
             ws.connect(wsUrl);
         } else {
@@ -120,25 +108,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ======= TRATADORES DE EVENTOS STOMP =======
-    function onStompError(event) {
-        console.error('❌ Erro de conexão:', event.detail?.error);
-    }
+    function onStompError(event) { console.error('❌ Erro de conexão:', event.detail?.error); }
+    function onStompDisconnected() { console.log('🔴 Chat desconectado'); }
 
-    // ======= TRATADOR DE DESCONECTAR =======
-    function onStompDisconnected() {
-        console.log('🔴 Chat desconectado');
-    }
-
-    // ======= FUNÇÃO DE ENVIO DE MENSAGEM =======
-    function sendMessage() {
-        const msg = chatInput.value.trim();
+    function sendMessageFrom(inputEl) {
+        if (!inputEl) return;
+        const msg = inputEl.value.trim();
         if (!msg) return;
 
         const status = ws.getStatus();
         if (!status.isConnected) {
-            console.warn('⚠️ Chat não conectado, mensagem não enviada.');
-            addMessage('⚠️ Chat não conectado. Tentando reconectar...', 'Sistema');
+            addMessage('⚠️ Chat não conectado. Tentando reconectar...', 'Sistema', true);
             connectChat();
             return;
         }
@@ -152,16 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         ws.send('/app/enviar/' + channel, payload);
-        chatInput.value = '';
-        chatInput.focus();
+        inputEl.value = '';
+        inputEl.focus();
     }
 
-    // ======= EVENTOS =======
-    chatSend.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
-    });
+    // Eventos: liga os botões/inputs desktop e mobile (se existirem)
+    if (chatSend) chatSend.addEventListener('click', () => sendMessageFrom(chatInput));
+    if (chatInput) chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessageFrom(chatInput); });
+    if (chatSendMobile) chatSendMobile.addEventListener('click', () => sendMessageFrom(chatInputMobile));
+    if (chatInputMobile) chatInputMobile.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessageFrom(chatInputMobile); });
 
-    // ======= INICIAR CHAT =======
     connectChat();
 });

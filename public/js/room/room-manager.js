@@ -442,7 +442,20 @@
                     delete c.dataset.prevAriaControls;
                 }
                 c.style.cursor = '';
-                c.classList.remove('border-primary', 'border-3');
+                c.classList.remove('border-primary', 'border-3', 'border-info');
+            });
+
+            // Reabrir os collapses que estavam abertos antes
+            document.querySelectorAll('.collapse').forEach(el => {
+                if (el.dataset.prevShown === 'true') {
+                    try {
+                        const inst = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, { toggle: false });
+                        inst.show();
+                        delete el.dataset.prevShown;
+                    } catch (err) {
+                        // ignore
+                    }
+                }
             });
 
             modoMestre = null;
@@ -461,6 +474,20 @@
         }
 
         const cards = document.querySelectorAll('.personagem-card');
+        // Fecha todos os collapses abertos e registra quais estavam abertos
+        document.querySelectorAll('.collapse.show').forEach(el => {
+            if (el.id && el.id.startsWith('info-personagem-')) {
+                try {
+                    const inst = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, { toggle: false });
+                    // marca que estava aberto
+                    el.dataset.prevShown = 'true';
+                    inst.hide();
+                } catch (err) {
+                    // ignore
+                }
+            }
+        });
+
         cards.forEach(c => {
             const isCurrentPlayer = String(c.dataset.id) === String(currentPlayerId);
 
