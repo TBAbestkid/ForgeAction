@@ -37,7 +37,7 @@
                                     <i class="fa-solid fa-user-plus me-1"></i> Criar personagem
                                 </a>
                                 <button class="btn btn-outline-danger btn-delete-character">
-                                    <i class="fa-solid fa-trash me-1"></i> Excluir
+                                    <i class="fa-solid fa-trash me-1"></i> Excluir Personagem
                                 </button>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                                         <i class="fa-solid fa-user-group me-1"></i> Criar sala
                                     </a>
                                     <button class="btn btn-outline-danger x-4 py-2 shadow-sm btn-delete-sala">
-                                        <i class="fa-solid fa-trash"></i>
+                                        <i class="fa-solid fa-trash"></i> Excluir sala
                                     </button>
                                 @else
                                     <button class="btn btn-outline-success px-4 py-2 shadow-sm"
@@ -354,37 +354,39 @@
         🗡️  EXCLUIR PERSONAGEM
         ------------------------------------------------------------- */
         let selectedCharacterId = null;
+        let deleteMode = false;
 
-        // Quando o usuário clica em um card, ele é "selecionado"
-        $(document).on('click', '.personagem-card', function () {
-            // Remove destaque dos outros
-            $('.personagem-card').removeClass('border-danger border-2');
-            // Marca este
-            $(this).addClass('border-danger border-2');
-
-            selectedCharacterId = $(this).data('id');
+        // Ativa modo de seleção ao clicar no botão Excluir
+        $(document).on('click', '.btn-delete-character', function () {
+            deleteMode = true;
+            showToast('Clique no personagem que deseja excluir.', 'info');
         });
 
-        // Quando clica no botão de excluir
-        $(document).on('click', '.btn-delete-character', function () {
-            if (!selectedCharacterId) {
-                return alert('Selecione um personagem primeiro.');
-            }
+        // Seleciona o personagem clicado
+        $(document).on('click', '.personagem-card', function () {
+            if (!deleteMode) return; // só funciona no modo delete
 
+            $('.personagem-card').removeClass('border-danger border-2');
+            $(this).addClass('border-danger border-2');
+            selectedCharacterId = $(this).data('id');
+
+            // Confirmação
             showConfirm('Tem certeza que deseja excluir este personagem?', () => {
                 $.ajax({
                     url: `/personagem/${selectedCharacterId}`,
                     type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     success: function () {
-                        $(`#characterList .personagem-card[data-id="${selectedCharacterId}"]`)
-                            .fadeOut(300, function () { $(this).remove(); });
+                        $(`.personagem-card[data-id="${selectedCharacterId}"]`)
+                            .fadeOut(300, function () {
+                                $(this).remove();
+                            });
                         selectedCharacterId = null;
+                        deleteMode = false; // sai do modo delete
                     },
                     error: function () {
-                        alert('Erro ao excluir personagem.');
+                        showAlert('Erro ao excluir personagem.');
+                        deleteMode = false;
                     }
                 });
             });
@@ -394,70 +396,73 @@
         🏰  EXCLUIR OU SAIR DE SALA
         ------------------------------------------------------------- */
         let selectedSalaId = null;
+        let deleteMode = false;
+        let exitMode = false;
 
-        // Selecionar sala da lista
-        $(document).on('click', '#salasList li', function () {
-            $('#salasList li').removeClass('border-danger border-2');
-            $(this).addClass('border-danger border-2');
-            selectedSalaId = $(this).find('.btn-invite, .btn-leave').data('id');
-        });
-
-        // 🔹 Mestre pode deletar sala
+        // Mestre: ativa modo deletar
         $(document).on('click', '.btn-delete-sala', function () {
-            if (!selectedSalaId) {
-                return alert('Selecione uma sala para deletar.');
-            }
-
-            showConfirm('Tem certeza que deseja deletar esta sala?', () => {
-                $.ajax({
-                    url: `/api/salas/${selectedSalaId}`,
-                    type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function () {
-                        $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
-                            $(this).remove();
-                        });
-                        selectedSalaId = null;
-                    },
-                    error: function () {
-                        alert('Erro ao deletar a sala.');
-                    }
-                });
-            });
+            deleteMode = true;
+            showToast('Clique na sala que deseja deletar.', 'info');
         });
 
-        // 🔹 Player pode sair da sala
+        // Player: ativa modo sair
         $(document).on('click', '.btn-exit-sala', function () {
-            if (!selectedSalaId) {
-                return alert('Selecione uma sala para sair.');
-            }
+            exitMode = true;
+            showToast('Clique na sala que deseja sair.', 'info');
+        });
 
-            const personagemId = "{{ session('personagem_id') ?? '' }}"; // se tiver session de personagem
-            if (!personagemId) {
-                alert('Erro: nenhum personagem encontrado para sair da sala.');
-                return;
-            }
+        // Seleciona sala clicada
+        $(document).on('click', '#salasList li', function () {
+            if (!deleteMode && !exitMode) return; // só funciona se modo ativo
 
-            showConfirm('Tem certeza que deseja sair desta sala?', () => {
-                $.ajax({
-                    url: `/api/salas/personagens/remover/${selectedSalaId}/${personagemId}`,
-                    type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function () {
-                        $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
-                            $(this).remove();
-                        });
-                        selectedSalaId = null;
-                    },
-                    error: function () {
-                        alert('Erro ao sair da sala.');
-                    }
+            $('#salasList li').removeClass('border-danger border-2');
+
+            $(this).addClass('border-danger border-2');
+
+            selectedSalaId = $(this).find('.btn-invite, .btn-leave').data('id');
+
+            if (deleteMode) {
+                showConfirm('Tem certeza que deseja deletar esta sala?', () => {
+                    $.ajax({
+                        url: `/api/salas/${selectedSalaId}`,
+                        type: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                        success: function () {
+                            $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
+                                $(this).remove();
+                            });
+                            selectedSalaId = null;
+                            deleteMode = false;
+                        },
+                        error: function () {
+                            showAlert('Erro ao deletar a sala.');
+                            deleteMode = false;
+                        }
+                    });
                 });
-            });
+            } else if (exitMode) {
+                const personagemId = "{{ session('personagem_id') ?? '' }}";
+                if (!personagemId) { showAlert('Erro: nenhum personagem encontrado.'); exitMode = false; return; }
+
+                showConfirm('Tem certeza que deseja sair desta sala?', () => {
+                    $.ajax({
+                        url: `/api/salas/personagens/remover/${selectedSalaId}/${personagemId}`,
+                        type: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                        success: function () {
+                            $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
+                                $(this).remove();
+                            });
+                            selectedSalaId = null;
+                            exitMode = false;
+                        },
+                        error: function () {
+                            showAlert('Erro ao sair da sala.');
+                            exitMode = false;
+                        }
+                    });
+                });
+            }
         });
 
         /* -------------------------------------------------------------
