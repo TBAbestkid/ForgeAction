@@ -441,23 +441,56 @@
                     });
                 });
             } else if (exitMode) {
-                const personagemId = "{{ session('personagem_id') ?? '' }}";
-                if (!personagemId) { showAlert('Erro: nenhum personagem encontrado.'); exitMode = false; return; }
+                if (!selectedSalaId) {
+                    showAlert('Selecione uma sala para sair.');
+                    exitMode = false;
+                    return;
+                }
 
-                showConfirm('Tem certeza que deseja sair desta sala?', () => {
+                const userId = "{{ session('user_id') }}";
+
+                showConfirm('Tem certeza que deseja sair desta sala?', function () {
+                    showToast('Saindo da sala...');
+
                     $.ajax({
-                        url: `/api/salas/personagens/remover/${selectedSalaId}/${personagemId}`,
-                        type: 'DELETE',
-                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                        success: function () {
-                            $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
-                                $(this).remove();
+                        url: `/api/salas/personagens/listar/${selectedSalaId}`,
+                        type: 'GET',
+                        data: { _token: window.csrfToken },
+                        success: function (personagens) {
+                            const personagem = personagens.find(p => p.usuarioId == userId);
+
+                            if (!personagem) {
+                                showToast('Seu personagem não foi encontrado nesta sala.');
+                                exitMode = false;
+                                return;
+                            }
+
+                            const personagemId = personagem.personagemId;
+
+                            $.ajax({
+                                url: `/api/salas/personagens/remover/${selectedSalaId}/${personagemId}`,
+                                type: 'DELETE',
+                                data: { _token: window.csrfToken },
+                                success: function (res) {
+                                    showToast(res.message || 'Você saiu da sala.');
+                                    $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
+                                        $(this).remove();
+                                    });
+                                    selectedSalaId = null;
+                                    exitMode = false;
+
+                                    if (typeof loadSalas === 'function') {
+                                        loadSalas(); // recarrega a listagem
+                                    }
+                                },
+                                error: function (xhr) {
+                                    showAlert(xhr.responseJSON?.message || 'Erro ao sair da sala.');
+                                    exitMode = false;
+                                }
                             });
-                            selectedSalaId = null;
-                            exitMode = false;
                         },
                         error: function () {
-                            showAlert('Erro ao sair da sala.');
+                            showAlert('Erro ao carregar os personagens da sala.');
                             exitMode = false;
                         }
                     });
