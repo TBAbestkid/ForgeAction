@@ -15,19 +15,33 @@ const box = new DiceBox('#scene-container', {
 });
 
 // Função para rolar os dados
-document.getElementById('roll-btn').addEventListener('click', () => {
-    const notationInput = document.getElementById('dice-notation').value || '1d6';
-    const forceVal = parseInt(document.getElementById('force-value').value);
+// Pega os elementos do HTML
+const notationInputEl = document.getElementById('dice-notation');
+const forceValueEl = document.getElementById('force-value');
+const rollBtn = document.getElementById('roll-btn');
 
-    let rollString = notationInput;
+// Event listener do botão
+rollBtn.addEventListener('click', () => {
+    // 1️⃣ Pega a notação do dado (ex: 1d6, 1d20)
+    const notation = notationInputEl.value || '1d20';
 
-    // Forçar valores se informado
+    // 2️⃣ Pega o valor forçado (opcional)
+    const forceVal = parseInt(forceValueEl.value);
+
+    // 3️⃣ Define a string de rolagem final
+    let rollString = notation;
+
+    // Se o usuário colocou um valor válido, força todos os dados para esse valor
     if (!isNaN(forceVal) && forceVal > 0) {
-        const diceCount = notationInput.match(/\d+d\d+/g)?.[0]?.split('d')[0] || 1;
-        rollString = `1d20@18`;
+    const match = notation.match(/(\d+)d(\d+)/);
+        if (match) {
+            const diceCount = match[1];  // número de dados
+            const diceSides = match[2];  // tipo de dado (4,6,8,20 etc)
+            rollString = `${diceCount}d${diceSides}@${Array(diceCount).fill(forceVal).join(',')}`;
+        }
     }
 
-    // Alterar cores aleatoriamente
+    // 4️⃣ Muda as cores do dado aleatoriamente (opcional)
     const colors = ['#00ffcb', '#ff6600', '#1d66af', '#7028ed', '#c4c427', '#d81128'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
@@ -40,5 +54,6 @@ document.getElementById('roll-btn').addEventListener('click', () => {
         }
     });
 
+    // 5️⃣ Rola o dado
     box.roll(rollString);
 });
