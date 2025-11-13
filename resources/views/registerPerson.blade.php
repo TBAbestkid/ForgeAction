@@ -123,19 +123,34 @@
                 const res = await fetch(url);
                 const json = await res.json();
 
-                // Confere se o formato da resposta está correto
-                const data = Array.isArray(json.data) ? json.data : [];
+                console.log('🔍 Resposta de', url, json); // <-- veja no console
+
+                // Verifica se há uma propriedade data e se ela é um array
+                let data = [];
+                if (Array.isArray(json)) {
+                    data = json;
+                } else if (Array.isArray(json.data)) {
+                    data = json.data;
+                } else if (json.status === 'success' && typeof json.data === 'object') {
+                    // Se data não for array mas for um objeto, tenta extrair valores
+                    data = Object.values(json.data);
+                } else {
+                    console.warn('⚠️ Formato inesperado em', url, json);
+                }
 
                 // Limpa e adiciona opção padrão
                 select.innerHTML = `<option value="" disabled selected>${labelPadrao}</option>`;
 
-                // Popula as opções
-                data.forEach(item => {
-                    const opt = document.createElement('option');
-                    opt.value = item.constante;
-                    opt.textContent = item.descricao;
-                    select.appendChild(opt);
-                });
+                // Popula opções se houver
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item.constante ?? item.id ?? item.nome ?? '';
+                        opt.textContent = item.descricao ?? item.nome ?? item.toString();
+                        select.appendChild(opt);
+                    });
+                }
+
             } catch (err) {
                 console.error('❌ Erro ao carregar opções de', url, err);
                 select.innerHTML = `<option disabled>Erro ao carregar</option>`;
