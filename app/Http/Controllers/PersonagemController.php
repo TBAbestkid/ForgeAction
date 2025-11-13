@@ -40,10 +40,32 @@ class PersonagemController extends Controller
      */
     public function store(Request $request)
     {
-        return response()->json(
-            $this->api->post("api/personagem", $request->all())
-        );
+        // Validação
+        $request->validate([
+            'nome' => 'required|string|max:50',
+            'classe' => 'required|string',
+            'raca' => 'required|string',
+            'idade' => 'required|integer|min:1|max:999999',
+            'genero' => 'required|string',
+            // adicione validação dos atributos se quiser
+        ]);
+
+        try {
+            $response = $this->api->post("api/personagem", $request->all());
+
+            // Sucesso
+            if (($response['status'] ?? '') === 'success') {
+                return redirect('/dashboard')->with('success', 'Personagem criado com sucesso!');
+            }
+
+            // Falha
+            return redirect()->back()->withInput()->with('error', $response['message'] ?? 'Erro ao criar personagem');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Erro inesperado: ' . $e->getMessage());
+        }
     }
+
 
     /**
      * DELETE /api/personagem/{personagemId}
@@ -63,23 +85,5 @@ class PersonagemController extends Controller
         return response()->json(
             $this->api->get("api/personagem/usuario/{$usuarioId}")
         );
-    }
-
-    public function select(Request $request)
-    {
-        $char = $request->all(); // recebe todo personagem enviado
-
-        // Salva todo o personagem na sessão
-        session(['selected_character' => $char]);
-
-        return response()->json(['success' => true]);
-    }
-
-    public function deselect(Request $request)
-    {
-        // Remove o personagem selecionado da sessão
-        $request->session()->forget('selected_character');
-
-        return response()->json(['success' => true]);
     }
 }
