@@ -56,7 +56,7 @@
             <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch" style="height: 60vh;">
 
                 {{-- Coluna esquerda (Logs) --}}
-                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="flex: 1 1 250px; overflow-y: auto;">
+                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="flex: 0 0 25%; overflow-y: auto; min-width: 230px; max-width: 280px;">
 
                     {{-- Botões horizontais --}}
                     <ul class="nav nav-pills mb-3" id="chatLogsTabs" role="tablist">
@@ -98,7 +98,7 @@
                 </nav>
 
                 {{-- Coluna central (DiceBox) --}}
-                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center flex-grow-1 mx-2" style="border:2px solid #555; overflow:hidden;">
+                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center flex-grow-1 mx-2" style="border:2px solid #555; overflow:hidden; flex: 1 1 50%;">
 
                     <span id="dice-placeholder" class="text-white" style="position: absolute; z-index: 10;">🎲 Aguardando início do turno...</span>
 
@@ -125,7 +125,7 @@
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 160px; padding: 0.5rem;">
+                <div class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
                     @foreach ($membros as $m)
                         <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-bs-toggle="collapse"
