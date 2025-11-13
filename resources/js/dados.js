@@ -24,7 +24,7 @@ document.getElementById('roll-btn').addEventListener('click', () => {
     // Forçar valores se informado
     if (!isNaN(forceVal) && forceVal > 0) {
         const diceCount = notationInput.match(/\d+d\d+/g)?.[0]?.split('d')[0] || 1;
-        rollString = `${diceCount}d6@${Array(diceCount).fill(forceVal).join(',')}`;
+        rollString = `1d20@18`;
     }
 
     // Alterar cores aleatoriamente
