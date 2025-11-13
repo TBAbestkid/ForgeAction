@@ -138,7 +138,7 @@ class SalaApiController extends Controller
      */
     public function getByCode($code) {
         return response()->json(
-            $this->api->get("api/codigo/{$code}")
+            $this->api->get("api/salas/codigo/{$code}")
         );
     }
 
@@ -148,7 +148,7 @@ class SalaApiController extends Controller
      */
     public function adicionarPersonagemByCode($code, $personagemId) {
         return response()->json(
-            $this->api->post("api/codigo/{$code}/personagens/{$personagemId}")
+            $this->api->post("api/salas/codigo/{$code}/personagens/{$personagemId}")
         );
     }
 }
