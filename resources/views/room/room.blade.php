@@ -304,22 +304,22 @@
             {{-- Container mobile de Chat, Logs e Players --}}
             <div class="d-md-none mt-3 w-100" style="max-height: 45vh;">
                 {{-- Tabs --}}
-                <ul class="nav nav-tabs nav-fill mb-2" id="mobileTabs" role="tablist" style="font-size: 0.85rem;">
-                    <li class="nav-item" role="presentation">
+                <ul class="nav nav-pills nav-fill mb-3" id="mobileTabs" role="tablist" style="font-size: 0.85rem;">
+                    <li class="nav-item flex-fill" role="presentation">
                         <button class="nav-link active text-white d-flex align-items-center gap-1 justify-content-center p-2"
-                                id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
+                                id="mobile-chat-tab" data-bs-toggle="pill" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
                             <i class="fa-solid fa-comment"></i> Chat
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item flex-fill" role="presentation">
                         <button class="nav-link text-white d-flex align-items-center gap-1 justify-content-center p-2"
-                                id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
+                                id="mobile-logs-tab" data-bs-toggle="pill" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
                             <i class="fa-solid fa-list-ul"></i> Logs
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item flex-fill" role="presentation">
                         <button class="nav-link text-white d-flex align-items-center gap-1 justify-content-center p-2"
-                                id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
+                                id="mobile-players-tab" data-bs-toggle="pill" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
                             <i class="fa-solid fa-users"></i> Players
                         </button>
                     </li>
