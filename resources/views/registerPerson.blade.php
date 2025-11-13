@@ -31,7 +31,7 @@
             @csrf
 
             <!-- Etapa 1: Informações Básicas -->
-            <div class="wizard-step">
+            <div id="step-info" class="wizard-step">
                 <div class="form-floating mb-3">
                     <input type="text" name="nome" id="nome" class="form-control" placeholder="Nome" required>
                     <label for="nome" class="text-light">Nome do Personagem</label>
@@ -66,7 +66,7 @@
             </div>
 
             <!-- Etapa 2: Atributos -->
-            <div class="wizard-step d-none">
+            <div id="step-attrs" class="wizard-step d-none">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h5 class="text-light mb-0">Distribuição de Atributos</h5>
                     <button type="button"
