@@ -178,95 +178,79 @@
 
                     const personagens = response.data || [];
 
-                    if (personagens.length > 0) {
-                        personagens.forEach(p => {
-                            const racas = {
-                                "DRACONATO": "Draconato",
-                                "TIEFLING": "Tiefling",
-                                "HALFLING": "Halfling",
-                                "ANAO": "Anão",
-                                "HUMANO": "Humano",
-                                "ELFO": "Elfo",
-                                "ORC": "Orc",
-                                "BRUTE_MEIO_ORC_HUMANO": "Brute (meio-orc + humano)",
-                                "BRUTE_MEIO_ORC_ELFO": "Brute (meio-orc + elfo)",
-                                "TARNISHED_ELFO_HUMANO": "Tarnished (elfo + humano)",
-                                "TARNISHED_ELFO_TIEFLING": "Tarnished (elfo + tiefling)"
-                            };
-
-                            const classes = {
-                                "ATIRADOR": "Atirador",
-                                "CACADOR": "Caçador",
-                                "GUERREIRO": "Guerreiro",
-                                "PALADINO": "Paladino",
-                                "ESPADACHIM": "Espadachim",
-                                "ASSASSINO": "Assassino",
-                                "LADRAO": "Ladrão",
-                                "FEITICEIRO": "Feiticeiro",
-                                "BRUXO": "Bruxo",
-                                "MAGO": "Mago",
-                                "CLERIGO": "Clérigo",
-                                "MONGE": "Monge",
-                                "XAMA": "Xamã",
-                                "DRUIDA": "Druida",
-                                "ARTIFICE": "Artífice",
-                                "BARDO": "Bardo"
-                            };
-
-                            $characterList.append(`
-                                <div class="personagem-card bg-dark text-white p-3 mb-2 rounded-3 border border-secondary">
-                                    <div class="d-flex justify-content-between align-items-center"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#collapse-${p.id}"
-                                        data-id="${p.id}"
-                                        aria-expanded="false"
-                                        aria-controls="collapse-${p.id}"
-                                        style="cursor: pointer;">
-
-                                        <div>
-                                            <strong class="fs-5">${p.nome}</strong><br>
-                                            <small>
-                                                ${racas[p.raca] ?? p.raca} |
-                                                ${classes[p.classe] ?? p.classe}
-                                            </small>
-                                        </div>
-
-                                        <i class="fa-solid fa-chevron-down transition"></i>
-                                    </div>
-
-                                    <div id="collapse-${p.id}" class="collapse mt-2">
-                                        <div class="bg-secondary bg-opacity-25 rounded p-2">
-                                            <div class="row g-2">
-                                                <div class="col-6"><small><strong>Nível:</strong> ${p.level}</small></div>
-                                                <div class="col-6"><small><strong>Força:</strong> ${p.forca}</small></div>
-                                                <div class="col-6"><small><strong>Agilidade:</strong> ${p.agilidade}</small></div>
-                                                <div class="col-6"><small><strong>Inteligência:</strong> ${p.inteligencia}</small></div>
-                                                <div class="col-6"><small><strong>Destreza:</strong> ${p.destreza}</small></div>
-                                                <div class="col-6"><small><strong>Vitalidade:</strong> ${p.vitalidade}</small></div>
-                                                <div class="col-6"><small><strong>Percepção:</strong> ${p.percepcao}</small></div>
-                                                <div class="col-6"><small><strong>Sabedoria:</strong> ${p.sabedoria}</small></div>
-                                                <div class="col-6"><small><strong>Carisma:</strong> ${p.carisma}</small></div>
-                                                <div class="col-6"><small><strong>Vida:</strong> ${p.vida}</small></div>
-                                                <div class="col-6"><small><strong>Mana:</strong> ${p.mana}</small></div>
-                                                <div class="col-6"><small><strong>Iniciativa:</strong> ${p.iniciativa}</small></div>
-                                                <div class="col-6"><small><strong>Atk Mágico:</strong> ${p.ataqueMagico}</small></div>
-                                                <div class="col-6"><small><strong>Atk Corpo:</strong> ${p.ataqueFisicoCorpo}</small></div>
-                                                <div class="col-6"><small><strong>Atk Distância:</strong> ${p.ataqueFisicoDistancia}</small></div>
-                                                <div class="col-6"><small><strong>Defesa:</strong> ${p.defesaPersonagem}</small></div>
-                                                <div class="col-6"><small><strong>Esquiva:</strong> ${p.esquivaPersonagem}</small></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `);
-                        });
-                    } else {
+                    if (personagens.length === 0) {
                         $characterList.html(`
                             <div class="text-center text-light py-3 bg-dark rounded border-light shadow">
                                 <i class="fa-solid fa-circle-exclamation"></i> Nenhum personagem encontrado.
                             </div>
                         `);
+                        return;
                     }
+
+                    const racas = {
+                        DRACONATO:"Draconato", TIEFLING:"Tiefling", HALFLING:"Halfling",
+                        ANAO:"Anão", HUMANO:"Humano", ELFO:"Elfo", ORC:"Orc",
+                        BRUTE_MEIO_ORC_HUMANO:"Brute (meio-orc + humano)",
+                        BRUTE_MEIO_ORC_ELFO:"Brute (meio-orc + elfo)",
+                        TARNISHED_ELFO_HUMANO:"Tarnished (elfo + humano)",
+                        TARNISHED_ELFO_TIEFLING:"Tarnished (elfo + tiefling)"
+                    };
+
+                    const classes = {
+                        ATIRADOR:"Atirador", CACADOR:"Caçador", GUERREIRO:"Guerreiro",
+                        PALADINO:"Paladino", ESPADACHIM:"Espadachim", ASSASSINO:"Assassino",
+                        LADRAO:"Ladrão", FEITICEIRO:"Feiticeiro", BRUXO:"Bruxo", MAGO:"Mago",
+                        CLERIGO:"Clérigo", MONGE:"Monge", XAMA:"Xamã", DRUIDA:"Druida",
+                        ARTIFICE:"Artífice", BARDO:"Bardo"
+                    };
+
+                    personagens.forEach(p => {
+                        $characterList.append(`
+                            <div class="personagem-card bg-dark text-white p-3 mb-2 rounded-3 border border-secondary"
+                                data-id="${p.id}">
+
+                                <div class="d-flex justify-content-between align-items-center"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapse-${p.id}"
+                                    aria-expanded="false"
+                                    aria-controls="collapse-${p.id}"
+                                    style="cursor: pointer;">
+
+                                    <div>
+                                        <strong class="fs-5">${p.nome}</strong><br>
+                                        <small>${racas[p.raca] ?? p.raca} | ${classes[p.classe] ?? p.classe}</small>
+                                    </div>
+
+                                    <i class="fa-solid fa-chevron-down transition"></i>
+                                </div>
+
+                                <div id="collapse-${p.id}" class="collapse mt-2">
+                                    <div class="bg-secondary bg-opacity-25 rounded p-2">
+                                        <div class="row g-2">
+                                            <div class="col-6"><small><strong>Nível:</strong> ${p.level}</small></div>
+                                            <div class="col-6"><small><strong>Força:</strong> ${p.forca}</small></div>
+                                            <div class="col-6"><small><strong>Agilidade:</strong> ${p.agilidade}</small></div>
+                                            <div class="col-6"><small><strong>Inteligência:</strong> ${p.inteligencia}</small></div>
+                                            <div class="col-6"><small><strong>Destreza:</strong> ${p.destreza}</small></div>
+                                            <div class="col-6"><small><strong>Vitalidade:</strong> ${p.vitalidade}</small></div>
+                                            <div class="col-6"><small><strong>Percepção:</strong> ${p.percepcao}</small></div>
+                                            <div class="col-6"><small><strong>Sabedoria:</strong> ${p.sabedoria}</small></div>
+                                            <div class="col-6"><small><strong>Carisma:</strong> ${p.carisma}</small></div>
+                                            <div class="col-6"><small><strong>Vida:</strong> ${p.vida}</small></div>
+                                            <div class="col-6"><small><strong>Mana:</strong> ${p.mana}</small></div>
+                                            <div class="col-6"><small><strong>Iniciativa:</strong> ${p.iniciativa}</small></div>
+                                            <div class="col-6"><small><strong>Atk Mágico:</strong> ${p.ataqueMagico}</small></div>
+                                            <div class="col-6"><small><strong>Atk Corpo:</strong> ${p.ataqueFisicoCorpo}</small></div>
+                                            <div class="col-6"><small><strong>Atk Distância:</strong> ${p.ataqueFisicoDistancia}</small></div>
+                                            <div class="col-6"><small><strong>Defesa:</strong> ${p.defesaPersonagem}</small></div>
+                                            <div class="col-6"><small><strong>Esquiva:</strong> ${p.esquivaPersonagem}</small></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        `);
+                    });
                 },
                 error: function () {
                     $characterList.html(`
@@ -287,29 +271,24 @@
             const userId = "{{ session('user_id') }}";
             const userRole = "{{ session('user_role') }}";
 
-            // 🔹 Define as rotas
             const rotas = [];
-            if (userRole === "PLAYER") {
-                rotas.push(`/api/salas/jogador/${userId}`);
-            } else if (userRole === "MASTER") {
-                rotas.push(`/api/salas/mestre/${userId}`);
-            }
+            if (userRole === "PLAYER") rotas.push(`/api/salas/jogador/${userId}`);
+            if (userRole === "MASTER") rotas.push(`/api/salas/mestre/${userId}`);
 
-            // 🔹 Faz todas as requisições
-            Promise.all(rotas.map(url =>
-                $.ajax({ url, method: "GET" })
-                    .then(r => Array.isArray(r) ? r : (r.data || []))
-                    .catch(() => [])
-            ))
+            Promise.all(
+                rotas.map(url =>
+                    $.ajax({ url })
+                        .then(r => Array.isArray(r) ? r : (r.data || []))
+                        .catch(() => [])
+                )
+            )
             .then(results => {
                 const salas = results.flat().filter(
                     (s, i, arr) => arr.findIndex(x => x.id === s.id) === i
                 );
 
-                // Limpa o loading
                 $salasList.empty();
 
-                // 🔹 Monta cada sala
                 salas.forEach(sala => {
                     const isMestre = sala.mestre == userId;
 
@@ -319,7 +298,7 @@
                                 <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
                                     <i class="fa-solid fa-user-plus"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-secondary btn-copy" data-code="${sala.codigo}" title="Copiar código">
+                                <button class="btn btn-sm btn-outline-secondary btn-copy" data-code="${sala.codigo}">
                                     <i class="fa-solid fa-clipboard"></i>
                                 </button>
                             </div>
@@ -331,7 +310,8 @@
                         `;
 
                     $salasList.append(`
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                            data-id="${sala.id}">
                             <span>
                                 <i class="fa-solid fa-door-open me-2 text-primary"></i>
                                 <a href="/salas/${sala.id}" class="text-decoration-none">${sala.nome}</a>
@@ -353,38 +333,35 @@
         /* -------------------------------------------------------------
         🗡️  EXCLUIR PERSONAGEM
         ------------------------------------------------------------- */
-        let selectedCharacterId = null;
         let deleteMode = false;
+        let selectedCharacterId = null;
 
-        // Ativa modo de seleção ao clicar no botão Excluir
         $(document).on('click', '.btn-delete-character', function () {
             deleteMode = true;
             showToast('Clique no personagem que deseja excluir.', 'info');
         });
 
-        // Seleciona o personagem clicado
         $(document).on('click', '.personagem-card', function () {
-            if (!deleteMode) return; // só funciona no modo delete
+            if (!deleteMode) return;
 
             $('.personagem-card').removeClass('border-danger border-2');
             $(this).addClass('border-danger border-2');
+
             selectedCharacterId = $(this).data('id');
 
-            // Confirmação
             showConfirm('Tem certeza que deseja excluir este personagem?', () => {
                 $.ajax({
                     url: `/personagem/${selectedCharacterId}`,
                     type: 'DELETE',
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                    success: function () {
+                    success: () => {
                         $(`.personagem-card[data-id="${selectedCharacterId}"]`)
-                            .fadeOut(300, function () {
-                                $(this).remove();
-                            });
+                            .fadeOut(300, function () { $(this).remove(); });
+
+                        deleteMode = false;
                         selectedCharacterId = null;
-                        deleteMode = false; // sai do modo delete
                     },
-                    error: function () {
+                    error: () => {
                         showAlert('Erro ao excluir personagem.');
                         deleteMode = false;
                     }
@@ -395,70 +372,63 @@
         /* -------------------------------------------------------------
         🏰  EXCLUIR OU SAIR DE SALA
         ------------------------------------------------------------- */
-        let selectedSalaId = null;
         let deleteModeSala = false;
         let exitMode = false;
+        let selectedSalaId = null;
 
-        // Mestre: ativa modo deletar
         $(document).on('click', '.btn-delete-sala', function () {
             deleteModeSala = true;
+            exitMode = false;
             showToast('Clique na sala que deseja deletar.', 'info');
         });
 
-        // Player: ativa modo sair
         $(document).on('click', '.btn-exit-sala', function () {
-            deleteModeSala = true;
+            exitMode = true;
+            deleteModeSala = false;
             showToast('Clique na sala que deseja sair.', 'info');
         });
 
-        // Seleciona sala clicada
         $(document).on('click', '#salasList li', function () {
-            if (!deleteModeSala && !exitMode) return; // só funciona se modo ativo
+            if (!deleteModeSala && !exitMode) return;
 
             $('#salasList li').removeClass('border-danger border-2');
-
             $(this).addClass('border-danger border-2');
 
-            selectedSalaId = $(this).find('.btn-invite, .btn-leave').data('id');
+            selectedSalaId = $(this).data('id');
 
+            /* --- Deletar sala --- */
             if (deleteModeSala) {
                 showConfirm('Tem certeza que deseja deletar esta sala?', () => {
                     $.ajax({
                         url: `/api/salas/${selectedSalaId}`,
                         type: 'DELETE',
                         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                        success: function () {
-                            $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
+                        success: () => {
+                            $(`#salasList li[data-id="${selectedSalaId}"]`).fadeOut(300, function () {
                                 $(this).remove();
                             });
-                            selectedSalaId = null;
                             deleteModeSala = false;
+                            selectedSalaId = null;
                         },
-                        error: function () {
+                        error: () => {
                             showAlert('Erro ao deletar a sala.');
                             deleteModeSala = false;
                         }
                     });
                 });
-            } else if (exitMode) {
-                if (!selectedSalaId) {
-                    showAlert('Selecione uma sala para sair.');
-                    exitMode = false;
-                    return;
-                }
+                return;
+            }
 
+            /* --- Sair da sala --- */
+            if (exitMode) {
                 const userId = "{{ session('user_id') }}";
 
                 showConfirm('Tem certeza que deseja sair desta sala?', function () {
-                    showToast('Saindo da sala...');
-
                     $.ajax({
                         url: `/api/salas/personagens/listar/${selectedSalaId}`,
                         type: 'GET',
-                        data: { _token: window.csrfToken },
-                        success: function (personagens) {
+                        success: personagens => {
                             const personagem = personagens.find(p => p.usuarioId == userId);
-
                             if (!personagem) {
                                 showToast('Seu personagem não foi encontrado nesta sala.');
                                 exitMode = false;
@@ -470,26 +440,23 @@
                             $.ajax({
                                 url: `/api/salas/personagens/remover/${selectedSalaId}/${personagemId}`,
                                 type: 'DELETE',
-                                data: { _token: window.csrfToken },
-                                success: function (res) {
+                                success: res => {
                                     showToast(res.message || 'Você saiu da sala.');
-                                    $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
+                                    $(`#salasList li[data-id="${selectedSalaId}"]`).fadeOut(300, function () {
                                         $(this).remove();
                                     });
-                                    selectedSalaId = null;
-                                    exitMode = false;
 
-                                    if (typeof loadSalas === 'function') {
-                                        loadSalas(); // recarrega a listagem
-                                    }
+                                    exitMode = false;
+                                    selectedSalaId = null;
+                                    loadSalas();
                                 },
-                                error: function (xhr) {
+                                error: xhr => {
                                     showAlert(xhr.responseJSON?.message || 'Erro ao sair da sala.');
                                     exitMode = false;
                                 }
                             });
                         },
-                        error: function () {
+                        error: () => {
                             showAlert('Erro ao carregar os personagens da sala.');
                             exitMode = false;
                         }
@@ -505,25 +472,22 @@
         loadSalas();
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Seleciona todos os collapses da página
+    /* -------------------------------------------------------------
+    🔽 ÍCONES DO COLLAPSE
+    ------------------------------------------------------------- */
+    document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(toggle => {
-            const targetId = toggle.getAttribute('data-bs-target');
-            const target = document.querySelector(targetId);
-            const icon = toggle.querySelector('i');
+            const target = document.querySelector(toggle.getAttribute("data-bs-target"));
+            const icon = toggle.querySelector("i");
 
             if (!target || !icon) return;
 
-            // Quando o collapse abrir
-            target.addEventListener('shown.bs.collapse', () => {
-                icon.classList.remove('fa-chevron-down');
-                icon.classList.add('fa-chevron-up');
+            target.addEventListener("shown.bs.collapse", () => {
+                icon.classList.replace("fa-chevron-down", "fa-chevron-up");
             });
 
-            // Quando o collapse fechar
-            target.addEventListener('hidden.bs.collapse', () => {
-                icon.classList.remove('fa-chevron-up');
-                icon.classList.add('fa-chevron-down');
+            target.addEventListener("hidden.bs.collapse", () => {
+                icon.classList.replace("fa-chevron-up", "fa-chevron-down");
             });
         });
     });
