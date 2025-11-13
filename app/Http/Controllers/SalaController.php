@@ -71,7 +71,7 @@ class SalaController extends Controller
 
         $userRole = session('user_role');
         if ($userRole !== 'MASTER') {
-            return redirect()->route('salas.index')->with('error', 'Apenas mestres podem criar salas.');
+            return redirect()->route('home')->with('error', 'Apenas mestres podem criar salas.');
         }
 
         return view('room.create');
@@ -179,7 +179,7 @@ class SalaController extends Controller
         }
 
         Log::info('authenticated - redirecionando normalmente para salas');
-        return redirect()->route('salas.index');
+        return redirect()->route('home');
     }
 
     // Se usuario possuir um personagem na sessão, ele pode só entrar direto na sala
@@ -193,7 +193,7 @@ class SalaController extends Controller
 
         if (!$data) {
             // Log::warning('acceptInvite - convite expirado ou inválido', ['token' => $token]);
-            return redirect()->route('salas.index')->withErrors(['token' => 'Convite expirado ou inválido.']);
+            return redirect()->route('home')->withErrors(['token' => 'Convite expirado ou inválido.']);
         }
 
         $salaId = $data['salaId'] ?? null;
@@ -211,7 +211,7 @@ class SalaController extends Controller
 
         if (!$salaOwnerId) {
             // Log::error('acceptInvite - dono da sala ausente');
-            return redirect()->route('salas.index')->withErrors(['sala' => 'Não foi possível identificar o dono da sala.']);
+            return redirect()->route('home')->withErrors(['sala' => 'Não foi possível identificar o dono da sala.']);
         }
 
         // 🔹 Busca todas as salas do dono
@@ -224,7 +224,7 @@ class SalaController extends Controller
 
         if (!$sala) {
             // Log::error('acceptInvite - sala não encontrada', ['salaId' => $salaId]);
-            return redirect()->route('salas.index')->withErrors(['sala' => 'Sala não encontrada.']);
+            return redirect()->route('home')->withErrors(['sala' => 'Sala não encontrada.']);
         }
 
         // 🔹 Busca personagens
@@ -279,12 +279,12 @@ class SalaController extends Controller
         $salaResponse = $this->api->get("api/codigo/{$code}");
 
         if (!isset($salaResponse['status']) || $salaResponse['status'] !== 'success') {
-            return redirect()->route('salas.index')->withErrors(['codigo' => 'Código inválido ou sala não encontrada.']);
+            return redirect()->route('home')->withErrors(['codigo' => 'Código inválido ou sala não encontrada.']);
         }
 
         $sala = $salaResponse['data'] ?? null;
         if (!$sala) {
-            return redirect()->route('salas.index')->withErrors(['codigo' => 'Sala não encontrada.']);
+            return redirect()->route('home')->withErrors(['codigo' => 'Sala não encontrada.']);
         }
 
         // Busca personagens do usuário
@@ -294,16 +294,6 @@ class SalaController extends Controller
         if (empty($personagens)) {
             return redirect()->route('personagem.create')
                 ->with('info', 'Você precisa criar um personagem antes de entrar na sala.');
-        }
-
-        // Se já tiver personagem selecionado, adiciona automaticamente
-        if (session()->has('selected_character')) {
-            $personagemId = session('selected_character.id');
-
-            // 🔹 Faz a requisição POST para a rota API de adicionar personagem
-            $this->api->post("api/codigo/{$code}/personagens/{$personagemId}");
-
-            return redirect()->route('room.room', ['id' => $sala['id']]);
         }
 
         // Caso contrário, manda pra tela de seleção
@@ -334,7 +324,7 @@ class SalaController extends Controller
         $isConvidado = $salasDoJogador->contains('id', $id);
 
         if (!$isDono && !$isConvidado) {
-            return redirect()->route('salas.index')->with('error', 'Você não tem permissão para acessar esta sala.');
+            return redirect()->route('home')->with('error', 'Você não tem permissão para acessar esta sala.');
         }
 
         // 🔹 Busca raças e classes (só uma vez)
