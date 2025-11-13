@@ -42,7 +42,16 @@ async function funcaoChamarDados(facesDados, valorForcado = null) {
 
     console.log(`🎯 Rolando: ${rollString}`);
     box.roll(rollString);
+
+    // 🔹 Faz os dados sumirem depois de alguns segundos
+    setTimeout(() => {
+        if (box) {
+            box.clear(); // remove os dados da tela
+            console.log('🧹 Dados limpos após rolagem');
+        }
+    }, 4000); // 4 segundos depois da rolagem
 }
+
 
 // Torna acessível globalmente
 window.funcaoChamarDados = funcaoChamarDados;
