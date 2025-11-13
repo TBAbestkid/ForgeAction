@@ -53,10 +53,10 @@
         <div class="d-flex flex-column flex-grow-1">
 
             {{-- Área principal de jogos (personagens + DiceBox) --}}
-            <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: auto; max-height: 60vh;">
+            <div id="games-section" class="d-flex flex-column flex-lg-row gap-2 align-items-stretch" style="height: 60vh;">
 
                 {{-- Coluna esquerda (Logs) --}}
-                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="min-width: 200px; flex: 1 1 auto; max-height: 60vh; overflow-y: auto;">
+                <nav class="d-none d-md-flex flex-column bg-dark p-2 rounded" style="flex: 0 0 220px; overflow-y: auto;">
 
                     {{-- Botões horizontais --}}
                     <ul class="nav nav-pills mb-3" id="chatLogsTabs" role="tablist">
@@ -98,8 +98,8 @@
                 </nav>
 
                 {{-- Coluna central (DiceBox) --}}
-                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center"
-                    style="flex:2 1 auto; height:200px; border:2px solid #555; overflow:hidden;">
+                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center flex-grow-1" style="border:2px solid #555; overflow:hidden;">
+
                     <span id="dice-placeholder" class="text-white" style="position: absolute; z-index: 10;">🎲 Aguardando início do turno...</span>
 
                     <div id="turn-controls" class="d-none flex-column align-items-center gap-2 mt-2">
@@ -125,7 +125,7 @@
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div class="d-flex flex-column gap-2 overflow-auto d-none d-lg-flex" style="flex:1 1 auto; min-width:120px; max-height: 60vh;">
+                 <div class="d-none d-lg-flex flex-column gap-2 overflow-auto" style="flex: 0 0 150px;">
                     @foreach ($membros as $m)
                         <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-bs-toggle="collapse"
@@ -306,27 +306,30 @@
                 {{-- Tabs --}}
                 <ul class="nav nav-tabs nav-fill mb-2" id="mobileTabs" role="tablist" style="font-size: 0.85rem;">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active text-white p-2" id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
+                        <button class="nav-link active text-white d-flex align-items-center gap-1 justify-content-center p-2"
+                                id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
                             <i class="fa-solid fa-comment"></i> Chat
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link text-white p-2" id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
+                        <button class="nav-link text-white d-flex align-items-center gap-1 justify-content-center p-2"
+                                id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
                             <i class="fa-solid fa-list-ul"></i> Logs
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link text-white p-2" id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
+                        <button class="nav-link text-white d-flex align-items-center gap-1 justify-content-center p-2"
+                                id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
                             <i class="fa-solid fa-users"></i> Players
                         </button>
                     </li>
                 </ul>
 
                 {{-- Conteúdo das tabs --}}
-                <div class="tab-content bg-dark rounded p-2" style="max-height: 40vh; overflow-y: auto;">
+                <div class="tab-content bg-dark rounded p-2" style="max-height: 45vh;">
                     {{-- Chat --}}
                     <div class="tab-pane fade show active" id="mobile-chat" role="tabpanel" aria-labelledby="mobile-chat-tab">
-                        <div id="chat-messages-mobile" class="d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="max-height: 30vh; font-size: 0.85rem;">
+                        <div id="chat-messages-mobile" class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
                             <!-- Mensagens -->
                         </div>
                         <div class="d-flex mt-2 gap-1">
@@ -337,20 +340,19 @@
 
                     {{-- Logs --}}
                     <div class="tab-pane fade" id="mobile-logs" role="tabpanel" aria-labelledby="mobile-logs-tab">
-                        <div id="system-logs-mobile" class="d-flex flex-column scroll-invisible" style="max-height: 35vh; font-size: 0.85rem;">
+                        <div id="system-logs-mobile" class="d-flex flex-column overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
                             <!-- Logs -->
                         </div>
                     </div>
 
                     {{-- Players --}}
                     <div class="tab-pane fade" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
-                        <div class="d-flex flex-column gap-2 scroll-invisible" style="max-height: 35vh; font-size: 0.85rem;">
+                        <div class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
                             @foreach ($membros as $m)
                                 <div class="bg-dark rounded p-2 text-white text-center">
                                     <strong class="small">{{ $m['nome'] }}</strong>
                                     <div class="progress mt-1" style="height: 12px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
-                                        </div>
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;"></div>
                                     </div>
                                 </div>
                             @endforeach
