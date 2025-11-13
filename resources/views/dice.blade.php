@@ -11,5 +11,4 @@
 </div>
 
 @vite('resources/js/dados.js')
-
 @endsection
