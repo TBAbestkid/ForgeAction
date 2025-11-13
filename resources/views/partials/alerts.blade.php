@@ -8,7 +8,7 @@
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-dark">
+            <div class="modal-body text-light">
                 <p id="modalMessage"></p>
             </div>
             <div class="modal-footer">
@@ -38,7 +38,7 @@
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
-            <div class="modal-body text-dark">
+            <div class="modal-body text-light">
                 <p id="modalConfirmMessage"></p>
             </div>
             <div class="modal-footer">
