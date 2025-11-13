@@ -36,7 +36,7 @@
                                 <a href="{{ route('registerPerson') }}" class="btn btn-outline-success">
                                     <i class="fa-solid fa-user-plus me-1"></i> Criar personagem
                                 </a>
-                                <button class="btn btn-outline-danger">
+                                <button class="btn btn-outline-danger btn-delete-character">
                                     <i class="fa-solid fa-trash me-1"></i> Excluir
                                 </button>
                             </div>
@@ -67,13 +67,19 @@
                             {{-- Botões --}}
                             <div class="d-grid gap-2 mt-4">
                                 @if (session('user_role') === 'MASTER')
-                                    <a href="{{ route('salas.create') }}" class="btn btn-outline-success">
+                                    <a href="{{ route('salas.create') }}" class="btn btn-outline-success shadow-sm">
                                         <i class="fa-solid fa-user-group me-1"></i> Criar sala
                                     </a>
+                                    <button class="btn btn-outline-danger x-4 py-2 shadow-sm btn-delete-sala">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
                                 @else
                                     <button class="btn btn-outline-success px-4 py-2 shadow-sm"
                                             data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
                                         <i class="fa-solid fa-door-open me-2"></i> Entrar em Sala
+                                    </button>
+                                    <button class="btn btn-outline-danger x-4 py-2 shadow-sm btn-exit-sala">
+                                        <i class="fa-solid fa-door-open"></i> Sair da sala
                                     </button>
                                 @endif
                             </div>
@@ -212,6 +218,7 @@
                                     <div class="d-flex justify-content-between align-items-center"
                                         data-bs-toggle="collapse"
                                         data-bs-target="#collapse-${p.id}"
+                                        data-id="${p.id}"
                                         aria-expanded="false"
                                         aria-controls="collapse-${p.id}"
                                         style="cursor: pointer;">
@@ -309,9 +316,6 @@
                     const botoes = isMestre
                         ? `
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
                                 <button class="btn btn-sm btn-outline-success btn-invite" data-id="${sala.id}">
                                     <i class="fa-solid fa-user-plus"></i>
                                 </button>
@@ -345,6 +349,116 @@
                 `);
             });
         }
+
+        /* -------------------------------------------------------------
+        🗡️  EXCLUIR PERSONAGEM
+        ------------------------------------------------------------- */
+        let selectedCharacterId = null;
+
+        // Quando o usuário clica em um card, ele é "selecionado"
+        $(document).on('click', '.personagem-card', function () {
+            // Remove destaque dos outros
+            $('.personagem-card').removeClass('border-danger border-2');
+            // Marca este
+            $(this).addClass('border-danger border-2');
+
+            selectedCharacterId = $(this).data('id');
+        });
+
+        // Quando clica no botão de excluir
+        $(document).on('click', '.btn-delete-character', function () {
+            if (!selectedCharacterId) {
+                return alert('Selecione um personagem primeiro.');
+            }
+
+            showConfirm('Tem certeza que deseja excluir este personagem?', () => {
+                $.ajax({
+                    url: `/personagem/${selectedCharacterId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function () {
+                        $(`#characterList .personagem-card[data-id="${selectedCharacterId}"]`)
+                            .fadeOut(300, function () { $(this).remove(); });
+                        selectedCharacterId = null;
+                    },
+                    error: function () {
+                        alert('Erro ao excluir personagem.');
+                    }
+                });
+            });
+        });
+
+        /* -------------------------------------------------------------
+        🏰  EXCLUIR OU SAIR DE SALA
+        ------------------------------------------------------------- */
+        let selectedSalaId = null;
+
+        // Selecionar sala da lista
+        $(document).on('click', '#salasList li', function () {
+            $('#salasList li').removeClass('border-danger border-2');
+            $(this).addClass('border-danger border-2');
+            selectedSalaId = $(this).find('.btn-invite, .btn-leave').data('id');
+        });
+
+        // 🔹 Mestre pode deletar sala
+        $(document).on('click', '.btn-delete-sala', function () {
+            if (!selectedSalaId) {
+                return alert('Selecione uma sala para deletar.');
+            }
+
+            showConfirm('Tem certeza que deseja deletar esta sala?', () => {
+                $.ajax({
+                    url: `/api/salas/${selectedSalaId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function () {
+                        $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
+                            $(this).remove();
+                        });
+                        selectedSalaId = null;
+                    },
+                    error: function () {
+                        alert('Erro ao deletar a sala.');
+                    }
+                });
+            });
+        });
+
+        // 🔹 Player pode sair da sala
+        $(document).on('click', '.btn-exit-sala', function () {
+            if (!selectedSalaId) {
+                return alert('Selecione uma sala para sair.');
+            }
+
+            const personagemId = "{{ session('personagem_id') ?? '' }}"; // se tiver session de personagem
+            if (!personagemId) {
+                alert('Erro: nenhum personagem encontrado para sair da sala.');
+                return;
+            }
+
+            showConfirm('Tem certeza que deseja sair desta sala?', () => {
+                $.ajax({
+                    url: `/api/salas/personagens/remover/${selectedSalaId}/${personagemId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function () {
+                        $(`#salasList li:has([data-id="${selectedSalaId}"])`).fadeOut(300, function () {
+                            $(this).remove();
+                        });
+                        selectedSalaId = null;
+                    },
+                    error: function () {
+                        alert('Erro ao sair da sala.');
+                    }
+                });
+            });
+        });
 
         /* -------------------------------------------------------------
         🚀 INICIALIZAÇÃO

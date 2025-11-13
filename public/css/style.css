@@ -127,3 +127,11 @@ body {
 .tab-pane.active.d-flex {
   display: flex !important;
 }
+
+#salasList li.border-danger {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+#characterList li.border-danger {
+    background-color: rgba(255, 0, 0, 0.1);
+}
