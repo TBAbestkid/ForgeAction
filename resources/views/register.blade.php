@@ -73,7 +73,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {{-- Fazer um js validando as infos do form --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('registerForm');
 
         if (!form) {
@@ -81,9 +81,7 @@
             return;
         }
 
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-
+        form.addEventListener('submit', function(e) {
             // -------------------
             // 1️⃣ Validação de campos
             // -------------------
@@ -93,59 +91,28 @@
             const senhaConfirm = document.getElementById('passwordConfirm').value.trim();
 
             if (!email || !login || !senha || !senhaConfirm) {
+                e.preventDefault();
                 return showAlert("Preencha todos os campos para continuar!");
             }
 
             if (senha.length < 6) {
+                e.preventDefault();
                 return showAlert("A senha deve ter no mínimo 6 caracteres!");
             }
 
             if (senha !== senhaConfirm) {
+                e.preventDefault();
                 return showAlert("As senhas não coincidem. Verifique e tente novamente.");
             }
 
             // -------------------
             // 2️⃣ Mostra overlay de loading
             // -------------------
-            showLoading(5000);
 
-            // -------------------
-            // 3️⃣ Envio via AJAX para Laravel
-            // -------------------
-            const data = {
-                email: email,
-                login: login,
-                senha: senha,
-                _token: document.querySelector('meta[name="csrf-token"]').content
-            };
+            if (typeof showLoading === "function") {
+                showLoading(5000);
+            }
 
-            fetch('{{ route("register.post") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.json())
-            .then(res => {
-                hideLoading();
-
-                if (res.success) {
-                    showToast(res.message || "Conta criada com sucesso! Redirecionando...");
-
-                    setTimeout(() => {
-                        goToPage(res.redirect || '/', 2000);
-                    }, 1500);
-                } else {
-                    showAlert(res.message || "Não foi possível criar a conta. Tente novamente.");
-                }
-            })
-            .catch(err => {
-                hideLoading();
-                console.error(err);
-                showAlert("Erro inesperado. Verifique sua conexão ou tente mais tarde.");
-            });
         });
     });
 </script>
