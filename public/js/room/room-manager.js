@@ -34,6 +34,7 @@
     let modoMestre = null; // 'dano', 'cura', null
     let ultimoDadoRolado = null;
     let timeoutLimpezaDado = null; // Para controlar timeout de limpeza do dado
+    let ocultarDadosAtivo = false; // Flag para ocultar valores dos dados
 
     // ====== UI ELEMENTS ======
     const personagensContainer = document.getElementById('personagens-container') ||
@@ -284,12 +285,17 @@
     }
 
     // ===== MOSTRA DADO COM TIMEOUT DE LIMPEZA =====
-    function mostrarDado(dado, valor, autor) {
+    function mostrarDado(dado, valor, autor, ocultar = false) {
         // Limpa timeout anterior se existir
         if (timeoutLimpezaDado) clearTimeout(timeoutLimpezaDado);
 
         if (placeholder) {
-            placeholder.textContent = `🎲 ${autor} rolou D${dado} = ${valor}`;
+            if (ocultar) {
+                // Se for mestre ocultando, mostra apenas mensagem genérica
+                placeholder.textContent = `🎲 ${autor} está rolando...`;
+            } else {
+                placeholder.textContent = `🎲 ${autor} rolou D${dado} = ${valor}`;
+            }
         }
 
         // Limpa o dado após 4 segundos
@@ -566,19 +572,23 @@
         // }
 
         if (isMestre) {
-            debugLog('🎲 Mestre rolando dados');
-            enviarSistema(`🎲 Mestre rolou D${sides} = ${valor}`);
-            mostrarDado(sides, valor, 'Mestre');
-            enviarAcao({
-                acao: 'playerActionDone',
-                personagemId: currentPlayerId,
-                descricao: `Mestre rolou D${sides} = ${valor}`,
-                autor: 'Mestre',
-                dado: sides,
-                valor
-            });
-            // Passar turno automaticamente após ação do mestre
-            setTimeout(() => proximoTurno(), 1000);
+            debugLog('🎲 Mestre rolando dados', { ocultarDadosAtivo });
+            if (ocultarDadosAtivo) {
+                // Mestre está ocultando dados - envia mensagem genérica
+                enviarSistema(`🎲 Mestre está rolando dados...`);
+                mostrarDado(sides, valor, 'Mestre', true); // true = ocultar valor
+            } else {
+                // Mostra valor normalmente
+                enviarSistema(`🎲 Mestre rolou D${sides} = ${valor}`);
+                mostrarDado(sides, valor, 'Mestre', false);
+            }
+            // ⚠️ Mestre NÃO pula turno ao rolar dados - pode rolar múltiplos dados
+            // Apenas mostra animação, sem enviar 'playerActionDone'
+            if (window.funcaoChamarDados) {
+                setTimeout(() => {
+                    window.funcaoChamarDados(sides, valor);
+                }, 300);
+            }
         } else {
             if (phase !== 'player') {
                 debugLog('⚠️ Não é a fase do jogador');
@@ -993,6 +1003,21 @@
                 });
                 setPlayerControlsEnabled(true, jogadorAtual.personagemId);
                 atualizarTurnoUI();
+            });
+        }
+
+        // Registra listener para checkbox de ocultar dados
+        const chkOcultarDados = document.getElementById('ocultarDados');
+        if (chkOcultarDados) {
+            debugLog('✅ Registrando listener para ocultarDados');
+            chkOcultarDados.addEventListener('change', (e) => {
+                ocultarDadosAtivo = e.target.checked;
+                debugLog('🔒 Ocultar dados:', ocultarDadosAtivo);
+                if (ocultarDadosAtivo) {
+                    enviarSistema('🔒 Mestre está ocultando os valores dos dados');
+                } else {
+                    enviarSistema('🔓 Mestre está mostrando os valores dos dados');
+                }
             });
         }
 

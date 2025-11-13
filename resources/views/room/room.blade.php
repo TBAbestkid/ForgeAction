@@ -99,8 +99,8 @@
 
                 {{-- Coluna central (DiceBox) --}}
                 <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center"
-                    style="flex:2 1 auto; min-height:150px; border:2px solid #555;">
-                    <span id="dice-placeholder" class="text-white">🎲 Aguardando início do turno...</span>
+                    style="flex:2 1 auto; height:200px; border:2px solid #555; overflow:hidden;">
+                    <span id="dice-placeholder" class="text-white" style="position: absolute; z-index: 10;">🎲 Aguardando início do turno...</span>
 
                     <div id="turn-controls" class="d-none flex-column align-items-center gap-2 mt-2">
                         <div class="d-flex gap-2 flex-wrap justify-content-center">
@@ -251,10 +251,10 @@
             @else
                 {{-- Botões de ação de mestre como linha abaixo de área --}}
                 <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
-                    {{-- Linha pra ter três elementos --}}
-                    <div class="row mb-2 gap-2 justify-content-center">
+                    {{-- Todos os 6 botões em uma linha flexível --}}
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
                         {{-- 🔹 Iniciar/Avançar Turno --}}
-                        <button id="btnIniciarTurno" class="btn btn-outline-success rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
+                        <button id="btnIniciarTurno" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Iniciar/Avançar Turno"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-play"></i>
@@ -262,7 +262,7 @@
 
                         {{-- 🔹 Lançar Dados --}}
                         <button id="btn-lancar-mestre"
-                            class="btn btn-outline-warning rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
+                            class="btn btn-outline-warning rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-dice-d20"></i>
@@ -270,36 +270,32 @@
 
                         {{-- 🔹 Permitir Dados --}}
                         <button id="btn-permitir-jogada"
-                            class="btn btn-outline-primary rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
+                            class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Permitir Jogada Extra"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-user-check"></i>
                         </button>
-                    </div>
 
-                    {{-- Linha pra ter três elementos --}}
-                    <div class="row mb-2 gap-2 justify-content-center">
                         {{-- 🔹 Causar Dano --}}
-                        <button id="btn-dano" class="btn btn-outline-danger rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
+                        <button id="btn-dano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Causar Dano"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-burst"></i>
                         </button>
 
                         {{-- 🔹 Curar --}}
-                        <button id="btn-curar" class="btn btn-outline-success rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
+                        <button id="btn-curar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Curar"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-heart-pulse"></i>
                         </button>
+
                         {{-- 🔹 Upar Personagem --}}
-                        <button id="btn-upar" class="btn btn-outline-info rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
+                        <button id="btn-upar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Upar Personagem"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-arrow-up"></i>
                         </button>
-
-
                     </div>
                 </div>
             @endif
