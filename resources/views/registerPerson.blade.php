@@ -228,28 +228,32 @@
             return valid;
         }
 
-        // Valida atributos
+        // Valida atributos em tempo real
         function validateAttrs() {
             let sum = 0, valid = true;
 
             ATTRS.forEach(a => {
                 const el = form.querySelector(`[name="${a}"]`);
                 clearInvalid(el);
-                if(!el || !isPositiveInt(el.value)) {
+
+                if(!el || !isPositiveInt(el.value)){
                     setInvalid(el,'Atributo inválido');
-                    valid=false; return;
+                    valid = false;
+                } else {
+                    sum += parseInt(el.value,10);
                 }
-                sum += parseInt(el.value,10);
             });
 
-            if(sum < TOTAL_POINTS){
-                attrsMsg.textContent=`Distribua mais ${TOTAL_POINTS-sum} pontos`;
-                valid=false;
-            } else if(sum > TOTAL_POINTS){
-                attrsMsg.textContent=`Ultrapassou total de ${TOTAL_POINTS}`;
-                valid=false;
+            const remaining = TOTAL_POINTS - sum;
+
+            if(remaining > 0){
+                attrsMsg.textContent = `Você ainda tem ${remaining} ponto(s) para distribuir`;
+                valid = false;
+            } else if(remaining < 0){
+                attrsMsg.textContent = `Você ultrapassou o total de ${TOTAL_POINTS} pontos em ${-remaining}`;
+                valid = false;
             } else {
-                attrsMsg.textContent='';
+                attrsMsg.textContent = `Todos os pontos foram distribuídos!`;
             }
 
             submitBtn.disabled = !valid;
@@ -285,6 +289,9 @@
             if(!el) return;
             el.addEventListener('input', validateAttrs);
         });
+
+        // chama uma vez no load para atualizar mensagem
+        validateAttrs();
 
         // Submit
         form.addEventListener('submit', e => {
