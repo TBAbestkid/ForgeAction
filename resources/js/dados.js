@@ -1,5 +1,6 @@
 // dados.js
-import DiceBox from '/vendor/dicebox/dice-box-threejs.es.js'; // arquivo JS local
+import DiceBox from '@3d-dice/dice-box-threejs';
+// import DiceBox from '/vendor/dicebox/dice-box-threejs.es.js'; // arquivo JS local
 // assetPath aponta para a pasta de texturas local
 const box = new DiceBox('#scene-container', {
     assetPath: '/vendor/dicebox/textures/',
@@ -24,9 +25,11 @@ const rollBtn = document.getElementById('roll-btn');
 rollBtn.addEventListener('click', () => {
     // 1️⃣ Pega a notação do dado (ex: 1d6, 1d20)
     const notation = notationInputEl.value || '1d20';
+    console.log('Notação do dado:', notation);
 
     // 2️⃣ Pega o valor forçado (opcional)
     const forceVal = parseInt(forceValueEl.value);
+    console.log('Valor forçado:', forceVal || 'Nenhum');
 
     // 3️⃣ Define a string de rolagem final
     let rollString = notation;
