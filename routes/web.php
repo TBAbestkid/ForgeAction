@@ -105,7 +105,7 @@ Route::get('/usuario/{usuarioId}', [UserController::class, 'getById'])->name('ap
 
 // Personagem principal
 Route::get('/personagem/{personagemId}', [PersonagemController::class, 'show']);
-Route::post('/personagem', [PersonagemController::class, 'store']);
+Route::post('/personagem', [PersonagemController::class, 'store'])->name('personagem.store');
 Route::delete('/personagem/{personagemId}', [PersonagemController::class, 'destroy']);
 Route::get('/personagem/usuario/{usuarioId}', [PersonagemController::class, 'showByUsuario']);
 
