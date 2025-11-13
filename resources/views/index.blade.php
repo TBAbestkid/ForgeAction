@@ -396,24 +396,24 @@
         🏰  EXCLUIR OU SAIR DE SALA
         ------------------------------------------------------------- */
         let selectedSalaId = null;
-        let deleteMode = false;
+        let deleteModeSala = false;
         let exitMode = false;
 
         // Mestre: ativa modo deletar
         $(document).on('click', '.btn-delete-sala', function () {
-            deleteMode = true;
+            deleteModeSala = true;
             showToast('Clique na sala que deseja deletar.', 'info');
         });
 
         // Player: ativa modo sair
         $(document).on('click', '.btn-exit-sala', function () {
-            exitMode = true;
+            deleteModeSala = true;
             showToast('Clique na sala que deseja sair.', 'info');
         });
 
         // Seleciona sala clicada
         $(document).on('click', '#salasList li', function () {
-            if (!deleteMode && !exitMode) return; // só funciona se modo ativo
+            if (!deleteModeSala && !exitMode) return; // só funciona se modo ativo
 
             $('#salasList li').removeClass('border-danger border-2');
 
@@ -421,7 +421,7 @@
 
             selectedSalaId = $(this).find('.btn-invite, .btn-leave').data('id');
 
-            if (deleteMode) {
+            if (deleteModeSala) {
                 showConfirm('Tem certeza que deseja deletar esta sala?', () => {
                     $.ajax({
                         url: `/api/salas/${selectedSalaId}`,
@@ -432,11 +432,11 @@
                                 $(this).remove();
                             });
                             selectedSalaId = null;
-                            deleteMode = false;
+                            deleteModeSala = false;
                         },
                         error: function () {
                             showAlert('Erro ao deletar a sala.');
-                            deleteMode = false;
+                            deleteModeSala = false;
                         }
                     });
                 });
