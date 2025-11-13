@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5 d-flex align-items-center text-dark" id="modalAlertLabel">
-                    <i class="bi bi-info-circle-fill text-primary me-2"></i> Alerta!
+                    <i class="fa-solid fa-info-circle text-primary me-2"></i> Alerta!
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
