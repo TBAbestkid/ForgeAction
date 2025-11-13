@@ -429,6 +429,22 @@
 
         if (modoMestre === modo) {
             debugLog('🔄 Desativando modo:', modo);
+            // Restaurar atributos de collapse removidos e limpar estado visual
+            document.querySelectorAll('.personagem-card').forEach(c => {
+                if (c.dataset.prevToggle) {
+                    c.setAttribute('data-bs-toggle', c.dataset.prevToggle);
+                    if (c.dataset.prevTarget) c.setAttribute('data-bs-target', c.dataset.prevTarget);
+                    if (c.dataset.prevExpanded) c.setAttribute('aria-expanded', c.dataset.prevExpanded);
+                    if (c.dataset.prevAriaControls) c.setAttribute('aria-controls', c.dataset.prevAriaControls);
+                    delete c.dataset.prevToggle;
+                    delete c.dataset.prevTarget;
+                    delete c.dataset.prevExpanded;
+                    delete c.dataset.prevAriaControls;
+                }
+                c.style.cursor = '';
+                c.classList.remove('border-primary', 'border-3');
+            });
+
             modoMestre = null;
             return;
         }
@@ -447,8 +463,28 @@
         const cards = document.querySelectorAll('.personagem-card');
         cards.forEach(c => {
             const isCurrentPlayer = String(c.dataset.id) === String(currentPlayerId);
+
+            // Remove atributos de collapse temporariamente para evitar abrir detalhes enquanto mestre está em modo
+            if (!c.dataset.prevToggle) {
+                const prevToggle = c.getAttribute('data-bs-toggle');
+                if (prevToggle) {
+                    c.dataset.prevToggle = prevToggle;
+                    c.dataset.prevTarget = c.getAttribute('data-bs-target') || '';
+                    c.dataset.prevExpanded = c.getAttribute('aria-expanded') || 'false';
+                    c.dataset.prevAriaControls = c.getAttribute('aria-controls') || '';
+                    c.removeAttribute('data-bs-toggle');
+                    c.removeAttribute('data-bs-target');
+                    c.removeAttribute('aria-expanded');
+                    c.removeAttribute('aria-controls');
+                }
+            }
+
             if (!isCurrentPlayer) {
                 c.classList.add('border-primary', 'border-3');
+                c.style.cursor = 'pointer';
+            } else {
+                // Destacado — permite ação também
+                c.classList.add('border-info');
                 c.style.cursor = 'pointer';
             }
         });
@@ -911,8 +947,7 @@
             // Se for o mestre e tiver um modo ativo, processa a ação do mestre
             if (isMestre && modoMestre && rodadaAtiva) {
                 const personagemId = card.dataset.id;
-                const isCurrentPlayer = personagemId === currentPlayerId;
-                if (isCurrentPlayer) return;
+                // Note: allow acting on the currently highlighted character as well
 
             if (modoMestre === 'dano' || modoMestre === 'cura') {
                 const modal = document.getElementById('modalValor');
@@ -929,6 +964,8 @@
                     if (isNaN(valor) || valor < 0) return;
                     handleVidaChange(personagemId, valor, modoMestre);
                     modalInstance.hide();
+                    // Após aplicar a ação, desativar o modo do mestre
+                    ativarModoMestre(modoMestre);
                 };
 
                 btnConfirmar.addEventListener('click', onConfirmar, { once: true });

@@ -130,12 +130,13 @@
                 {{-- Coluna direita (personagens) --}}
                 <div class="d-flex flex-column gap-2 overflow-auto d-none d-lg-flex" style="flex:1 1 auto; min-width:120px;">
                     @foreach ($membros as $m)
-                        <div id="info-personagem-{{ $m['personagemId'] }}" class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
+                        <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-bs-toggle="collapse"
                             data-bs-target="#info-personagem-{{ $m['personagemId'] }}"
                             aria-expanded="false"
                             aria-controls="info-personagem-{{ $m['personagemId'] }}"
                             style="cursor: pointer;"
+                            data-card-id="{{ $m['personagemId'] }}"
                             data-id="{{ $m['personagemId'] }}"
                             data-vida-max="{{ $m['vida'] }}"
                             data-nome="{{ $m['nome'] }}"
