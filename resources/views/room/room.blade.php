@@ -5,7 +5,7 @@
 <div class="container-fluid mt-4 d-flex flex-column gap-3">
 
     {{-- Mini Navbar da Sala --}}
-    <nav class="navbar navbar-dark bg-dark rounded px-3 py-1 mb-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+    <nav class="navbar navbar-dark bg-dark rounded px-3 py-0 mb-1 d-flex flex-column flex-md-row align-items-md-center justify-content-between small">
         <div class="d-flex flex-column flex-md-row align-items-md-center">
             <div class="d-flex flex-column">
                 <h2 class="font-medieval text-white mb-0 fs-5">{{ $sala['nome'] }}</h2>
@@ -43,9 +43,6 @@
                 <a href="/home" class="btn btn-sm btn-outline-danger d-flex align-items-center">
                     <i class="fa-solid fa-door-open me-1"></i> Sair da sala
                 </a>
-                <button class="btn btn-sm btn-outline-danger d-flex align-items-center" data-id="{{ $sala['id'] }}">
-                    <i class="fa-solid fa-door-open me-1"></i> Abandonar aventura
-                </button>
             @endif
         </div>
     </nav>

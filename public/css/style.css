@@ -115,3 +115,15 @@ body {
   width: 0 !important;
   height: 0 !important;
 }
+
+.tab-pane {
+  display: none !important;
+}
+
+.tab-pane.active {
+  display: block !important;
+}
+
+.tab-pane.active.d-flex {
+  display: flex !important;
+}
