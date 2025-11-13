@@ -56,7 +56,7 @@
             <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch" style="height: 60vh;">
 
                 {{-- Coluna esquerda (Logs) --}}
-                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="flex: 0 0 25%; overflow-y: auto; min-width: 230px; max-width: 280px;">
+                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="flex: 0 0 30%; overflow-y: auto; min-width: 260px; max-width: 340px;">
 
                     {{-- Botões horizontais --}}
                     <ul class="nav nav-pills mb-3" id="chatLogsTabs" role="tablist">
@@ -98,7 +98,7 @@
                 </nav>
 
                 {{-- Coluna central (DiceBox) --}}
-                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center flex-grow-1 mx-2" style="border:2px solid #555; overflow:hidden; flex: 1 1 50%;">
+                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center mx-2" style="flex: 1 1 45%; border: 2px solid #555; overflow: hidden;">
 
                     <span id="dice-placeholder" class="text-white" style="position: absolute; z-index: 10;">🎲 Aguardando início do turno...</span>
 
