@@ -33,6 +33,7 @@
     let currentPlayerId = null;
     let modoMestre = null; // 'dano', 'cura', null
     let ultimoDadoRolado = null;
+    let timeoutLimpezaDado = null; // Para controlar timeout de limpeza do dado
 
     // ====== UI ELEMENTS ======
     const personagensContainer = document.getElementById('personagens-container') ||
@@ -280,6 +281,30 @@
         phase = 'master';
         enviarSistema(`👉 Jogador terminou sua ação. Aguardando Mestre...`);
         atualizarBotoesMestre();
+    }
+
+    // ===== MOSTRA DADO COM TIMEOUT DE LIMPEZA =====
+    function mostrarDado(dado, valor, autor) {
+        // Limpa timeout anterior se existir
+        if (timeoutLimpezaDado) clearTimeout(timeoutLimpezaDado);
+
+        if (placeholder) {
+            placeholder.textContent = `🎲 ${autor} rolou D${dado} = ${valor}`;
+        }
+
+        // Limpa o dado após 4 segundos
+        timeoutLimpezaDado = setTimeout(() => {
+            if (placeholder && rodadaAtiva) {
+                const atual = ordemTurnos[turnoIndex];
+                if (atual) {
+                    placeholder.textContent = `🕒 Turno de ${atual.nome}`;
+                    const isMyTurn = String(atual.usuarioId) === userId;
+                    if (isMyTurn) placeholder.textContent += ' (Sua vez!)';
+                } else {
+                    placeholder.textContent = '🎲 Aguardando...';
+                }
+            }
+        }, 4000);
     }
 
     function atualizarTurnoUI() {
@@ -543,6 +568,7 @@
         if (isMestre) {
             debugLog('🎲 Mestre rolando dados');
             enviarSistema(`🎲 Mestre rolou D${sides} = ${valor}`);
+            mostrarDado(sides, valor, 'Mestre');
             enviarAcao({
                 acao: 'playerActionDone',
                 personagemId: currentPlayerId,
@@ -560,6 +586,7 @@
             }
             debugLog('🎲 Jogador rolando dados');
             enviarSistema(`🎲 ${atual.nome} rolou D${sides} = ${valor}`);
+            mostrarDado(sides, valor, atual.nome);
             enviarAcao({
                 acao: 'playerActionDone',
                 personagemId: atual.personagemId,
@@ -623,7 +650,10 @@
                         autor: data.autor
                     };
 
-                    // Todos veem o dado rolar
+                    // Mostra o dado no placeholder com timeout
+                    mostrarDado(data.dado, data.valor, data.autor);
+
+                    // Todos veem o dado rolar se a função existir
                     if (window.funcaoChamarDados) {
                         // Pequeno delay pra sincronizar visualmente
                         setTimeout(() => {

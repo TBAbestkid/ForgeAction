@@ -2,7 +2,7 @@
 @section('title', "{$sala['nome']} - ForgeAction")
 
 @section('content')
-<div class="container-fluid mt-4 d-flex flex-column gap-3">
+<div class="container-fluid mt-2 d-flex flex-column gap-2">
 
     {{-- Mini Navbar da Sala --}}
     <nav class="navbar navbar-dark bg-dark rounded px-3 py-0 mb-1 d-flex flex-column flex-md-row align-items-md-center justify-content-between small">
@@ -50,13 +50,13 @@
     {{-- Estrutura principal com 3 colunas --}}
     <div class="d-flex flex-grow-1 gap-3">
         {{-- Coluna 2: Área de imagens + chat --}}
-        <div class="d-flex flex-column flex-grow-1" style="min-height: 100vh; width: 100%;">
+        <div class="d-flex flex-column flex-grow-1">
 
             {{-- Área principal de jogos (personagens + DiceBox) --}}
-            <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: 50vh;">
+            <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: auto; max-height: 55vh;">
 
                 {{-- Coluna esquerda (Logs) --}}
-                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="min-width: 200px; flex: 1 1 auto;">
+                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="min-width: 200px; flex: 1 1 auto; max-height: 55vh; overflow-y: auto;">
 
                     {{-- Botões horizontais --}}
                     <ul class="nav nav-pills mb-3" id="chatLogsTabs" role="tablist">
@@ -125,14 +125,14 @@
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div class="d-flex flex-column gap-2 overflow-auto d-none d-lg-flex" style="flex:1 1 auto; min-width:120px;">
+                <div class="d-flex flex-column gap-1 overflow-auto d-none d-lg-flex" style="flex:1 1 auto; min-width:120px; max-height: 55vh;">
                     @foreach ($membros as $m)
                         <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-bs-toggle="collapse"
                             data-bs-target="#info-personagem-{{ $m['personagemId'] }}"
                             aria-expanded="false"
                             aria-controls="info-personagem-{{ $m['personagemId'] }}"
-                            style="cursor: pointer;"
+                            style="cursor: pointer; font-size: 0.8rem;"
                             data-card-id="{{ $m['personagemId'] }}"
                             data-id="{{ $m['personagemId'] }}"
                             data-vida-max="{{ $m['vida'] }}"
@@ -158,16 +158,16 @@
                             data-esquiva="{{ $m['esquivaPersonagem'] }}"
                             data-iniciativa="{{ $m['iniciativa'] }}">
                             <strong class="small">{{ $m['nome'] }}</strong>
-                            <div class="progress mt-1 w-100" style="height: 16px; font-size:0.7rem;">
+                            <div class="progress mt-1 w-100" style="height: 12px; font-size:0.65rem;">
                                 <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
                                     role="progressbar"
                                     style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
-                                    {{ $m['vida'] }}/{{ $m['vida'] }} HP
+                                    {{ $m['vida'] }}/{{ $m['vida'] }}
                                 </div>
                             </div>
-                            <div id="info-personagem-{{ $m['personagemId'] }}" class="collapse mt-2"
-                                style="min-height:150px; max-height:40vh; overflow:hidden;">
-                                <div class="bg-dark rounded p-2 text-start text-light small">
+                            <div id="info-personagem-{{ $m['personagemId'] }}" class="collapse mt-1"
+                                style="min-height: auto; max-height: 25vh; overflow: hidden;">
+                                <div class="bg-dark rounded p-1 text-start text-light" style="font-size: 0.7rem;">
                                     <strong>Raça:</strong> {{ $m['raca'] }}<br>
                                     <strong>Classe:</strong> {{ $m['classe'] }}<br>
                                     <strong>Nível:</strong> {{ $m['level'] }}<br>
@@ -180,68 +180,68 @@
             </div>
             @if(!$isDono)
                 {{-- View de infos personagem --}}
-                <div class="d-flex flex-column flex-md-row flex-wrap align-items-stretch gap-3 p-2 bg-dark rounded-4 shadow mt-3">
+                <div class="d-flex flex-column flex-md-row flex-wrap align-items-stretch gap-2 p-2 bg-dark rounded-3 shadow mt-2" style="max-height: fit-content;">
 
                     {{-- 🔹 Identidade --}}
-                    <div class="card bg-warning text-dark flex-fill">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseIdentidade" style="cursor:pointer;">
-                            <h6 class="mb-0 text-dark">Identidade</h6>
+                    <div class="card bg-warning text-dark flex-fill" style="min-width: 150px;">
+                        <div class="card-header p-2" data-bs-toggle="collapse" data-bs-target="#collapseIdentidade" style="cursor:pointer;">
+                            <h6 class="mb-0 text-dark fs-6">Identidade</h6>
                         </div>
                         <div id="collapseIdentidade" class="collapse">
-                            <div class="card-body">
-                                <div class="mb-2"><strong>Nome:</strong> {{ $personagem['nome'] ?? 'Desconhecido' }}</div>
-                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                    <div class="flex-fill bg-dark rounded p-2 text-white text-center">Raça: {{ $personagem['racaDescricao'] ?? '?' }}</div>
-                                    <div class="flex-fill bg-dark rounded p-2 text-white text-center">Classe: {{ $personagem['classeDescricao'] ?? '?' }}</div>
+                            <div class="card-body p-2 small">
+                                <div class="mb-1"><strong>Nome:</strong> {{ $personagem['nome'] ?? 'Desconhecido' }}</div>
+                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                    <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Raça: {{ $personagem['racaDescricao'] ?? '?' }}</div>
+                                    <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Classe: {{ $personagem['classeDescricao'] ?? '?' }}</div>
                                 </div>
-                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                    <div class="flex-fill bg-dark rounded p-2 text-white text-center">Idade: {{ $personagem['idade'] ?? '?' }}</div>
-                                    <div class="flex-fill bg-dark rounded p-2 text-white text-center">Gênero: {{ $personagem['genero'] ?? '?' }}</div>
+                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                    <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Idade: {{ $personagem['idade'] ?? '?' }}</div>
+                                    <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Gênero: {{ $personagem['genero'] ?? '?' }}</div>
                                 </div>
-                                <div class="bg-dark rounded p-2 text-white text-center"><strong>Nível:</strong> {{ $personagem['level'] ?? 1 }}</div>
+                                <div class="bg-dark rounded p-1 text-white text-center small"><strong>Nível:</strong> {{ $personagem['level'] ?? 1 }}</div>
                             </div>
                         </div>
                     </div>
 
                     {{-- 🔹 Atributos --}}
-                    <div class="card bg-warning text-dark flex-fill">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseAtributos" style="cursor:pointer;">
-                            <h6 class="mb-0 text-dark">Atributos</h6>
+                    <div class="card bg-warning text-dark flex-fill" style="min-width: 150px;">
+                        <div class="card-header p-2" data-bs-toggle="collapse" data-bs-target="#collapseAtributos" style="cursor:pointer;">
+                            <h6 class="mb-0 text-dark fs-6">Atributos</h6>
                         </div>
                         <div id="collapseAtributos" class="collapse">
-                            <div class="card-body">
-                                <div class="row g-2 text-white text-center">
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Força: {{ $personagem['forca'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Agilidade: {{ $personagem['agilidade'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Inteligência: {{ $personagem['inteligencia'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Destreza: {{ $personagem['destreza'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Vitalidade: {{ $personagem['vitalidade'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Percepção: {{ $personagem['percepcao'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Sabedoria: {{ $personagem['sabedoria'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Carisma: {{ $personagem['carisma'] ?? 0 }}</div>
+                            <div class="card-body p-2 small">
+                                <div class="row g-1 text-white text-center">
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Força: {{ $personagem['forca'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Agilidade: {{ $personagem['agilidade'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Inteligência: {{ $personagem['inteligencia'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Destreza: {{ $personagem['destreza'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Vitalidade: {{ $personagem['vitalidade'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Percepção: {{ $personagem['percepcao'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Sabedoria: {{ $personagem['sabedoria'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Carisma: {{ $personagem['carisma'] ?? 0 }}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {{-- 🔹 Status de Combate --}}
-                    <div class="card bg-warning text-dark flex-fill">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseCombate" style="cursor:pointer;">
-                            <h6 class="mb-0 text-dark">Status de Combate</h6>
+                    <div class="card bg-warning text-dark flex-fill" style="min-width: 150px;">
+                        <div class="card-header p-2" data-bs-toggle="collapse" data-bs-target="#collapseCombate" style="cursor:pointer;">
+                            <h6 class="mb-0 text-dark fs-6">Combate</h6>
                         </div>
                         <div id="collapseCombate" class="collapse">
-                            <div class="card-body">
-                                <div class="row g-2 text-white text-center mb-2">
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">HP: {{ $personagem['vida'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Mana: {{ $personagem['mana'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Iniciativa: {{ $personagem['iniciativa'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Defesa: {{ $personagem['defesaPersonagem'] ?? 0 }}</div>
+                            <div class="card-body p-2 small">
+                                <div class="row g-1 text-white text-center mb-1">
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">HP: {{ $personagem['vida'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Mana: {{ $personagem['mana'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Ini: {{ $personagem['iniciativa'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Def: {{ $personagem['defesaPersonagem'] ?? 0 }}</div>
                                 </div>
-                                <div class="row g-2 text-white text-center">
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Esquiva: {{ $personagem['esquivaPersonagem'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Atk Corpo: {{ $personagem['ataqueFisicoCorpo'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Atk Distância: {{ $personagem['ataqueFisicoDistancia'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-2">Atk Mágico: {{ $personagem['ataqueMagico'] ?? 0 }}</div>
+                                <div class="row g-1 text-white text-center">
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Esq: {{ $personagem['esquivaPersonagem'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Atk C: {{ $personagem['ataqueFisicoCorpo'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Atk D: {{ $personagem['ataqueFisicoDistancia'] ?? 0 }}</div>
+                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Atk M: {{ $personagem['ataqueMagico'] ?? 0 }}</div>
                                 </div>
                             </div>
                         </div>
@@ -250,53 +250,53 @@
                 </div>
             @else
                 {{-- Botões de ação de mestre como linha abaixo de área --}}
-                <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-4 p-2 bg-dark rounded-4 shadow mt-3">
+                <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-1 gap-md-2 p-1 bg-dark rounded-3 shadow mt-2" style="max-height: fit-content;">
                     {{-- Linha pra ter três elementos --}}
-                    <div class="row mb-2 gap-2 justify-content-center">
+                    <div class="row mb-1 gap-1 justify-content-center">
                         {{-- 🔹 Iniciar/Avançar Turno --}}
-                        <button id="btnIniciarTurno" class="btn btn-outline-success rounded-circle mx-2 d-flex flex-column align-items-center justify-content-center"
+                        <button id="btnIniciarTurno" class="btn btn-outline-success rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Iniciar/Avançar Turno"
-                            style="width: 50px; height: 50px;">
-                            <i class="fa-solid fa-play fs-4"></i>
+                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            <i class="fa-solid fa-play"></i>
                         </button>
 
                         {{-- 🔹 Lançar Dados --}}
                         <button id="btn-lancar-mestre"
-                            class="btn btn-outline-warning rounded-circle mx-2 d-flex flex-column align-items-center justify-content-center"
+                            class="btn btn-outline-warning rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
-                            style="width: 50px; height: 50px;">
-                            <i class="fa-solid fa-dice-d20 fs-4"></i>
+                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            <i class="fa-solid fa-dice-d20"></i>
                         </button>
 
                         {{-- 🔹 Permitir Dados --}}
                         <button id="btn-permitir-jogada"
-                            class="btn btn-outline-primary rounded-circle mx-2 d-flex flex-column align-items-center justify-content-center"
+                            class="btn btn-outline-primary rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Permitir Jogada Extra"
-                            style="width: 50px; height: 50px;">
-                            <i class="fa-solid fa-user-check fs-4"></i>
+                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            <i class="fa-solid fa-user-check"></i>
                         </button>
                     </div>
 
                     {{-- Linha pra ter três elementos --}}
-                    <div class="row mb-2 gap-2 justify-content-center">
+                    <div class="row mb-1 gap-1 justify-content-center">
                         {{-- 🔹 Causar Dano --}}
-                        <button id="btn-dano" class="btn btn-outline-danger rounded-circle mx-2 d-flex flex-column align-items-center justify-content-center"
+                        <button id="btn-dano" class="btn btn-outline-danger rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Causar Dano"
-                            style="width: 50px; height: 50px;">
-                            <i class="fa-solid fa-burst fs-4"></i>
+                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            <i class="fa-solid fa-burst"></i>
                         </button>
 
                         {{-- 🔹 Curar --}}
-                        <button id="btn-curar" class="btn btn-outline-success rounded-circle mx-2 d-flex flex-column align-items-center justify-content-center"
+                        <button id="btn-curar" class="btn btn-outline-success rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Curar"
-                            style="width: 50px; height: 50px;">
-                            <i class="fa-solid fa-heart-pulse fs-4"></i>
+                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            <i class="fa-solid fa-heart-pulse"></i>
                         </button>
                         {{-- 🔹 Upar Personagem --}}
-                        <button id="btn-upar" class="btn btn-outline-info rounded-circle mx-2 d-flex flex-column align-items-center justify-content-center"
+                        <button id="btn-upar" class="btn btn-outline-info rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Upar Personagem"
-                            style="width: 50px; height: 50px;">
-                            <i class="fa-solid fa-arrow-up fs-4"></i>
+                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            <i class="fa-solid fa-arrow-up"></i>
                         </button>
 
 
@@ -306,55 +306,54 @@
 
             {{-- Botão para abrir/fechar chat --}}
             {{-- Container mobile de Chat, Logs e Players --}}
-            <div class="d-md-none mt-3 w-100">
+            <div class="d-md-none mt-2 w-100" style="max-height: 40vh;">
                 {{-- Tabs --}}
-                <ul class="nav nav-tabs nav-fill mb-2" id="mobileTabs" role="tablist">
+                <ul class="nav nav-tabs nav-fill mb-1" id="mobileTabs" role="tablist" style="font-size: 0.85rem;">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active text-white" id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
+                        <button class="nav-link active text-white p-1" id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
                             <i class="fa-solid fa-comment"></i> Chat
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link text-white" id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
+                        <button class="nav-link text-white p-1" id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
                             <i class="fa-solid fa-list-ul"></i> Logs
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link text-white" id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
+                        <button class="nav-link text-white p-1" id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
                             <i class="fa-solid fa-users"></i> Players
                         </button>
                     </li>
                 </ul>
 
                 {{-- Conteúdo das tabs --}}
-                <div class="tab-content bg-dark rounded p-2">
+                <div class="tab-content bg-dark rounded p-1" style="max-height: 35vh; overflow-y: auto;">
                     {{-- Chat --}}
                     <div class="tab-pane fade show active" id="mobile-chat" role="tabpanel" aria-labelledby="mobile-chat-tab">
-                        <div id="chat-messages-mobile" class="d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="max-height: 300px;">
+                        <div id="chat-messages-mobile" class="d-flex flex-column gap-1 scroll-bottom scroll-invisible" style="max-height: 28vh; font-size: 0.8rem;">
                             <!-- Mensagens -->
                         </div>
-                        <div class="d-flex mt-2">
-                            <input type="text" class="form-control me-2" placeholder="Digite sua mensagem..." id="chat-input-mobile">
-                            <button class="btn btn-primary" id="chat-send-mobile"><i class="fa-solid fa-paper-plane"></i></button>
+                        <div class="d-flex mt-1 gap-1">
+                            <input type="text" class="form-control form-control-sm" placeholder="Mensagem..." id="chat-input-mobile">
+                            <button class="btn btn-sm btn-primary" id="chat-send-mobile"><i class="fa-solid fa-paper-plane"></i></button>
                         </div>
                     </div>
 
                     {{-- Logs --}}
                     <div class="tab-pane fade" id="mobile-logs" role="tabpanel" aria-labelledby="mobile-logs-tab">
-                        <div id="system-logs-mobile" class="d-flex flex-column scroll-invisible" style="max-height: 300px;">
+                        <div id="system-logs-mobile" class="d-flex flex-column scroll-invisible" style="max-height: 31vh; font-size: 0.8rem;">
                             <!-- Logs -->
                         </div>
                     </div>
 
                     {{-- Players --}}
                     <div class="tab-pane fade" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
-                        <div class="d-flex flex-column gap-2 scroll-invisible" style="max-height: 300px;">
+                        <div class="d-flex flex-column gap-1 scroll-invisible" style="max-height: 31vh; font-size: 0.8rem;">
                             @foreach ($membros as $m)
-                                <div class="bg-dark rounded p-2 text-white text-center">
-                                    <strong>{{ $m['nome'] }}</strong>
-                                    <div class="progress mt-1" style="height: 12px;">
+                                <div class="bg-dark rounded p-1 text-white text-center">
+                                    <strong class="small">{{ $m['nome'] }}</strong>
+                                    <div class="progress" style="height: 10px;">
                                         <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
-                                            {{ $m['vida'] }}/{{ $m['vida'] }} HP
                                         </div>
                                     </div>
                                 </div>
