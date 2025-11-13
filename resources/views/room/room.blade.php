@@ -56,17 +56,17 @@
             <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch" style="height: 60vh;">
 
                 {{-- Coluna esquerda (Logs) --}}
-                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="flex: 0 0 220px; overflow-y: auto;">
+                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="flex: 1 1 250px; overflow-y: auto;">
 
                     {{-- Botões horizontais --}}
                     <ul class="nav nav-pills mb-3" id="chatLogsTabs" role="tablist">
-                        <li class="nav-item flex-fill" role="presentation">
-                            <button class="nav-link active w-100 text-center" id="tab-chat" data-bs-toggle="pill" data-bs-target="#chat-tab" type="button" role="tab" aria-controls="chat-tab" aria-selected="true">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active text-center" id="tab-chat" data-bs-toggle="pill" data-bs-target="#chat-tab" type="button" role="tab" aria-controls="chat-tab" aria-selected="true">
                                 <i class="fa-solid fa-comment"></i> Chat
                             </button>
                         </li>
-                        <li class="nav-item flex-fill" role="presentation">
-                            <button class="nav-link w-100 text-center" id="tab-logs" data-bs-toggle="pill" data-bs-target="#logs-tab" type="button" role="tab" aria-controls="logs-tab" aria-selected="false">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-center" id="tab-logs" data-bs-toggle="pill" data-bs-target="#logs-tab" type="button" role="tab" aria-controls="logs-tab" aria-selected="false">
                                 <i class="fa-solid fa-list-ul"></i> Logs
                             </button>
                         </li>
@@ -302,7 +302,7 @@
 
             {{-- Botão para abrir/fechar chat --}}
             {{-- Container mobile de Chat, Logs e Players --}}
-            <div class="d-md-none mt-3 w-100" style="max-height: 45vh;">
+            <div class="d-md-none mt-3 w-100 bg-dark rounded p-2" style="max-height: 45vh;">
                 {{-- Tabs --}}
                 <ul class="nav nav-pills nav-fill mb-3" id="mobileTabs" role="tablist" style="font-size: 0.85rem;">
                     <li class="nav-item flex-fill" role="presentation">
