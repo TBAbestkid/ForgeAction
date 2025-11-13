@@ -55,7 +55,7 @@ class PersonagemController extends Controller
 
             // Sucesso
             if (($response['status'] ?? '') === 'success') {
-                return redirect('/dashboard')->with('success', 'Personagem criado com sucesso!');
+                return redirect('/')->with('success', 'Personagem criado com sucesso!');
             }
 
             // Falha
