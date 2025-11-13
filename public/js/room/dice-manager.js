@@ -1,83 +1,48 @@
-class DiceManager {
-    constructor() {
-        this.diceBox = null;
-        this.onRollComplete = null;
-        this.isInitialized = false;
-    }
+// public/js/room/dice-manager.js
+import DiceBox from 'https://unpkg.com/@3d-dice/dice-box-threejs/dist/dice-box-threejs.es.js';
 
-    async initialize(retryCount = 0) {
-        try {
-            if (this.isInitialized) return;
+let box = null;
 
-            // Verifica se o container existe
-            if (!document.getElementById('dice-container')) {
-                console.warn("Container #dice-container não encontrado, aguardando...");
-                if (retryCount < 5) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    return this.initialize(retryCount + 1);
-                } else {
-                    throw new Error("Container #dice-container não encontrado após 5 tentativas");
-                }
+/**
+ * Inicializa o DiceBox se ainda não estiver pronto.
+ */
+async function initDiceBox() {
+    if (!box) {
+        box = new DiceBox('#dice-container', {
+            assetPath: 'https://unpkg.com/@3d-dice/dice-box-threejs/dist/',
+            theme: 'default',
+            scale: 5,
+            light_intensity: 1,
+            gravity_multiplier: 600,
+            baseScale: 100,
+            strength: 2,
+            onRollComplete: results => {
+                console.log('🎲 Resultado:', results);
             }
+        });
 
-            const { default: DiceBox } = await import(
-                "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js"
-            );
-
-            const baseConfig = {
-                container: "#dice-container",
-                assetPath: "/assets/",
-                theme: "classic",
-                scale: 25,
-                velocity: { x: 3, y: 5, z: 2 },
-                rotation: { x: 6, y: 8, z: 10 },
-                startingPos: { x: -5, y: 5, z: 0 },
-                gravity: 3,
-                mass: 1,
-                onRollComplete: (result) => {
-                    console.log("🎲 Resultado local:", result);
-                    if (this.onRollComplete) {
-                        this.onRollComplete(result);
-                    }
-                }
-            };
-
-            this.diceBox = new DiceBox(baseConfig);
-
-            await this.diceBox.init();
-            this.isInitialized = true;
-            console.log("✅ DiceManager inicializado!");
-        } catch (err) {
-            console.error("❌ Erro ao inicializar DiceManager:", err);
-            if (retryCount < 5) {
-                console.log(`Tentando inicializar novamente... (tentativa ${retryCount + 1}/5)`);
-                await new Promise(resolve => setTimeout(resolve, 500));
-                return this.initialize(retryCount + 1);
-            }
-            throw err;
-        }
-    }
-
-    setRollCallback(callback) {
-        this.onRollComplete = callback;
-    }
-
-    async roll(notation) {
-        if (!this.isInitialized) {
-            console.warn("⚠️ DiceManager não inicializado!");
-            return;
-        }
-
-        try {
-            await this.diceBox.roll(notation, {
-                rollDelay: 50
-            });
-        } catch (err) {
-            console.error("❌ Erro ao rolar dados:", err);
-            throw err;
-        }
+        await box.initialize();
+        console.log('✅ DiceBox inicializado!');
     }
 }
 
-// Exporta instância global única
-window.diceManager = new DiceManager();
+/**
+ * Função global de rolagem de dados.
+ * Pode ser chamada de qualquer outro script.
+ * @param {number} facesDados - número de faces do dado (ex: 6, 20)
+ * @param {number|null} valorForcado - valor forçado opcional
+ */
+async function funcaoChamarDados(facesDados, valorForcado = null) {
+    await initDiceBox();
+
+    let rollString = `1d${facesDados}`;
+    if (!isNaN(valorForcado) && valorForcado > 0) {
+        rollString += `@${valorForcado}`;
+    }
+
+    console.log(`🎯 Rolando: ${rollString}`);
+    box.roll(rollString);
+}
+
+// Torna acessível globalmente
+window.funcaoChamarDados = funcaoChamarDados;

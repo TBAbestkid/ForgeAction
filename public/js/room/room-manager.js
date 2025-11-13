@@ -472,6 +472,11 @@
             return;
         }
 
+        // Faz o dado rolar localmente
+        if (typeof window.funcaoChamarDados === 'function') {
+            window.funcaoChamarDados(sides, valor);
+        }
+
         if (isMestre) {
             debugLog('🎲 Mestre rolando dados');
             enviarSistema(`🎲 Mestre rolou D${sides} = ${valor}`);
@@ -531,6 +536,7 @@
                 currentPlayerId = String(data.personagemId);
 
                 const turnoAtualIndex = ordemTurnos.findIndex(p => p.personagemId === currentPlayerId);
+
                 if (turnoAtualIndex !== -1) {
                     turnoIndex = turnoAtualIndex;
                 }
@@ -553,6 +559,14 @@
                         valor: data.valor,
                         autor: data.autor
                     };
+
+                    // Todos veem o dado rolar
+                    if (window.funcaoChamarDados) {
+                        // Pequeno delay pra sincronizar visualmente
+                        setTimeout(() => {
+                            window.funcaoChamarDados(data.dado, data.valor);
+                        }, 300);
+                    }
                 }
 
                 rodadaAtiva = true;
@@ -753,7 +767,21 @@
                         ativarModoMestre(null);
                     };
                 }
-            break;
+                break;
+            case 'receiveDice':
+                // Pode ser usado para mostrar histórico de dados rolados
+                /*
+                * const verificar = autor.id === userId ? 'Você' : data.autor.nome;
+                * if(!veiricar) return;
+                * else {
+                *   debugLog('🎲 Dado rolado recebido:', data);
+                *   function rodarDado(dado, valor) {
+                *      // Animação ou lógica para mostrar o dado rolando pra todos
+                *   }
+                * }
+                * enviarSistema(`🎲 ${verificar} rolou D${data.dado} = ${data.valor}`);
+                */
+                break;
 
         }
     }
