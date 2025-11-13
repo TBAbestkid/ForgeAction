@@ -2,10 +2,10 @@
 @section('title', "{$sala['nome']} - ForgeAction")
 
 @section('content')
-<div class="container-fluid mt-2 d-flex flex-column gap-2">
+<div class="container-fluid mt-3 d-flex flex-column gap-2">
 
     {{-- Mini Navbar da Sala --}}
-    <nav class="navbar navbar-dark bg-dark rounded px-3 py-0 mb-1 d-flex flex-column flex-md-row align-items-md-center justify-content-between small">
+    <nav class="navbar navbar-dark bg-dark rounded px-3 py-0 mb-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between small">
         <div class="d-flex flex-column flex-md-row align-items-md-center">
             <div class="d-flex flex-column">
                 <h2 class="font-medieval text-white mb-0 fs-5">{{ $sala['nome'] }}</h2>
@@ -53,10 +53,10 @@
         <div class="d-flex flex-column flex-grow-1">
 
             {{-- Área principal de jogos (personagens + DiceBox) --}}
-            <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: auto; max-height: 55vh;">
+            <div id="games-section" class="d-flex flex-column flex-lg-row gap-3 align-items-stretch flex-grow-1" style="min-height: auto; max-height: 60vh;">
 
                 {{-- Coluna esquerda (Logs) --}}
-                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="min-width: 200px; flex: 1 1 auto; max-height: 55vh; overflow-y: auto;">
+                <nav class="d-none d-md-flex flex-column bg-dark p-3 rounded" style="min-width: 200px; flex: 1 1 auto; max-height: 60vh; overflow-y: auto;">
 
                     {{-- Botões horizontais --}}
                     <ul class="nav nav-pills mb-3" id="chatLogsTabs" role="tablist">
@@ -125,14 +125,14 @@
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div class="d-flex flex-column gap-1 overflow-auto d-none d-lg-flex" style="flex:1 1 auto; min-width:120px; max-height: 55vh;">
+                <div class="d-flex flex-column gap-2 overflow-auto d-none d-lg-flex" style="flex:1 1 auto; min-width:120px; max-height: 60vh;">
                     @foreach ($membros as $m)
                         <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-bs-toggle="collapse"
                             data-bs-target="#info-personagem-{{ $m['personagemId'] }}"
                             aria-expanded="false"
                             aria-controls="info-personagem-{{ $m['personagemId'] }}"
-                            style="cursor: pointer; font-size: 0.8rem;"
+                            style="cursor: pointer; font-size: 0.85rem;"
                             data-card-id="{{ $m['personagemId'] }}"
                             data-id="{{ $m['personagemId'] }}"
                             data-vida-max="{{ $m['vida'] }}"
@@ -158,7 +158,7 @@
                             data-esquiva="{{ $m['esquivaPersonagem'] }}"
                             data-iniciativa="{{ $m['iniciativa'] }}">
                             <strong class="small">{{ $m['nome'] }}</strong>
-                            <div class="progress mt-1 w-100" style="height: 12px; font-size:0.65rem;">
+                            <div class="progress mt-1 w-100" style="height: 14px; font-size:0.7rem;">
                                 <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
                                     role="progressbar"
                                     style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
@@ -180,7 +180,7 @@
             </div>
             @if(!$isDono)
                 {{-- View de infos personagem --}}
-                <div class="d-flex flex-column flex-md-row flex-wrap align-items-stretch gap-2 p-2 bg-dark rounded-3 shadow mt-2" style="max-height: fit-content;">
+                <div class="d-flex flex-column flex-md-row flex-wrap align-items-stretch gap-3 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
 
                     {{-- 🔹 Identidade --}}
                     <div class="card bg-warning text-dark flex-fill" style="min-width: 150px;">
@@ -189,12 +189,12 @@
                         </div>
                         <div id="collapseIdentidade" class="collapse">
                             <div class="card-body p-2 small">
-                                <div class="mb-1"><strong>Nome:</strong> {{ $personagem['nome'] ?? 'Desconhecido' }}</div>
-                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                <div class="mb-2"><strong>Nome:</strong> {{ $personagem['nome'] ?? 'Desconhecido' }}</div>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
                                     <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Raça: {{ $personagem['racaDescricao'] ?? '?' }}</div>
                                     <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Classe: {{ $personagem['classeDescricao'] ?? '?' }}</div>
                                 </div>
-                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                <div class="d-flex flex-wrap gap-2 mb-2">
                                     <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Idade: {{ $personagem['idade'] ?? '?' }}</div>
                                     <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Gênero: {{ $personagem['genero'] ?? '?' }}</div>
                                 </div>
@@ -210,7 +210,7 @@
                         </div>
                         <div id="collapseAtributos" class="collapse">
                             <div class="card-body p-2 small">
-                                <div class="row g-1 text-white text-center">
+                                <div class="row g-2 text-white text-center">
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Força: {{ $personagem['forca'] ?? 0 }}</div>
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Agilidade: {{ $personagem['agilidade'] ?? 0 }}</div>
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Inteligência: {{ $personagem['inteligencia'] ?? 0 }}</div>
@@ -231,13 +231,13 @@
                         </div>
                         <div id="collapseCombate" class="collapse">
                             <div class="card-body p-2 small">
-                                <div class="row g-1 text-white text-center mb-1">
+                                <div class="row g-2 text-white text-center mb-2">
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">HP: {{ $personagem['vida'] ?? 0 }}</div>
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Mana: {{ $personagem['mana'] ?? 0 }}</div>
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Ini: {{ $personagem['iniciativa'] ?? 0 }}</div>
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Def: {{ $personagem['defesaPersonagem'] ?? 0 }}</div>
                                 </div>
-                                <div class="row g-1 text-white text-center">
+                                <div class="row g-2 text-white text-center">
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Esq: {{ $personagem['esquivaPersonagem'] ?? 0 }}</div>
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Atk C: {{ $personagem['ataqueFisicoCorpo'] ?? 0 }}</div>
                                     <div class="col-6 col-md-3 bg-dark rounded p-1 small">Atk D: {{ $personagem['ataqueFisicoDistancia'] ?? 0 }}</div>
@@ -250,13 +250,13 @@
                 </div>
             @else
                 {{-- Botões de ação de mestre como linha abaixo de área --}}
-                <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-1 gap-md-2 p-1 bg-dark rounded-3 shadow mt-2" style="max-height: fit-content;">
+                <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
                     {{-- Linha pra ter três elementos --}}
-                    <div class="row mb-1 gap-1 justify-content-center">
+                    <div class="row mb-2 gap-2 justify-content-center">
                         {{-- 🔹 Iniciar/Avançar Turno --}}
                         <button id="btnIniciarTurno" class="btn btn-outline-success rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Iniciar/Avançar Turno"
-                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-play"></i>
                         </button>
 
@@ -264,7 +264,7 @@
                         <button id="btn-lancar-mestre"
                             class="btn btn-outline-warning rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
-                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-dice-d20"></i>
                         </button>
 
@@ -272,30 +272,30 @@
                         <button id="btn-permitir-jogada"
                             class="btn btn-outline-primary rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Permitir Jogada Extra"
-                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-user-check"></i>
                         </button>
                     </div>
 
                     {{-- Linha pra ter três elementos --}}
-                    <div class="row mb-1 gap-1 justify-content-center">
+                    <div class="row mb-2 gap-2 justify-content-center">
                         {{-- 🔹 Causar Dano --}}
                         <button id="btn-dano" class="btn btn-outline-danger rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Causar Dano"
-                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-burst"></i>
                         </button>
 
                         {{-- 🔹 Curar --}}
                         <button id="btn-curar" class="btn btn-outline-success rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Curar"
-                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-heart-pulse"></i>
                         </button>
                         {{-- 🔹 Upar Personagem --}}
                         <button id="btn-upar" class="btn btn-outline-info rounded-circle mx-1 d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Upar Personagem"
-                            style="width: 40px; height: 40px; font-size: 0.9rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-arrow-up"></i>
                         </button>
 
@@ -306,34 +306,34 @@
 
             {{-- Botão para abrir/fechar chat --}}
             {{-- Container mobile de Chat, Logs e Players --}}
-            <div class="d-md-none mt-2 w-100" style="max-height: 40vh;">
+            <div class="d-md-none mt-3 w-100" style="max-height: 45vh;">
                 {{-- Tabs --}}
-                <ul class="nav nav-tabs nav-fill mb-1" id="mobileTabs" role="tablist" style="font-size: 0.85rem;">
+                <ul class="nav nav-tabs nav-fill mb-2" id="mobileTabs" role="tablist" style="font-size: 0.85rem;">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active text-white p-1" id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
+                        <button class="nav-link active text-white p-2" id="mobile-chat-tab" data-bs-toggle="tab" data-bs-target="#mobile-chat" type="button" role="tab" aria-controls="mobile-chat" aria-selected="true">
                             <i class="fa-solid fa-comment"></i> Chat
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link text-white p-1" id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
+                        <button class="nav-link text-white p-2" id="mobile-logs-tab" data-bs-toggle="tab" data-bs-target="#mobile-logs" type="button" role="tab" aria-controls="mobile-logs" aria-selected="false">
                             <i class="fa-solid fa-list-ul"></i> Logs
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link text-white p-1" id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
+                        <button class="nav-link text-white p-2" id="mobile-players-tab" data-bs-toggle="tab" data-bs-target="#mobile-players" type="button" role="tab" aria-controls="mobile-players" aria-selected="false">
                             <i class="fa-solid fa-users"></i> Players
                         </button>
                     </li>
                 </ul>
 
                 {{-- Conteúdo das tabs --}}
-                <div class="tab-content bg-dark rounded p-1" style="max-height: 35vh; overflow-y: auto;">
+                <div class="tab-content bg-dark rounded p-2" style="max-height: 40vh; overflow-y: auto;">
                     {{-- Chat --}}
                     <div class="tab-pane fade show active" id="mobile-chat" role="tabpanel" aria-labelledby="mobile-chat-tab">
-                        <div id="chat-messages-mobile" class="d-flex flex-column gap-1 scroll-bottom scroll-invisible" style="max-height: 28vh; font-size: 0.8rem;">
+                        <div id="chat-messages-mobile" class="d-flex flex-column gap-2 scroll-bottom scroll-invisible" style="max-height: 30vh; font-size: 0.85rem;">
                             <!-- Mensagens -->
                         </div>
-                        <div class="d-flex mt-1 gap-1">
+                        <div class="d-flex mt-2 gap-1">
                             <input type="text" class="form-control form-control-sm" placeholder="Mensagem..." id="chat-input-mobile">
                             <button class="btn btn-sm btn-primary" id="chat-send-mobile"><i class="fa-solid fa-paper-plane"></i></button>
                         </div>
@@ -341,18 +341,18 @@
 
                     {{-- Logs --}}
                     <div class="tab-pane fade" id="mobile-logs" role="tabpanel" aria-labelledby="mobile-logs-tab">
-                        <div id="system-logs-mobile" class="d-flex flex-column scroll-invisible" style="max-height: 31vh; font-size: 0.8rem;">
+                        <div id="system-logs-mobile" class="d-flex flex-column scroll-invisible" style="max-height: 35vh; font-size: 0.85rem;">
                             <!-- Logs -->
                         </div>
                     </div>
 
                     {{-- Players --}}
                     <div class="tab-pane fade" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
-                        <div class="d-flex flex-column gap-1 scroll-invisible" style="max-height: 31vh; font-size: 0.8rem;">
+                        <div class="d-flex flex-column gap-2 scroll-invisible" style="max-height: 35vh; font-size: 0.85rem;">
                             @foreach ($membros as $m)
-                                <div class="bg-dark rounded p-1 text-white text-center">
+                                <div class="bg-dark rounded p-2 text-white text-center">
                                     <strong class="small">{{ $m['nome'] }}</strong>
-                                    <div class="progress" style="height: 10px;">
+                                    <div class="progress mt-1" style="height: 12px;">
                                         <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
                                         </div>
                                     </div>
