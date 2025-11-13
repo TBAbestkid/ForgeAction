@@ -27,68 +27,74 @@
     <div class="card mx-auto p-4" style="max-width: 700px;">
         <h2 class="text-center font-medieval text-white mb-3">Crie seu personagem</h2>
 
-        <div id="wizard">
+        <form id="form-personagem" method="POST" action="{{ route('personagem.store') }}">
+            @csrf
+
             <!-- Etapa 1: Informações Básicas -->
             <div class="wizard-step">
-                <form id="form-basico">
-                    @csrf
-                    <div class="form-floating mb-3">
-                        <input type="text" name="nome" id="nome" class="form-control" placeholder="Nome" required>
-                        <label for="nome" class="text-light">Nome do Personagem</label>
-                    </div>
+                <div class="form-floating mb-3">
+                    <input type="text" name="nome" id="nome" class="form-control" placeholder="Nome" required>
+                    <label for="nome" class="text-light">Nome do Personagem</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <select id="classe" name="classe" class="form-control" required></select>
+                    <label for="classe" class="text-light">Classe</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <select id="raca" name="raca" class="form-control" required></select>
+                    <label for="raca" class="text-light">Raça</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="number" name="idade" id="idade" class="form-control" placeholder="Idade" required>
+                    <label for="idade" class="text-light">Idade</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <select id="genero" name="genero" class="form-control" required>
+                        <option value="" disabled selected>Selecione seu gênero</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Geladeira Electrolux Frost Free">Geladeira Electrolux Frost Free</option>
+                        <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                    <label for="genero" class="text-light">Identificação</label>
+                </div>
 
-                    <div class="form-floating mb-3">
-                        <select id="classe" name="classe" class="form-control" required></select>
-                        <label for="classe" class="text-light">Classe</label>
-                    </div>
-
-                    <div class="form-floating mb-3">
-                        <select id="raca" name="raca" class="form-control" required></select>
-                        <label for="raca" class="text-light">Raça</label>
-                    </div>
-
-                    <div class="form-floating mb-3">
-                        <input type="number" name="idade" id="idade" class="form-control" placeholder="Idade" required>
-                        <label for="idade" class="text-light">Idade</label>
-                    </div>
-
-                    <div class="form-floating mb-3">
-                        <select id="genero" name="genero" class="form-control" required>
-                            <option value="" disabled selected>Selecione seu gênero</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Feminino">Feminino</option>
-                            <option value="Geladeira Electrolux Frost Free">Geladeira Electrolux Frost Free</option>
-                            <option value="Boeing AH-64 Apache">Boeing AH-64 Apache</option>
-                            <option value="Outro">Outro</option>
-                        </select>
-                        <label for="genero" class="text-light">Identificação</label>
-                    </div>
-
-                    <div class="d-flex justify-content-end">
-                        <button id="btn-next" type="button" class="btn btn-primary" disabled>Próximo</button>
-                    </div>
-                </form>
+                <div class="d-flex justify-content-end">
+                    <button id="btn-next" type="button" class="btn btn-primary" disabled>Próximo</button>
+                </div>
             </div>
 
             <!-- Etapa 2: Atributos -->
             <div class="wizard-step d-none">
-                <form id="form-atributos">
-                    @csrf
-                    <div class="row g-3">
-                        @foreach(['forca','agilidade','inteligencia','sabedoria','destreza','vitalidade','percepcao','carisma'] as $attr)
-                            <div class="col-md-6 form-floating">
-                                <input type="number" name="{{ $attr }}" class="form-control" placeholder="{{ ucfirst($attr) }}" required min="1" value="1">
-                                <label class="text-light">{{ ucfirst($attr) }}</label>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="d-flex justify-content-between mt-3">
-                        <button id="btn-prev" type="button" class="btn btn-secondary">Voltar</button>
-                        <button id="btn-submit" type="button" class="btn btn-primary" disabled>Finalizar</button>
-                    </div>
-                </form>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="text-light mb-0">Distribuição de Atributos</h5>
+                    <button type="button"
+                        class="btn btn-sm btn-outline-info"
+                        data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-trigger="focus"
+                        title="Como distribuir pontos"
+                        data-bs-content="Você tem 23 pontos para distribuir entre 8 atributos: Força, Agilidade, Inteligência, Sabedoria, Destreza, Vitalidade, Percepção e Carisma. Cada atributo deve ter pelo menos 1 ponto e todos os 23 pontos devem ser utilizados.">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </button>
+                </div>
+
+                <div class="row g-3">
+                    @foreach(['forca','agilidade','inteligencia','sabedoria','destreza','vitalidade','percepcao','carisma'] as $attr)
+                        <div class="col-md-6 form-floating">
+                            <input type="number" name="{{ $attr }}" class="form-control" placeholder="{{ ucfirst($attr) }}" required min="1" value="1">
+                            <label class="text-light">{{ ucfirst($attr) }}</label>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <button id="btn-prev" type="button" class="btn btn-secondary">Voltar</button>
+                    <button id="btn-submit" type="submit" class="btn btn-primary" disabled>Finalizar</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -100,237 +106,147 @@
 <!-- jQuery e Select2 -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        /* ---------- CONFIG ---------- */
+        const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+        popoverTriggerList.map(el => new bootstrap.Popover(el));
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
         const TOTAL_POINTS = 23;
-        const ATTRS = ['forca','agilidade','inteligencia','sabedoria','destreza','vitalidade','percepcao','carisma'];
-        const userId = {{ session('user_id') ?? 0 }};
+        const ATTRS = [
+            'forca','agilidade','inteligencia','sabedoria','destreza','vitalidade','percepcao','carisma'
+        ];
 
-        /* ---------- HELPERS ---------- */
-        const getCsrf = ()=>document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                        || document.querySelector('input[name="_token"]')?.value || '';
+        const form = document.getElementById('form-personagem');
+        const nextBtn = document.getElementById('btn-next');
+        const prevBtn = document.getElementById('btn-prev');
+        const submitBtn = document.getElementById('btn-submit');
 
-        const isPositiveInt = v => {
-            if(v==null) return false;
-            const n = Number(v);
-            return Number.isInteger(n) && n>=1;
-        };
+        const stepInfo = document.getElementById('step-info');
+        const stepAttrs = document.getElementById('step-attrs');
+        const attrsMsg = document.getElementById('attrs-message');
 
-        const setInvalid = (el,msg)=>{
-            if(!el) return;
+        const infoFields = ['nome','classe','raca','idade','genero'].map(id => document.getElementById(id));
+
+        // Helpers
+        const isPositiveInt = v => Number.isInteger(Number(v)) && Number(v) >= 1;
+
+        const setInvalid = (el,msg) => {
             el.classList.add('is-invalid');
             let feed = el.nextElementSibling;
-            if(!feed || !feed.classList.contains('invalid-feedback')){
+            if (!feed || !feed.classList.contains('invalid-feedback')) {
                 feed = document.createElement('div');
-                feed.className='invalid-feedback';
+                feed.className = 'invalid-feedback';
                 el.parentNode.insertBefore(feed, el.nextSibling);
             }
-            feed.textContent=msg;
+            feed.textContent = msg;
         };
 
-        const clearInvalid = el=>{
-            if(!el) return;
+        const clearInvalid = el => {
             el.classList.remove('is-invalid');
             const feed = el.nextElementSibling;
             if(feed?.classList.contains('invalid-feedback')) feed.remove();
         };
 
-        /* ---------- API ---------- */
-        async function api(path,method='GET',payload=null){
-            const headers = { 'Accept':'application/json' };
-            if(payload) {
-                headers['Content-Type']='application/json'; headers['X-CSRF-TOKEN']=getCsrf();
-            }
-            const resp = await fetch(path,{ method, credentials:'same-origin', headers, body: payload?JSON.stringify(payload):null });
-            let data=null; try{ data=await resp.json(); }catch(e){}
-            return { ok: resp.ok, status: resp.status, data, resp };
-        }
-
-        /* ---------- LOAD ENUMS ---------- */
-        async function loadEnum(id, path, placeholder) {
-            const select = document.getElementById(id);
-            if (!select) return;
-            select.innerHTML = `<option disabled selected>${placeholder}</option>`;
-            try {
-                const r = await api(path);
-                if (!r || !r.data || !Array.isArray(r.data.data)) {
-                    throw new Error('Campo data não é um array: ' + JSON.stringify(r));
-                }
-                r.data.data.forEach(e => select.add(new Option(e.descricao, e.constante)));
-            } catch (err) {
-                console.error(`Erro ao carregar enum ${id}:`, err);
-            }
-        }
-        loadEnum('classe','/enums/classes','Selecione uma Classe');
-        loadEnum('raca','/enums/racas','Selecione uma Raça');
-
-        /* ---------- INFO VALIDATION ---------- */
-        const infoFields = ['nome','classe','raca','idade','genero'].map(id=>document.getElementById(id)).filter(Boolean);
-        const nextBtn=document.getElementById('btn-next');
-        const submitBtn=document.getElementById('btn-submit');
-
-        function validateFields(fields) {
-            let allValid = true;
-
-            fields.forEach(f => {
+        // Valida campos básicos
+        function validateInfo() {
+            let valid = true;
+            infoFields.forEach(f => {
                 clearInvalid(f);
-                const value = f.value.trim();
-
-                // Campo obrigatório
-                if (!value) {
-                    setInvalid(f, 'Campo obrigatório');
-                    allValid = false;
-                    return;
+                const val = f.value.trim();
+                if (!val) {
+                    setInvalid(f,'Campo obrigatório');
+                    valid = false; return;
                 }
-
-                // Verifica selects (classe / raça)
-                if ((f.id === 'classe' || f.id === 'raca') && f.selectedIndex === 0) {
-                    setInvalid(f, 'Selecione uma opção válida');
-                    allValid = false;
-                    return;
+                if ((f.id==='classe'||f.id==='raca') && f.selectedIndex===0) {
+                    setInvalid(f,'Selecione uma opção');
+                    valid = false;
                 }
-
-                // Nome do personagem — até 50 caracteres
-                if (f.id === 'nome' && value.length > 50) {
-                    setInvalid(f, 'Nome muito longo (máx. 50 caracteres)');
-                    allValid = false;
-                    return;
+                if (f.id === 'nome' && val.length>50) {
+                    setInvalid(f,'Nome muito longo');
+                    valid = false;
                 }
-
-                // Idade — aceita números grandes, mas evita absurdos
                 if (f.id === 'idade') {
-                    if (!isPositiveInt(value)) {
-                        setInvalid(f, 'Informe um número inteiro válido');
-                        allValid = false;
-                        return;
-                    }
-
-                    const idadeNum = parseInt(value, 10);
-                    if (idadeNum < 1 || idadeNum > 999999) {
-                        setInvalid(f, 'Idade deve estar entre 1 e 999.999');
-                        allValid = false;
-                        return;
+                    const n = parseInt(val,10);
+                    if(!isPositiveInt(n) || n < 1 || n > 999999) {
+                        setInvalid(f, 'Idade inválida');
+                        valid=false;
                     }
                 }
             });
-            return allValid;
+            return valid;
         }
 
-        infoFields.forEach(f=>{
-            const ev=f.tagName==='SELECT'||f.type==='checkbox'?'change':'input';
-            f.addEventListener(ev,()=>{ validateFields(infoFields); toggleNext(); });
-        });
+        // Valida atributos
+        function validateAttrs() {
+            let sum = 0, valid = true;
 
-        function toggleNext(){ if(nextBtn) nextBtn.disabled = !validateFields(infoFields); }
-        toggleNext();
-
-        /* ---------- ATTRIBUTES ---------- */
-        function updatePoints(){
-            let sum=0, invalid=false;
-            ATTRS.forEach(a=>{
-                const el=document.querySelector(`input[name="${a}"]`);
-                if(!el || !isPositiveInt(el.value)) invalid=true;
-                sum += isPositiveInt(el.value)?parseInt(el.value,10):0;
+            ATTRS.forEach(a => {
+                const el = form.querySelector(`[name="${a}"]`);
+                clearInvalid(el);
+                if(!el || !isPositiveInt(el.value)) {
+                    setInvalid(el,'Atributo inválido');
+                    valid=false; return;
+                }
+                sum += parseInt(el.value,10);
             });
-            const remaining = TOTAL_POINTS - sum;
-            let msgBox=document.getElementById('attrs-message');
-            if(!msgBox){
-                const step=document.querySelectorAll('#wizard .wizard-step')[1];
-                msgBox=document.createElement('div'); msgBox.id='attrs-message'; msgBox.className='mt-2 text-warning small';
-                step?.querySelector('form')?.appendChild(msgBox);
+
+            if(sum < TOTAL_POINTS){
+                attrsMsg.textContent=`Distribua mais ${TOTAL_POINTS-sum} pontos`;
+                valid=false;
+            } else if(sum > TOTAL_POINTS){
+                attrsMsg.textContent=`Ultrapassou total de ${TOTAL_POINTS}`;
+                valid=false;
+            } else {
+                attrsMsg.textContent='';
             }
-            if(invalid) { msgBox.textContent='Todos atributos devem ser inteiros >=1'; if(submitBtn) submitBtn.disabled=true; return; }
-            if(sum>TOTAL_POINTS){ msgBox.textContent='Ultrapassou total de '+TOTAL_POINTS; if(submitBtn) submitBtn.disabled=true; return; }
-            if(sum<TOTAL_POINTS){ msgBox.textContent='Distribua mais '+(TOTAL_POINTS-sum)+' pontos'; if(submitBtn) submitBtn.disabled=true; return; }
-            msgBox.textContent=''; if(submitBtn) submitBtn.disabled=false;
+
+            submitBtn.disabled = !valid;
+            return valid;
         }
+
+        // Toggle steps
+        function goToAttrs() {
+            if(validateInfo()){
+                stepInfo.classList.add('d-none');
+                stepAttrs.classList.remove('d-none');
+                validateAttrs();
+            }
+        }
+        function goToInfo() {
+            stepAttrs.classList.add('d-none');
+            stepInfo.classList.remove('d-none');
+            validateInfo();
+            nextBtn.disabled=!validateInfo();
+        }
+
+        nextBtn.addEventListener('click', goToAttrs);
+        prevBtn.addEventListener('click', goToInfo);
+
+        // Input listeners
+        infoFields.forEach(f => {
+            const ev=f.tagName==='SELECT'?'change':'input';
+            f.addEventListener(ev,()=>{ nextBtn.disabled=!validateInfo(); });
+        });
 
         ATTRS.forEach(a=>{
-            const el=document.querySelector(`input[name="${a}"]`);
+            const el = form.querySelector(`[name="${a}"]`);
             if(!el) return;
-            el.setAttribute('min','1'); el.setAttribute('step','1'); if(!el.value) el.value='1';
-            el.addEventListener('input', updatePoints);
+            el.addEventListener('input', validateAttrs);
         });
-        updatePoints();
 
-        /* ---------- GATHER DATA ---------- */
-        function getInfo(){
-            const info={};
-            ['nome','classe','raca','idade','genero','infoPersonagem'].forEach(k=>{
-                const el=document.getElementById(k) || document.querySelector(`[name="${k}"]`);
-                if(!el) return;
-                info[k]=el.type==='number'?parseInt(el.value,10):el.value.trim();
-            });
-            return info;
-        }
-        function getAttrs(){
-            const out={}; ATTRS.forEach(a=>{ const el=document.querySelector(`input[name="${a}"]`); out[a]=el?parseInt(el.value,10):1; });
-            return out;
-        }
-
-        /* ---------- SUBMIT ---------- */
-        async function tryDeletePersonagem(id){ if(!id) return; await api('/personagem/'+id,'DELETE'); }
-
-       async function submitCharacter() {
-            if (!userId || userId === 0) {
-                showAlert("Usuário não logado");
-                return;
+        // Submit
+        form.addEventListener('submit', e => {
+            if(!validateInfo() || !validateAttrs()){
+                e.preventDefault(); return;
             }
-
-            // Valida campos da etapa 1
-            if (!validateFields(infoFields)) {
-                showAlert("Preencha todos os campos corretamente antes de continuar.");
-                goToInfo();
-                return;
+            if(typeof showLoading==='function') {
+                showLoading(5000);
             }
-
-            const info = getInfo();
-            const attrs = getAttrs();
-
-            // Verifica pontos de atributos
-            const totalAtributos = Object.values(attrs).reduce((a, b) => a + (parseInt(b) || 0), 0);
-            if (totalAtributos !== TOTAL_POINTS) {
-                showAlert(`Distribua todos os ${TOTAL_POINTS} pontos de atributo antes de criar o personagem.`);
-                return;
-            }
-
-            // Monta payload corretamente
-            const payload = { usuarioId: userId, ...info, ...attrs };
-
-            submitBtn.disabled = true;
-            nextBtn.disabled = true;
-            showLoading(5000);
-
-            try {
-                const res = await api('/personagem', 'POST', payload);
-
-                // Aqui só checamos status e code do JSON
-                if (res.data?.status === 'success' && res.data?.code === 201) {
-                    hideLoading();
-                    showAlert("Personagem criado com sucesso!");
-                    setTimeout(() => window.location.href = '/dashboard', 2000);
-                } else {
-                    throw new Error(res.data?.message || `Erro inesperado: ${res.data?.code || res.status}`);
-                }
-
-            } catch (err) {
-                hideLoading();
-                showAlert("Erro ao criar personagem: " + err.message, true);
-            } finally {
-                submitBtn.disabled = false;
-                nextBtn.disabled = false;
-            }
-        }
-
-        /* ---------- WIZARD ---------- */
-        function goToAttributes(){ if(!validateFields(infoFields)) return; document.querySelectorAll('#wizard .wizard-step').forEach((s,i)=>i===0?s.classList.add('d-none'):s.classList.remove('d-none')); document.querySelector(`input[name="${ATTRS[0]}"]`)?.focus(); }
-        function goToInfo(){ document.querySelectorAll('#wizard .wizard-step').forEach((s,i)=>i===0?s.classList.remove('d-none'):s.classList.add('d-none')); }
-
-        nextBtn?.addEventListener('click',goToAttributes);
-        document.getElementById('btn-prev')?.addEventListener('click',goToInfo);
-        submitBtn?.addEventListener('click',submitCharacter);
-
+        });
     });
 </script>
 
