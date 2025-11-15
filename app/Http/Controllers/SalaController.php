@@ -276,7 +276,7 @@ class SalaController extends Controller
         }
 
         // Busca sala pelo código
-        $salaResponse = $this->api->get("api/codigo/{$code}");
+        $salaResponse = $this->api->get("api/salas/codigo/{$code}");
 
         // Se retornou erro (404 ou outro)
         if (!$salaResponse || isset($salaResponse['error'])) {
@@ -285,9 +285,9 @@ class SalaController extends Controller
             ]);
         }
 
-        $sala = (array) $salaResponse;
-        dd($salaResponse);
-        dd($sala);
+        $sala = $salaResponse;
+        // // dd($salaResponse);
+        // // dd($sala);
 
         // === Busca personagens ===
         $personagensResponse = $this->api->get("api/personagem/usuario/{$userId}");
