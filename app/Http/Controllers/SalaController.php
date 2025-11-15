@@ -278,16 +278,16 @@ class SalaController extends Controller
         // Busca sala pelo código
         $salaResponse = $this->api->get("api/codigo/{$code}");
 
-        if (!isset($salaResponse['status']) || $salaResponse['status'] !== 'success') {
-            return redirect()->route('home')->withErrors(['codigo' => 'Código inválido ou sala não encontrada.']);
+        // Se retornou erro (404 ou outro)
+        if (!$salaResponse || isset($salaResponse['error'])) {
+            return redirect()->route('home')->withErrors([
+                'codigo' => 'Código inválido ou sala não encontrada.'
+            ]);
         }
 
-        $sala = $salaResponse['data'] ?? null;
-        if (!$sala) {
-            return redirect()->route('home')->withErrors(['codigo' => 'Sala não encontrada.']);
-        }
+        $sala = $salaResponse;
 
-        // Busca personagens do usuário
+        // === Busca personagens ===
         $personagensResponse = $this->api->get("api/personagem/usuario/{$userId}");
         $personagens = $personagensResponse['data'] ?? [];
 
@@ -296,7 +296,6 @@ class SalaController extends Controller
                 ->with('info', 'Você precisa criar um personagem antes de entrar na sala.');
         }
 
-        // Caso contrário, manda pra tela de seleção
         return view('room.selection', [
             'sala' => $sala,
             'personagens' => $personagens
