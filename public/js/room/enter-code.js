@@ -11,21 +11,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`/api/codigo/${codigo}`, { headers: { 'Accept': 'application/json' } });
-            if (!response.ok) throw new Error();
-            const data = await response.json();
+            const response = await fetch(`/api/codigo/${codigo}`, {
+                headers: { 'Accept': 'application/json' }
+            });
 
-            if (data?.status === 'success' && data?.data?.id) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalSalabyCode'));
-                modal?.hide();
-
-                // 🔹 Redireciona o usuário para o fluxo controlado por Laravel
-                window.location.href = `/salas/entrar/codigo?codigo=${codigo}`;
-            } else {
+            if (response.status === 404) {
                 showToast('Código inválido ou sala não encontrada.', 'danger');
+                return;
             }
+
+            if (!response.ok) {
+                showToast('Erro inesperado ao verificar código.', 'danger');
+                return;
+            }
+
+            const sala = await response.json();
+
+            // Sala válida → redireciona
+            window.location.href = `/salas/entrar/codigo?codigo=${codigo}`;
+
         } catch (e) {
-            showToast('Código inválido ou sala não encontrada.', 'danger');
+            showToast('Erro ao validar código da sala.', 'danger');
         }
     });
 
