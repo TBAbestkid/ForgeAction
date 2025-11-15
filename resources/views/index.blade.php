@@ -303,11 +303,7 @@
                                 </button>
                             </div>
                         `
-                        : `
-                            <button class="btn btn-sm btn-outline-danger btn-leave" data-id="${sala.id}">
-                                <i class="fa-solid fa-door-open"></i> Sair
-                            </button>
-                        `;
+                        : ` `;
 
                     $salasList.append(`
                         <li class="list-group-item d-flex justify-content-between align-items-center"
@@ -427,6 +423,7 @@
                     $.ajax({
                         url: `/api/salas/personagens/listar/${selectedSalaId}`,
                         type: 'GET',
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                         success: personagens => {
                             const personagem = personagens.find(p => p.usuarioId == userId);
                             if (!personagem) {
@@ -440,6 +437,7 @@
                             $.ajax({
                                 url: `/api/salas/personagens/remover/${selectedSalaId}/${personagemId}`,
                                 type: 'DELETE',
+                                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                                 success: res => {
                                     showToast(res.message || 'Você saiu da sala.');
                                     $(`#salasList li[data-id="${selectedSalaId}"]`).fadeOut(300, function () {
