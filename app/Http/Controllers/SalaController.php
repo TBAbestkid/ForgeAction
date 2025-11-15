@@ -286,6 +286,8 @@ class SalaController extends Controller
         }
 
         $sala = (array) $salaResponse;
+        dd($salaResponse);
+        dd($sala);
 
         // === Busca personagens ===
         $personagensResponse = $this->api->get("api/personagem/usuario/{$userId}");
