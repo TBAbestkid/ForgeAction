@@ -285,7 +285,7 @@ class SalaController extends Controller
             ]);
         }
 
-        $sala = $salaResponse;
+        $sala = (array) $salaResponse;
 
         // === Busca personagens ===
         $personagensResponse = $this->api->get("api/personagem/usuario/{$userId}");
