@@ -43,6 +43,7 @@ class PersonagemController extends Controller
         try {
             // Envia exatamente tudo que veio do form
             $payload = $request->all();
+            $payload['usuarioId'] = session('user_id');
 
             $response = $this->api->post("api/personagem", $payload);
 
