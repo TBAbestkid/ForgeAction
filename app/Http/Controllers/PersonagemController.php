@@ -40,29 +40,24 @@ class PersonagemController extends Controller
      */
     public function store(Request $request)
     {
-        // Validação
-        $request->validate([
-            'nome' => 'required|string|max:50',
-            'classe' => 'required|string',
-            'raca' => 'required|string',
-            'idade' => 'required|integer|min:1|max:999999',
-            'genero' => 'required|string',
-            // adicione validação dos atributos se quiser
-        ]);
-
         try {
-            $response = $this->api->post("api/personagem", $request->all());
+            // Envia exatamente tudo que veio do form
+            $payload = $request->all();
 
-            // Sucesso
+            $response = $this->api->post("api/personagem", $payload);
+
             if (($response['status'] ?? '') === 'success') {
                 return redirect('/')->with('success', 'Personagem criado com sucesso!');
             }
 
-            // Falha
-            return redirect()->back()->withInput()->with('error', $response['message'] ?? 'Erro ao criar personagem');
+            return redirect()->back()
+                            ->withInput()
+                            ->with('error', $response['message'] ?? 'Erro ao criar personagem');
 
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Erro inesperado: ' . $e->getMessage());
+            return redirect()->back()
+                            ->withInput()
+                            ->with('error', 'Erro inesperado: ' . $e->getMessage());
         }
     }
 
