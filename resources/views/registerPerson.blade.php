@@ -89,6 +89,8 @@
                     @endforeach
                 </div>
 
+                <div id="attrs-message" class="text-warning fw-bold mt-3"></div>
+
                 <div class="d-flex justify-content-between mt-3">
                     <button id="btn-prev" type="button" class="btn btn-secondary">Voltar</button>
                     <button id="btn-submit" type="submit" class="btn btn-primary" disabled>Finalizar</button>
