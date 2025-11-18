@@ -227,24 +227,30 @@
                                 <div id="collapse-${p.id}" class="collapse mt-2">
                                     <div class="bg-secondary bg-opacity-25 rounded p-2">
                                         <div class="row g-2">
-                                            <div class="col-6"><small><strong>Nível:</strong> ${p.level}</small></div>
-                                            <div class="col-6"><small><strong>Força:</strong> ${p.forca}</small></div>
-                                            <div class="col-6"><small><strong>Agilidade:</strong> ${p.agilidade}</small></div>
-                                            <div class="col-6"><small><strong>Inteligência:</strong> ${p.inteligencia}</small></div>
-                                            <div class="col-6"><small><strong>Destreza:</strong> ${p.destreza}</small></div>
-                                            <div class="col-6"><small><strong>Vitalidade:</strong> ${p.vitalidade}</small></div>
-                                            <div class="col-6"><small><strong>Percepção:</strong> ${p.percepcao}</small></div>
-                                            <div class="col-6"><small><strong>Sabedoria:</strong> ${p.sabedoria}</small></div>
-                                            <div class="col-6"><small><strong>Carisma:</strong> ${p.carisma}</small></div>
-                                            <div class="col-6"><small><strong>Vida:</strong> ${p.vida}</small></div>
-                                            <div class="col-6"><small><strong>Mana:</strong> ${p.mana}</small></div>
-                                            <div class="col-6"><small><strong>Iniciativa:</strong> ${p.iniciativa}</small></div>
-                                            <div class="col-6"><small><strong>Atk Mágico:</strong> ${p.ataqueMagico}</small></div>
-                                            <div class="col-6"><small><strong>Atk Corpo:</strong> ${p.ataqueFisicoCorpo}</small></div>
-                                            <div class="col-6"><small><strong>Atk Distância:</strong> ${p.ataqueFisicoDistancia}</small></div>
-                                            <div class="col-6"><small><strong>Defesa:</strong> ${p.defesaPersonagem}</small></div>
-                                            <div class="col-6"><small><strong>Esquiva:</strong> ${p.esquivaPersonagem}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-signal"></i> Nível:</strong> ${p.level}</small></div>
+
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-dumbbell"></i> Força:</strong> ${p.forca}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-bolt"></i> Agilidade:</strong> ${p.agilidade}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-brain"></i> Inteligência:</strong> ${p.inteligencia}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-hand"></i> Destreza:</strong> ${p.destreza}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-shield-heart"></i> Vitalidade:</strong> ${p.vitalidade}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-eye"></i> Percepção:</strong> ${p.percepcao}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-book"></i> Sabedoria:</strong> ${p.sabedoria}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-comments"></i> Carisma:</strong> ${p.carisma}</small></div>
+
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-heart"></i> Vida:</strong> ${p.vida}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-droplet"></i> Mana:</strong> ${p.mana}</small></div>
+
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-forward"></i> Iniciativa:</strong> ${p.iniciativa}</small></div>
+
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Atk Mágico:</strong> ${p.ataqueMagico}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-hand-fist"></i> Atk Corpo:</strong> ${p.ataqueFisicoCorpo}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-bullseye"></i> Atk Distância:</strong> ${p.ataqueFisicoDistancia}</small></div>
+
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-shield-halved"></i> Defesa:</strong> ${p.defesaPersonagem}</small></div>
+                                            <div class="col-6"><small><strong><i class="fa-solid fa-feather"></i> Esquiva:</strong> ${p.esquivaPersonagem}</small></div>
                                         </div>
+
                                     </div>
                                 </div>
 
