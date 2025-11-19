@@ -413,6 +413,12 @@ if (btnSkip) btnSkip.disabled = true;
 
         if (btnLancarMestre) btnLancarMestre.disabled = true;
 
+        // Limpa timeout do dado anterior antes de trocar de turno
+        if (timeoutLimpezaDado) {
+            clearTimeout(timeoutLimpezaDado);
+            timeoutLimpezaDado = null;
+        }
+
         enviarSistema(`👉 Turno de ${proximo.nome}`);
         enviarAcao({ acao: 'turnoAtual', personagemId: currentPlayerId });
 
@@ -454,7 +460,8 @@ if (btnSkip) btnSkip.disabled = true;
                     placeholder.textContent = '🎲 Aguardando...';
                 }
             }
-        }, 1000);
+            timeoutLimpezaDado = null;
+        }, 4000);
     }
 
     function atualizarTurnoUI() {
