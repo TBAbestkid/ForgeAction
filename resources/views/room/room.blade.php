@@ -110,14 +110,6 @@
                                 <label for="ocultarDados" class="form-check-label text-white">Ocultar Dados aos Jogadores</label>
                             @endif
                         </div>
-
-                        <div id="dice-options" class="d-none mt-3 text-center">
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="4">D4</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="6">D6</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="10">D10</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="12">D12</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="20">D20</button>
-                        </div>
                     </div>
                 </div>
 
@@ -231,8 +223,8 @@
                     {{--2 botões em uma linha flexível --}}
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
                         {{-- 🔹 Lançar Dados --}}
-                                <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
-                                <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
+                                <button id="btn-roll" class="btn btn-outline-light disabled">🎲 Rodar Dado</button>
+                                <button id="btn-skip" class="btn btn-outline-warning disabled">⏭️ Pular</button>
                         </div>
                 </div>
                 @endif

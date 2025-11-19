@@ -310,7 +310,7 @@
                     placeholder.textContent = '🎲 Aguardando...';
                 }
             }
-        }, 4000);
+        }, 1000);
     }
 
     function atualizarTurnoUI() {
@@ -325,7 +325,11 @@
         if (placeholder) {
             placeholder.textContent = `🕒 Turno de ${atual.nome}`;
             const isMyTurn = String(atual.usuarioId) === userId;
-            if (isMyTurn) placeholder.textContent += ' (Sua vez!)';
+            if (isMyTurn) {
+                placeholder.textContent += ' (Sua vez!)';
+                btnRoll.disabled = false;
+                btnSkip.disabled = false;
+            }
         }
 
         destacarPersonagem(atual.card);
