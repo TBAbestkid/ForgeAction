@@ -329,6 +329,9 @@
                 placeholder.textContent += ' (Sua vez!)';
                 btnRoll.disabled = false;
                 btnSkip.disabled = false;
+            } else {
+                btnRoll.disabled = true;
+                btnSkip.disabled = true;
             }
         }
 

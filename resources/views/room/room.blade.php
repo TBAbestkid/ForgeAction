@@ -223,8 +223,8 @@
                     {{--2 botões em uma linha flexível --}}
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
                         {{-- 🔹 Lançar Dados --}}
-                                <button id="btn-roll" class="btn btn-outline-light disabled">🎲 Rodar Dado</button>
-                                <button id="btn-skip" class="btn btn-outline-warning disabled">⏭️ Pular</button>
+                                <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
+                                <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
                         </div>
                 </div>
                 @endif
