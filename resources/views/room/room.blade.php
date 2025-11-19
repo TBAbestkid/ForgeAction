@@ -104,10 +104,7 @@
 
                     <div id="turn-controls" class="d-none flex-column align-items-center gap-2 mt-2">
                         <div class="d-flex gap-2 flex-wrap justify-content-center">
-                            @if (!$isDono)
-                                <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
-                                <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
-                            @else
+                            @if ($isDono)
                                 {{-- Apenas caso mestre quiser ocultar os dados --}}
                                 <input type="checkbox" name="ocultarDados" id="ocultarDados" class="form-check-input mt-1" >
                                 <label for="ocultarDados" class="form-check-label text-white">Ocultar Dados aos Jogadores</label>
@@ -228,7 +225,17 @@
                         </button>
                     </div>
                 </div>
-            @endif
+                @else
+                {{-- botoes de acao do player --}}
+                 <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
+                    {{-- Todos os 6 botões em uma linha flexível --}}
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        {{-- 🔹 Lançar Dados --}
+                                <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
+                                <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>}
+                        </div>
+                </div>
+                @endif
 
             {{-- Botão para abrir/fechar chat --}}
             {{-- Container mobile de Chat, Logs e Players --}}
