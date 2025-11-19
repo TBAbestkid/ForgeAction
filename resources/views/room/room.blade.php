@@ -228,11 +228,11 @@
                 @else
                 {{-- botoes de acao do player --}}
                  <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
-                    {{-- Todos os 6 botões em uma linha flexível --}}
+                    {{--2 botões em uma linha flexível --}}
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        {{-- 🔹 Lançar Dados --}
+                        {{-- 🔹 Lançar Dados --}}
                                 <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
-                                <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>}
+                                <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
                         </div>
                 </div>
                 @endif
