@@ -761,8 +761,46 @@ if (btnSkip) btnSkip.disabled = true;
     }
 
     function onReceiveAction(data) {
-        if (!data || !data.acao) return;
+        if (!data) return;
         debugLog('📥 Ação recebida:', data);
+
+        // Handle system messages like: "🟢 <userLogin> entrou na sala" or "<user> saiu da sala"
+        if (data.tipo === 'sistema' && typeof data.conteudo === 'string') {
+            const msg = data.conteudo;
+
+            // Entrou na sala (uses the same format used by enviarSistema)
+            const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
+            if (entrou) {
+                const login = entrou[1].trim();
+                // Cria um membro mínimo a partir do login (servidor não enviou dados completos)
+                const member = {
+                    personagemId: `p_${login}`,
+                    usuarioId: `u_${login}`,
+                    nome: login,
+                    usuarioLogin: login,
+                    vida: 0,
+                    vidaMax: 0
+                };
+                addOrUpdatePersonagem(member);
+                debugLog('➕ Sistema: jogador entrou, adicionando membro baseado em sistema:', login);
+                return;
+            }
+
+            // Saiu da sala
+            const saiu = msg.match(/(🔴|🟥|⚪|⛔)?\s*(.+?)\s+(saiu da sala|saiu)/i);
+            if (saiu) {
+                const login = saiu[2].trim();
+                // tenta localizar card pelo nome/usuarioLogin e remover
+                const cards = Array.from(document.querySelectorAll('.personagem-card'));
+                const found = cards.find(c => String(c.dataset.nome) === login || String(c.dataset.usuarioLogin) === login || c.textContent.includes(login));
+                if (found) {
+                    const pid = found.dataset.id || found.dataset.cardId || found.dataset.personagemId;
+                    removePersonagem(pid);
+                    debugLog('➖ Sistema: jogador saiu, removendo membro baseado em sistema:', login, pid);
+                }
+                return;
+            }
+        }
 
         const card = data.personagemId ? getCardById(String(data.personagemId)) : null;
 

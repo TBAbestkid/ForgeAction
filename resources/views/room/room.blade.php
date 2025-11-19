@@ -122,7 +122,7 @@
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
+                <div id="coluna-personangens" class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
                     @foreach ($membros as $m)
                         <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
                             data-bs-toggle="collapse"
