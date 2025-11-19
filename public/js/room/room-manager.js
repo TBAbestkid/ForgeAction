@@ -204,8 +204,8 @@ if (btnSkip) btnSkip.disabled = true;
 
     // ====== DYNAMIC MEMBERS MANAGEMENT ======
     function findPersonagensContainer() {
-        // Tenta usar o container à direita (desktop) ou o games-section como fallback
-        return document.querySelector('.d-none.d-lg-flex') || document.querySelector('#games-section') || document.body;
+        // Prioriza a coluna direita explícita `#coluna-personangens`, depois fallback para games-section
+        return document.getElementById('coluna-personangens') || document.querySelector('#games-section') || document.body;
     }
 
     function buildPersonagemCard(member) {
@@ -271,13 +271,10 @@ if (btnSkip) btnSkip.disabled = true;
         const container = findPersonagensContainer();
         const card = buildPersonagemCard(member);
 
-        // Insere no container (mantendo a mesma estrutura: append ao final)
-        // Para desktop, existe um wrapper que recebe cards; tentamos inserir lá
-        let desktopWrapper = document.querySelector('.d-none.d-lg-flex');
+        // Insere no container dedicado `#coluna-personangens` quando presente
+        const desktopWrapper = document.getElementById('coluna-personangens') || container;
         if (desktopWrapper) {
             desktopWrapper.appendChild(card);
-        } else if (container) {
-            container.appendChild(card);
         }
 
         // Atualiza listas mobile/offcanvas
