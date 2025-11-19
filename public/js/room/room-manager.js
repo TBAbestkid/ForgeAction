@@ -202,6 +202,144 @@ if (btnSkip) btnSkip.disabled = true;
         }
     }
 
+    // ====== DYNAMIC MEMBERS MANAGEMENT ======
+    function findPersonagensContainer() {
+        // Tenta usar o container à direita (desktop) ou o games-section como fallback
+        return document.querySelector('.d-none.d-lg-flex') || document.querySelector('#games-section') || document.body;
+    }
+
+    function buildPersonagemCard(member) {
+        const id = String(member.personagemId ?? member.id ?? '');
+        const usuarioId = String(member.usuarioId ?? member.userId ?? '');
+        const nome = member.nome ?? member.userLogin ?? 'Jogador';
+        const vida = member.vida ?? member.hp ?? 0;
+        const vidaMax = member.vidaMax ?? vida ?? 0;
+        const iniciativa = member.iniciativa ?? 0;
+
+        const card = document.createElement('div');
+        card.className = 'bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card';
+        card.style.cursor = 'pointer';
+
+        card.setAttribute('data-bs-toggle', 'collapse');
+        card.setAttribute('data-bs-target', `#info-personagem-${id}`);
+        card.setAttribute('aria-expanded', 'false');
+        card.setAttribute('aria-controls', `info-personagem-${id}`);
+
+        card.dataset.cardId = id;
+        card.dataset.id = id;
+        card.dataset.vidaMax = vidaMax;
+        card.dataset.nome = nome;
+        card.dataset.vida = vida;
+        card.dataset.usuarioId = usuarioId;
+        card.dataset.iniciativa = iniciativa;
+
+        card.innerHTML = `
+            <strong class="small">${nome}</strong>
+            <div class="progress mt-1 w-100" style="height: 14px; font-size:0.7rem;">
+                <div class="progress-bar bg-success d-flex justify-content-center align-items-center" role="progressbar" style="width: ${(vidaMax? (vida/vidaMax*100):0)}%;">${vida}/${vidaMax}</div>
+            </div>
+            <div id="info-personagem-${id}" class="collapse mt-1" style="min-height: auto; max-height: 25vh; overflow: hidden;">
+                <div class="bg-dark rounded p-1 text-start text-light" style="font-size: 0.7rem;">
+                    <strong>Jogador:</strong> ${nome}<br>
+                </div>
+            </div>
+        `;
+
+        return card;
+    }
+
+    function addOrUpdatePersonagem(member) {
+        if (!member) return;
+        const id = String(member.personagemId ?? member.id ?? '');
+
+        const existing = getCardById(id);
+        if (existing) {
+            // atualiza atributos
+            if (member.nome) existing.dataset.nome = member.nome;
+            if (member.vida !== undefined) {
+                existing.dataset.vida = member.vida;
+                const bar = existing.querySelector('.progress-bar');
+                const vidaMax = parseInt(existing.dataset.vidaMax || member.vidaMax || member.vida || 0, 10) || 0;
+                if (bar) {
+                    bar.style.width = `${vidaMax ? (member.vida / vidaMax) * 100 : 0}%`;
+                    bar.textContent = `${member.vida}/${vidaMax}`;
+                }
+            }
+            return;
+        }
+
+        const container = findPersonagensContainer();
+        const card = buildPersonagemCard(member);
+
+        // Insere no container (mantendo a mesma estrutura: append ao final)
+        // Para desktop, existe um wrapper que recebe cards; tentamos inserir lá
+        let desktopWrapper = document.querySelector('.d-none.d-lg-flex');
+        if (desktopWrapper) {
+            desktopWrapper.appendChild(card);
+        } else if (container) {
+            container.appendChild(card);
+        }
+
+        // Atualiza listas mobile/offcanvas
+        updateMembersListsAdd(member);
+    }
+
+    function removePersonagem(personagemId) {
+        if (!personagemId) return;
+        const id = String(personagemId);
+        const card = getCardById(id);
+        if (card && card.parentNode) card.parentNode.removeChild(card);
+
+        // Remove collapse element if exists
+        const collapseEl = document.getElementById(`info-personagem-${id}`);
+        if (collapseEl && collapseEl.parentNode) collapseEl.parentNode.removeChild(collapseEl);
+
+        // Atualiza mobile/offcanvas
+        updateMembersListsRemove(id);
+    }
+
+    function updateMembersListsAdd(member) {
+        // Offcanvas members list
+        const lista = document.getElementById('lista-membros');
+        if (lista) {
+            const exists = lista.querySelector(`[data-personagem-id="${member.personagemId}"]`);
+            if (!exists) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item bg-dark text-light d-flex justify-content-between align-items-center';
+                li.dataset.personagemId = member.personagemId;
+                li.innerHTML = `${member.usuarioLogin ?? member.nome ?? 'Jogador'}<span><i class="fa-solid fa-circle text-success"></i></span>`;
+                lista.appendChild(li);
+            }
+        }
+
+        // Mobile players list
+        const mobilePlayers = document.querySelector('#mobile-players .d-flex') || document.querySelector('#mobile-players');
+        if (mobilePlayers) {
+            // mobile section has multiple child items; we append a simple card
+            const existing = document.querySelector(`#mobile-players [data-personagem-id="${member.personagemId}"]`);
+            if (!existing) {
+                const el = document.createElement('div');
+                el.className = 'bg-dark rounded p-2 text-white text-center';
+                el.dataset.personagemId = member.personagemId;
+                el.innerHTML = `<strong class="small">${member.nome ?? member.usuarioLogin ?? 'Jogador'}</strong><div class="progress mt-1" style="height: 12px;"><div class="progress-bar bg-success" role="progressbar" style="width: 100%;"></div></div>`;
+                const target = document.querySelector('#mobile-players .d-flex') || document.querySelector('#mobile-players');
+                target.appendChild(el);
+            }
+        }
+    }
+
+    function updateMembersListsRemove(personagemId) {
+        const id = String(personagemId);
+        const lista = document.getElementById('lista-membros');
+        if (lista) {
+            const li = lista.querySelector(`[data-personagem-id="${id}"]`);
+            if (li && li.parentNode) li.parentNode.removeChild(li);
+        }
+
+        const mobileEl = document.querySelector(`#mobile-players [data-personagem-id="${id}"]`);
+        if (mobileEl && mobileEl.parentNode) mobileEl.parentNode.removeChild(mobileEl);
+    }
+
     function ordenarIniciativas(personagens) {
         let lista = personagens.map(card => ({
             nome: card.dataset.nome,
@@ -629,6 +767,26 @@ if (btnSkip) btnSkip.disabled = true;
         const card = data.personagemId ? getCardById(String(data.personagemId)) : null;
 
         switch (data.acao) {
+            case 'playerJoined':
+                // Espera-se que o servidor envie um objeto 'member' ou 'personagem'
+                const member = data.member || data.personagem || data.user;
+                if (member) {
+                    addOrUpdatePersonagem(member);
+                    debugLog('➕ Player joined, updated list:', member);
+                }
+                break;
+
+            case 'playerLeft':
+                // Espera-se que o servidor envie 'personagemId' ou 'id'
+                const pidLeft = data.personagemId || data.id || (data.personagem && data.personagem.id);
+                if (pidLeft) {
+                    removePersonagem(pidLeft);
+                    // Também remover da ordem de turnos se presente
+                    ordemTurnos = ordemTurnos.filter(p => String(p.personagemId) !== String(pidLeft));
+                    debugLog('➖ Player left, removed:', pidLeft);
+                }
+                break;
+
             case 'ordemTurnos':
                 ordemTurnos = (data.ordem || []).map(o => ({
                     nome: o.nome,
