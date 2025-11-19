@@ -110,6 +110,14 @@
                                 <label for="ocultarDados" class="form-check-label text-white">Ocultar Dados aos Jogadores</label>
                             @endif
                         </div>
+
+                        <div id="dice-options" class="d-none mt-3 text-center">
+                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="4">D4</button>
+                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="6">D6</button>
+                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="10">D10</button>
+                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="12">D12</button>
+                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="20">D20</button>
+                        </div>
                     </div>
                 </div>
 

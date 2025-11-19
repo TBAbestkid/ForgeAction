@@ -49,6 +49,12 @@
     const btnLancarMestre = document.getElementById('btn-lancar-mestre');
     const btnOcultarDados = document.getElementById('ocultarDados');
 
+// Start with controls hidden/disabled until it's the player's turn
+if (turnControls) turnControls.classList.add('d-none');
+if (diceOptions) diceOptions.classList.add('d-none');
+if (btnRoll) btnRoll.disabled = true;
+if (btnSkip) btnSkip.disabled = true;
+
     // ========== UTILS ==========
     function debugLog(...args) { console.log('[RM]', ...args); }
 
@@ -169,27 +175,30 @@
         const donoDoCard = String(card.dataset.usuarioId);
         const souDono = donoDoCard === userId;
 
-        // Esconde opções de dados apenas se não for o mestre
-        if (!isMestre) {
-            diceOptions.classList.add('d-none');
-        }
-
+        // Mestre nunca usa os controles de jogador
         if (isMestre) {
-            // Mestre não usa controles de jogador
-            turnControls.classList.add('d-none');
+            if (turnControls) turnControls.classList.add('d-none');
+            if (diceOptions) diceOptions.classList.add('d-none');
+            if (btnRoll) btnRoll.disabled = true;
+            if (btnSkip) btnSkip.disabled = true;
             return;
         }
+
+        // Para jogadores: por padrão escondemos/desabilitamos controles
+        if (!turnControls) return;
 
         if (souDono && enabled) {
             // Mostrar controles apenas para o dono do personagem atual quando habilitado
             turnControls.classList.remove('d-none');
-            btnRoll.disabled = false;
-            btnSkip.disabled = false;
+            if (diceOptions) diceOptions.classList.remove('d-none');
+            if (btnRoll) btnRoll.disabled = false;
+            if (btnSkip) btnSkip.disabled = false;
         } else {
             // Esconder/desabilitar para outros jogadores
             turnControls.classList.add('d-none');
-            btnRoll.disabled = true;
-            btnSkip.disabled = true;
+            if (diceOptions) diceOptions.classList.add('d-none');
+            if (btnRoll) btnRoll.disabled = true;
+            if (btnSkip) btnSkip.disabled = true;
         }
     }
 
@@ -325,14 +334,7 @@
         if (placeholder) {
             placeholder.textContent = `🕒 Turno de ${atual.nome}`;
             const isMyTurn = String(atual.usuarioId) === userId;
-            if (isMyTurn) {
-                placeholder.textContent += ' (Sua vez!)';
-                btnRoll.disabled = false;
-                btnSkip.disabled = false;
-            } else {
-                btnRoll.disabled = true;
-                btnSkip.disabled = true;
-            }
+            if (isMyTurn) placeholder.textContent += ' (Sua vez!)';
         }
 
         destacarPersonagem(atual.card);
