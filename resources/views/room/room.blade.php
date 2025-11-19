@@ -178,77 +178,7 @@
                 </div>
 
             </div>
-            @if(!$isDono)
-                {{-- View de infos personagem --}}
-                <div class="d-flex flex-column flex-md-row flex-wrap align-items-stretch gap-3 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
-
-                    {{-- 🔹 Identidade --}}
-                    <div class="card bg-warning text-dark flex-fill" style="min-width: 150px;">
-                        <div class="card-header p-2" data-bs-toggle="collapse" data-bs-target="#collapseIdentidade" style="cursor:pointer;">
-                            <h6 class="mb-0 text-dark fs-6">Identidade</h6>
-                        </div>
-                        <div id="collapseIdentidade" class="collapse">
-                            <div class="card-body p-2 small">
-                                <div class="mb-2"><strong>Nome:</strong> {{ $personagem['nome'] ?? 'Desconhecido' }}</div>
-                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                    <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Raça: {{ $personagem['racaDescricao'] ?? '?' }}</div>
-                                    <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Classe: {{ $personagem['classeDescricao'] ?? '?' }}</div>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                    <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Idade: {{ $personagem['idade'] ?? '?' }}</div>
-                                    <div class="flex-fill bg-dark rounded p-1 text-white text-center small">Gênero: {{ $personagem['genero'] ?? '?' }}</div>
-                                </div>
-                                <div class="bg-dark rounded p-1 text-white text-center small"><strong>Nível:</strong> {{ $personagem['level'] ?? 1 }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 🔹 Atributos --}}
-                    <div class="card bg-warning text-dark flex-fill" style="min-width: 150px;">
-                        <div class="card-header p-2" data-bs-toggle="collapse" data-bs-target="#collapseAtributos" style="cursor:pointer;">
-                            <h6 class="mb-0 text-dark fs-6">Atributos</h6>
-                        </div>
-                        <div id="collapseAtributos" class="collapse">
-                            <div class="card-body p-2 small">
-                                <div class="row g-2 text-white text-center">
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Força: {{ $personagem['forca'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Agilidade: {{ $personagem['agilidade'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Inteligência: {{ $personagem['inteligencia'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Destreza: {{ $personagem['destreza'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Vitalidade: {{ $personagem['vitalidade'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Percepção: {{ $personagem['percepcao'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Sabedoria: {{ $personagem['sabedoria'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Carisma: {{ $personagem['carisma'] ?? 0 }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 🔹 Status de Combate --}}
-                    <div class="card bg-warning text-dark flex-fill" style="min-width: 150px;">
-                        <div class="card-header p-2" data-bs-toggle="collapse" data-bs-target="#collapseCombate" style="cursor:pointer;">
-                            <h6 class="mb-0 text-dark fs-6">Combate</h6>
-                        </div>
-                        <div id="collapseCombate" class="collapse">
-                            <div class="card-body p-2 small">
-                                <div class="row g-2 text-white text-center mb-2">
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">HP: {{ $personagem['vida'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Mana: {{ $personagem['mana'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Ini: {{ $personagem['iniciativa'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Def: {{ $personagem['defesaPersonagem'] ?? 0 }}</div>
-                                </div>
-                                <div class="row g-2 text-white text-center">
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Esq: {{ $personagem['esquivaPersonagem'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Atk C: {{ $personagem['ataqueFisicoCorpo'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Atk D: {{ $personagem['ataqueFisicoDistancia'] ?? 0 }}</div>
-                                    <div class="col-6 col-md-3 bg-dark rounded p-1 small">Atk M: {{ $personagem['ataqueMagico'] ?? 0 }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            @else
+            @if($isDono)
                 {{-- Botões de ação de mestre como linha abaixo de área --}}
                 <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
                     {{-- Todos os 6 botões em uma linha flexível --}}
