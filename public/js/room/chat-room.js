@@ -52,7 +52,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addMessage(text, sender = 'Sistema', isSystemMessage = false) {
-        const containers = isSystemMessage ? [systemLogs, systemLogsMobile] : [messagesDesktop, messagesMobile];
+        // Em mobile, ambos chat e logs vão para o chat-mobile (não separa)
+        // Em desktop, separa entre chat-messages e system-logs
+        let containers = [];
+
+        if (isSystemMessage) {
+            // Mensagens de sistema vão para logs
+            if (systemLogs) containers.push(systemLogs);
+            if (systemLogsMobile) containers.push(systemLogsMobile);
+        } else {
+            // Mensagens de chat vão para chat
+            if (messagesDesktop) containers.push(messagesDesktop);
+            if (messagesMobile) containers.push(messagesMobile);
+        }
+
         const el = makeMessageDiv(text, sender, isSystemMessage);
         appendToContainers(containers, el);
     }
@@ -69,10 +82,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 addMessage(data.conteudo, '🤖 Sistema', true);
                 break;
             case 'entrada':
-                addMessage(`🟢 ${data.autor} entrou na sala`, '🤖 Sistema', true);
+                // Mensagens de entrada/saída vão como chat, não como sistema
+                addMessage(`🟢 ${data.autor} entrou na sala`, '🤖 Sistema', false);
                 break;
             case 'saida':
-                addMessage(`🔴 ${data.autor} saiu da sala`, '🤖 Sistema', true);
+                addMessage(`🔴 ${data.autor} saiu da sala`, '🤖 Sistema', false);
                 break;
             case 'erro':
                 addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema', true);
@@ -83,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isFirstConnect = true;
 
     function connectChat() {
-        if (isFirstConnect) addMessage(`🟢 Conectando ao chat...`, 'Sistema', true);
+        if (isFirstConnect) addMessage(`🟢 Conectando ao chat...`, 'Sistema', false);
 
         document.addEventListener('stomp.connected', () => {
             if (isFirstConnect) isFirstConnect = false;
