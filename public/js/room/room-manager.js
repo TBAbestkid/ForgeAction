@@ -251,23 +251,52 @@ if (btnSkip) btnSkip.disabled = true;
     function addOrUpdatePersonagem(member) {
         if (!member) return;
         const id = String(member.personagemId ?? member.id ?? '');
+        const usuarioId = String(member.usuarioId ?? member.userId ?? member.usuario_id ?? '');
+        const usuarioLogin = member.usuarioLogin ?? member.userLogin ?? member.login ?? '';
 
-        const existing = getCardById(id);
+        // 1) Try to find existing card by personagem id
+        let existing = id ? getCardById(id) : null;
+
+        // 2) If not found by id, try to find by usuarioId or usuarioLogin or nome
+        if (!existing && usuarioId) {
+            existing = document.querySelector(`.personagem-card[data-usuario-id="${usuarioId}"]`);
+        }
+        if (!existing && usuarioLogin) {
+            existing = Array.from(document.querySelectorAll('.personagem-card')).find(c => {
+                const cLogin = String(c.dataset.usuarioLogin || '');
+                const cUsuarioId = String(c.dataset.usuarioId || c.dataset['usuarioId'] || '');
+                const cNome = String(c.dataset.nome || '');
+                return cLogin === usuarioLogin || cUsuarioId === usuarioLogin || cNome === usuarioLogin || c.textContent.includes(usuarioLogin);
+            });
+        }
+
+        // 3) If found, update fields and return (avoid creating duplicate)
         if (existing) {
-            // atualiza atributos
-            if (member.nome) existing.dataset.nome = member.nome;
-            if (member.vida !== undefined) {
-                existing.dataset.vida = member.vida;
-                const bar = existing.querySelector('.progress-bar');
-                const vidaMax = parseInt(existing.dataset.vidaMax || member.vidaMax || member.vida || 0, 10) || 0;
-                if (bar) {
-                    bar.style.width = `${vidaMax ? (member.vida / vidaMax) * 100 : 0}%`;
-                    bar.textContent = `${member.vida}/${vidaMax}`;
-                }
+            if (id) existing.dataset.id = id;
+            if (id) existing.dataset.cardId = id;
+            if (usuarioId) existing.dataset.usuarioId = usuarioId;
+            if (usuarioLogin) existing.dataset.usuarioLogin = usuarioLogin;
+            existing.dataset.nome = member.nome ?? existing.dataset.nome;
+            const vidaVal = (member.vida ?? member.hp ?? existing.dataset.vida ?? 0);
+            const vidaMaxVal = (member.vidaMax ?? member.hpMax ?? existing.dataset.vidaMax ?? vidaVal);
+            existing.dataset.vida = String(vidaVal);
+            existing.dataset.vidaMax = String(vidaMaxVal);
+
+            const progressBar = existing.querySelector('.progress-bar');
+            if (progressBar) {
+                const v = parseInt(vidaVal, 10) || 0;
+                const vm = parseInt(vidaMaxVal, 10) || v || 1;
+                progressBar.style.width = `${(vm ? (v / vm * 100) : 0)}%`;
+                progressBar.textContent = `${v}/${vm} HP`;
             }
+
+            // Ensure card is visible (remove d-none if hidden)
+            existing.classList.remove('d-none');
+            updateMembersListsAdd(member);
             return;
         }
 
+        // 4) No existing card found -> create new one
         const container = findPersonagensContainer();
         const card = buildPersonagemCard(member);
 
@@ -776,31 +805,42 @@ if (btnSkip) btnSkip.disabled = true;
             const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
             if (entrou) {
                 const login = entrou[1].trim();
-                // Cria um membro mínimo a partir do login (servidor não enviou dados completos)
-                const member = {
-                    personagemId: `p_${login}`,
-                    usuarioId: `u_${login}`,
-                    nome: login,
-                    usuarioLogin: login,
-                    vida: 0,
-                    vidaMax: 0
-                };
-                addOrUpdatePersonagem(member);
-                debugLog('➕ Sistema: jogador entrou, adicionando membro baseado em sistema:', login);
+                // Tenta encontrar um card pré-renderizado relacionado a esse login/usuário
+                const cards = Array.from(document.querySelectorAll('.personagem-card'));
+                const found = cards.find(c => String(c.dataset.usuarioLogin) === login || String(c.dataset.usuarioId) === login || String(c.dataset.nome) === login || c.textContent.includes(login));
+                if (found) {
+                    // Mostra o card existente (caso estivesse oculto) e atualiza listas
+                    found.classList.remove('d-none');
+                    const member = {
+                        personagemId: found.dataset.id || found.dataset.cardId || found.dataset.personagemId,
+                        usuarioId: found.dataset.usuarioId || '',
+                        usuarioLogin: found.dataset.usuarioLogin || login,
+                        nome: found.dataset.nome || login,
+                        vida: found.dataset.vida || 0,
+                        vidaMax: found.dataset.vidaMax || 0
+                    };
+                    updateMembersListsAdd(member);
+                    debugLog('➕ Sistema: jogador entrou, mostrando card existente:', login);
+                } else {
+                    debugLog('➕ Sistema: jogador entrou, sem card pré-existente para:', login);
+                }
                 return;
             }
 
-            // Saiu da sala
+            // Saiu da sala — ocultamos o card, em vez de sempre removê-lo
             const saiu = msg.match(/(🔴|🟥|⚪|⛔)?\s*(.+?)\s+(saiu da sala|saiu)/i);
             if (saiu) {
                 const login = saiu[2].trim();
-                // tenta localizar card pelo nome/usuarioLogin e remover
                 const cards = Array.from(document.querySelectorAll('.personagem-card'));
-                const found = cards.find(c => String(c.dataset.nome) === login || String(c.dataset.usuarioLogin) === login || c.textContent.includes(login));
+                const found = cards.find(c => String(c.dataset.usuarioLogin) === login || String(c.dataset.usuarioId) === login || String(c.dataset.nome) === login || c.textContent.includes(login));
                 if (found) {
                     const pid = found.dataset.id || found.dataset.cardId || found.dataset.personagemId;
-                    removePersonagem(pid);
-                    debugLog('➖ Sistema: jogador saiu, removendo membro baseado em sistema:', login, pid);
+                    // Preferimos ocultar o card (adiciona d-none) para que o servidor mantenha a fonte de verdade
+                    found.classList.add('d-none');
+                    updateMembersListsRemove(pid);
+                    debugLog('➖ Sistema: jogador saiu, ocultando membro baseado em sistema:', login, pid);
+                } else {
+                    debugLog('➖ Sistema: jogador saiu, nenhum card encontrado para:', login);
                 }
                 return;
             }
