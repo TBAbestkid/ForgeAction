@@ -46,7 +46,7 @@
             @endif
         </div>
     </nav>
-
+ 
     {{-- Estrutura principal com 3 colunas --}}
     <div class="d-flex flex-grow-1 gap-3">
         {{-- Coluna 2: Área de imagens + chat --}}
