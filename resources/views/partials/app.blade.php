@@ -46,9 +46,15 @@
             <a class="navbar-brand" href="{{ url('/') }}">
                 <i class="fa-brands fa-d-and-d"></i> ForgeAction
             </a>
+
+            <!-- Botão para Dropdown -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                @if (@session('user_login'))
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Avatar">
+                @else
+                    <span class="navbar-toggler-icon"></span>
+                @endif
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
