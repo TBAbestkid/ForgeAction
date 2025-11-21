@@ -92,14 +92,21 @@
     @else
         {{-- Bloco dos cards de login, cadastro, sobre e download --}}
         <div class="container text-white d-flex flex-column align-items-center justify-content-center py-5">
-            <div class="card text-center mb-5 bg-dark p-4 rounded-3 shadow-lg d-flex flex-column align-items-center">
-                <img src="{{ asset('assets/images/forgeicon.png') }}" alt="ForgeAction Logo"
-                    class="mb-3" style="max-width:150px;">
-                <h1>ForgeAction</h1>
-                <p class="lead">Prepare-se para a aventura épica!</p>
+
+            <!-- LOGO e TÍTULO -->
+            <div class="card text-center mb-5 bg-dark p-4 rounded-3 shadow-lg d-flex flex-column align-items-center" style="max-width: 450px;">
+                <img src="{{ asset('assets/images/forgeicon.png') }}"
+                    alt="ForgeAction Logo"
+                    class="mb-3"
+                    style="max-width:150px;">
+
+                <h1 class="mb-2">ForgeAction</h1>
+                <p class="lead mb-0">Prepare-se para a aventura épica!</p>
             </div>
 
+            <!-- GRID DOS CARDS -->
             <div class="d-flex flex-wrap justify-content-center gap-4 w-100" style="max-width: 900px;">
+
                 <!-- Card Login -->
                 <div class="card bg-dark border-secondary shadow text-white text-center flex-fill"
                     style="min-width: 260px; max-width: 300px;">
@@ -130,7 +137,7 @@
                     </div>
                 </div>
 
-                <!-- Card Baixar App -->
+                <!-- Card Instalar App -->
                 <div id="installCard"
                     class="card bg-dark border-warning shadow text-white text-center flex-fill fade-in-card"
                     style="min-width: 260px; max-width: 300px; display:none;">
