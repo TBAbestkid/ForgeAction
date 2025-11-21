@@ -79,59 +79,43 @@ class SalaController extends Controller
 
     public function sendInvite(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'salaId' => 'required|integer'
-        ]);
-
-        $email = $request->email;
+        $emails = $request->emails;
         $salaId = $request->salaId;
         $userId = session('user_id');
 
-        // Log::info("sendInvite - dados extraídos", [
-        //     'email' => $email,
-        //     'salaId' => $salaId,
-        //     'userId' => $userId
-        // ]);
-
         // Busca a sala do dono
         $salasResponse = $this->api->get("api/salas/mestre/{$userId}");
-        // Log::info('sendInvite - resposta da API de salas', ['response' => $salasResponse]);
 
         if (!$salasResponse || !is_array($salasResponse) || count($salasResponse) === 0) {
-            // Log::error('sendInvite - erro ao recuperar salas', ['userId' => $userId]);
             return response()->json(['message' => 'Erro ao recuperar suas salas.'], 404);
         }
 
         // Procura a sala correta
         $sala = collect($salasResponse)->firstWhere('id', (int) $salaId);
-        // Log::info('sendInvite - sala encontrada', ['sala' => $sala]);
 
         if (!$sala) {
-            // Log::error('sendInvite - sala não encontrada', ['salaId' => $salaId]);
             return response()->json(['message' => 'Sala não encontrada.'], 404);
         }
 
-        // Verifica se o usuário logado é o mestre da sala
         if ($sala['mestre'] != $userId) {
-            // Log::warning('sendInvite - usuário não é mestre da sala', [
-            //     'userId' => $userId,
-            //     'sala' => $sala
-            // ]);
             return response()->json(['message' => 'Você não tem permissão para convidar nesta sala.'], 403);
         }
 
         $dono = session('user_login');
-        $token = Str::random(64);
 
-        // Salva no cache
-        Cache::put('invite_sala_' . $token, [
-            'email' => $email,
-            'salaId' => $salaId,
-            'donoId' => $userId,
-        ], now()->addMinutes(60));
+        $tokens = [];
 
-        Log::info('sendInvite - token gerado e salvo no cache', ['token' => $token]);
+        foreach ($emails as $email) {
+            $token = Str::random(64);
+
+            Cache::put('invite_sala_' . $token, [
+                'email' => $email,
+                'salaId' => $salaId,
+                'donoId' => $userId,
+            ], now()->addMinutes(60));
+
+            $tokens[$email] = route('api.invite.accept', ['token' => $token]);
+        }
 
         // Link de convite
         $inviteLink = route('api.invite.accept', ['token' => $token]);
@@ -147,17 +131,12 @@ class SalaController extends Controller
         $response = $this->api->post("api/email/enviar", [
             'assunto' => "Convite para a sala {$sala['nome']}",
             'corpo' => $html,
-            'destinatarios' => [$email],
+            'destinatarios' => $emails,
         ]);
 
-        Log::info('sendInvite - resposta da API de e-mail', ['response' => $response]);
-
         if (($response['status'] ?? '') !== 'success') {
-            Log::error('sendInvite - erro ao enviar e-mail', ['response' => $response]);
             return response()->json(['message' => $response['message'] ?? 'Erro ao enviar e-mail.'], 500);
         }
-
-        Log::info('sendInvite - convite enviado com sucesso', ['email' => $email, 'salaId' => $salaId]);
 
         return response()->json(['message' => 'Convite enviado com sucesso!']);
     }
@@ -332,6 +311,9 @@ class SalaController extends Controller
         $racas = collect($this->api->get("enums/racas")['data'] ?? []);
         $classes = collect($this->api->get("enums/classes")['data'] ?? []);
 
+        $racasMap = collect($racas)->pluck('descricao', 'constante');
+        $classesMap = collect($classes)->pluck('descricao', 'constante');
+
         // 🔹 Monta mapa de usuários (idealmente com endpoint em lote)
         $usuarios = $membros->pluck('usuarioId')->unique()->mapWithKeys(function ($idUsuario) {
             $res = $this->api->get("api/usuario/{$idUsuario}");
@@ -346,20 +328,14 @@ class SalaController extends Controller
             return $m;
         });
         // dd([]);
-        // 🔹 Personagem do usuário logado
-        $meuPersonagem = $membros->firstWhere('usuarioId', $userId);
+
 
         return view('room.room', [
             'sala'       => $sala,
             'isDono'     => $isDono,
             'membros'    => $membros,
-            'personagem' => $meuPersonagem,
-            // 'mestre'     => [
-            //     'usuarioId'    => $sala['mestre'],
-            //     'usuarioLogin' => $usuarios[$sala['usuarioId']] ?? 'Mestre',
-            //     'racaDescricao' => 'Mestre',
-            //     'classeDescricao' => 'Narrador',
-            // ],
+            'racasMap'   => $racasMap,
+            'classesMap' => $classesMap
         ]);
     }
 
