@@ -46,7 +46,7 @@
             @endif
         </div>
     </nav>
- 
+
     {{-- Estrutura principal com 3 colunas --}}
     <div class="d-flex flex-grow-1 gap-3">
         {{-- Coluna 2: Área de imagens + chat --}}
@@ -168,8 +168,8 @@
                             <div id="info-personagem-{{ $m['personagemId'] }}" class="collapse mt-1"
                                 style="min-height: auto; max-height: 25vh; overflow: hidden;">
                                 <div class="bg-dark rounded p-1 text-start text-light" style="font-size: 0.7rem;">
-                                    <strong>Raça:</strong> {{ $m['raca'] }}<br>
-                                    <strong>Classe:</strong> {{ $m['classe'] }}<br>
+                                    <strong>Classe:</strong> {{ $classesMap[$m['classe']] ?? $m['classe'] }}<br>
+                                    <strong>Raça:</strong> {{ $racasMap[$m['raca']] ?? $m['raca'] }}<br>
                                     <strong>Nível:</strong> {{ $m['level'] }}<br>
                                 </div>
                             </div>
