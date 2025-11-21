@@ -401,6 +401,10 @@
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
 <script type="module" src="{{ asset('js/room/dice-manager.js') }}"></script>
+<script src="{{ asset('js/room/gameFlow.js') }}"></script>
+<script src="{{ asset('js/room/turnUIManager.js') }}"></script>
+<script src="{{ asset('js/room/turnManager.js') }}"></script>
+<script src="{{ asset('js/room/personagensManager.js') }}"></script>
 {{-- Ativar tooltips --}}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
