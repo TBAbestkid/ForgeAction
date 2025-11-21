@@ -31,8 +31,11 @@ function buildPersonagemCard(member) {
 
     card.innerHTML = `
         <strong class="small">${nome}</strong>
-        <div class="progress mt-1 w-100" style="height: 14px; font-size:0.7rem;">
-            <div class="progress-bar bg-success d-flex justify-content-center align-items-center" role="progressbar" style="width: ${(vidaMax? (vida/vidaMax*100):0)}%;">${vida}/${vidaMax}</div>
+        <div class="d-flex align-items-center gap-1">
+            <div class="progress mt-1 flex-grow-1" style="height: 14px; font-size:0.7rem;">
+                <div class="progress-bar bg-success d-flex justify-content-center align-items-center" role="progressbar" style="width: ${(vidaMax? (vida/vidaMax*100):0)}%;">${vida}/${vidaMax}</div>
+            </div>
+            <i class="fa-solid fa-circle status-online-indicator text-success" style="font-size: 0.6rem;" title="Online"></i>
         </div>
         <div id="info-personagem-${id}" class="collapse mt-1" style="min-height: auto; max-height: 25vh; overflow: hidden;">
             <div class="bg-dark rounded p-1 text-start text-light" style="font-size: 0.7rem;">
