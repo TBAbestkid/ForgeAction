@@ -35,6 +35,7 @@
     let ultimoDadoRolado = null;
     let timeoutLimpezaDado = null; // Para controlar timeout de limpeza do dado
     let ocultarDadosAtivo = false; // Flag para ocultar valores dos dados
+    let usuariosOn = []; // Lista de usuários online com { usuarioId, usuarioLogin }
 
     // ====== UI ELEMENTS ======
     const personagensContainer = document.getElementById('personagens-container') ||
@@ -132,6 +133,7 @@
                     tipo: 'sistema',
                     conteudo: msg,
                     autor: '🤖 Sistema',
+                    usuarioId: userId,
                     salaId: salaId
                 });
             }, { once: true });
@@ -143,6 +145,7 @@
             tipo: 'sistema',
             conteudo: msg,
             autor: '🤖 Sistema',
+            usuarioId: userId,
             salaId: salaId
         });
     }
@@ -176,6 +179,61 @@
             salaId,
             timestamp: Date.now(),
             ...obj
+        });
+    }
+
+    // ===== GERENCIAMENTO DE PRESENÇA =====
+    function adicionarUsuarioOn(usuarioId, usuarioLogin) {
+        const usuarioId_str = String(usuarioId);
+
+        // Verifica se já existe
+        if (usuariosOn.find(u => String(u.usuarioId) === usuarioId_str)) {
+            return; // Já está na lista
+        }
+
+        // Adiciona à lista
+        usuariosOn.push({ usuarioId: usuarioId_str, usuarioLogin });
+        debugLog('🟢 Usuário online:', { usuarioId: usuarioId_str, usuarioLogin, total: usuariosOn.length });
+
+        // Atualiza visual do card
+        atualizarStatusPersonagem(usuarioId_str, true);
+    }
+
+    function removerUsuarioOn(usuarioId) {
+        const usuarioId_str = String(usuarioId);
+        const index = usuariosOn.findIndex(u => String(u.usuarioId) === usuarioId_str);
+
+        if (index !== -1) {
+            const usuario = usuariosOn[index];
+            usuariosOn.splice(index, 1);
+            debugLog('🔴 Usuário offline:', { usuarioId: usuarioId_str, usuario, total: usuariosOn.length });
+
+            // Atualiza visual do card
+            atualizarStatusPersonagem(usuarioId_str, false);
+        }
+    }
+
+    function atualizarStatusPersonagem(usuarioId, isOnline) {
+        const usuarioId_str = String(usuarioId);
+
+        // Encontra o personagem deste usuário
+        const cards = document.querySelectorAll('.personagem-card');
+        cards.forEach(card => {
+            if (String(card.dataset.usuarioId) === usuarioId_str) {
+                const statusIndicador = card.querySelector('.status-online-indicator');
+
+                if (statusIndicador) {
+                    if (isOnline) {
+                        statusIndicador.classList.remove('text-danger');
+                        statusIndicador.classList.add('text-success');
+                        statusIndicador.title = 'Online';
+                    } else {
+                        statusIndicador.classList.remove('text-success');
+                        statusIndicador.classList.add('text-danger');
+                        statusIndicador.title = 'Offline';
+                    }
+                }
+            }
         });
     }
 
@@ -250,74 +308,26 @@
         if (data.tipo === 'sistema' && typeof data.conteudo === 'string') {
             const msg = data.conteudo;
 
-            // Entrou na sala (uses the same format used by enviarSistema)
+            // Entrou na sala
             const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
-            if (entrou) {
-                const login = entrou[1].trim();
-                // Tenta encontrar um card pré-renderizado relacionado a esse login/usuário
-                const cards = Array.from(document.querySelectorAll('.personagem-card'));
-                const found = cards.find(c => String(c.dataset.usuarioLogin) === login || String(c.dataset.usuarioId) === login || String(c.dataset.nome) === login || c.textContent.includes(login));
-                if (found) {
-                    // Mostra o card existente (caso estivesse oculto) e atualiza listas
-                    found.classList.remove('d-none');
-                    const member = {
-                        personagemId: found.dataset.id || found.dataset.cardId || found.dataset.personagemId,
-                        usuarioId: found.dataset.usuarioId || '',
-                        usuarioLogin: found.dataset.usuarioLogin || login,
-                        nome: found.dataset.nome || login,
-                        vida: found.dataset.vida || 0,
-                        vidaMax: found.dataset.vidaMax || 0
-                    };
-                    updateMembersListsAdd(member);
-                    debugLog('➕ Sistema: jogador entrou, mostrando card existente:', login);
-                } else {
-                    debugLog('➕ Sistema: jogador entrou, sem card pré-existente para:', login);
-                }
-                return;
+            if (entrou && data.usuarioId) {
+                const usuarioLogin = entrou[1];
+                adicionarUsuarioOn(data.usuarioId, usuarioLogin);
+                debugLog('✅ Capturado entrada:', { usuarioId: data.usuarioId, usuarioLogin });
             }
 
-            // Saiu da sala — ocultamos o card, em vez de sempre removê-lo
-            const saiu = msg.match(/(🔴|🟥|⚪|⛔)?\s*(.+?)\s+(saiu da sala|saiu)/i);
-            if (saiu) {
-                const login = saiu[2].trim();
-                const cards = Array.from(document.querySelectorAll('.personagem-card'));
-                const found = cards.find(c => String(c.dataset.usuarioLogin) === login || String(c.dataset.usuarioId) === login || String(c.dataset.nome) === login || c.textContent.includes(login));
-                if (found) {
-                    const pid = found.dataset.id || found.dataset.cardId || found.dataset.personagemId;
-                    // Preferimos ocultar o card (adiciona d-none) para que o servidor mantenha a fonte de verdade
-                    found.classList.add('d-none');
-                    updateMembersListsRemove(pid);
-                    debugLog('➖ Sistema: jogador saiu, ocultando membro baseado em sistema:', login, pid);
-                } else {
-                    debugLog('➖ Sistema: jogador saiu, nenhum card encontrado para:', login);
-                }
-                return;
+            // Saiu da sala
+            const saiu = msg.match(/🔴\s*(.+?)\s+saiu da sala/i);
+            if (saiu && data.usuarioId) {
+                removerUsuarioOn(data.usuarioId);
+                debugLog('✅ Capturada saída:', { usuarioId: data.usuarioId });
             }
+            return;
         }
 
         const card = data.personagemId ? getCardById(String(data.personagemId)) : null;
 
         switch (data.acao) {
-            case 'playerJoined':
-                // Espera-se que o servidor envie um objeto 'member' ou 'personagem'
-                const member = data.member || data.personagem || data.user;
-                if (member) {
-                    addOrUpdatePersonagem(member);
-                    debugLog('➕ Player joined, updated list:', member);
-                }
-                break;
-
-            case 'playerLeft':
-                // Espera-se que o servidor envie 'personagemId' ou 'id'
-                const pidLeft = data.personagemId || data.id || (data.personagem && data.personagem.id);
-                if (pidLeft) {
-                    removePersonagem(pidLeft);
-                    // Também remover da ordem de turnos se presente
-                    ordemTurnos = ordemTurnos.filter(p => String(p.personagemId) !== String(pidLeft));
-                    debugLog('➖ Player left, removed:', pidLeft);
-                }
-                break;
-
             case 'ordemTurnos':
                 ordemTurnos = (data.ordem || []).map(o => ({
                     nome: o.nome,
@@ -579,6 +589,9 @@
 
         // Configura WebSocket
         setupWebSocket();
+
+        // Inicializa presença do usuário atual
+        verificarEInicializarPresenca();
 
         // Registra listeners de interface
         if (btnRoll) {
