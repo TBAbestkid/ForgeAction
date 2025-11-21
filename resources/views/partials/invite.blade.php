@@ -12,9 +12,7 @@
             <div class="modal-body">
                 <label for="selectUser" class="form-label">Pesquisar e selecionar usuários:</label>
 
-                <select id="selectUser" class="form-select select2-multi w-auto w-75" >
-                    <option value="">Selecione um usuário</option>
-                </select>
+                <select id="selectUser" class="form-select select2-multi w-100" multiple="multiple"></select>
 
                 <div id="selectedUsers" class="d-flex flex-wrap gap-2 mt-2">
                     <!-- Tags de usuários selecionados aparecerão aqui -->
