@@ -75,6 +75,27 @@ $(document).ready(function () {
                                 width: '100%',
                                 allowClear: true
                             });
+
+                            // 6️⃣ Atualiza a lista de usuários selecionados
+                            select.on('change', function () {
+                                const emails = $(this).val();
+                                const div = $('#selectedUsers');
+
+                                div.empty();
+
+                                if (!emails || emails.length === 0) return;
+
+                                emails.forEach(email => {
+                                    const user = usuarios.find(u => u.email === email);
+
+                                    div.append(`
+                                        <span class="badge bg-success px-3 py-2 d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-user"></i>
+                                            ${user ? user.login : email}
+                                        </span>
+                                    `);
+                                });
+                            });
                         }
 
                         $('#btnSendInvite').data('sala-id', salaIdClicada);
