@@ -70,9 +70,9 @@ $(document).ready(function () {
 
                             select.select2({
                                 theme: 'bootstrap-5',
-                                placeholder: 'Selecione ou procure um usuário...',
+                                placeholder: 'Selecione um ou mais usuários...',
                                 dropdownParent: $('#inviteModal'),
-                                width: 'resolve',
+                                width: '100%',
                                 allowClear: true
                             });
                         }
@@ -95,17 +95,21 @@ $(document).ready(function () {
     // ======================
     $('#btnSendInvite').click(function () {
         const salaId = $(this).data('sala-id') || getSalaId();
-        const email = $('#selectUser').val();
+        const emails = $('#selectUser').val();
 
-        if (!email || email.length === 0)
-            return showAlert('Selecione um usuário para enviar o convite.');
+        if (!emails || emails.length === 0)
+            return showAlert('Selecione ao menos um usuário para enviar convite.');
 
         $.ajax({
             url: '/api/enviar-invite',
             type: 'POST',
-            data: { _token: token, salaId: salaId, email: email },
+            data: {
+                _token: token,
+                salaId: salaId,
+                emails: emails
+            },
             success: function (res) {
-                showToast(res.message || 'Convite enviado!');
+                showToast(res.message || 'Convites enviados!');
                 bootstrap.Modal.getInstance('#inviteModal').hide();
             },
             error: function (xhr) {
