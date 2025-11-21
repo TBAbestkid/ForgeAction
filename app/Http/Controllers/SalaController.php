@@ -335,7 +335,8 @@ class SalaController extends Controller
             'isDono'     => $isDono,
             'membros'    => $membros,
             'racasMap'   => $racasMap,
-            'classesMap' => $classesMap
+            'classesMap' => $classesMap,
+            'personagemAtual' => $membros->firstWhere('usuarioId', $userId)
         ]);
     }
 
