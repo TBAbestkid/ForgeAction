@@ -19,11 +19,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # Habilita mod_rewrite e módulos de proxy
 RUN a2enmod rewrite proxy proxy_http proxy_wstunnel
 
-# Configura Apache para portas 8080 e 8443
+# Configura Apache para portas 8080
 RUN echo "Listen 8080" > /etc/apache2/ports.conf \
-    && echo "Listen 8443" >> /etc/apache2/ports.conf \
     && sed -ri -e "s!<VirtualHost \*:80>!<VirtualHost *:8080>!g" /etc/apache2/sites-available/*.conf \
-    && sed -ri -e "s!<VirtualHost \*:443>!<VirtualHost *:8443>!g" /etc/apache2/sites-available/*.conf \
     && sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf \
     && sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
