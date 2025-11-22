@@ -132,6 +132,7 @@
                             style="cursor: pointer; font-size: 0.85rem;"
                             data-card-id="{{ $m['personagemId'] }}"
                             data-id="{{ $m['personagemId'] }}"
+                            data-online="false"
                             data-vida-max="{{ $m['vida'] }}"
                             data-nome="{{ $m['nome'] }}"
                             data-raca="{{ $m['raca'] }}"
@@ -157,7 +158,7 @@
                             data-defesa="{{ $m['defesaPersonagem'] }}"
                             data-esquiva="{{ $m['esquivaPersonagem'] }}"
                             data-iniciativa="{{ $m['iniciativa'] }}">
-                            <strong class="small">{{ $m['nome'] }}</strong>
+                            <strong class="small personagem-nome">{{ $m['nome'] }}<span data-online-dot class="status-dot offline"></span></strong>
                             <div class="progress mt-1 w-100" style="height: 14px; font-size:0.7rem;">
                                 <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
                                     role="progressbar"
@@ -289,8 +290,8 @@
                     <div class="tab-pane fade" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
                         <div class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
                             @foreach ($membros as $m)
-                                <div class="bg-dark rounded p-2 text-white text-center">
-                                    <strong class="small">{{ $m['nome'] }}</strong>
+                                <div class="bg-dark rounded p-2 text-white text-center" data-personagem-id="{{ $m['personagemId'] }}">
+                                    <strong class="small">{{ $m['nome'] }} <span class="members-list-dot offline"></span></strong>
                                     <div class="progress mt-1" style="height: 12px;">
                                         <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;"></div>
                                     </div>
@@ -318,25 +319,25 @@
                     {{-- 🔹 Primeiro o Mestre (dono da sala) --}}
                     @if(isset($sala['mestre']))
                         @php
-                            $mestre = collect($membros)->firstWhere('usuarioId', $sala['mestre']);
-                        @endphp
+                                $mestre = collect($membros)->firstWhere('usuarioId', $sala['mestre']);
+                            @endphp
 
-                        <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fa-solid fa-crown text-warning me-2"></i>
-                                <strong>{{ $mestre['usuarioLogin'] ?? 'Mestre' }}</strong>
-                            </div>
-                            <span><i class="fa-solid fa-circle text-success"></i></span>
-                        </li>
-                    @endif
+                            <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fa-solid fa-crown text-warning me-2"></i>
+                                    <strong>{{ $mestre['usuarioLogin'] ?? 'Mestre' }}</strong>
+                                </div>
+                                <span><span class="members-list-dot offline"></span></span>
+                            </li>
+                        @endif
 
                     {{-- 🔹 Depois os Players (exceto o mestre) --}}
                     @foreach($membros as $membro)
                         @continue(isset($sala['mestre']) && $membro['usuarioId'] == $sala['mestre']) {{-- Pula o mestre --}}
 
-                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center" data-personagem-id="{{ $membro['personagemId'] }}">
                             {{ $membro['usuarioLogin'] ?? 'Jogador Desconhecido' }}
-                            <span><i class="fa-solid fa-circle text-success"></i></span>
+                            <span><span class="members-list-dot offline"></span></span>
                         </li>
                     @endforeach
                 </ul>
