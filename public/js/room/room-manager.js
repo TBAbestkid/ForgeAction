@@ -216,21 +216,38 @@
     function atualizarStatusPersonagem(usuarioId, isOnline) {
         const usuarioId_str = String(usuarioId);
 
-        // Encontra o personagem deste usuário
+        // Encontra o(s) personagem(s) deste usuário e atualiza o indicador
         const cards = document.querySelectorAll('.personagem-card');
         cards.forEach(card => {
             if (String(card.dataset.usuarioId) === usuarioId_str) {
-                const statusIndicador = card.querySelector('.status-online-indicator');
+                // Update dataset
+                card.dataset.online = isOnline ? 'true' : 'false';
 
-                if (statusIndicador) {
-                    if (isOnline) {
-                        statusIndicador.classList.remove('text-danger');
-                        statusIndicador.classList.add('text-success');
-                        statusIndicador.title = 'Online';
-                    } else {
-                        statusIndicador.classList.remove('text-success');
-                        statusIndicador.classList.add('text-danger');
-                        statusIndicador.title = 'Offline';
+                // Prefer helper if available
+                if (typeof window.setPersonagemOnline === 'function') {
+                    const pid = card.dataset.id || card.dataset.cardId;
+                    if (pid) window.setPersonagemOnline(pid, !!isOnline);
+                    return;
+                }
+
+                // Fallback: update dot directly
+                const dot = card.querySelector('[data-online-dot]') || card.querySelector('.status-online-indicator');
+                if (dot) {
+                    dot.classList.toggle('online', !!isOnline);
+                    dot.classList.toggle('offline', !isOnline);
+                    dot.title = isOnline ? 'Online' : 'Offline';
+                }
+
+                // Also update offcanvas list if present (by personagem id)
+                const pid = card.dataset.id || card.dataset.cardId;
+                if (pid) {
+                    const li = document.querySelector(`#lista-membros [data-personagem-id="${pid}"]`);
+                    if (li) {
+                        const listDot = li.querySelector('.members-list-dot');
+                        if (listDot) {
+                            listDot.classList.toggle('online', !!isOnline);
+                            listDot.classList.toggle('offline', !isOnline);
+                        }
                     }
                 }
             }

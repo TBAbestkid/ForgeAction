@@ -471,6 +471,8 @@
 
 {{-- Scripts principais, ordem importante! --}}
 {{-- 1. Serviço WebSocket (fundamental) --}}
+<!-- Status styles for personagens (inline file) -->
+<link rel="stylesheet" href="{{ asset('css/room-status.css') }}">
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
 
 {{-- 2. Gerenciadores da sala --}}

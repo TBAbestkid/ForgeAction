@@ -1,0 +1,36 @@
+/* Status dot for personagem cards */
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 6px;
+    vertical-align: middle;
+    background: #9ca3af; /* offline default */
+    transition: background .2s, box-shadow .2s, transform .08s;
+}
+.status-dot.online {
+    background: #10b981; /* verde */
+    box-shadow: 0 0 0 4px rgba(16,185,129,0.12);
+}
+.status-dot.offline {
+    background: #9ca3af;
+}
+.personagem-nome {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Small helper for list indicators */
+.members-list-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 6px;
+    vertical-align: middle;
+    background: #9ca3af;
+}
+.members-list-dot.online { background: #10b981; }
+.members-list-dot.offline { background: #9ca3af; }

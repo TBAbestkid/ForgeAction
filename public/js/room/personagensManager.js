@@ -29,20 +29,54 @@ function buildPersonagemCard(member) {
     card.dataset.usuarioId = usuarioId;
     card.dataset.iniciativa = iniciativa;
 
-    card.innerHTML = `
-        <strong class="small">${nome}</strong>
-        <div class="d-flex align-items-center gap-1">
-            <div class="progress mt-1 flex-grow-1" style="height: 14px; font-size:0.7rem;">
-                <div class="progress-bar bg-success d-flex justify-content-center align-items-center" role="progressbar" style="width: ${(vidaMax? (vida/vidaMax*100):0)}%;">${vida}/${vidaMax}</div>
-            </div>
-            <i class="fa-solid fa-circle status-online-indicator text-success" style="font-size: 0.6rem;" title="Online"></i>
-        </div>
-        <div id="info-personagem-${id}" class="collapse mt-1" style="min-height: auto; max-height: 25vh; overflow: hidden;">
-            <div class="bg-dark rounded p-1 text-start text-light" style="font-size: 0.7rem;">
-                <strong>Jogador:</strong> ${nome}<br>
-            </div>
-        </div>
-    `;
+    // default online flag (can be overridden via member.online)
+    card.dataset.online = (member?.online ? 'true' : 'false');
+
+    // Build inner structure with explicit status dot
+    const nomeEl = document.createElement('strong');
+    nomeEl.className = 'small personagem-nome';
+    nomeEl.textContent = nome;
+
+    const statusDot = document.createElement('span');
+    statusDot.setAttribute('data-online-dot', '');
+    statusDot.className = (member?.online ? 'status-dot online' : 'status-dot offline');
+    nomeEl.appendChild(statusDot);
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'd-flex align-items-center gap-1';
+
+    const progressWrap = document.createElement('div');
+    progressWrap.className = 'progress mt-1 flex-grow-1';
+    progressWrap.style.height = '14px';
+    progressWrap.style.fontSize = '0.7rem';
+
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress-bar bg-success d-flex justify-content-center align-items-center';
+    progressBar.setAttribute('role', 'progressbar');
+    const percent = (vidaMax ? (vida / vidaMax * 100) : 0);
+    progressBar.style.width = `${percent}%`;
+    progressBar.textContent = `${vida}/${vidaMax}`;
+
+    progressWrap.appendChild(progressBar);
+    wrapper.appendChild(progressWrap);
+
+    card.appendChild(nomeEl);
+    card.appendChild(wrapper);
+
+    const collapse = document.createElement('div');
+    collapse.id = `info-personagem-${id}`;
+    collapse.className = 'collapse mt-1';
+    collapse.style.minHeight = 'auto';
+    collapse.style.maxHeight = '25vh';
+    collapse.style.overflow = 'hidden';
+
+    const collapseInner = document.createElement('div');
+    collapseInner.className = 'bg-dark rounded p-1 text-start text-light';
+    collapseInner.style.fontSize = '0.7rem';
+    collapseInner.innerHTML = `<strong>Jogador:</strong> ${nome}<br>`;
+
+    collapse.appendChild(collapseInner);
+    card.appendChild(collapse);
 
     return card;
 }
@@ -89,6 +123,25 @@ function addOrUpdatePersonagem(member) {
             progressBar.textContent = `${v}/${vm} HP`;
         }
 
+        // Update online flag if provided
+        if (typeof member.online !== 'undefined') {
+            existing.dataset.online = member.online ? 'true' : 'false';
+            const dot = existing.querySelector('[data-online-dot]');
+            if (dot) {
+                dot.classList.toggle('online', !!member.online);
+                dot.classList.toggle('offline', !member.online);
+            }
+            // Also update any indicator inside offcanvas/mobile lists
+            const listaItem = document.querySelector(`#lista-membros [data-personagem-id="${id}"]`);
+            if (listaItem) {
+                const dotEl = listaItem.querySelector('.members-list-dot');
+                if (dotEl) {
+                    dotEl.classList.toggle('online', !!member.online);
+                    dotEl.classList.toggle('offline', !member.online);
+                }
+            }
+        }
+
         // Ensure card is visible (remove d-none if hidden)
         existing.classList.remove('d-none');
         updateMembersListsAdd(member);
@@ -132,7 +185,14 @@ function updateMembersListsAdd(member) {
             const li = document.createElement('li');
             li.className = 'list-group-item bg-dark text-light d-flex justify-content-between align-items-center';
             li.dataset.personagemId = member.personagemId;
-            li.innerHTML = `${member.usuarioLogin ?? member.nome ?? 'Jogador'}<span><i class="fa-solid fa-circle text-success"></i></span>`;
+            const name = document.createElement('span');
+            name.textContent = (member.usuarioLogin ?? member.nome ?? 'Jogador');
+            const dotWrap = document.createElement('span');
+            const dot = document.createElement('span');
+            dot.className = (member.online ? 'members-list-dot online' : 'members-list-dot offline');
+            dotWrap.appendChild(dot);
+            li.appendChild(name);
+            li.appendChild(dotWrap);
             lista.appendChild(li);
         }
     }
@@ -147,6 +207,9 @@ function updateMembersListsAdd(member) {
             el.className = 'bg-dark rounded p-2 text-white text-center';
             el.dataset.personagemId = member.personagemId;
             el.innerHTML = `<strong class="small">${member.nome ?? member.usuarioLogin ?? 'Jogador'}</strong><div class="progress mt-1" style="height: 12px;"><div class="progress-bar bg-success" role="progressbar" style="width: 100%;"></div></div>`;
+            const dot = document.createElement('span');
+            dot.className = (member.online ? 'members-list-dot online' : 'members-list-dot offline');
+            el.appendChild(dot);
             const target = document.querySelector('#mobile-players .d-flex') || document.querySelector('#mobile-players');
             target.appendChild(el);
         }
@@ -171,3 +234,28 @@ window.addOrUpdatePersonagem = addOrUpdatePersonagem;
 window.removePersonagem = removePersonagem;
 window.updateMembersListsAdd = updateMembersListsAdd;
 window.updateMembersListsRemove = updateMembersListsRemove;
+
+function setPersonagemOnline(personagemId, online) {
+    if (!personagemId) return;
+    const id = String(personagemId);
+    const card = document.querySelector(`.personagem-card[data-id="${id}"]`);
+    if (card) {
+        card.dataset.online = online ? 'true' : 'false';
+        const dot = card.querySelector('[data-online-dot]');
+        if (dot) {
+            dot.classList.toggle('online', !!online);
+            dot.classList.toggle('offline', !online);
+        }
+    }
+    // update offcanvas list
+    const li = document.querySelector(`#lista-membros [data-personagem-id="${id}"]`);
+    if (li) {
+        const dotEl = li.querySelector('.members-list-dot');
+        if (dotEl) {
+            dotEl.classList.toggle('online', !!online);
+            dotEl.classList.toggle('offline', !online);
+        }
+    }
+}
+
+window.setPersonagemOnline = setPersonagemOnline;
