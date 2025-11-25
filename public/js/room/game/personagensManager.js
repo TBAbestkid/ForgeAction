@@ -2,7 +2,7 @@ function adicionarPersonagemOnline(usuarioId, salaId) {
     const colunaPersonagens = document.getElementById('coluna-personangens');
     let personagem;
     $.ajax({
-        url: `/view/salas/personagens/listar/${salaId}`,
+        url: `/api/salas/personagens/listar/${salaId}`,
         method: "GET",
         data: { _token: csrfToken },
         success: function (response) {
@@ -10,7 +10,7 @@ function adicionarPersonagemOnline(usuarioId, salaId) {
                 console.log('Nenhum personagem encontrado');
                 return;
             }
-            personagem = response.find(p => p.usuarioId === usuarioId);
+            personagem = response.filter(p => p.usuarioId === usuarioId);
             if (!personagem) {
                 console.log('Personagem do usuário não encontrado na sala');
                 return;
