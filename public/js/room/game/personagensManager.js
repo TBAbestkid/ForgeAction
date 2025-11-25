@@ -1,6 +1,7 @@
 function adicionarPersonagemOnline(usuarioId, salaId) {
     const colunaPersonagens = document.getElementById('coluna-personangens');
     let personagem;
+    const arrayPlayersOnline = new Array();
     $.ajax({
         url: `/api/salas/personagens/listar/${salaId}`,
         method: "GET",
@@ -16,6 +17,10 @@ function adicionarPersonagemOnline(usuarioId, salaId) {
                 return;
             }
 
+            if (arrayPlayersOnline.filter(p => p.id === personagem.id)) {
+                console.log(`Personagem ${personagem.nome} já está na lista de online.`);
+                return;
+            }
 
             const personagemDiv = document.createElement('div');
             personagemDiv.className = 'bg-dark rounded p-1 text-center d-flex flex-column align-items-center';
@@ -24,6 +29,7 @@ function adicionarPersonagemOnline(usuarioId, salaId) {
 
             colunaPersonagens.appendChild(personagemDiv);
             console.log(`Personagem ${personagem.nome} adicionado à lista de online.`);
+            arrayPlayersOnline.push(personagem);
         }
     });
 }
