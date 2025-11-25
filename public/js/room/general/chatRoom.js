@@ -81,12 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'sistema':
                 addMessage(data.conteudo, '🤖 Sistema', true);
                 break;
-            case 'entrada':
-                // Mensagens de entrada/saída vão como chat, não como sistema
-                addMessage(`🟢 ${data.autor} entrou na sala`, '🤖 Sistema', false);
+            case 'playerEnter':
+                // ✅ Usa userLogin (enviado do roomManager)
+                const nomeEntrada = data.userLogin || data.autor || 'Desconhecido';
+                addMessage(`🟢 ${nomeEntrada} entrou na sala`, '🤖 Sistema', false);
                 break;
-            case 'saida':
-                addMessage(`🔴 ${data.autor} saiu da sala`, '🤖 Sistema', false);
+            case 'playerExit':
+                const nomeSaida = data.userLogin || data.autor || 'Desconhecido';
+                addMessage(`🔴 ${nomeSaida} saiu da sala`, '🤖 Sistema', false);
                 break;
             case 'erro':
                 addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema', true);
