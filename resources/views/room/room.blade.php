@@ -184,9 +184,9 @@
                     {{--2 botões em uma linha flexível --}}
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
                         {{-- 🔹 Lançar Dados --}}
-                                <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
-                                <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
-                        </div>
+                        <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
+                        <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
+                    </div>
                 </div>
                 @endif
 
@@ -350,11 +350,11 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
-<script type="module" src="{{ asset('js/room/diceManager.js') }}"></script>
-<script src="{{ asset('js/room/gameFlow.js') }}"></script>
-<script src="{{ asset('js/room/turnUIManager.js') }}"></script>
-<script src="{{ asset('js/room/turnManager.js') }}"></script>
-<script src="{{ asset('js/room/personagensManager.js') }}"></script>
+<script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
+<script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
+<script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
+<script src="{{ asset('js/room/game/turnManager.js') }}"></script>
+<script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
 {{-- Ativar tooltips --}}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -426,13 +426,13 @@
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
 
 {{-- 2. Gerenciadores da sala --}}
-<script src="{{ asset('js/room/chatRoom.js') }}"></script>
-<script src="{{ asset('js/room/roomManager.js') }}"></script>
+<script src="{{ asset('js/room/general/chatRoom.js') }}"></script>
+<script src="{{ asset('js/room/game/roomManager.js') }}"></script>
 
 {{-- Scripts auxiliares --}}
-<script src="{{ asset('js/room/exit.js') }}"></script>
-<script src="{{ asset('js/room/invite.js') }}"></script>
-<script src="{{ asset('js/room/delete.js') }}"></script>
+<script src="{{ asset('js/room/general/exit.js') }}"></script>
+<script src="{{ asset('js/room/general/invite.js') }}"></script>
+<script src="{{ asset('js/room/general/delete.js') }}"></script>
 
 @endsection
 
