@@ -71,7 +71,7 @@ function adicionarPersonagemOnline(usuarioId, salaId, isMestre) {
             colunaMobile.appendChild(personagemMobile);
 
             // 🔹 DOT correto
-            atualizarDot(personagem.id, true);
+            atualizarDot(personagem.usuarioId, true);
 
             arrayPlayersOnline.push(personagem);
 
@@ -92,15 +92,15 @@ function removerPersonagemOnline(personagemId) {
     if (mb && mb.parentNode) mb.parentNode.removeChild(mb);
 
     // DOT no offcanvas
-    atualizarDot(personagemId, false);
+    atualizarDot(personagem.usuarioId || personagemId, false);
 
     console.log(`Personagem ID ${personagemId} removido da lista de online.`);
 }
 
 
-function atualizarDot(personagemId, isOnline) {
+function atualizarDot(usuarioId, isOnline) {
     const item = document.querySelector(
-        `#lista-membros li[data-personagem-id="${personagemId}"]`
+        `#lista-membros li[data-user-id="${usuarioId}"]`
     );
 
     if (!item) return;
