@@ -35,6 +35,7 @@
         document.addEventListener('stomp.connected', () => {
             debugLog('✅ WebSocket conectado!');
             ws.subscribe(channel, onReceiveAction);
+            enviarSistema(`🟢 ${userLogin} entrou na sala`);
         });
 
         // Eventos de erro e desconexão
@@ -51,7 +52,6 @@
         const status = ws.getStatus();
         if (status.isConnected) {
             ws.subscribe(channel, onReceiveAction);
-            enviarSistema(`🟢 ${userLogin} entrou na sala`);
         }
     }
 
@@ -129,7 +129,7 @@
 
         if (data.tipo === 'sistema' && typeof data.conteudo === 'string') {
             const msg = data.conteudo;
-            
+
             const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
             if (entrou && data.usuarioId) {
                 adicionarPersonagemOnline(data.usuarioId, salaId);
