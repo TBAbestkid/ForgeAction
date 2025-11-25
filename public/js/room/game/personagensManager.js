@@ -2,7 +2,7 @@ function adicionarPersonagemOnline(usuarioId, salaId) {
     const colunaPersonagens = document.getElementById('coluna-personangens');
     let personagem;
     $.ajax({
-        url: `/salas/personagens/listar/${salaId}`,
+        url: `/view/salas/personagens/listar/${salaId}`,
         method: "GET",
         data: { _token: csrfToken },
         success: function (response) {
