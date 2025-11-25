@@ -123,59 +123,8 @@
 
                 {{-- Coluna direita (personagens) --}}
                 <div id="coluna-personangens" class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
-                    @foreach ($membros as $m)
-                        <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#info-personagem-{{ $m['personagemId'] }}"
-                            aria-expanded="false"
-                            aria-controls="info-personagem-{{ $m['personagemId'] }}"
-                            style="cursor: pointer; font-size: 0.85rem;"
-                            data-card-id="{{ $m['personagemId'] }}"
-                            data-id="{{ $m['personagemId'] }}"
-                            data-online="false"
-                            data-vida-max="{{ $m['vida'] }}"
-                            data-nome="{{ $m['nome'] }}"
-                            data-raca="{{ $m['raca'] }}"
-                            data-classe="{{ $m['classe'] }}"
-                            data-level="{{ $m['level'] }}"
-                            data-vida="{{ $m['vida'] }}"
-                            data-mana="{{ $m['mana'] }}"
-                            data-usuario-id="{{ $m['usuarioId'] }}"
-                                data-usuario-id="{{ $m['usuarioId'] ?? '' }}"
-                                data-usuario-login="{{ $m['usuarioLogin'] ?? '' }}"
-                                data-vida="{{ $m['vida'] ?? 0 }}"
-                            data-forca="{{ $m['forca'] }}"
-                            data-agilidade="{{ $m['agilidade'] }}"
-                            data-inteligencia="{{ $m['inteligencia'] }}"
-                            data-destreza="{{ $m['destreza'] }}"
-                            data-vitalidade="{{ $m['vitalidade'] }}"
-                            data-percepcao="{{ $m['percepcao'] }}"
-                            data-sabedoria="{{ $m['sabedoria'] }}"
-                            data-carisma="{{ $m['carisma'] }}"
-                            data-ataque-magico="{{ $m['ataqueMagico'] }}"
-                            data-ataque-corpo="{{ $m['ataqueFisicoCorpo'] }}"
-                            data-ataque-distancia="{{ $m['ataqueFisicoDistancia'] }}"
-                            data-defesa="{{ $m['defesaPersonagem'] }}"
-                            data-esquiva="{{ $m['esquivaPersonagem'] }}"
-                            data-iniciativa="{{ $m['iniciativa'] }}">
-                            <strong class="small personagem-nome">{{ $m['nome'] }}<span data-online-dot class="status-dot offline"></span></strong>
-                            <div class="progress mt-1 w-100" style="height: 14px; font-size:0.7rem;">
-                                <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
-                                    role="progressbar"
-                                    style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
-                                    {{ $m['vida'] }}/{{ $m['vida'] }}
-                                </div>
-                            </div>
-                            <div id="info-personagem-{{ $m['personagemId'] }}" class="collapse mt-1"
-                                style="min-height: auto; max-height: 25vh; overflow: hidden;">
-                                <div class="bg-dark rounded p-1 text-start text-light" style="font-size: 0.7rem;">
-                                    <strong>Classe:</strong> {{ $classesMap[$m['classe']] ?? $m['classe'] }}<br>
-                                    <strong>Raça:</strong> {{ $racasMap[$m['raca']] ?? $m['raca'] }}<br>
-                                    <strong>Nível:</strong> {{ $m['level'] }}<br>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                    {{-- Personagens serão inseridos aqui via JS --}}
+
                 </div>
 
             </div>
@@ -401,7 +350,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
-<script type="module" src="{{ asset('js/room/dice-manager.js') }}"></script>
+<script type="module" src="{{ asset('js/room/diceManager.js') }}"></script>
 <script src="{{ asset('js/room/gameFlow.js') }}"></script>
 <script src="{{ asset('js/room/turnUIManager.js') }}"></script>
 <script src="{{ asset('js/room/turnManager.js') }}"></script>
@@ -477,8 +426,8 @@
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
 
 {{-- 2. Gerenciadores da sala --}}
-<script src="{{ asset('js/room/chat-room.js') }}"></script>
-<script src="{{ asset('js/room/room-manager.js') }}"></script>
+<script src="{{ asset('js/room/chatRoom.js') }}"></script>
+<script src="{{ asset('js/room/roomManager.js') }}"></script>
 
 {{-- Scripts auxiliares --}}
 <script src="{{ asset('js/room/exit.js') }}"></script>
