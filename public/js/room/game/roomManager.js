@@ -128,6 +128,15 @@
         if (!data) return;
         debugLog('📥 Ação recebida:', data);
 
+        if (data.tipo === 'sistema' && typeof data.conteudo === 'string') {
+            const msg = data.conteudo;
+            
+            const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
+            if (entrou && data.usuarioId) {
+                adicionarPersonagemOnline(data.usuarioId, salaId);
+            }
+        }
+
     }
 
     // ========== INIT ==========
