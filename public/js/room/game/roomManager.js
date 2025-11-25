@@ -33,9 +33,14 @@
 
         // Registra handlers para eventos do WebSocket
         document.addEventListener('stomp.connected', () => {
-            debugLog('✅ WebSocket conectado!');
             ws.subscribe(channel, onReceiveAction);
-            enviarSistema(`🟢 ${userLogin} entrou na sala`);
+
+            ws.send('/app/enviar/' + salaId, {
+                tipo: "playerEnter",
+                usuarioId: userId,
+                userLogin: userLogin, // é que eu esqueci dessa BOMBA
+                salaId
+            });
         });
 
         // Eventos de erro e desconexão
@@ -135,6 +140,7 @@
         ws.send('/app/enviar/' + salaId, {
             tipo: 'playerExit',
             usuarioId: userId,
+            userLogin: userLogin,
             salaId
         });
     }
@@ -144,13 +150,45 @@
         if (!data) return;
         debugLog('📥 Ação recebida:', data);
 
-        if (data.tipo === 'sistema' && typeof data.conteudo === 'string') {
-            const msg = data.conteudo;
+        // if (data.tipo === 'sistema' && typeof data.conteudo === 'string') {
+        //     const msg = data.conteudo;
 
-            const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
-            if (entrou && data.usuarioId) {
-                adicionarPersonagemOnline(data.usuarioId, salaId, isMestre);
-            }
+        //     const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
+        //     if (entrou && data.usuarioId) {
+        //         adicionarPersonagemOnline(data.usuarioId, salaId, isMestre);
+        //     }
+        // }
+
+        // if (data.tipo === 'sistema') {
+        //     const msg = data.conteudo;
+        //     const saiu = msg.match(/🔴\s*(.+?)\s+saiu da sala/i);
+
+        //     if (saiu && data.usuarioId) {
+        //         $.get(`/api/salas/personagens/listar/${salaId}`, function(response) {
+        //             const personagem = response.find(p => String(p.usuarioId) === String(data.usuarioId));
+        //             if (personagem) removerPersonagemOnline(personagem.id);
+        //         });
+        //     }
+        // }
+
+        switch (data.tipo) {
+
+            case 'playerEnter':
+                adicionarPersonagemOnline(data.usuarioId, salaId);
+                debugLog(`➡️ Adicionando personagem online para usuárioId ${data.usuarioId}`);
+                break;
+
+            case 'playerExit':
+                removerPersonagemOnline(data.usuarioId);
+                debugLog(`⬅️ Removendo personagem online para usuárioId ${data.usuarioId}`);
+                break;
+
+            case 'sistema':
+                console.log(data.conteudo);
+                break;
+
+            default:
+                console.warn("Evento desconhecido:", data);
         }
 
     }
