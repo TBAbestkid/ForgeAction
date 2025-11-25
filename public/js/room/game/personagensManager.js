@@ -1,15 +1,15 @@
+const arrayPlayersOnline = [];
+
 function adicionarPersonagemOnline(usuarioId, salaId, isMestre) {
     const colunaPersonagens = document.getElementById('coluna-personangens');
     const colunaMobile = document.getElementById('coluna-personangens-mobile');
-    const listaMembros = document.getElementById('lista-membros');
 
-    let personagem;
-    const arrayPlayersOnline = new Array();
     $.ajax({
         url: `/api/salas/personagens/listar/${salaId}`,
         method: "GET",
         data: { _token: csrfToken },
         success: function (response) {
+
             if (!response || response.length === 0) {
                 console.log('Nenhum personagem encontrado');
                 return;
@@ -21,47 +21,26 @@ function adicionarPersonagemOnline(usuarioId, salaId, isMestre) {
                 return;
             }
 
+            // 🔹 Evita duplicar
             if (arrayPlayersOnline.some(p => p.id === personagem.id)) {
                 console.log(`Personagem ${personagem.nome} já está na lista de online.`);
                 return;
             }
 
+            // 🔹 Cria DIV PC
             const personagemDiv = document.createElement('div');
             personagemDiv.className = 'bg-dark rounded p-1 text-center d-flex flex-column align-items-center';
             personagemDiv.style.cursor = 'pointer';
-            personagemDiv.id = `personagem-online-${personagem.id}`;
+            personagemDiv.id = `personagem-online-${personagem.id}-pc`;
 
             personagemDiv.setAttribute('data-bs-toggle', 'collapse');
             personagemDiv.setAttribute('data-bs-target', `#info-personagem-${personagem.id}`);
             personagemDiv.setAttribute('aria-expanded', 'false');
-            personagemDiv.setAttribute('aria-controls', `info-personagem-${personagem.id}`);
 
-            personagemDiv.dataset.cardId = personagem.id;
             personagemDiv.dataset.id = personagem.id;
-            personagemDiv.dataset.online = "true";
-            personagemDiv.dataset.vidaMax = personagem.vida;
-            personagemDiv.dataset.nome = personagem.nome;
-            personagemDiv.dataset.raca = personagem.raca;
-            personagemDiv.dataset.classe = personagem.classe;
-            personagemDiv.dataset.level = personagem.level;
-            personagemDiv.dataset.vida = personagem.vida;
-            personagemDiv.dataset.mana = personagem.mana;
             personagemDiv.dataset.usuarioId = personagem.usuarioId || '';
-            personagemDiv.dataset.usuarioLogin = personagem.usuarioLogin || '';
-            personagemDiv.dataset.forca = personagem.forca;
-            personagemDiv.dataset.agilidade = personagem.agilidade;
-            personagemDiv.dataset.inteligencia = personagem.inteligencia;
-            personagemDiv.dataset.destreza = personagem.destreza;
-            personagemDiv.dataset.vitalidade = personagem.vitalidade;
-            personagemDiv.dataset.percepcao = personagem.percepcao;
-            personagemDiv.dataset.sabedoria = personagem.sabedoria;
-            personagemDiv.dataset.carisma = personagem.carisma;
-            personagemDiv.dataset.ataqueMagico = personagem.ataqueMagico;
-            personagemDiv.dataset.ataqueCorpo = personagem.ataqueFisicoCorpo;
-            personagemDiv.dataset.ataqueDistancia = personagem.ataqueFisicoDistancia;
-            personagemDiv.dataset.defesa = personagem.defesaPersonagem;
-            personagemDiv.dataset.esquiva = personagem.esquivaPersonagem;
-            personagemDiv.dataset.iniciativa = personagem.iniciativa;
+            personagemDiv.dataset.nome = personagem.nome;
+            personagemDiv.dataset.vida = personagem.vida;
 
             personagemDiv.innerHTML = `
                 <strong class="small personagem-nome">${personagem.nome}</strong>
@@ -84,31 +63,52 @@ function adicionarPersonagemOnline(usuarioId, salaId, isMestre) {
                 </div>
             `;
 
-            // 🔹 PC
             colunaPersonagens.appendChild(personagemDiv);
 
-            // 🔹 Mobile (clone)
+            // 🔹 MOBILE — criar clone com outro ID
             const personagemMobile = personagemDiv.cloneNode(true);
+            personagemMobile.id = `personagem-online-${personagem.id}-mb`;
             colunaMobile.appendChild(personagemMobile);
 
-            // 🔹 Atualizar DOT no OFFCANVAS
-            const item = document.querySelector(
-                `#lista-membros li[data-personagem-id="${personagem.id}"]`
-            );
+            // 🔹 DOT correto
+            atualizarDot(personagem.id, true);
 
-            if (item) {
-                const dot = item.querySelector('.members-list-dot');
-                if (dot) {
-                    dot.classList.remove('offline');
-                    dot.classList.add('online');
-                }
-            }
+            arrayPlayersOnline.push(personagem);
 
             console.log(`Personagem ${personagem.nome} adicionado à lista de online.`);
-            arrayPlayersOnline.push(personagem);
         }
     });
 }
 
+function removerPersonagemOnline(personagemId) {
 
+    // Remove PC
+    const pc = document.getElementById(`personagem-online-${personagemId}-pc`)
+
+    if (pc && pc.parentNode) pc.parentNode.removeChild(pc);
+
+    // Remove Mobile
+    const mb = document.getElementById(`personagem-online-${personagemId}-mb`)
+    if (mb && mb.parentNode) mb.parentNode.removeChild(mb);
+
+    // DOT no offcanvas
+    atualizarDot(personagemId, false);
+
+    console.log(`Personagem ID ${personagemId} removido da lista de online.`);
+}
+
+
+function atualizarDot(personagemId, isOnline) {
+    const item = document.querySelector(
+        `#lista-membros li[data-personagem-id="${personagemId}"]`
+    );
+
+    if (!item) return;
+
+    const dot = item.querySelector('.members-list-dot');
+    if (!dot) return;
+
+    dot.classList.remove('online', 'offline');
+    dot.classList.add(isOnline ? 'online' : 'offline');
+}
 
