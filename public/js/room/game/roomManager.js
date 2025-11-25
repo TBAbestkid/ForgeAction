@@ -46,6 +46,12 @@
         // Evento de desconexão
         document.addEventListener('stomp.disconnected', () => {
             debugLog('🔴 WebSocket desconectado');
+            enviarSaida();
+        });
+
+        window.addEventListener("beforeunload", () => {
+            enviarSaida();
+            ws.disconnect();
         });
 
         // Se o WebSocket já estiver conectado, inscreve imediatamente
@@ -63,22 +69,22 @@
         }
 
         // Verifica conexão
-        const status = ws.getStatus();
-        if (!status.isConnected) {
-            // Aguarda conexão antes de enviar
-            debugLog('⚠️ WebSocket não conectado, aguardando conexão...');
-            // Usa { once: true } para evitar múltiplos listeners
-            document.addEventListener('stomp.connected', () => {
-                ws.send('/app/enviar/' + salaId, {
-                    tipo: 'sistema',
-                    conteudo: msg,
-                    autor: '🤖 Sistema',
-                    usuarioId: userId,
-                    salaId: salaId
-                });
-            }, { once: true });
-            return;
-        }
+        // const status = ws.getStatus();
+        // if (!status.isConnected) {
+        //     // Aguarda conexão antes de enviar
+        //     debugLog('⚠️ WebSocket não conectado, aguardando conexão...');
+        //     // Usa { once: true } para evitar múltiplos listeners
+        //     document.addEventListener('stomp.connected', () => {
+        //         ws.send('/app/enviar/' + salaId, {
+        //             tipo: 'sistema',
+        //             conteudo: msg,
+        //             autor: '🤖 Sistema',
+        //             usuarioId: userId,
+        //             salaId: salaId
+        //         });
+        //     }, { once: true });
+        //     return;
+        // }
 
         // Envia mensagem de sistema
         ws.send('/app/enviar/' + salaId, {
@@ -122,6 +128,17 @@
         });
     }
 
+    // sair da sala
+    function enviarSaida() {
+        if (!salaId) return;
+
+        ws.send('/app/enviar/' + salaId, {
+            tipo: 'playerExit',
+            usuarioId: userId,
+            salaId
+        });
+    }
+
     //receber dados/ação
     function onReceiveAction(data) {
         if (!data) return;
@@ -132,7 +149,7 @@
 
             const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
             if (entrou && data.usuarioId) {
-                adicionarPersonagemOnline(data.usuarioId, salaId);
+                adicionarPersonagemOnline(data.usuarioId, salaId, isMestre);
             }
         }
 
