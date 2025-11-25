@@ -35,7 +35,6 @@
         document.addEventListener('stomp.connected', () => {
             debugLog('✅ WebSocket conectado!');
             ws.subscribe(channel, onReceiveAction);
-            enviarSistema(`🟢 ${userLogin} entrou na sala`);
         });
 
         // Eventos de erro e desconexão
