@@ -72,25 +72,7 @@
             debugLog('❌ Sem salaId definido');
             return;
         }
-
-        // Verifica conexão
-        // const status = ws.getStatus();
-        // if (!status.isConnected) {
-        //     // Aguarda conexão antes de enviar
-        //     debugLog('⚠️ WebSocket não conectado, aguardando conexão...');
-        //     // Usa { once: true } para evitar múltiplos listeners
-        //     document.addEventListener('stomp.connected', () => {
-        //         ws.send('/app/enviar/' + salaId, {
-        //             tipo: 'sistema',
-        //             conteudo: msg,
-        //             autor: '🤖 Sistema',
-        //             usuarioId: userId,
-        //             salaId: salaId
-        //         });
-        //     }, { once: true });
-        //     return;
-        // }
-
+        
         // Envia mensagem de sistema
         ws.send('/app/enviar/' + salaId, {
             tipo: 'sistema',
@@ -149,27 +131,6 @@
     function onReceiveAction(data) {
         if (!data) return;
         debugLog('📥 Ação recebida:', data);
-
-        // if (data.tipo === 'sistema' && typeof data.conteudo === 'string') {
-        //     const msg = data.conteudo;
-
-        //     const entrou = msg.match(/🟢\s*(.+?)\s+entrou na sala/i);
-        //     if (entrou && data.usuarioId) {
-        //         adicionarPersonagemOnline(data.usuarioId, salaId, isMestre);
-        //     }
-        // }
-
-        // if (data.tipo === 'sistema') {
-        //     const msg = data.conteudo;
-        //     const saiu = msg.match(/🔴\s*(.+?)\s+saiu da sala/i);
-
-        //     if (saiu && data.usuarioId) {
-        //         $.get(`/api/salas/personagens/listar/${salaId}`, function(response) {
-        //             const personagem = response.find(p => String(p.usuarioId) === String(data.usuarioId));
-        //             if (personagem) removerPersonagemOnline(personagem.id);
-        //         });
-        //     }
-        // }
 
         switch (data.tipo) {
 
