@@ -259,26 +259,25 @@
                 <ul id="lista-membros" class="list-group list-group-flush overflow-auto" style="max-height: 500px;">
 
                     {{-- 🔹 Primeiro o Mestre (dono da sala) --}}
-                    @if(isset($sala['mestre']))
-                        @php
-                            $mestre = collect($membros)->firstWhere('usuarioId', $sala['mestre']);
-                        @endphp
+                    @php
+                        $mestreId = $sala['mestre'];
+                    @endphp
 
-                        <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fa-solid fa-crown text-warning me-2"></i>
-                                <strong>{{ $mestre['usuarioLogin'] ?? 'Mestre' }}</strong>
-                            </div>
-                            <span><span class="members-list-dot offline"></span></span>
-                        </li>
-                    @endif
+                    <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa-solid fa-crown text-warning me-2"></i>
+                            <strong>{{ $membros[$mestreId] ?? 'Mestre' }}</strong>
+                        </div>
+                        <span><span class="members-list-dot offline"></span></span>
+                    </li>
 
                     {{-- 🔹 Depois os Players (exceto o mestre) --}}
-                    @foreach($membros as $membro)
-                        @continue(isset($sala['mestre']) && $membro['usuarioId'] == $sala['mestre']) {{-- Pula o mestre --}}
+                    @foreach($membros as $uid => $login)
+                        @continue($uid == $mestreId)
 
-                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center" data-personagem-id="{{ $membro['personagemId'] }}">
-                            {{ $membro['usuarioLogin'] ?? 'Jogador Desconhecido' }}
+                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center"
+                            data-user-id="{{ $uid }}">
+                            {{ $login }}
                             <span><span class="members-list-dot offline"></span></span>
                         </li>
                     @endforeach
