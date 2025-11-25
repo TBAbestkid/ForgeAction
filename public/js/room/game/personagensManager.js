@@ -1,8 +1,8 @@
 const arrayPlayersOnline = [];
 
 function adicionarPersonagemOnline(usuarioId, salaId, isMestre) {
-    const colunaPersonagens = document.getElementById('coluna-personangens');
-    const colunaMobile = document.getElementById('coluna-personangens-mobile');
+    const colunaPersonagens = document.getElementById('coluna-personagens');
+    const colunaMobile = document.getElementById('coluna-personagens-mobile');
 
     $.ajax({
         url: `/api/salas/personagens/listar/${salaId}`,

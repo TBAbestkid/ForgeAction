@@ -122,7 +122,7 @@
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div id="coluna-personangens" class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
+                <div id="coluna-personagens" class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
                     {{-- Personagens serão inseridos aqui via JS --}}
 
                 </div>
@@ -237,7 +237,7 @@
 
                     {{-- Players --}}
                     <div class="tab-pane fade" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
-                        <div id="coluna-personangens-mobile" class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
+                        <div id="coluna-personagens-mobile" class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
 
                         </div>
                     </div>
