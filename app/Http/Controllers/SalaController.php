@@ -286,6 +286,7 @@ class SalaController extends Controller
     public function room(Request $request, $id)
     {
         $userId = session('user_id');
+        $userRole = session('user_role');
 
         if (!$userId) {
             return redirect()->route('login')->with('error', 'Você precisa estar logado.');
@@ -296,47 +297,38 @@ class SalaController extends Controller
         if (!$sala) abort(404, 'Sala não encontrada.');
 
         // 🔹 Busca membros
-        $membros = collect($this->api->get("api/salas/personagens/listar/{$id}") ?? []);
+        $personagens = collect($this->api->get("api/salas/personagens/listar/{$id}") ?? []);
 
-        // 🔹 Verifica permissões
+        // Extraímos os usuários dos personagens
+        $usuariosNaSala = $personagens->pluck('usuarioId')->unique()->values();
+
+        // 🔹 O mestre SEMPRE precisa estar na lista
+        if (!$usuariosNaSala->contains($sala['mestre'])) {
+            $usuariosNaSala->push($sala['mestre']);
+        }
+
+        // 🔹 Buscar logins dos usuários (em um map id => login)
+        $membros = $usuariosNaSala->mapWithKeys(function($uid) {
+            $u = $this->api->get("api/usuario/{$uid}");
+            return [$uid => $u['data']['login'] ?? 'Desconhecido'];
+        });
+
+        // 🔹 Verificar se o usuário acessante tem permissão
+        $isDono = ($userRole === 'MASTER' && $sala['mestre'] == $userId);
+
         $salasDoJogador = collect($this->api->get("api/salas/jogador/{$userId}") ?? []);
-        $isDono = $sala['mestre'] == $userId;
         $isConvidado = $salasDoJogador->contains('id', $id);
 
         if (!$isDono && !$isConvidado) {
             return redirect()->route('home')->with('error', 'Você não tem permissão para acessar esta sala.');
         }
+        // dd($sala, $membros, $isDono, $isConvidado);
 
-        // 🔹 Busca raças e classes (só uma vez)
-        $racas = collect($this->api->get("enums/racas")['data'] ?? []);
-        $classes = collect($this->api->get("enums/classes")['data'] ?? []);
-
-        $racasMap = collect($racas)->pluck('descricao', 'constante');
-        $classesMap = collect($classes)->pluck('descricao', 'constante');
-
-        // 🔹 Monta mapa de usuários (idealmente com endpoint em lote)
-        $usuarios = $membros->pluck('usuarioId')->unique()->mapWithKeys(function ($idUsuario) {
-            $res = $this->api->get("api/usuario/{$idUsuario}");
-            return [$idUsuario => $res['data']['login'] ?? 'Desconhecido'];
-        });
-
-        // 🔹 Enriquecimento único
-        $membros = $membros->map(function ($m) use ($racas, $classes, $usuarios) {
-            $m['racaDescricao'] = $racas->firstWhere('descricao', $m['raca'])['descricao'] ?? $m['raca'];
-            $m['classeDescricao'] = $classes->firstWhere('descricao', $m['classe'])['descricao'] ?? $m['classe'];
-            $m['usuarioLogin'] = $usuarios[$m['usuarioId']] ?? 'Desconhecido';
-            return $m;
-        });
-        // dd([]);
-
-
+        // 🔹 Retorna apenas o necessário
         return view('room.room', [
-            'sala'       => $sala,
-            'isDono'     => $isDono,
-            'membros'    => $membros,
-            'racasMap'   => $racasMap,
-            'classesMap' => $classesMap,
-            'personagemAtual' => $membros->firstWhere('usuarioId', $userId)
+            'sala'   => $sala,
+            'isDono' => $isDono,
+            'membros' => $membros
         ]);
     }
 
