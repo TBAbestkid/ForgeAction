@@ -237,15 +237,8 @@
 
                     {{-- Players --}}
                     <div class="tab-pane fade" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
-                        <div class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
-                            @foreach ($membros as $m)
-                                <div class="bg-dark rounded p-2 text-white text-center" data-personagem-id="{{ $m['personagemId'] }}">
-                                    <strong class="small">{{ $m['nome'] }} <span class="members-list-dot offline"></span></strong>
-                                    <div class="progress mt-1" style="height: 12px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;"></div>
-                                    </div>
-                                </div>
-                            @endforeach
+                        <div id="coluna-personangens-mobile" class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
+
                         </div>
                     </div>
                 </div>
@@ -268,17 +261,17 @@
                     {{-- 🔹 Primeiro o Mestre (dono da sala) --}}
                     @if(isset($sala['mestre']))
                         @php
-                                $mestre = collect($membros)->firstWhere('usuarioId', $sala['mestre']);
-                            @endphp
+                            $mestre = collect($membros)->firstWhere('usuarioId', $sala['mestre']);
+                        @endphp
 
-                            <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fa-solid fa-crown text-warning me-2"></i>
-                                    <strong>{{ $mestre['usuarioLogin'] ?? 'Mestre' }}</strong>
-                                </div>
-                                <span><span class="members-list-dot offline"></span></span>
-                            </li>
-                        @endif
+                        <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fa-solid fa-crown text-warning me-2"></i>
+                                <strong>{{ $mestre['usuarioLogin'] ?? 'Mestre' }}</strong>
+                            </div>
+                            <span><span class="members-list-dot offline"></span></span>
+                        </li>
+                    @endif
 
                     {{-- 🔹 Depois os Players (exceto o mestre) --}}
                     @foreach($membros as $membro)
@@ -410,7 +403,7 @@
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
         // wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
-        wsUrl: "/ws",
+        wsUrl: "{{ env('EXTERNAL_API_URL') }}/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
 
