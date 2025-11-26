@@ -23,6 +23,8 @@
     const isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE');
     const wsUrl = CHAT.wsUrl;
     const channel = String(salaId);
+    const backChannel = String("backchannel-" + salaId);
+    const chatUsers = String("chatUsers-" + salaId);
 
     // ========== UTILS ==========
     function debugLog(...args) { console.log('[RM]', ...args); }
@@ -34,13 +36,8 @@
         // Registra handlers para eventos do WebSocket
         document.addEventListener('stomp.connected', () => {
             ws.subscribe(channel, onReceiveAction);
-
-            ws.send('/app/enviar/' + salaId, {
-                tipo: "playerEnter",
-                usuarioId: userId,
-                userLogin: userLogin, // é que eu esqueci dessa BOMBA
-                salaId
-            });
+            ws.subscribe(backChannel, onReceiveAction);
+            ws.subscribe(chatUsers, onReceiveAction);
         });
 
         // Eventos de erro e desconexão
@@ -72,7 +69,7 @@
             debugLog('❌ Sem salaId definido');
             return;
         }
-        
+
         // Envia mensagem de sistema
         ws.send('/app/enviar/' + salaId, {
             tipo: 'sistema',
@@ -118,13 +115,6 @@
     // sair da sala
     function enviarSaida() {
         if (!salaId) return;
-
-        ws.send('/app/enviar/' + salaId, {
-            tipo: 'playerExit',
-            usuarioId: userId,
-            userLogin: userLogin,
-            salaId
-        });
     }
 
     //receber dados/ação
@@ -134,20 +124,13 @@
 
         switch (data.tipo) {
 
-            case 'playerEnter':
-                adicionarPersonagemOnline(data.usuarioId, salaId);
-                debugLog(`➡️ Adicionando personagem online para usuárioId ${data.usuarioId}`);
-                break;
-
-            case 'playerExit':
-                removerPersonagemOnline(data.usuarioId);
-                debugLog(`⬅️ Removendo personagem online para usuárioId ${data.usuarioId}`);
-                break;
-
             case 'sistema':
                 console.log(data.conteudo);
                 break;
-
+            
+            case 'listaUsers':
+                AtualizarListaOnline(data.salaId, data.conteudo);
+                break;
             default:
                 console.warn("Evento desconhecido:", data);
         }

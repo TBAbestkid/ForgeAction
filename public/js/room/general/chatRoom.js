@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('stomp.disconnected', onStompDisconnected, { once: true });
 
         if (!ws.getStatus().isConnected) {
-            ws.connect(wsUrl);
+            ws.connect(wsUrl,  null,  null, {"usuarioId":  userId, "salaId":  salaId});
         } else {
             ws.subscribe(channel, processMessage);
         }

@@ -80,7 +80,7 @@ window.AppWebSocket = (() => {
     }
 
     // ======== CONEXÃO PRINCIPAL ========
-    function connect(wsUrl, channel, onMessage) {
+    function connect(wsUrl, channel, onMessage, headers  = {}) {
         // Evita conexões duplicadas
         if (isConnected) {
             debugLog('ℹ️ Já conectado, ignorando nova tentativa');
@@ -90,7 +90,7 @@ window.AppWebSocket = (() => {
         debugLog('� Iniciando conexão:', wsUrl);
 
         // Armazena configuração para reconexões
-        connectionConfig = { wsUrl, channel, onMessage };
+        connectionConfig = { wsUrl, channel, onMessage, headers};
 
         // Cria conexão SockJS
         const socket = new SockJS(wsUrl);
@@ -99,7 +99,7 @@ window.AppWebSocket = (() => {
         // Desativa logs do STOMP
         stompClient.debug = DEFAULT_CONFIG.debug ? console.log : null;
 
-        stompClient.connect({},
+        stompClient.connect(headers,
             // Sucesso
             () => {
                 debugLog('✅ Conectado com sucesso!');
