@@ -94,7 +94,12 @@
         document.addEventListener('stomp.connected', () => {
             debugLog('✅ WebSocket conectado!');
             ws.subscribe(channel, onReceiveAction);
-            enviarSistema(`🟢 ${userLogin} entrou na sala`);
+            enviarAcao({
+                acao: 'entrada',
+                usuarioId: userId,
+                salaId: salaId,
+                userLogin: userLogin
+            });
         });
 
         // Eventos de erro e desconexão
@@ -105,6 +110,7 @@
         // Evento de desconexão
         document.addEventListener('stomp.disconnected', () => {
             debugLog('🔴 WebSocket desconectado');
+            enviarSaida();
         });
 
         // Se o WebSocket já estiver conectado, inscreve imediatamente
@@ -182,6 +188,15 @@
         });
     }
 
+    function enviarSaida() {
+        if (!salaId) return;
+        enviarAcao({
+            acao: 'saida',
+            usuarioId: userId,
+            salaId: salaId,
+            userLogin: userLogin
+        });
+    }
     // ===== GERENCIAMENTO DE PRESENÇA =====
     function adicionarUsuarioOn(usuarioId, usuarioLogin) {
         const usuarioId_str = String(usuarioId);
