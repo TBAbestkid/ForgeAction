@@ -45,9 +45,12 @@ async function funcaoChamarDados(facesDados, valorForcado = null) {
 
     // 🔹 Faz os dados sumirem depois de alguns segundos
     setTimeout(() => {
-        if (box) {
-            box.clear(); // remove os dados da tela
-            console.log('🧹 Dados limpos após rolagem');
+
+        const canvas = document.querySelector('canvas[data-engine^="three.js"]');
+        if (canvas) {
+            canvas.remove();
+            box = null; // Força reinicialização na próxima rolagem
+            console.log("🧹 Canvas do DiceBox removido.");
         }
     }, 4000); // 4 segundos depois da rolagem
 }
