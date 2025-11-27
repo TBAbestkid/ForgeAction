@@ -460,8 +460,8 @@
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        // wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
-        wsUrl: "/ws",
+        wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
+        // wsUrl: "/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
 
