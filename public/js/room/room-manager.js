@@ -94,6 +94,7 @@
         document.addEventListener('stomp.connected', () => {
             debugLog('✅ WebSocket conectado!');
             ws.subscribe(channel, onReceiveAction);
+
             enviarAcao({
                 acao: 'entrada',
                 usuarioId: userId,
