@@ -1,12 +1,3 @@
-/* room-manager.js
-   Version: 4.0 - Unified WebSocket System
-   Requirements:
-   - webSocketService.js loaded
-   - Bootstrap
-   - window.CHAT_CONFIG = { userId, userLogin, salaId, wsUrl, isMestre, role }
-   - Revisar codigo js do chat-room.js
-   - Separar funcoes de mestre e player
-*/
 (function () {
     // ====== CONFIG / STATE ======
     const ws = window.AppWebSocket;
@@ -23,8 +14,7 @@
     const isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE');
     const wsUrl = CHAT.wsUrl;
     const channel = String(salaId);
-    const backChannel = String("backchannel-" + salaId);
-    const chatUsers = String("chatUsers-" + salaId);
+    const backChannel = String("backchannel/" + salaId);
 
     // ========== UTILS ==========
     function debugLog(...args) { console.log('[RM]', ...args); }
@@ -37,7 +27,6 @@
         document.addEventListener('stomp.connected', () => {
             ws.subscribe(channel, onReceiveAction);
             ws.subscribe(backChannel, onReceiveAction);
-            ws.subscribe(chatUsers, onReceiveAction);
         });
 
         // Eventos de erro e desconexão
@@ -56,10 +45,10 @@
             ws.disconnect();
         });
 
-        // Se o WebSocket já estiver conectado, inscreve imediatamente
         const status = ws.getStatus();
         if (status.isConnected) {
             ws.subscribe(channel, onReceiveAction);
+            ws.subscribe(backChannel, onReceiveAction);
         }
     }
 
@@ -72,7 +61,7 @@
 
         // Envia mensagem de sistema
         ws.send('/app/enviar/' + salaId, {
-            tipo: 'sistema',
+            acao: 'sistema',
             conteudo: msg,
             autor: '🤖 Sistema',
             usuarioId: userId,
@@ -94,7 +83,7 @@
             // Usa { once: true } para evitar múltiplos listeners
             document.addEventListener('stomp.connected', () => {
                 ws.send('/app/enviar/' + salaId, {
-                    tipo: 'acao',
+                    acao: 'acao',
                     salaId,
                     timestamp: Date.now(),
                     ...obj
@@ -105,7 +94,7 @@
 
         // Envia ação
         ws.send('/app/enviar/' + salaId, {
-            tipo: 'acao',
+            acao: 'acao',
             salaId,
             timestamp: Date.now(),
             ...obj
@@ -120,9 +109,11 @@
     //receber dados/ação
     function onReceiveAction(data) {
         if (!data) return;
+        // Log claro e único para depuração de payloads
+        console.log('[RM:onReceiveAction] payload recebido =>', data);
         debugLog('📥 Ação recebida:', data);
 
-        switch (data.tipo) {
+        switch (data.acao) {
 
             case 'sistema':
                 console.log(data.conteudo);
@@ -131,6 +122,8 @@
             case 'listaUsers':
                 AtualizarListaOnline(data.salaId, data.conteudo);
                 break;
+            case 'iniciativa':
+                debugLog('Iniciativa recebida:', data.conteudo);
             default:
                 console.warn("Evento desconhecido:", data);
         }

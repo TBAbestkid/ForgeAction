@@ -72,22 +72,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function processMessage(data) {
         if (!data) return;
-        if (!data.tipo || data.tipo === 'chat') {
+        if (!data.acao || data.acao === 'chat') {
             if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema', false);
             return;
         }
 
-        switch (data.tipo) {
+        switch (data.acao) {
             case 'sistema':
                 addMessage(data.conteudo, '🤖 Sistema', true);
                 break;
             case 'playerEnter':
                 // ✅ Usa userLogin (enviado do roomManager)
-                const nomeEntrada = data.userLogin || data.autor || 'Desconhecido';
+                const nomeEntrada = 'jogador' + data.usuarioId;
                 addMessage(`🟢 ${nomeEntrada} entrou na sala`, '🤖 Sistema', false);
                 break;
             case 'playerExit':
-                const nomeSaida = data.userLogin || data.autor || 'Desconhecido';
+                const nomeSaida = 'jogador' + data.usuarioId;
                 addMessage(`🔴 ${nomeSaida} saiu da sala`, '🤖 Sistema', false);
                 break;
             case 'erro':
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const payload = {
-            tipo: 'chat',
+            acao: 'chat',
             conteudo: msg,
             autor: userName,
             userId,
