@@ -16,10 +16,10 @@ async function carregarPersonagensSala(salaId) {
 function limparListaPersonagensOnline() {
     const colunaPersonagens = document.getElementById('coluna-personagens');
     const colunaMobile = document.getElementById('coluna-personagens-mobile');
-    
+
     if (colunaPersonagens) colunaPersonagens.innerHTML = '';
     if (colunaMobile) colunaMobile.innerHTML = '';
-    
+
     console.log('🧹 Lista de personagens online limpa');
 }
 
@@ -73,26 +73,26 @@ function adicionarPersonagemOnline(personagem) {
 function AtualizarListaOnline(salaId, usuariosOnline) {
     console.log('🔄 RECONSTRUINDO lista completa...');
     console.log('👥 Usuários online recebidos:', usuariosOnline);
-    
+
     limparListaPersonagensOnline();
-    
+
     carregarPersonagensSala(salaId).then(listaPersonagens => {
         if (!listaPersonagens || !Array.isArray(listaPersonagens)) {
             console.error('❌ Lista de personagens inválida');
             return;
         }
-        
+
         console.log(`🎯 Reconstruindo ${listaPersonagens.length} personagens`);
-        
+
         listaPersonagens.forEach(personagem => {
             const usuarioIdStr = personagem.usuarioId?.toString();
             const isOnline = usuariosOnline.includes(usuarioIdStr);
-            
+
             if (isOnline) {
                 adicionarPersonagemOnline(personagem);
             }
         });
-        
+
         console.log('✅ Lista reconstruída com sucesso!');
     }).catch(error => {
         console.error('❌ Erro ao reconstruir lista:', error);

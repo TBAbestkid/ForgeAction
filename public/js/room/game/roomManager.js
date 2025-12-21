@@ -63,7 +63,7 @@
             case 'sistema':
                 console.log(data.conteudo);
                 break;
-            
+
             case 'listaUsers':
                 AtualizarListaOnline(data.salaId, data.conteudo);
                 break;
