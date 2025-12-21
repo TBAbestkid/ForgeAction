@@ -37,11 +37,9 @@
         // Evento de desconexão
         document.addEventListener('stomp.disconnected', () => {
             debugLog('🔴 WebSocket desconectado');
-            enviarSaida();
         });
 
         window.addEventListener("beforeunload", () => {
-            enviarSaida();
             ws.disconnect();
         });
 
@@ -52,59 +50,6 @@
         }
     }
 
-    // ===== MESSAGE SENDING ======
-    function enviarSistema(msg) {
-        if (!salaId) {
-            debugLog('❌ Sem salaId definido');
-            return;
-        }
-
-        // Envia mensagem de sistema
-        ws.send('/app/enviar/' + salaId, {
-            acao: 'sistema',
-            conteudo: msg,
-            autor: '🤖 Sistema',
-            usuarioId: userId,
-            salaId: salaId
-        });
-    }
-
-    // Envia ação genérica
-    function enviarAcao(obj) {
-        if (!salaId) {
-            debugLog('❌ Sem salaId definido');
-            return;
-        }
-
-        // Verifica conexão
-        const status = ws.getStatus();
-        if (!status.isConnected) {
-            debugLog('⚠️ WebSocket não conectado, aguardando conexão...');
-            // Usa { once: true } para evitar múltiplos listeners
-            document.addEventListener('stomp.connected', () => {
-                ws.send('/app/enviar/' + salaId, {
-                    acao: 'acao',
-                    salaId,
-                    timestamp: Date.now(),
-                    ...obj
-                });
-            }, { once: true });
-            return;
-        }
-
-        // Envia ação
-        ws.send('/app/enviar/' + salaId, {
-            acao: 'acao',
-            salaId,
-            timestamp: Date.now(),
-            ...obj
-        });
-    }
-
-    // sair da sala
-    function enviarSaida() {
-        if (!salaId) return;
-    }
 
     //receber dados/ação
     function onReceiveAction(data) {
