@@ -29,11 +29,10 @@
             return;
         }
 
-        ws.send('/app/eventos/' + channel, {
+        ws.send('/app/backchannel', {
             acao,
             usuarioId: userId,
-            salaId,
-            timestamp: Date.now()
+            salaId
         });
         debugLog(`📤 Presença enviada: ${acao}`);
     }
@@ -48,7 +47,7 @@
             ws.subscribe(backChannel, onReceiveAction);
 
             if (!connectNotified) {
-                notifyPresence('playerEnter');
+                notifyPresence('PlayerEnter');
                 connectNotified = true;
             }
         });
@@ -65,7 +64,7 @@
         });
 
         window.addEventListener("beforeunload", () => {
-            notifyPresence('playerExit');
+            notifyPresence('PlayerExit');
             ws.disconnect();
         });
 
@@ -75,7 +74,7 @@
             ws.subscribe(backChannel, onReceiveAction);
 
             if (!connectNotified) {
-                notifyPresence('playerEnter');
+                notifyPresence('PlayerEnter');
                 connectNotified = true;
             }
         }
