@@ -15,9 +15,28 @@
     const wsUrl = CHAT.wsUrl;
     const channel = String(salaId);
     const backChannel = String("backchannel/" + salaId);
+    let connectNotified = false;
 
     // ========== UTILS ==========
     function debugLog(...args) { console.log('[RM]', ...args); }
+
+    function notifyPresence(acao) {
+        if (!salaId) return;
+
+        const status = ws.getStatus();
+        if (!status.isConnected) {
+            debugLog(`⚠️ Não foi possível enviar ${acao}: sem conexão ativa`);
+            return;
+        }
+
+        ws.send('/app/eventos/' + channel, {
+            acao,
+            usuarioId: userId,
+            salaId,
+            timestamp: Date.now()
+        });
+        debugLog(`📤 Presença enviada: ${acao}`);
+    }
 
     // ====== WEBSOCKET INTEGRATION ======
     function setupWebSocket() {
@@ -27,6 +46,11 @@
         document.addEventListener('stomp.connected', () => {
             ws.subscribe(channel, onReceiveAction);
             ws.subscribe(backChannel, onReceiveAction);
+
+            if (!connectNotified) {
+                notifyPresence('playerEnter');
+                connectNotified = true;
+            }
         });
 
         // Eventos de erro e desconexão
@@ -37,9 +61,11 @@
         // Evento de desconexão
         document.addEventListener('stomp.disconnected', () => {
             debugLog('🔴 WebSocket desconectado');
+            connectNotified = false;
         });
 
         window.addEventListener("beforeunload", () => {
+            notifyPresence('playerExit');
             ws.disconnect();
         });
 
@@ -47,6 +73,11 @@
         if (status.isConnected) {
             ws.subscribe(channel, onReceiveAction);
             ws.subscribe(backChannel, onReceiveAction);
+
+            if (!connectNotified) {
+                notifyPresence('playerEnter');
+                connectNotified = true;
+            }
         }
     }
 
