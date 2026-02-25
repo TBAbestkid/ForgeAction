@@ -23,17 +23,20 @@ function limparListaPersonagensOnline() {
     console.log('🧹 Lista de personagens online limpa');
 }
 
-function adicionarPersonagemOnline(personagem) {
-    const colunaPersonagens = document.getElementById('coluna-personagens');
-    const colunaMobile = document.getElementById('coluna-personagens-mobile');
+function criarCardPersonagem(personagem, sufixo) {
 
     const personagemDiv = document.createElement('div');
-    personagemDiv.className = 'bg-dark rounded p-1 text-center d-flex flex-column align-items-center';
+    personagemDiv.className =
+        'bg-dark rounded p-1 text-center d-flex flex-column align-items-center';
     personagemDiv.style.cursor = 'pointer';
-    personagemDiv.id = `personagem-online-${personagem.id}-pc`;
+
+    personagemDiv.id = `personagem-online-${personagem.id}-${sufixo}`;
+
+    // Collapse único por sufixo
+    const collapseId = `info-personagem-${personagem.id}-${sufixo}`;
 
     personagemDiv.setAttribute('data-bs-toggle', 'collapse');
-    personagemDiv.setAttribute('data-bs-target', `#info-personagem-${personagem.id}`);
+    personagemDiv.setAttribute('data-bs-target', `#${collapseId}`);
     personagemDiv.setAttribute('aria-expanded', 'false');
 
     personagemDiv.dataset.id = personagem.id;
@@ -43,6 +46,7 @@ function adicionarPersonagemOnline(personagem) {
 
     personagemDiv.innerHTML = `
         <strong class="small personagem-nome">${personagem.nome}</strong>
+
         <div class="progress mt-1 w-100" style="height: 14px; font-size:0.7rem;">
             <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
                 role="progressbar"
@@ -50,22 +54,54 @@ function adicionarPersonagemOnline(personagem) {
                 ${personagem.vida}/${personagem.vida}
             </div>
         </div>
-        <div id="info-personagem-${personagem.id}" class="collapse mt-1"
+
+        <div id="${collapseId}" class="collapse mt-1"
             style="min-height: auto; max-height: 25vh; overflow: hidden;">
-            <div class="bg-dark rounded p-1 text-start text-light" style="font-size: 0.7rem;">
+
+            <div class="bg-dark rounded p-1 text-start text-light"
+                 style="font-size: 0.7rem;">
+
                 <strong>Classe:</strong> ${personagem.classe}<br>
                 <strong>Raça:</strong> ${personagem.raca}<br>
                 <strong>Nível:</strong> ${personagem.level}<br>
+
             </div>
         </div>
     `;
 
-    if (colunaPersonagens) colunaPersonagens.appendChild(personagemDiv);
+    // 🔥 Listener inteligente
+    personagemDiv.addEventListener('click', (e) => {
 
-    // Versão Mobile
-    const personagemMobile = personagemDiv.cloneNode(true);
-    personagemMobile.id = `personagem-online-${personagem.id}-mb`;
-    if (colunaMobile) colunaMobile.appendChild(personagemMobile);
+        if (!acaoMestreAtual) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        selecionarPersonagem(personagem.id);
+    });
+
+    return personagemDiv;
+}
+
+function adicionarPersonagemOnline(personagem) {
+
+    const colunaPersonagens =
+        document.getElementById('coluna-personagens');
+
+    const colunaMobile =
+        document.getElementById('coluna-personagens-mobile');
+
+    const personagemDiv =
+        criarCardPersonagem(personagem, 'pc');
+
+    const personagemMobile =
+        criarCardPersonagem(personagem, 'mb');
+
+    if (colunaPersonagens)
+        colunaPersonagens.appendChild(personagemDiv);
+
+    if (colunaMobile)
+        colunaMobile.appendChild(personagemMobile);
 
     console.log(`➕ Personagem ${personagem.nome} adicionado`);
 }
