@@ -29,7 +29,7 @@
             return;
         }
 
-        ws.send('/app/backchannel', {
+        ws.send('/app/backchannel/presenca', {
             acao,
             usuarioId: userId,
             salaId
