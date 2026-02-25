@@ -19,5 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function iniciarRodada() {
     const salaId = window.CHAT_CONFIG?.salaId;
     console.log('Iniciando rodada...');
-    ws.send('/app/' + salaId, "iniciarRodada");
+    ws.send('/app/backchannel/rodadas', {
+            acao: "iniciarRodada",
+            salaId
+        });
 }
