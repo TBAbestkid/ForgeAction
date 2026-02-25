@@ -98,27 +98,50 @@
                 </nav>
 
                 {{-- Coluna central (DiceBox) --}}
-                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center mx-2" style="flex: 1 1 45%; border: 2px solid #555; overflow: hidden;">
+                <div id="dice-container" class="bg-dark rounded shadow-lg mx-2 position-relative"
+                        style="flex: 1 1 45%; border: 2px solid #555; overflow: hidden; min-height: 420px;">
 
-                    <span id="dice-placeholder" class="text-white" style="position: absolute; z-index: 10;">🎲 Aguardando início do turno...</span>
+                    {{-- 🎲 Área exclusiva do DiceBox --}}
+                    <div id="dice-box"
+                        style="position: absolute; inset: 0; width: 100%; height: 100%;">
+                    </div>
 
-                    <div id="turn-controls" class="d-none flex-column align-items-center gap-2 mt-2">
-                        <div class="d-flex gap-2 flex-wrap justify-content-center">
+                    {{-- Placeholder centralizado --}}
+                    <div id="dice-placeholder" class="text-white text-center"
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+                        🎲 Aguardando início do turno...
+                    </div>
+
+                    {{-- Controles fixos na parte inferior --}}
+                    <div id="turnControls" class="d-none flex-column align-items-center gap-2"
+                            style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); z-index: 10;">
+
+                        <div class="d-flex gap-2 flex-wrap justify-content-center align-items-center">
+
                             @if ($isDono)
-                                {{-- Apenas caso mestre quiser ocultar os dados --}}
-                                <input type="checkbox" name="ocultarDados" id="ocultarDados" class="form-check-input mt-1" >
-                                <label for="ocultarDados" class="form-check-label text-white">Ocultar Dados aos Jogadores</label>
+                                <div class="form-check d-flex align-items-center gap-2">
+                                    <input type="checkbox" name="ocultarDados" id="ocultarDados" class="form-check-input">
+
+                                    <label for="ocultarDados" class="form-check-label text-white">
+                                        Ocultar Dados aos Jogadores
+                                    </label>
+                                </div>
                             @endif
+
                         </div>
 
-                        <div id="dice-options" class="d-none mt-3 text-center">
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="4">D4</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="6">D6</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="10">D10</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="12">D12</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="20">D20</button>
+                        <div id="diceOptions"
+                            class="d-none mt-2 text-center">
+
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="4">D4</button>
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="6">D6</button>
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="10">D10</button>
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="12">D12</button>
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="20">D20</button>
+
                         </div>
                     </div>
+
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
@@ -141,7 +164,7 @@
                         </button>
 
                         {{-- 🔹 Lançar Dados --}}
-                        <button id="btn-lancar-mestre"
+                        <button id="btnLancarMestre"
                             class="btn btn-outline-warning rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
@@ -149,7 +172,7 @@
                         </button>
 
                         {{-- 🔹 Permitir Dados --}}
-                        <button id="btn-permitir-jogada"
+                        <button id="btnPermitirJogadaExtra"
                             class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Permitir Jogada Extra"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
@@ -157,21 +180,21 @@
                         </button>
 
                         {{-- 🔹 Causar Dano --}}
-                        <button id="btn-dano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
+                        <button id="btnDano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Causar Dano"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-burst"></i>
                         </button>
 
                         {{-- 🔹 Curar --}}
-                        <button id="btn-curar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
+                        <button id="btnCurar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Curar"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-heart-pulse"></i>
                         </button>
 
                         {{-- 🔹 Upar Personagem --}}
-                        <button id="btn-upar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
+                        <button id="btnUpar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Upar Personagem"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-arrow-up"></i>
@@ -188,7 +211,7 @@
                         <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
                     </div>
                 </div>
-                @endif
+            @endif
 
             {{-- Botão para abrir/fechar chat --}}
             {{-- Container mobile de Chat, Logs e Players --}}
