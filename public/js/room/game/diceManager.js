@@ -8,7 +8,7 @@ let box = null;
  */
 async function initDiceBox() {
     if (!box) {
-        box = new DiceBox('#dice-container', {
+        box = new DiceBox('#dice-box', {
             assetPath: 'https://unpkg.com/@3d-dice/dice-box-threejs/dist/',
             theme: 'default',
             scale: 5,
@@ -44,12 +44,15 @@ async function funcaoChamarDados(facesDados, valorForcado = null) {
     box.roll(rollString);
 
     // 🔹 Faz os dados sumirem depois de alguns segundos
-    setTimeout(() => {
+    setTimeout(async () => {
         if (box) {
-            box.clear(); // remove os dados da tela
-            console.log('🧹 Dados limpos após rolagem');
+            document.querySelector('#dice-box').innerHTML = '';
+            box = null;
+
+            await initDiceBox(); // espera terminar
+            console.log('🧹 DiceBox reinicializado');
         }
-    }, 4000); // 4 segundos depois da rolagem
+    }, 4000);
 }
 
 
