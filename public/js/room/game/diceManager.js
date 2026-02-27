@@ -33,26 +33,30 @@ async function initDiceBox() {
  * @param {number|null} valorForcado - valor forçado opcional
  */
 async function funcaoChamarDados(facesDados, valorForcado = null) {
+
     await initDiceBox();
 
-    let rollString = `1d${facesDados}`;
-    if (!isNaN(valorForcado) && valorForcado > 0) {
-        rollString += `@${valorForcado}`;
-    }
+    return new Promise(resolve => {
 
-    console.log(`🎯 Rolando: ${rollString}`);
-    box.roll(rollString);
+        box.updateConfig({
+            onRollComplete: results => {
 
-    // 🔹 Faz os dados sumirem depois de alguns segundos
-    setTimeout(async () => {
-        if (box) {
-            document.querySelector('#dice-box').innerHTML = '';
-            box = null;
+                const valor = results?.total ?? null;
 
-            await initDiceBox(); // espera terminar
-            console.log('🧹 DiceBox reinicializado');
+                console.log('🎲 Resultado:', valor);
+
+                resolve(valor);
+            }
+        });
+
+        let rollString = `1d${facesDados}`;
+
+        if (!isNaN(valorForcado) && valorForcado > 0) {
+            rollString += `@${valorForcado}`;
         }
-    }, 4000);
+
+        box.roll(rollString);
+    });
 }
 
 
