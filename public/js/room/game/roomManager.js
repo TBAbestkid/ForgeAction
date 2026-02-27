@@ -20,6 +20,7 @@
     // ========== UTILS ==========
     function debugLog(...args) { console.log('[RM]', ...args); }
 
+    // ========= ONLINE USERS MANAGEMENT ==========
     function notifyPresence(acao) {
         if (!salaId) return;
 
@@ -85,20 +86,45 @@
     function onReceiveAction(data) {
         if (!data) return;
         // Log claro e único para depuração de payloads
-        console.log('[RM:onReceiveAction] payload recebido =>', data);
         debugLog('📥 Ação recebida:', data);
 
         switch (data.acao) {
 
             case 'sistema':
-                console.log(data.conteudo);
+                debugLog('📝 Sistema:', data.conteudo);
                 break;
 
             case 'listaUsers':
                 AtualizarListaOnline(data.salaId, data.conteudo);
                 break;
-            case 'iniciativa':
-                debugLog('Iniciativa recebida:', data.conteudo);
+
+            case 'rodadaIniciada':
+                debugLog(' 🎲 Rodada iniciada:', data.conteudo);
+                estadoRodada.ativa = true;
+                estadoRodada.ordem = data.conteudo.ordem;
+                estadoRodada.turnoAtual = 0;
+
+                atualizarUIRodada();
+                verificarPermissaoAcao();
+                break;
+
+            case 'lancarDados':
+                const { faces, valor } = data.conteudo;
+                window.funcaoChamarDados(faces, valor);
+                break;
+
+            case 'dadoOculto':
+                debugLog('🎲 O mestre rolou um dado oculto');
+                break;
+
+            case 'turnoAtualizado':
+                debugLog(' 🔄 Turno atualizado:', data.conteudo);
+                break;
+
+            case 'rodadaEncerrada':
+                debugLog(' 🛑 Rodada encerrada');
+                break;
+
             default:
                 console.warn("Evento desconhecido:", data);
         }
