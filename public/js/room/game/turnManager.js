@@ -54,12 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Função para iniciar a rodada
 function iniciarRodada() {
-    const salaId = window.CHAT_CONFIG?.salaId;
     console.log(' 🚀 Iniciando rodada...');
 
     ws.send('/app/backchannel/rodadas', {
             acao: "iniciarRodada",
-            salaId
+            salaId: window.CHAT_CONFIG?.salaId
         }
     );
 }
@@ -115,7 +114,7 @@ function permitirJogada() {
 
     ws.send('/app/backchannel/rodadas', {
             acao: "permitirJogadaExtra",
-            salaId
+            salaId: window.CHAT_CONFIG?.salaId
         }
     );
 }
