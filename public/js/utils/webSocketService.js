@@ -12,7 +12,7 @@ window.AppWebSocket = (() => {
     // Configurações padrão
     const DEFAULT_CONFIG = {
         reconnectDelay: 3000,       // Delay para reconexão (ms)
-        debug: true                 // Modo debug
+        debug: false                // Modo debug (desligado por padrão para evitar logs duplicados)
     };
 
     // ======== UTILITÁRIOS INTERNOS ========
@@ -42,6 +42,11 @@ window.AppWebSocket = (() => {
     function subscribe(channel, callback) {
         if (!stompClient?.connected) {
             debugLog('❌ Não é possível se inscrever: cliente não conectado');
+            return null;
+        }
+        // Evita dupla inscrição para o mesmo canal
+        if (subscriptions.has(channel)) {
+            debugLog(`⚠️ Já existe inscrição para canal ${channel}, ignorando nova inscrição.`);
             return null;
         }
 
@@ -80,7 +85,7 @@ window.AppWebSocket = (() => {
     }
 
     // ======== CONEXÃO PRINCIPAL ========
-    function connect(wsUrl, channel, onMessage) {
+    function connect(wsUrl, channel, onMessage, headers  = {}) {
         // Evita conexões duplicadas
         if (isConnected) {
             debugLog('ℹ️ Já conectado, ignorando nova tentativa');
@@ -90,7 +95,7 @@ window.AppWebSocket = (() => {
         debugLog('� Iniciando conexão:', wsUrl);
 
         // Armazena configuração para reconexões
-        connectionConfig = { wsUrl, channel, onMessage };
+        connectionConfig = { wsUrl, channel, onMessage, headers};
 
         // Cria conexão SockJS
         const socket = new SockJS(wsUrl);
@@ -99,7 +104,7 @@ window.AppWebSocket = (() => {
         // Desativa logs do STOMP
         stompClient.debug = DEFAULT_CONFIG.debug ? console.log : null;
 
-        stompClient.connect({},
+        stompClient.connect(headers,
             // Sucesso
             () => {
                 debugLog('✅ Conectado com sucesso!');

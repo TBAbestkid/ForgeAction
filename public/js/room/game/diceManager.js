@@ -8,7 +8,7 @@ let box = null;
  */
 async function initDiceBox() {
     if (!box) {
-        box = new DiceBox('#dice-container', {
+        box = new DiceBox('#dice-box', {
             assetPath: 'https://unpkg.com/@3d-dice/dice-box-threejs/dist/',
             theme: 'default',
             scale: 5,
@@ -33,26 +33,30 @@ async function initDiceBox() {
  * @param {number|null} valorForcado - valor forçado opcional
  */
 async function funcaoChamarDados(facesDados, valorForcado = null) {
+
     await initDiceBox();
 
-    let rollString = `1d${facesDados}`;
-    if (!isNaN(valorForcado) && valorForcado > 0) {
-        rollString += `@${valorForcado}`;
-    }
+    return new Promise(resolve => {
 
-    console.log(`🎯 Rolando: ${rollString}`);
-    box.roll(rollString);
+        box.updateConfig({
+            onRollComplete: results => {
 
-    // 🔹 Faz os dados sumirem depois de alguns segundos
-    setTimeout(() => {
+                const valor = results?.total ?? null;
 
-        const canvas = document.querySelector('canvas[data-engine^="three.js"]');
-        if (canvas) {
-            canvas.remove();
-            box = null; // Força reinicialização na próxima rolagem
-            console.log("🧹 Canvas do DiceBox removido.");
+                console.log('🎲 Resultado:', valor);
+
+                resolve(valor);
+            }
+        });
+
+        let rollString = `1d${facesDados}`;
+
+        if (!isNaN(valorForcado) && valorForcado > 0) {
+            rollString += `@${valorForcado}`;
         }
-    }, 4000); // 4 segundos depois da rolagem
+
+        box.roll(rollString);
+    });
 }
 
 

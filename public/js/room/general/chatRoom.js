@@ -72,21 +72,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function processMessage(data) {
         if (!data) return;
-        if (!data.tipo || data.tipo === 'chat') {
+        if (!data.acao || data.acao === 'chat') {
             if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema', false);
             return;
         }
 
-        switch (data.tipo) {
+        switch (data.acao) {
             case 'sistema':
                 addMessage(data.conteudo, '🤖 Sistema', true);
                 break;
-            case 'entrada':
-                // Mensagens de entrada/saída vão como chat, não como sistema
-                addMessage(`🟢 ${data.autor} entrou na sala`, '🤖 Sistema', false);
+            case 'playerEnter':
+                // ✅ Usa userLogin (enviado do roomManager)
+                const nomeEntrada = 'jogador' + data.usuarioId;
+                addMessage(`🟢 ${nomeEntrada} entrou na sala`, '🤖 Sistema', false);
                 break;
-            case 'saida':
-                addMessage(`🔴 ${data.autor} saiu da sala`, '🤖 Sistema', false);
+            case 'playerExit':
+                const nomeSaida = 'jogador' + data.usuarioId;
+                addMessage(`🔴 ${nomeSaida} saiu da sala`, '🤖 Sistema', false);
                 break;
             case 'erro':
                 addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema', true);
@@ -116,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('stomp.disconnected', onStompDisconnected, { once: true });
 
         if (!ws.getStatus().isConnected) {
-            ws.connect(wsUrl);
+            ws.connect(wsUrl,  null,  null, {"usuarioId":  userId, "salaId":  salaId});
         } else {
             ws.subscribe(channel, processMessage);
         }
@@ -138,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const payload = {
-            tipo: 'chat',
+            acao: 'chat',
             conteudo: msg,
             autor: userName,
             userId,

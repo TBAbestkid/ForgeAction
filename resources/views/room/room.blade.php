@@ -98,84 +98,56 @@
                 </nav>
 
                 {{-- Coluna central (DiceBox) --}}
-                <div id="dice-container" class="bg-dark rounded shadow-lg d-flex flex-column justify-content-center align-items-center mx-2" style="flex: 1 1 45%; border: 2px solid #555; overflow: hidden;">
+                <div id="dice-container" class="bg-dark rounded shadow-lg mx-2 position-relative"
+                        style="flex: 1 1 45%; border: 2px solid #555; overflow: hidden; min-height: 420px;">
 
-                    <span id="dice-placeholder" class="text-white" style="position: absolute; z-index: 10;">🎲 Aguardando início do turno...</span>
+                    {{-- 🎲 Área exclusiva do DiceBox --}}
+                    <div id="dice-box"
+                        style="position: absolute; inset: 0; width: 100%; height: 100%;">
+                    </div>
 
-                    <div id="turn-controls" class="d-none flex-column align-items-center gap-2 mt-2">
-                        <div class="d-flex gap-2 flex-wrap justify-content-center">
+                    {{-- Placeholder centralizado --}}
+                    <div id="dice-placeholder" class="text-white text-center"
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+                        🎲 Aguardando início do turno...
+                    </div>
+
+                    {{-- Controles fixos na parte inferior --}}
+                    <div id="turnControls" class="d-none flex-column align-items-center gap-2"
+                            style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); z-index: 10;">
+
+                        <div class="d-flex gap-2 flex-wrap justify-content-center align-items-center">
+
                             @if ($isDono)
-                                {{-- Apenas caso mestre quiser ocultar os dados --}}
-                                <input type="checkbox" name="ocultarDados" id="ocultarDados" class="form-check-input mt-1" >
-                                <label for="ocultarDados" class="form-check-label text-white">Ocultar Dados aos Jogadores</label>
+                                <div class="form-check d-flex align-items-center gap-2">
+                                    <input type="checkbox" name="ocultarDados" id="ocultarDados" class="form-check-input">
+
+                                    <label for="ocultarDados" class="form-check-label text-white">
+                                        Ocultar Dados aos Jogadores
+                                    </label>
+                                </div>
                             @endif
+
                         </div>
 
-                        <div id="dice-options" class="d-none mt-3 text-center">
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="4">D4</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="6">D6</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="10">D10</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="12">D12</button>
-                            <button class="btn btn-outline-primary m-1 dice-btn" data-sides="20">D20</button>
+                        <div id="diceOptions"
+                            class="d-none mt-2 text-center">
+
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="4">D4</button>
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="6">D6</button>
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="10">D10</button>
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="12">D12</button>
+                            <button class="btn btn-outline-primary m-1 diceBtn" data-sides="20">D20</button>
+
                         </div>
                     </div>
+
                 </div>
 
                 {{-- Coluna direita (personagens) --}}
-                <div id="coluna-personangens" class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
-                    @foreach ($membros as $m)
-                        <div class="bg-dark rounded p-1 text-center d-flex flex-column align-items-center personagem-card"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#info-personagem-{{ $m['personagemId'] }}"
-                            aria-expanded="false"
-                            aria-controls="info-personagem-{{ $m['personagemId'] }}"
-                            style="cursor: pointer; font-size: 0.85rem;"
-                            data-card-id="{{ $m['personagemId'] }}"
-                            data-id="{{ $m['personagemId'] }}"
-                            data-online="false"
-                            data-vida-max="{{ $m['vida'] }}"
-                            data-nome="{{ $m['nome'] }}"
-                            data-raca="{{ $m['raca'] }}"
-                            data-classe="{{ $m['classe'] }}"
-                            data-level="{{ $m['level'] }}"
-                            data-vida="{{ $m['vida'] }}"
-                            data-mana="{{ $m['mana'] }}"
-                            data-usuario-id="{{ $m['usuarioId'] }}"
-                                data-usuario-id="{{ $m['usuarioId'] ?? '' }}"
-                                data-usuario-login="{{ $m['usuarioLogin'] ?? '' }}"
-                                data-vida="{{ $m['vida'] ?? 0 }}"
-                            data-forca="{{ $m['forca'] }}"
-                            data-agilidade="{{ $m['agilidade'] }}"
-                            data-inteligencia="{{ $m['inteligencia'] }}"
-                            data-destreza="{{ $m['destreza'] }}"
-                            data-vitalidade="{{ $m['vitalidade'] }}"
-                            data-percepcao="{{ $m['percepcao'] }}"
-                            data-sabedoria="{{ $m['sabedoria'] }}"
-                            data-carisma="{{ $m['carisma'] }}"
-                            data-ataque-magico="{{ $m['ataqueMagico'] }}"
-                            data-ataque-corpo="{{ $m['ataqueFisicoCorpo'] }}"
-                            data-ataque-distancia="{{ $m['ataqueFisicoDistancia'] }}"
-                            data-defesa="{{ $m['defesaPersonagem'] }}"
-                            data-esquiva="{{ $m['esquivaPersonagem'] }}"
-                            data-iniciativa="{{ $m['iniciativa'] }}">
-                            <strong class="small personagem-nome">{{ $m['nome'] }}<span data-online-dot class="status-dot offline"></span></strong>
-                            <div class="progress mt-1 w-100" style="height: 14px; font-size:0.7rem;">
-                                <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
-                                    role="progressbar"
-                                    style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;">
-                                    {{ $m['vida'] }}/{{ $m['vida'] }}
-                                </div>
-                            </div>
-                            <div id="info-personagem-{{ $m['personagemId'] }}" class="collapse mt-1"
-                                style="min-height: auto; max-height: 25vh; overflow: hidden;">
-                                <div class="bg-dark rounded p-1 text-start text-light" style="font-size: 0.7rem;">
-                                    <strong>Classe:</strong> {{ $classesMap[$m['classe']] ?? $m['classe'] }}<br>
-                                    <strong>Raça:</strong> {{ $racasMap[$m['raca']] ?? $m['raca'] }}<br>
-                                    <strong>Nível:</strong> {{ $m['level'] }}<br>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                <div id="coluna-personagens" class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
+                    {{-- Personagens serão inseridos aqui via JS --}}
+
                 </div>
 
             </div>
@@ -192,7 +164,7 @@
                         </button>
 
                         {{-- 🔹 Lançar Dados --}}
-                        <button id="btn-lancar-mestre"
+                        <button id="btnLancarMestre"
                             class="btn btn-outline-warning rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
@@ -200,7 +172,7 @@
                         </button>
 
                         {{-- 🔹 Permitir Dados --}}
-                        <button id="btn-permitir-jogada"
+                        <button id="btnPermitirJogadaExtra"
                             class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Permitir Jogada Extra"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
@@ -208,21 +180,21 @@
                         </button>
 
                         {{-- 🔹 Causar Dano --}}
-                        <button id="btn-dano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
+                        <button id="btnDano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Causar Dano"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-burst"></i>
                         </button>
 
                         {{-- 🔹 Curar --}}
-                        <button id="btn-curar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
+                        <button id="btnCurar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Curar"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-heart-pulse"></i>
                         </button>
 
                         {{-- 🔹 Upar Personagem --}}
-                        <button id="btn-upar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
+                        <button id="btnUpar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Upar Personagem"
                             style="width: 45px; height: 45px; font-size: 0.95rem;">
                             <i class="fa-solid fa-arrow-up"></i>
@@ -235,11 +207,11 @@
                     {{--2 botões em uma linha flexível --}}
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
                         {{-- 🔹 Lançar Dados --}}
-                                <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
-                                <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
-                        </div>
+                        <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
+                        <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
+                    </div>
                 </div>
-                @endif
+            @endif
 
             {{-- Botão para abrir/fechar chat --}}
             {{-- Container mobile de Chat, Logs e Players --}}
@@ -288,15 +260,8 @@
 
                     {{-- Players --}}
                     <div class="tab-pane fade" id="mobile-players" role="tabpanel" aria-labelledby="mobile-players-tab">
-                        <div class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
-                            @foreach ($membros as $m)
-                                <div class="bg-dark rounded p-2 text-white text-center" data-personagem-id="{{ $m['personagemId'] }}">
-                                    <strong class="small">{{ $m['nome'] }} <span class="members-list-dot offline"></span></strong>
-                                    <div class="progress mt-1" style="height: 12px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($m['vida'] / $m['vida']) * 100 }}%;"></div>
-                                    </div>
-                                </div>
-                            @endforeach
+                        <div id="coluna-personagens-mobile" class="d-flex flex-column gap-2 overflow-auto scroll-invisible" style="height: 30vh; font-size: 0.85rem;">
+
                         </div>
                     </div>
                 </div>
@@ -317,26 +282,25 @@
                 <ul id="lista-membros" class="list-group list-group-flush overflow-auto" style="max-height: 500px;">
 
                     {{-- 🔹 Primeiro o Mestre (dono da sala) --}}
-                    @if(isset($sala['mestre']))
-                        @php
-                                $mestre = collect($membros)->firstWhere('usuarioId', $sala['mestre']);
-                            @endphp
+                    @php
+                        $mestreId = $sala['mestre'];
+                    @endphp
 
-                            <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fa-solid fa-crown text-warning me-2"></i>
-                                    <strong>{{ $mestre['usuarioLogin'] ?? 'Mestre' }}</strong>
-                                </div>
-                                <span><span class="members-list-dot offline"></span></span>
-                            </li>
-                        @endif
+                    <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa-solid fa-crown text-warning me-2"></i>
+                            <strong>{{ $membros[$mestreId] ?? 'Mestre' }}</strong>
+                        </div>
+                        <span><span class="members-list-dot offline"></span></span>
+                    </li>
 
                     {{-- 🔹 Depois os Players (exceto o mestre) --}}
-                    @foreach($membros as $membro)
-                        @continue(isset($sala['mestre']) && $membro['usuarioId'] == $sala['mestre']) {{-- Pula o mestre --}}
+                    @foreach($membros as $uid => $login)
+                        @continue($uid == $mestreId)
 
-                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center" data-personagem-id="{{ $membro['personagemId'] }}">
-                            {{ $membro['usuarioLogin'] ?? 'Jogador Desconhecido' }}
+                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center"
+                            data-user-id="{{ $uid }}">
+                            {{ $login }}
                             <span><span class="members-list-dot offline"></span></span>
                         </li>
                     @endforeach
@@ -401,11 +365,11 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
-<script type="module" src="{{ asset('js/room/dice-manager.js') }}"></script>
-<script src="{{ asset('js/room/gameFlow.js') }}"></script>
-<script src="{{ asset('js/room/turnUIManager.js') }}"></script>
-<script src="{{ asset('js/room/turnManager.js') }}"></script>
-<script src="{{ asset('js/room/personagensManager.js') }}"></script>
+<script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
+<script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
+<script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
+<script src="{{ asset('js/room/game/turnManager.js') }}"></script>
+<script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
 {{-- Ativar tooltips --}}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -460,8 +424,8 @@
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
-        // wsUrl: "/ws",
+        // wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
+        wsUrl: "{{ env('EXTERNAL_API_URL') }}/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
 
@@ -477,13 +441,13 @@
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
 
 {{-- 2. Gerenciadores da sala --}}
-<script src="{{ asset('js/room/chat-room.js') }}"></script>
-<script src="{{ asset('js/room/room-manager.js') }}"></script>
+<script src="{{ asset('js/room/general/chatRoom.js') }}"></script>
+<script src="{{ asset('js/room/game/roomManager.js') }}"></script>
 
 {{-- Scripts auxiliares --}}
-<script src="{{ asset('js/room/exit.js') }}"></script>
-<script src="{{ asset('js/room/invite.js') }}"></script>
-<script src="{{ asset('js/room/delete.js') }}"></script>
+<script src="{{ asset('js/room/general/exit.js') }}"></script>
+<script src="{{ asset('js/room/general/invite.js') }}"></script>
+<script src="{{ asset('js/room/general/delete.js') }}"></script>
 
 @endsection
 

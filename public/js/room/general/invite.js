@@ -4,7 +4,7 @@
 
 let usuarios = [];
 
-console.log('Invite JS loaded (Select2 ativo)');
+// Invite module loaded
 
 $(document).ready(function () {
     // ======================

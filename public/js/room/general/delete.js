@@ -1,4 +1,4 @@
-console.log("Delete JS loaded");
+// Delete module loaded
 
 // a Logica dessa bomba é parecida como exit.js
 $(document).ready(function () {
