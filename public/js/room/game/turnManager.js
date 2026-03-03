@@ -6,18 +6,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    document.querySelectorAll('.diceBtn').forEach(btn => {
+
+        btn.addEventListener('click', () => {
+
+            const faces = parseInt(btn.dataset.sides);
+
+            emitirLancamentoDados(faces);
+
+            // Fecha menu depois de escolher
+            document.getElementById('diceOptions')?.classList.add('d-none');
+
+        });
+
+    });
+
+    // Botoes do Mestre
     const btnIniciar = document.getElementById('btnIniciarTurno');
     if (btnIniciar) {
         btnIniciar.addEventListener('click', () => {
-            iniciarRodada();
+            if (!window.turnState.rodadaIniciada) {
+                iniciarRodada();
+            } else {
+                avancarTurno();
+            }
         });
     }
 
     const btnMestre = document.getElementById('btnLancarMestre');
     if (btnMestre) {
-        btnMestre.addEventListener('click', () => {
-            lancarDadosMestre();
-        });
+        btnMestre.addEventListener('click', toggleOpcoesDados);
     }
 
     const btnPermitir = document.getElementById('btnPermitirJogadaExtra');
@@ -50,6 +68,19 @@ document.addEventListener('DOMContentLoaded', () => {
             ativarModoSelecao();
         });
     }
+
+    // Botoes do Player
+    const btnRoll = document.getElementById('btn-roll');
+    if (btnRoll) {
+        btnRoll.addEventListener('click', toggleOpcoesDados);
+    }
+
+    const btnSkip = document.getElementById('btn-skip');
+    if (btnSkip) {
+        btnSkip.addEventListener('click', () => {
+            avancarTurno();
+        });
+    }
 });
 
 // Função para iniciar a rodada
@@ -63,60 +94,58 @@ function iniciarRodada() {
     );
 }
 
-function lancarDadosMestre() {
+// Função para avançar para o próximo turno
+function avancarTurno() {
+    console.log(' ⏭️ Avançando para o próximo turno...');
+    ws.send('/app/backchannel/rodadas', {
+        acao: "proximoTurno",
+        salaId: window.CHAT_CONFIG?.salaId
+    });
+}
+
+function toggleOpcoesDados() {
 
     const turnControls = document.getElementById('turnControls');
     const diceOptions  = document.getElementById('diceOptions');
 
-    if (!turnControls) return;
+    if (!turnControls || !diceOptions) return;
 
-    const estaAberto = !turnControls.classList.contains('d-none');
-
-    if (estaAberto) {
-        // 🔒 FECHAR
-        turnControls.classList.add('d-none');
-        diceOptions?.classList.add('d-none');
-        console.log('🔒 Mestre não irá lançar mais dados');
-    } else {
-        // 🔓 ABRIR
-        turnControls.classList.remove('d-none');
-        diceOptions?.classList.remove('d-none');
-        console.log('🧙‍♂️ Mestre irá lançar dados');
-    }
+    turnControls.classList.remove('d-none');
+    diceOptions.classList.toggle('d-none');
 }
 
-document.querySelectorAll('.diceBtn').forEach(btn => {
+function emitirLancamentoDados(faces) {
 
-    btn.addEventListener('click', () => {
+    console.log('🎲 Lançar dados acionado');
 
-        const faces = parseInt(btn.getAttribute('data-sides'));
-        const ocultar = document.getElementById('ocultarDados')?.checked ?? false;
+    const valor = Math.floor(Math.random() * faces) + 1;
 
-        const valor = Math.floor(Math.random() * faces) + 1;
+    const salaId = window.CHAT_CONFIG?.salaId;
 
-        ws.send('/app/backchannel/rodadas', {
-            acao: "lancarDadosMestre",
-            salaId: window.CHAT_CONFIG?.salaId,
-            conteudo: {
-                faces,
-                valor,
-                ocultar
-            }
-        });
+    let oculto = false;
 
+    if (window.isMestre) {
+        const checkbox = document.getElementById('ocultarDados');
+        oculto = checkbox?.checked ?? false;
+    }
+
+    ws.send('/app/enviar/' + salaId, {
+        acao: "lancarDados",
+        salaId,
+        faces,
+        valor,
+        oculto
     });
-
-});
+}
 
 function permitirJogada() {
     console.log(' 🎲 Permitir jogada extra acionada');
     // Vai voltar pro jogador anterior pra pode Lançar dado ou só pular
 
     ws.send('/app/backchannel/rodadas', {
-            acao: "permitirJogadaExtra",
-            salaId: window.CHAT_CONFIG?.salaId
-        }
-    );
+        acao: "cederTurno",
+        salaId: window.CHAT_CONFIG?.salaId,
+    });
 }
 
 function ativarModoSelecao() {
