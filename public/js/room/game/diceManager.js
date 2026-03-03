@@ -59,7 +59,7 @@ function handleRollComplete(results) {
             box.clearDice();
         }
 
-        if (!window.CHAT_CONFIG?.isDono) {
+        if (!window.isMestre) {
             console.log("⏭️ Player avançando turno automaticamente...");
             window.avancarTurno?.();
         }
