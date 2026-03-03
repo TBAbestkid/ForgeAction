@@ -11,7 +11,7 @@
     const userId = String(CHAT.userId ?? '');
     const userLogin = CHAT.userLogin ?? 'PLAYER';
     const salaId = CHAT.salaId ?? null;
-    const isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE');
+    window.isMestre = !!(CHAT.isMestre || CHAT.role?.toUpperCase() === 'MESTRE');
     const wsUrl = CHAT.wsUrl;
     const channel = String(salaId);
     const backChannel = String("backchannel/" + salaId);
@@ -81,7 +81,6 @@
         }
     }
 
-
     //receber dados/ação
     function onReceiveAction(data) {
         if (!data) return;
@@ -98,19 +97,36 @@
                 AtualizarListaOnline(data.salaId, data.conteudo);
                 break;
 
-            case 'rodadaIniciada':
-                debugLog(' 🎲 Rodada iniciada:', data.conteudo);
-                estadoRodada.ativa = true;
-                estadoRodada.ordem = data.conteudo.ordem;
-                estadoRodada.turnoAtual = 0;
+            case 'round':
 
-                atualizarUIRodada();
-                verificarPermissaoAcao();
-                break;
+                debugLog('🎲 Rodada iniciada');
 
-            case 'lancarDados':
-                const { faces, valor } = data.conteudo;
-                window.funcaoChamarDados(faces, valor);
+                debugLog('É o mestre?', isMestre);
+
+                // Marcar que a rodada iniciou
+                window.turnState.rodadaIniciada = true;
+                // Definir de quem é o turno atual
+                window.turnState.turnoAtual = data.usuarioId;
+
+                let turnoEhMeu = false;
+
+                if (data.usuarioId === "mestre") {
+
+                    // Se o backend disse que é turno do mestre,
+                    // então só é meu turno se eu for o mestre
+                    turnoEhMeu = isMestre;
+
+                } else {
+
+                    // Se não é mestre, então é ID numérico de player
+                    turnoEhMeu = String(data.usuarioId) === String(userId);
+
+                }
+
+                debugLog('🎲 Turno eh meu?', turnoEhMeu);
+
+                atualizarInterfaceTurno(turnoEhMeu);
+
                 break;
 
             case 'dadoOculto':
