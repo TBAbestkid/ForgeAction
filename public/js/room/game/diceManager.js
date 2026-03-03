@@ -16,9 +16,7 @@ async function initDiceBox() {
             gravity_multiplier: 600,
             baseScale: 100,
             strength: 2,
-            onRollComplete: results => {
-                console.log('🎲 Resultado:', results);
-            }
+            onRollComplete: handleRollComplete
         });
 
         await box.initialize();
@@ -32,31 +30,40 @@ async function initDiceBox() {
  * @param {number} facesDados - número de faces do dado (ex: 6, 20)
  * @param {number|null} valorForcado - valor forçado opcional
  */
+
 async function funcaoChamarDados(facesDados, valorForcado = null) {
 
     await initDiceBox();
 
-    return new Promise(resolve => {
+    let rollString = `1d${facesDados}`;
 
-        box.updateConfig({
-            onRollComplete: results => {
+    if (!isNaN(valorForcado) && valorForcado > 0) {
+        rollString += `@${valorForcado}`;
+    }
 
-                const valor = results?.total ?? null;
+    box.roll(rollString);
+}
 
-                console.log('🎲 Resultado:', valor);
+function handleRollComplete(results) {
 
-                resolve(valor);
-            }
-        });
+    console.log("🔥 onRollComplete disparou");
 
-        let rollString = `1d${facesDados}`;
+    const valor = results?.total ?? null;
+    console.log('🎲 Resultado final:', valor);
 
-        if (!isNaN(valorForcado) && valorForcado > 0) {
-            rollString += `@${valorForcado}`;
+    setTimeout(() => {
+
+        console.log("🧹 Limpando dados...");
+
+        if (box?.clearDice) {
+            box.clearDice();
         }
 
-        box.roll(rollString);
-    });
+        if (!window.CHAT_CONFIG?.isDono) {
+            console.log("⏭️ Player avançando turno automaticamente...");
+            window.avancarTurno?.();
+        }
+    }, 4000);
 }
 
 
