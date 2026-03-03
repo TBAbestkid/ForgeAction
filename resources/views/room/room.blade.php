@@ -202,15 +202,15 @@
                     </div>
                 </div>
                 @else
-                {{-- botoes de acao do player --}}
-                 <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
-                    {{--2 botões em uma linha flexível --}}
-                    <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        {{-- 🔹 Lançar Dados --}}
-                        <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
-                        <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
+                    {{-- botoes de acao do player --}}
+                    <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
+                        {{--2 botões em uma linha flexível --}}
+                        <div class="d-flex gap-2 justify-content-center flex-wrap">
+                            {{-- 🔹 Lançar Dados --}}
+                            <button id="btn-roll" class="btn btn-outline-light" disabled>🎲 Rodar Dado</button>
+                            <button id="btn-skip" class="btn btn-outline-warning" disabled>⏭️ Pular</button>
+                        </div>
                     </div>
-                </div>
             @endif
 
             {{-- Botão para abrir/fechar chat --}}
@@ -365,6 +365,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/room/game/turnState.js') }}"></script>
 <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
 <script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
 <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
