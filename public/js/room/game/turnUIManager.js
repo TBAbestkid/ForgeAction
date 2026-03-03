@@ -14,36 +14,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function verificarPermissaoAcao() {
+function alterarTextoTurno() {
+    const turnoInfo = document.getElementById('dice-placeholder');
+    // Só trocar texto, vai exibir se é mestre, se é o player lá, e etc
+}
 
-    if (!estadoRodada.ativa) return;
+function desativarBotoesPlayer() {
+    const btnRoll = document.getElementById('btn-roll');
+    const btnSkip = document.getElementById('btn-skip');
 
-    const jogadorAtual = estadoRodada.ordem[estadoRodada.turnoAtual];
+    if (btnRoll) btnRoll.disabled = true;
+    if (btnSkip) btnSkip.disabled = true;
+}
 
-    const meuId = window.CHAT_CONFIG?.userId;
+function atualizarInterfaceTurno(turnoEhMeu) {
 
-    const possoAgir = jogadorAtual.id === meuId;
+    const btnRoll = document.getElementById('btn-roll');
+    const btnSkip = document.getElementById('btn-skip');
+    const btnControle = document.getElementById('btnIniciarTurno');
+    const icon = btnControle?.querySelector('i');
 
-    const turnControls = document.getElementById('turnControls');
+    if (btnRoll) btnRoll.disabled = !turnoEhMeu;
+    if (btnSkip) btnSkip.disabled = !turnoEhMeu;
 
-    if (turnControls) {
-        turnControls.classList.toggle('d-none', !possoAgir);
+    if (window.isMestre && window.turnState.rodadaIniciada) {
+
+        if (icon) {
+            icon.classList.remove('fa-play');
+            icon.classList.add('fa-forward-fast');
+        }
+
+        btnControle?.setAttribute('title', 'Próximo Turno');
     }
+
+    atualizarTextoTurno(turnoEhMeu);
 }
 
-function atualizarUIRodada() {
-}
+function atualizarTextoTurno(turnoEhMeu) {
 
-function lancarDados() {
-    console.log(' 🎲 Lançar dados acionado');
+    const placeholder = document.getElementById('dice-placeholder');
+    if (!placeholder) return;
 
-    const faces = 20;
-    const valor = Math.floor(Math.random() * faces) + 1;
+    if (!window.turnState.rodadaIniciada) {
+        placeholder.innerText = "🎲 Aguardando início da rodada...";
+        return;
+    }
 
-    ws.send('/app/backchannel/rodadas', {
-        acao: "lancarDados",
-        salaId: window.CHAT_CONFIG?.salaId,
-        faces,
-        valor
-    });
+    if (turnoEhMeu) {
+        placeholder.innerText = "🔥 É o seu turno!";
+        return;
+    }
+
+    if (window.turnState.turnoAtual === "mestre") {
+        placeholder.innerText = "🧙 Turno do Mestre";
+    } else {
+        placeholder.innerText = "⏳ Aguardando outro jogador...";
+    }
 }
