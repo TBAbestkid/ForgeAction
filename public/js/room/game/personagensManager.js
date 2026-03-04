@@ -77,7 +77,7 @@ function criarCardPersonagem(personagem, sufixo) {
         e.preventDefault();
         e.stopPropagation();
 
-        selecionarPersonagem(personagem.id);
+        selecionarPersonagem(personagem.usuarioId, personagem.id);
     });
 
     return personagemDiv;

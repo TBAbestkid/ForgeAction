@@ -41,13 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnPermitir = document.getElementById('btnPermitirJogadaExtra');
     if (btnPermitir) {
         btnPermitir.addEventListener('click', () => {
-            permitirJogada();
+            console.log('🎯 Mestre permitiu uma jogada extra');
+            acaoMestreAtual = 'cederTurno';
+            ativarModoSelecao();
         });
     }
 
     const btnDano = document.getElementById('btnDano');
     if (btnDano) {
         btnDano.addEventListener('click', () => {
+            console.log('🎯 Mestre causou dano');
             acaoMestreAtual = 'causarDano';
             ativarModoSelecao();
         });
@@ -56,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCurar = document.getElementById('btnCurar');
     if (btnCurar) {
         btnCurar.addEventListener('click', () => {
+            console.log('🎯 Mestre curou um personagem');
             acaoMestreAtual = 'curarPersonagem';
             ativarModoSelecao();
         });
@@ -64,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnUpar = document.getElementById('btnUpar');
     if (btnUpar) {
         btnUpar.addEventListener('click', () => {
+            console.log('🎯 Mestre upou um personagem');
             acaoMestreAtual = 'uparPersonagem';
             ativarModoSelecao();
         });
@@ -144,7 +149,8 @@ function permitirJogada() {
 
     ws.send('/app/backchannel/rodadas', {
         acao: "cederTurno",
-        salaId: window.CHAT_CONFIG?.salaId,
+        salaId: window.CHAT_CONFIG?.salaId
+
     });
 }
 
@@ -154,21 +160,28 @@ function ativarModoSelecao() {
     });
 }
 
-function selecionarPersonagem(personagemId) {
+function selecionarPersonagem(usuarioId, personagemId) {
 
     if (!acaoMestreAtual) return;
 
     personagemSelecionadoId = personagemId;
+    usuarioSelecionadoId = usuarioId;
 
     console.log(`👆 Personagem selecionado: ${personagemId}`);
+    console.log(`👆 Usuario selecionado: ${usuarioId}`);
 
     // Remove destaque visual
     document.querySelectorAll('.selecionavel').forEach(el => {
         el.classList.remove('selecionavel');
     });
 
-    if (acaoMestreAtual === 'upar') {
+    // upar ou dar jogada extra não precisa de valor, só clicar e pronto
+    if (acaoMestreAtual === 'uparPersonagem') {
         enviarAcaoMestre(0); // sem valor
+        resetarSelecao();
+        return;
+    } if (acaoMestreAtual === 'cederTurno') {
+        enviarAcaoMestre(personagemId); // envia id do personagem que vai receber o turno, mas sem valor numérico
         resetarSelecao();
         return;
     }
@@ -190,15 +203,18 @@ document.getElementById('btnConfirmarValor')
 });
 
 function enviarAcaoMestre(valor) {
+    console.log(`🎯 Enviando ação do mestre: ${acaoMestreAtual} para personagem ${personagemSelecionadoId} com valor ${valor}`);
 
     ws.send('/app/backchannel/rodadas', {
         acao: acaoMestreAtual, // 'dano', 'cura' ou 'upar'
         salaId: window.CHAT_CONFIG?.salaId,
-        conteudo: {
-            personagemId: personagemSelecionadoId,
-            valor
-        }
+        usuarioId: personagemSelecionadoId
     });
+
+    // Se a ação for o cederTurno, passa o pro proximo turno
+    if (acaoMestreAtual === 'cederTurno') {
+        avancarTurno();
+    }
 
 }
 
