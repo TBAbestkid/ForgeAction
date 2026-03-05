@@ -93,6 +93,35 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'erro':
                 addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema', true);
                 break;
+
+            case 'lancarDados':
+
+                console.log("🔥 EU RECEBI? lancarDados", data);
+
+                const { faces, valor, oculto } = data;
+
+
+                if (oculto) {
+
+                    if (window.isMestre) {
+                        // Mestre vê normalmente
+                        window.funcaoChamarDados(faces, valor);
+                    } else {
+                        // Jogadores só recebem aviso
+                        console.log("🎲 Mestre rolou um dado secretamente...");
+
+                        addMessage("🎲 O mestre rolou um dado em segredo...", "🤖 Sistema", true);
+                    }
+
+                } else {
+                    // Rolagem normal
+                    window.funcaoChamarDados(faces, valor);
+                }
+
+                break;
+
+            default:
+                console.warn('⚠️ Ação desconhecida recebida:', data);
         }
     }
 

@@ -6,30 +6,51 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    document.querySelectorAll('.diceBtn').forEach(btn => {
+
+        btn.addEventListener('click', () => {
+
+            const faces = parseInt(btn.dataset.sides);
+
+            emitirLancamentoDados(faces);
+
+            // Fecha menu depois de escolher
+            document.getElementById('diceOptions')?.classList.add('d-none');
+
+        });
+
+    });
+
+    // Botoes do Mestre
     const btnIniciar = document.getElementById('btnIniciarTurno');
     if (btnIniciar) {
         btnIniciar.addEventListener('click', () => {
-            iniciarRodada();
+            if (!window.turnState.rodadaIniciada) {
+                iniciarRodada();
+            } else {
+                avancarTurno();
+            }
         });
     }
 
     const btnMestre = document.getElementById('btnLancarMestre');
     if (btnMestre) {
-        btnMestre.addEventListener('click', () => {
-            lancarDadosMestre();
-        });
+        btnMestre.addEventListener('click', toggleOpcoesDados);
     }
 
     const btnPermitir = document.getElementById('btnPermitirJogadaExtra');
     if (btnPermitir) {
         btnPermitir.addEventListener('click', () => {
-            permitirJogada();
+            console.log('🎯 Mestre permitiu uma jogada extra');
+            acaoMestreAtual = 'cederTurno';
+            ativarModoSelecao();
         });
     }
 
     const btnDano = document.getElementById('btnDano');
     if (btnDano) {
         btnDano.addEventListener('click', () => {
+            console.log('🎯 Mestre causou dano');
             acaoMestreAtual = 'causarDano';
             ativarModoSelecao();
         });
@@ -38,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCurar = document.getElementById('btnCurar');
     if (btnCurar) {
         btnCurar.addEventListener('click', () => {
+            console.log('🎯 Mestre curou um personagem');
             acaoMestreAtual = 'curarPersonagem';
             ativarModoSelecao();
         });
@@ -46,8 +68,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnUpar = document.getElementById('btnUpar');
     if (btnUpar) {
         btnUpar.addEventListener('click', () => {
+            console.log('🎯 Mestre upou um personagem');
             acaoMestreAtual = 'uparPersonagem';
             ativarModoSelecao();
+        });
+    }
+
+    // Botoes do Player
+    const btnRoll = document.getElementById('btn-roll');
+    if (btnRoll) {
+        btnRoll.addEventListener('click', toggleOpcoesDados);
+    }
+
+    const btnSkip = document.getElementById('btn-skip');
+    if (btnSkip) {
+        btnSkip.addEventListener('click', () => {
+            avancarTurno();
         });
     }
 });
@@ -63,60 +99,68 @@ function iniciarRodada() {
     );
 }
 
-function lancarDadosMestre() {
+// Função para avançar para o próximo turno
+function avancarTurno() {
+    console.log(' ⏭️ Avançando para o próximo turno...');
+    ws.send('/app/backchannel/rodadas', {
+        acao: "proximoTurno",
+        salaId: window.CHAT_CONFIG?.salaId
+    });
+}
+
+function toggleOpcoesDados() {
 
     const turnControls = document.getElementById('turnControls');
     const diceOptions  = document.getElementById('diceOptions');
 
-    if (!turnControls) return;
+    if (!turnControls || !diceOptions) return;
 
-    const estaAberto = !turnControls.classList.contains('d-none');
+    turnControls.classList.remove('d-none');
+    diceOptions.classList.toggle('d-none');
 
-    if (estaAberto) {
-        // 🔒 FECHAR
-        turnControls.classList.add('d-none');
-        diceOptions?.classList.add('d-none');
-        console.log('🔒 Mestre não irá lançar mais dados');
-    } else {
-        // 🔓 ABRIR
-        turnControls.classList.remove('d-none');
-        diceOptions?.classList.remove('d-none');
-        console.log('🧙‍♂️ Mestre irá lançar dados');
+    if (window.isMestre) {
+        // Se for mestre, mostra opção de ocultar dados
+        const ocultarOption = document.getElementById('ocultarDadosOption');
+        if (ocultarOption) {
+            ocultarOption.classList.remove('d-none');
+        }
     }
 }
 
-document.querySelectorAll('.diceBtn').forEach(btn => {
+function emitirLancamentoDados(faces) {
 
-    btn.addEventListener('click', () => {
+    console.log('🎲 Lançar dados acionado');
 
-        const faces = parseInt(btn.getAttribute('data-sides'));
-        const ocultar = document.getElementById('ocultarDados')?.checked ?? false;
+    const valor = Math.floor(Math.random() * faces) + 1;
 
-        const valor = Math.floor(Math.random() * faces) + 1;
+    const salaId = window.CHAT_CONFIG?.salaId;
 
-        ws.send('/app/backchannel/rodadas', {
-            acao: "lancarDadosMestre",
-            salaId: window.CHAT_CONFIG?.salaId,
-            conteudo: {
-                faces,
-                valor,
-                ocultar
-            }
-        });
+    let oculto = false;
 
+    if (window.isMestre) {
+        const checkbox = document.getElementById('ocultarDados');
+        oculto = checkbox?.checked ?? false;
+    }
+
+    ws.send('/app/enviar/' + salaId, {
+        acao: "lancarDados",
+        salaId,
+        faces,
+        valor,
+        oculto
     });
+}
 
-});
-
+// Não tô usando, só tá aq mesmo.
 function permitirJogada() {
     console.log(' 🎲 Permitir jogada extra acionada');
     // Vai voltar pro jogador anterior pra pode Lançar dado ou só pular
 
     ws.send('/app/backchannel/rodadas', {
-            acao: "permitirJogadaExtra",
-            salaId: window.CHAT_CONFIG?.salaId
-        }
-    );
+        acao: "cederTurno",
+        salaId: window.CHAT_CONFIG?.salaId
+
+    });
 }
 
 function ativarModoSelecao() {
@@ -125,21 +169,28 @@ function ativarModoSelecao() {
     });
 }
 
-function selecionarPersonagem(personagemId) {
+function selecionarPersonagem(usuarioId, personagemId) {
 
     if (!acaoMestreAtual) return;
 
     personagemSelecionadoId = personagemId;
+    usuarioSelecionadoId = usuarioId;
 
     console.log(`👆 Personagem selecionado: ${personagemId}`);
+    console.log(`👆 Usuario selecionado: ${usuarioId}`);
 
     // Remove destaque visual
     document.querySelectorAll('.selecionavel').forEach(el => {
         el.classList.remove('selecionavel');
     });
 
-    if (acaoMestreAtual === 'upar') {
+    // upar ou dar jogada extra não precisa de valor, só clicar e pronto
+    if (acaoMestreAtual === 'uparPersonagem') {
         enviarAcaoMestre(0); // sem valor
+        resetarSelecao();
+        return;
+    } if (acaoMestreAtual === 'cederTurno') {
+        enviarAcaoMestre(usuarioId); // envia id da pessoa que vai receber o turno, mas sem valor numérico
         resetarSelecao();
         return;
     }
@@ -161,15 +212,18 @@ document.getElementById('btnConfirmarValor')
 });
 
 function enviarAcaoMestre(valor) {
+    console.log(`🎯 Enviando ação do mestre: ${acaoMestreAtual} para personagem ${personagemSelecionadoId} com valor ${valor}`);
 
     ws.send('/app/backchannel/rodadas', {
         acao: acaoMestreAtual, // 'dano', 'cura' ou 'upar'
         salaId: window.CHAT_CONFIG?.salaId,
-        conteudo: {
-            personagemId: personagemSelecionadoId,
-            valor
-        }
+        usuarioId: personagemSelecionadoId
     });
+
+    // Se a ação for o cederTurno, passa o pro proximo turno
+    if (acaoMestreAtual === 'cederTurno') {
+        avancarTurno();
+    }
 
 }
 

@@ -77,13 +77,22 @@ function criarCardPersonagem(personagem, sufixo) {
         e.preventDefault();
         e.stopPropagation();
 
-        selecionarPersonagem(personagem.id);
+        selecionarPersonagem(personagem.usuarioId, personagem.id);
     });
 
     return personagemDiv;
 }
 
 function adicionarPersonagemOnline(personagem) {
+
+    const idDesktop = `personagem-online-${personagem.id}-pc`;
+    const idMobile  = `personagem-online-${personagem.id}-mb`;
+
+    // 🚫 Se já existir, não adiciona de novo
+    if (document.getElementById(idDesktop) || document.getElementById(idMobile)) {
+        console.log(`⚠️ Personagem ${personagem.nome} já existe, ignorando duplicação.`);
+        return;
+    }
 
     const colunaPersonagens =
         document.getElementById('coluna-personagens');
