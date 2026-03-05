@@ -117,6 +117,14 @@ function toggleOpcoesDados() {
 
     turnControls.classList.remove('d-none');
     diceOptions.classList.toggle('d-none');
+
+    if (window.isMestre) {
+        // Se for mestre, mostra opção de ocultar dados
+        const ocultarOption = document.getElementById('ocultarDadosOption');
+        if (ocultarOption) {
+            ocultarOption.classList.remove('d-none');
+        }
+    }
 }
 
 function emitirLancamentoDados(faces) {
