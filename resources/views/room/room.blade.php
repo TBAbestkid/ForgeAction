@@ -167,7 +167,7 @@
                         <button id="btnLancarMestre"
                             class="btn btn-outline-warning rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-dice-d20"></i>
                         </button>
 
@@ -175,42 +175,42 @@
                         <button id="btnPermitirJogadaExtra"
                             class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Permitir Jogada Extra"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-user-check"></i>
                         </button>
 
                         {{-- 🔹 Causar Dano --}}
                         <button id="btnDano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Causar Dano"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-burst"></i>
                         </button>
 
                         {{-- 🔹 Curar --}}
                         <button id="btnCurar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Curar"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-heart-pulse"></i>
                         </button>
 
                         {{-- 🔹 Upar Personagem --}}
                         <button id="btnUpar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Upar Personagem"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-arrow-up"></i>
                         </button>
                     </div>
                 </div>
                 @else
-                {{-- botoes de acao do player --}}
-                 <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
-                    {{--2 botões em uma linha flexível --}}
-                    <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        {{-- 🔹 Lançar Dados --}}
-                        <button id="btn-roll" class="btn btn-outline-light">🎲 Rodar Dado</button>
-                        <button id="btn-skip" class="btn btn-outline-warning">⏭️ Pular</button>
+                    {{-- botoes de acao do player --}}
+                    <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
+                        {{--2 botões em uma linha flexível --}}
+                        <div class="d-flex gap-2 justify-content-center flex-wrap">
+                            {{-- 🔹 Lançar Dados --}}
+                            <button id="btn-roll" class="btn btn-outline-light" disabled>🎲 Rodar Dado</button>
+                            <button id="btn-skip" class="btn btn-outline-warning" disabled>⏭️ Pular</button>
+                        </div>
                     </div>
-                </div>
             @endif
 
             {{-- Botão para abrir/fechar chat --}}
@@ -365,6 +365,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
+<script src="{{ asset('js/room/game/turnState.js') }}"></script>
 <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
 <script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
 <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>

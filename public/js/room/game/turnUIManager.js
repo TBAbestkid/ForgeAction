@@ -14,36 +14,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function verificarPermissaoAcao() {
+function alterarTextoTurno() {
+    const turnoInfo = document.getElementById('dice-placeholder');
+    // Só trocar texto, vai exibir se é mestre, se é o player lá, e etc
+}
 
-    if (!estadoRodada.ativa) return;
+function atualizarBotoesPlayer(turnoEhMeu) {
 
-    const jogadorAtual = estadoRodada.ordem[estadoRodada.turnoAtual];
+    const btnRoll = document.getElementById('btn-roll');
+    const btnSkip = document.getElementById('btn-skip');
 
-    const meuId = window.CHAT_CONFIG?.userId;
+    const habilitar = turnoEhMeu && !window.isMestre;
 
-    const possoAgir = jogadorAtual.id === meuId;
+    if (btnRoll) btnRoll.disabled = !habilitar;
+    if (btnSkip) btnSkip.disabled = !habilitar;
+}
 
-    const turnControls = document.getElementById('turnControls');
+function atualizarBotoesMestre(turnoDoMestre) {
 
-    if (turnControls) {
-        turnControls.classList.toggle('d-none', !possoAgir);
+    const btnMestre = document.getElementById('btnLancarMestre');
+    const btnPermitir = document.getElementById('btnPermitirJogadaExtra');
+    const btnDano = document.getElementById('btnDano');
+    const btnCurar = document.getElementById('btnCurar');
+    const btnUpar = document.getElementById('btnUpar');
+
+    const habilitar = window.isMestre && turnoDoMestre;
+
+    if (btnMestre) btnMestre.disabled = !habilitar;
+    if (btnPermitir) btnPermitir.disabled = !habilitar;
+    if (btnDano) btnDano.disabled = !habilitar;
+    if (btnCurar) btnCurar.disabled = !habilitar;
+    if (btnUpar) btnUpar.disabled = !habilitar;
+}
+
+function atualizarControleTurno() {
+
+    const btnControle = document.getElementById('btnIniciarTurno');
+    const icon = btnControle?.querySelector('i');
+
+    if (window.isMestre && window.turnState.rodadaIniciada) {
+
+        if (icon) {
+            icon.classList.remove('fa-play');
+            icon.classList.add('fa-forward-fast');
+        }
+
+        btnControle?.setAttribute('title', 'Próximo Turno');
     }
 }
 
-function atualizarUIRodada() {
+function atualizarInterfaceTurno(turnoEhMeu) {
+
+    const turnoDoMestre = window.turnState.turnoAtual === "mestre";
+
+    atualizarBotoesPlayer(turnoEhMeu);
+    atualizarBotoesMestre(turnoDoMestre);
+    atualizarControleTurno();
+
+    atualizarTextoTurno(turnoEhMeu);
 }
 
-function lancarDados() {
-    console.log(' 🎲 Lançar dados acionado');
+function atualizarTextoTurno(turnoEhMeu) {
 
-    const faces = 20;
-    const valor = Math.floor(Math.random() * faces) + 1;
+    const placeholder = document.getElementById('dice-placeholder');
+    if (!placeholder) return;
 
-    ws.send('/app/backchannel/rodadas', {
-        acao: "lancarDados",
-        salaId: window.CHAT_CONFIG?.salaId,
-        faces,
-        valor
-    });
+    if (!window.turnState.rodadaIniciada) {
+        placeholder.innerText = "🎲 Aguardando início da rodada...";
+        return;
+    }
+
+    if (turnoEhMeu) {
+        placeholder.innerText = "🔥 É o seu turno!";
+        return;
+    }
+
+    if (window.turnState.turnoAtual === "mestre") {
+        placeholder.innerText = "🧙 Turno do Mestre";
+    } else {
+        placeholder.innerText = "⏳ Aguardando outro jogador...";
+    }
 }
