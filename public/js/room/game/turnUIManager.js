@@ -19,23 +19,38 @@ function alterarTextoTurno() {
     // Só trocar texto, vai exibir se é mestre, se é o player lá, e etc
 }
 
-function desativarBotoesPlayer() {
+function atualizarBotoesPlayer(turnoEhMeu) {
+
     const btnRoll = document.getElementById('btn-roll');
     const btnSkip = document.getElementById('btn-skip');
 
-    if (btnRoll) btnRoll.disabled = true;
-    if (btnSkip) btnSkip.disabled = true;
+    const habilitar = turnoEhMeu && !window.isMestre;
+
+    if (btnRoll) btnRoll.disabled = !habilitar;
+    if (btnSkip) btnSkip.disabled = !habilitar;
 }
 
-function atualizarInterfaceTurno(turnoEhMeu) {
+function atualizarBotoesMestre(turnoDoMestre) {
 
-    const btnRoll = document.getElementById('btn-roll');
-    const btnSkip = document.getElementById('btn-skip');
+    const btnMestre = document.getElementById('btnLancarMestre');
+    const btnPermitir = document.getElementById('btnPermitirJogadaExtra');
+    const btnDano = document.getElementById('btnDano');
+    const btnCurar = document.getElementById('btnCurar');
+    const btnUpar = document.getElementById('btnUpar');
+
+    const habilitar = window.isMestre && turnoDoMestre;
+
+    if (btnMestre) btnMestre.disabled = !habilitar;
+    if (btnPermitir) btnPermitir.disabled = !habilitar;
+    if (btnDano) btnDano.disabled = !habilitar;
+    if (btnCurar) btnCurar.disabled = !habilitar;
+    if (btnUpar) btnUpar.disabled = !habilitar;
+}
+
+function atualizarControleTurno() {
+
     const btnControle = document.getElementById('btnIniciarTurno');
     const icon = btnControle?.querySelector('i');
-
-    if (btnRoll) btnRoll.disabled = !turnoEhMeu;
-    if (btnSkip) btnSkip.disabled = !turnoEhMeu;
 
     if (window.isMestre && window.turnState.rodadaIniciada) {
 
@@ -46,6 +61,15 @@ function atualizarInterfaceTurno(turnoEhMeu) {
 
         btnControle?.setAttribute('title', 'Próximo Turno');
     }
+}
+
+function atualizarInterfaceTurno(turnoEhMeu) {
+
+    const turnoDoMestre = window.turnState.turnoAtual === "mestre";
+
+    atualizarBotoesPlayer(turnoEhMeu);
+    atualizarBotoesMestre(turnoDoMestre);
+    atualizarControleTurno();
 
     atualizarTextoTurno(turnoEhMeu);
 }
