@@ -129,14 +129,6 @@
 
                 break;
 
-            case 'dadoOculto':
-                debugLog('🎲 O mestre rolou um dado oculto');
-                break;
-
-            case 'turnoAtualizado':
-                debugLog(' 🔄 Turno atualizado:', data.conteudo);
-                break;
-
             case 'rodadaEncerrada':
                 debugLog(' 🛑 Rodada encerrada');
                 break;
