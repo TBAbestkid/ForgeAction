@@ -167,7 +167,7 @@
                         <button id="btnLancarMestre"
                             class="btn btn-outline-warning rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Lançar Dados (Mestre)"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-dice-d20"></i>
                         </button>
 
@@ -175,28 +175,28 @@
                         <button id="btnPermitirJogadaExtra"
                             class="btn btn-outline-primary rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Permitir Jogada Extra"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-user-check"></i>
                         </button>
 
                         {{-- 🔹 Causar Dano --}}
                         <button id="btnDano" class="btn btn-outline-danger rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Causar Dano"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-burst"></i>
                         </button>
 
                         {{-- 🔹 Curar --}}
                         <button id="btnCurar" class="btn btn-outline-success rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Curar"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-heart-pulse"></i>
                         </button>
 
                         {{-- 🔹 Upar Personagem --}}
                         <button id="btnUpar" class="btn btn-outline-info rounded-circle d-flex flex-column align-items-center justify-content-center"
                             data-bs-toggle="tooltip" title="Upar Personagem"
-                            style="width: 45px; height: 45px; font-size: 0.95rem;">
+                            style="width: 45px; height: 45px; font-size: 0.95rem;" disabled>
                             <i class="fa-solid fa-arrow-up"></i>
                         </button>
                     </div>
