@@ -143,6 +143,7 @@ function emitirLancamentoDados(faces) {
     });
 }
 
+// Não tô usando, só tá aq mesmo.
 function permitirJogada() {
     console.log(' 🎲 Permitir jogada extra acionada');
     // Vai voltar pro jogador anterior pra pode Lançar dado ou só pular
@@ -181,7 +182,7 @@ function selecionarPersonagem(usuarioId, personagemId) {
         resetarSelecao();
         return;
     } if (acaoMestreAtual === 'cederTurno') {
-        enviarAcaoMestre(personagemId); // envia id do personagem que vai receber o turno, mas sem valor numérico
+        enviarAcaoMestre(usuarioId); // envia id da pessoa que vai receber o turno, mas sem valor numérico
         resetarSelecao();
         return;
     }
