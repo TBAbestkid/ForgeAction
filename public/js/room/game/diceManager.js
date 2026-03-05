@@ -63,7 +63,7 @@ function handleRollComplete(results) {
             console.log("⏭️ Player avançando turno automaticamente...");
             window.avancarTurno?.();
         }
-    }, 4000);
+    }, 2000);
 }
 
 
