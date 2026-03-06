@@ -16,7 +16,7 @@ php artisan key:generate
 # Cria link de storage
 php artisan storage:link || true
 
-echo "EXTERNAL_API_URL=${EXTERNAL_API_URL:-http://172.21.0.2:9001}" >> .env
+echo "EXTERNAL_API_URL=${EXTERNAL_API_URL:-http://172.17.0.2:9001}" >> .env
 echo "EXTERNAL_API_USER=${EXTERNAL_API_USER:-admin}" >> .env
 echo "EXTERNAL_API_PASS=${EXTERNAL_API_PASS:-admin}" >> .env
 

@@ -31,12 +31,12 @@ RUN echo '<VirtualHost *:8080>\n\
     DocumentRoot /var/www/html/public\n\
 \n\
     # Proxy para API (acessa o container da API)\n\
-    ProxyPass "/view"  "http://172.21.0.2:9001/api"\n\
-    ProxyPassReverse "/view"  "http://172.21.0.2:9001/api"\n\
+    ProxyPass "/view"  "http://172.17.0.2:9001/api"\n\
+    ProxyPassReverse "/view"  "http://172.17.0.2:9001/api"\n\
 \n\
     # Proxy para WebSocket (acessa o container da API)\n\
-    ProxyPass "/ws"  "ws://172.21.0.2:9001/ws"\n\
-    ProxyPassReverse "/ws"  "ws://172.21.0.2:9001/ws"\n\
+    ProxyPass "/ws"  "ws://172.17.0.2:9001/ws"\n\
+    ProxyPassReverse "/ws"  "ws://172.17.0.2:9001/ws"\n\
 \n\
     <Directory /var/www/html/public>\n\
         AllowOverride All\n\
