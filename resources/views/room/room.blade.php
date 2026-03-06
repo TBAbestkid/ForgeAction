@@ -426,7 +426,7 @@
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
         // wsUrl: newWsUrl, // "{{ env('EXTERNAL_API_URL') }}/ws",
-        wsUrl: "{{ env('EXTERNAL_API_URL') }}/ws",
+        wsUrl: window.location.origin + "/ws"
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
 
