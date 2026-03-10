@@ -91,65 +91,80 @@
         </div>
     @else
         {{-- Bloco dos cards de login, cadastro, sobre e download --}}
-        <div class="container text-white d-flex flex-column align-items-center justify-content-center py-5">
+        <div class="container text-white text-center py-5 d-flex flex-column align-items-center">
 
-            <!-- LOGO e TÍTULO -->
-            <div class="card text-center mb-5 bg-dark p-4 rounded-3 shadow-lg d-flex flex-column align-items-center" style="max-width: 450px;">
-                <img src="{{ asset('assets/images/forgeicon.png') }}"
+            {{-- HERO --}}
+            <div class="mb-5">
+                <img
+                    src="{{ asset('assets/images/forgeicon.png') }}"
                     alt="ForgeAction Logo"
-                    class="mb-3"
-                    style="max-width:150px;">
+                    class="hero-logo mb-3"
+                >
 
-                <h1 class="mb-2">ForgeAction</h1>
-                <p class="lead mb-0">Prepare-se para a aventura épica!</p>
+                <h1 class="forge-title mb-2">ForgeAction</h1>
+
+                <p class="forge-subtitle lead">
+                    Prepare-se para a aventura épica!
+                </p>
             </div>
 
-            <!-- GRID DOS CARDS -->
-            <div class="d-flex flex-wrap justify-content-center gap-4 w-100" style="max-width: 900px;">
 
-                <!-- Card Login -->
-                <div class="card bg-dark border-secondary shadow text-white text-center flex-fill"
-                    style="min-width: 260px; max-width: 300px;">
+            {{-- GRID DE CARDS --}}
+            <div class="home-cards w-100">
+
+                {{-- Login --}}
+                <div class="card bg-dark border-secondary shadow text-white text-center fade-in-card">
                     <div class="card-body">
                         <h5 class="card-title">Já tem login?</h5>
                         <p class="card-text">Acesse sua conta e continue a aventura.</p>
-                        <a href="{{ route('login') }}" class="btn btn-primary w-100">Login</a>
+
+                        <a href="{{ route('login') }}" class="btn btn-primary w-100">
+                            Login
+                        </a>
                     </div>
                 </div>
 
-                <!-- Card Cadastro -->
-                <div class="card bg-dark border-success shadow text-white text-center flex-fill"
-                    style="min-width: 260px; max-width: 300px;">
+                {{-- Cadastro --}}
+                <div class="card bg-dark border-success shadow text-white text-center fade-in-card">
                     <div class="card-body">
                         <h5 class="card-title">Ainda não é cadastrado?</h5>
                         <p class="card-text">Crie sua conta e embarque nessa jornada.</p>
-                        <a href="{{ route('register') }}" class="btn btn-success w-100">Cadastro</a>
+
+                        <a href="{{ route('register') }}" class="btn btn-success w-100">
+                            Cadastro
+                        </a>
                     </div>
                 </div>
 
-                <!-- Card Sobre -->
-                <div class="card bg-dark border-info shadow text-white text-center flex-fill"
-                    style="min-width: 260px; max-width: 300px;">
+                {{-- Sobre --}}
+                <div class="card bg-dark border-info shadow text-white text-center fade-in-card">
                     <div class="card-body">
                         <h5 class="card-title">Sobre</h5>
                         <p class="card-text">Saiba mais sobre o ForgeAction.</p>
-                        <a href="{{ route('about') }}" class="btn btn-info w-100">Sobre</a>
+
+                        <a href="{{ route('about') }}" class="btn btn-info w-100">
+                            Sobre
+                        </a>
                     </div>
                 </div>
 
-                <!-- Card Instalar App -->
+                {{-- Instalar App --}}
                 <div id="installCard"
-                    class="card bg-dark border-warning shadow text-white text-center flex-fill fade-in-card"
-                    style="min-width: 260px; max-width: 300px; display:none;">
+                    class="card bg-dark border-warning shadow text-white text-center fade-in-card"
+                    style="display:none;">
+
                     <div class="card-body">
                         <h5 class="card-title">Instale o App</h5>
                         <p class="card-text">Use o ForgeAction direto no seu dispositivo!</p>
+
                         <button id="installBtn" class="btn btn-warning w-100">
                             <i class="fa-solid fa-download me-1"></i> Instalar
                         </button>
                     </div>
                 </div>
+
             </div>
+
         </div>
     @endif
 </div>
