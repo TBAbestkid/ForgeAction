@@ -119,6 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 break;
+            case 'causarDano':
+                addMessage(`💥 ${data.conteudo}`, '🤖 Sistema', true);
+                break;
+            case 'curarPersonagem':
+                addMessage(`💚 ${data.conteudo}`, '🤖 Sistema', true);
+                break;
+            case 'uparPersonagem':
+                addMessage(`📈 ${data.conteudo}`, '🤖 Sistema', true);
+                break;
 
             default:
                 console.warn('⚠️ Ação desconhecida recebida:', data);
