@@ -67,6 +67,11 @@ function atualizarInterfaceTurno(turnoEhMeu) {
 
     const turnoDoMestre = window.turnState.turnoAtual === "mestre";
 
+    const diceOptions = document.getElementById('diceOptions');
+    if (diceOptions) {
+        diceOptions.classList.add('d-none');
+    }
+
     atualizarBotoesPlayer(turnoEhMeu);
     atualizarBotoesMestre(turnoDoMestre);
     atualizarControleTurno();
