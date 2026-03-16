@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!window.turnState.rodadaIniciada) {
                 iniciarRodada();
             } else {
-                avancarTurno();
+                avancarTurnoMestre();
             }
         });
     }
@@ -93,17 +93,25 @@ function iniciarRodada() {
     console.log(' 🚀 Iniciando rodada...');
 
     ws.send('/app/backchannel/rodadas', {
-            acao: "iniciarRodada",
+            acao: "turnoMestre",
             salaId: window.CHAT_CONFIG?.salaId
         }
     );
 }
 
 // Função para avançar para o próximo turno
-function avancarTurno() {
+function avancarTurnoMestre() {
     console.log(' ⏭️ Avançando para o próximo turno...');
     ws.send('/app/backchannel/rodadas', {
         acao: "proximoTurno",
+        salaId: window.CHAT_CONFIG?.salaId
+    });
+}
+
+function avancarTurno() {
+    console.log(' ⏭️ Mestre avançando para o próximo turno...');
+    ws.send('/app/backchannel/rodadas', {
+        acao: "turnoMestre",
         salaId: window.CHAT_CONFIG?.salaId
     });
 }
