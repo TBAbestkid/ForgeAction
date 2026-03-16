@@ -198,7 +198,8 @@ function selecionarPersonagem(usuarioId, personagemId) {
         resetarSelecao();
         return;
     } if (acaoMestreAtual === 'cederTurno') {
-        enviarAcaoMestre(usuarioId); // envia id da pessoa que vai receber o turno, mas sem valor numérico
+        // O id do usuário já está em `usuarioSelecionadoId`, então só precisamos enviar a ação.
+        enviarAcaoMestre(0); // sem valor numérico
         resetarSelecao();
         return;
     }
@@ -220,12 +221,14 @@ document.getElementById('btnConfirmarValor')
 });
 
 function enviarAcaoMestre(valor) {
-    console.log(`🎯 Enviando ação do mestre: ${acaoMestreAtual} para personagem ${personagemSelecionadoId} com valor ${valor}`);
+    const targetUsuarioId = usuarioSelecionadoId || personagemSelecionadoId;
+
+    console.log(`🎯 Enviando ação do mestre: ${acaoMestreAtual} (usuário ${targetUsuarioId}, personagem ${personagemSelecionadoId}) com valor ${valor}`);
 
     ws.send('/app/backchannel/rodadas', {
         acao: acaoMestreAtual, // 'dano', 'cura' ou 'upar'
         salaId: window.CHAT_CONFIG?.salaId,
-        usuarioId: personagemSelecionadoId
+        usuarioId: targetUsuarioId
     });
 
     // Se a ação for o cederTurno, passa o pro proximo turno
@@ -238,5 +241,6 @@ function enviarAcaoMestre(valor) {
 function resetarSelecao() {
     acaoMestreAtual = null;
     personagemSelecionadoId = null;
+    usuarioSelecionadoId = null;
     document.getElementById('inputValor').value = '';
 }
