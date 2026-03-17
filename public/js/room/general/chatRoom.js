@@ -119,12 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 break;
-            case 'causarDano':
-                addMessage(`💥 ${data.conteudo}`, '🤖 Sistema', true);
+
+
+            case 'atualizacaoVida':
+                console.log('❤️ Atualização de vida recebida:', data);
+                if (typeof window.atualizarVidaPersonagemCard === 'function') {
+                    window.atualizarVidaPersonagemCard(data.personagemId, data.novaVida);
+                }
                 break;
-            case 'curarPersonagem':
-                addMessage(`💚 ${data.conteudo}`, '🤖 Sistema', true);
-                break;
+
             case 'uparPersonagem':
                 addMessage(`📈 ${data.conteudo}`, '🤖 Sistema', true);
                 break;
