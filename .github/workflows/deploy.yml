@@ -47,7 +47,7 @@ jobs:
       - name: 🚀 Executar deploy no servidor
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.ZEROTIER_SERVER_IP }} << 'EOF'
-            cd /etc/forgeaction/ForgeAction
+            cd /opt/forgeaction/ForgeAction
             git pull origin main
             docker rm forgeaction-front -f
             docker build -t forgeaction-front:latest .
