@@ -1,4 +1,11 @@
 // turnManager.js
+// Variáveis globais para controle de ações do mestre
+let acaoMestreAtual = null;
+let personagemSelecionadoId = null;
+let usuarioSelecionadoId = null;
+let vidaSelecionada = 0;
+let ws = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     ws = window.AppWebSocket;
     if (!ws) {
@@ -196,10 +203,17 @@ function selecionarPersonagem(usuarioId, personagemId) {
 
     if (!acaoMestreAtual) return;
 
+    // Pega dados do card na hora do clique
+    const card = document.getElementById(`personagem-online-${personagemId}-pc`) ||
+                 document.getElementById(`personagem-online-${personagemId}-mb`);
+
+    const vidaAtual = card ? parseInt(card.dataset.vida || 100) : 100;
+
     personagemSelecionadoId = personagemId;
     usuarioSelecionadoId = usuarioId;
+    vidaSelecionada = vidaAtual; // Armazena vida atual
 
-    console.log(`👆 Personagem selecionado: ${personagemId}`);
+    console.log(`👆 Personagem selecionado: ${personagemId} (vida: ${vidaAtual})`);
     console.log(`👆 Usuario selecionado: ${usuarioId}`);
 
     // Remove destaque visual
@@ -240,27 +254,13 @@ function enviarAcaoMestre(valor) {
 
     console.log(`🎯 Enviando ação do mestre: ${acaoMestreAtual} (usuário ${targetUsuarioId}, personagem ${personagemSelecionadoId}) com valor ${valor}`);
 
-    // 🔥 Aplicar mudança de vida localmente baseado no modo
+    // 🔥 Aplicar mudança de vida localmente usando a vida já armazenada
     if (acaoMestreAtual === 'causarDano') {
-        // Busca o card do personagem
-        const cardDesktop = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`);
-        const cardMobile = document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
-
-        if (cardDesktop || cardMobile) {
-            const vidaAtual = parseInt(cardDesktop?.dataset.vida || cardMobile?.dataset.vida || 100);
-            const novaVida = vidaAtual - valor; // Dano reduz vida
-            window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
-        }
+        const novaVida = vidaSelecionada - valor; // Dano reduz vida
+        window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
     } else if (acaoMestreAtual === 'curarPersonagem') {
-        // Busca o card do personagem
-        const cardDesktop = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`);
-        const cardMobile = document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
-
-        if (cardDesktop || cardMobile) {
-            const vidaAtual = parseInt(cardDesktop?.dataset.vida || cardMobile?.dataset.vida || 100);
-            const novaVida = vidaAtual + valor; // Cura aumenta vida
-            window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
-        }
+        const novaVida = vidaSelecionada + valor; // Cura aumenta vida
+        window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
     }
 
     ws.send('/app/backchannel/rodadas', {
@@ -273,19 +273,16 @@ function enviarAcaoMestre(valor) {
     // 🔥 Broadcast da atualização de vida para todos os jogadores
     if (acaoMestreAtual === 'causarDano' || acaoMestreAtual === 'curarPersonagem') {
         const salaId = window.CHAT_CONFIG?.salaId;
-        const cardDesktop = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`);
-        const cardMobile = document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
+        const novaVida = acaoMestreAtual === 'causarDano'
+            ? vidaSelecionada - valor
+            : vidaSelecionada + valor;
 
-        if (cardDesktop || cardMobile) {
-            const vidaAtual = parseInt(cardDesktop?.dataset.vida || cardMobile?.dataset.vida || 100);
-
-            ws.send('/app/enviar/' + salaId, {
-                acao: 'atualizacaoVida',
-                personagemId: personagemSelecionadoId,
-                novaVida: acaoMestreAtual === 'causarDano' ? vidaAtual - valor : vidaAtual + valor,
-                salaId: salaId
-            });
-        }
+        ws.send('/app/enviar/' + salaId, {
+            acao: 'atualizacaoVida',
+            personagemId: personagemSelecionadoId,
+            novaVida: novaVida,
+            salaId: salaId
+        });
     }
 
     // Se a ação for o cederTurno, passa o pro proximo turno
@@ -299,6 +296,7 @@ function resetarSelecao() {
     acaoMestreAtual = null;
     personagemSelecionadoId = null;
     usuarioSelecionadoId = null;
+    vidaSelecionada = 0;
     document.getElementById('inputValor').value = '';
     if (typeof window.limparModoAcao === 'function') {
         window.limparModoAcao();
