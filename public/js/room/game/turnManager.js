@@ -228,10 +228,34 @@ function enviarAcaoMestre(valor) {
 
     console.log(`🎯 Enviando ação do mestre: ${acaoMestreAtual} (usuário ${targetUsuarioId}, personagem ${personagemSelecionadoId}) com valor ${valor}`);
 
+    // 🔥 Aplicar mudança de vida localmente baseado no modo
+    if (acaoMestreAtual === 'causarDano') {
+        // Busca o card do personagem
+        const cardDesktop = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`);
+        const cardMobile = document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
+
+        if (cardDesktop || cardMobile) {
+            const vidaAtual = parseInt(cardDesktop?.dataset.vida || cardMobile?.dataset.vida || 100);
+            const novaVida = vidaAtual - valor; // Dano reduz vida
+            window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
+        }
+    } else if (acaoMestreAtual === 'curarPersonagem') {
+        // Busca o card do personagem
+        const cardDesktop = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`);
+        const cardMobile = document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
+
+        if (cardDesktop || cardMobile) {
+            const vidaAtual = parseInt(cardDesktop?.dataset.vida || cardMobile?.dataset.vida || 100);
+            const novaVida = vidaAtual + valor; // Cura aumenta vida
+            window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
+        }
+    }
+
     ws.send('/app/backchannel/rodadas', {
         acao: acaoMestreAtual, // 'dano', 'cura' ou 'upar'
         salaId: window.CHAT_CONFIG?.salaId,
-        usuarioId: targetUsuarioId
+        usuarioId: targetUsuarioId,
+        valor: valor // Envia o valor para o servidor notificar
     });
 
     // Se a ação for o cederTurno, passa o pro proximo turno
