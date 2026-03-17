@@ -637,13 +637,5 @@
 <script src="{{ asset('js/room/general/invite.js') }}"></script>
 <script src="{{ asset('js/room/general/delete.js') }}"></script>
 
-{{-- Script para expor funções globais e integração de WebSocket com vida --}}
-<script>
-    // Expor função de atualizar vida globalmente
-    window.atualizarVidaPersonagemCard = window.atualizarVidaPersonagemCard || function() {
-        console.warn('⚠️ atualizarVidaPersonagemCard ainda não foi carregada');
-    };
-</script>
-
 @endsection
 
