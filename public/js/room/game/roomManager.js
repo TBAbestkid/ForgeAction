@@ -133,13 +133,6 @@
                 debugLog(' 🛑 Rodada encerrada');
                 break;
 
-            case 'atualizacaoVida':
-                debugLog('❤️ Atualização de vida recebida:', data);
-                if (typeof window.atualizarVidaPersonagemCard === 'function') {
-                    window.atualizarVidaPersonagemCard(data.personagemId, data.novaVida);
-                }
-                break;
-
             default:
                 console.warn("Evento desconhecido:", data);
         }
