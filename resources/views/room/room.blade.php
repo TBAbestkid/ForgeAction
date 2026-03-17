@@ -551,13 +551,13 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{{ asset('js/room/game/turnManager.js') }}"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
 <script src="{{ asset('js/utils/loading.js') }}"></script>
 <script src="{{ asset('js/room/game/turnState.js') }}"></script>
 <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
 <script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
 <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
-<script src="{{ asset('js/room/game/turnManager.js') }}"></script>
 <script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
 {{-- Ativar tooltips --}}
 <script>
@@ -613,6 +613,7 @@
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
+        // wsUrl: "{{ env('EXTERNAL_API_URL') }}" + "/ws",
         wsUrl: window.location.origin + "/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
