@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDano.addEventListener('click', () => {
             console.log('🎯 Mestre causou dano');
             acaoMestreAtual = 'causarDano';
+            window.definirModoAcao('dano');
             ativarModoSelecao();
         });
     }
@@ -61,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCurar.addEventListener('click', () => {
             console.log('🎯 Mestre curou um personagem');
             acaoMestreAtual = 'curarPersonagem';
+            window.definirModoAcao('cura');
             ativarModoSelecao();
         });
     }
@@ -70,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnUpar.addEventListener('click', () => {
             console.log('🎯 Mestre upou um personagem');
             acaoMestreAtual = 'uparPersonagem';
+            window.definirModoAcao('upgrade');
             ativarModoSelecao();
         });
     }
@@ -243,4 +246,5 @@ function resetarSelecao() {
     personagemSelecionadoId = null;
     usuarioSelecionadoId = null;
     document.getElementById('inputValor').value = '';
+    window.limparModoAcao();
 }
