@@ -5,6 +5,17 @@ let modoAcaoAtual = null;
 let personagemDaVezAtual = null;
 
 /**
+ * Obtém o card do personagem pelo ID (fallback se não estiver definido)
+ */
+function getCardById(personagemId) {
+    if (window.getCardById) {
+        return window.getCardById(personagemId);
+    }
+    return document.getElementById(`personagem-online-${personagemId}-pc`) ||
+           document.getElementById(`personagem-online-${personagemId}-mb`);
+}
+
+/**
  * Destaca o personagem da vez com borda amarela (warning)
  * Remove destaque anterior
  */
@@ -95,3 +106,4 @@ window.destacarPersonagem = destacarPersonagem;
 window.destacarPersonagemDaVez = destacarPersonagemDaVez;
 window.definirModoAcao = definirModoAcao;
 window.limparModoAcao = limparModoAcao;
+window.getCardById = getCardById;
