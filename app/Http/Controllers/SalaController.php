@@ -324,11 +324,27 @@ class SalaController extends Controller
         }
         // dd($sala, $membros, $isDono, $isConvidado);
 
+        // 🔹 Buscar personagem do jogador (para exibir na ficha)
+        $personagemJogador = null;
+        if (!$isDono) {
+            // Filtra o personagem do usuário atual (reutiliza a busca anterior)
+            $personagemObj = $personagens->firstWhere('usuarioId', $userId);
+
+            if ($personagemObj) {
+                // Busca detalhes completos do personagem
+                $personagemJogador = $this->api->get("api/personagem/{$personagemObj['id']}");
+                if (isset($personagemJogador['data'])) {
+                    $personagemJogador = $personagemJogador['data'];
+                }
+            }
+        }
+
         // 🔹 Retorna apenas o necessário
         return view('room.room', [
             'sala'   => $sala,
             'isDono' => $isDono,
-            'membros' => $membros
+            'membros' => $membros,
+            'personagemJogador' => $personagemJogador
         ]);
     }
 
