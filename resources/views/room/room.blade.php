@@ -531,6 +531,22 @@
     .hz-selecionavel:hover {
         transform: scale(1.02);
     }
+
+    /* Animação de pulse para mudança de vida */
+    @keyframes pulse-vida {
+        0% {
+            transform: scale(1);
+            filter: brightness(1);
+        }
+        50% {
+            transform: scale(1.05);
+            filter: brightness(1.3);
+        }
+        100% {
+            transform: scale(1);
+            filter: brightness(1);
+        }
+    }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -620,6 +636,14 @@
 <script src="{{ asset('js/room/general/exit.js') }}"></script>
 <script src="{{ asset('js/room/general/invite.js') }}"></script>
 <script src="{{ asset('js/room/general/delete.js') }}"></script>
+
+{{-- Script para expor funções globais e integração de WebSocket com vida --}}
+<script>
+    // Expor função de atualizar vida globalmente
+    window.atualizarVidaPersonagemCard = window.atualizarVidaPersonagemCard || function() {
+        console.warn('⚠️ atualizarVidaPersonagemCard ainda não foi carregada');
+    };
+</script>
 
 @endsection
 
