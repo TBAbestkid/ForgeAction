@@ -70,6 +70,13 @@
                                 <i class="fa-solid fa-list-ul"></i> Logs
                             </button>
                         </li>
+                        @if(!$isDono && $personagemJogador)
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link text-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFicha" aria-controls="offcanvasFicha">
+                                    <i class="fa-solid fa-scroll"></i> Ficha
+                                </button>
+                            </li>
+                        @endif
                     </ul>
 
                     {{-- Conteúdo das Tabs --}}
@@ -201,16 +208,16 @@
                         </button>
                     </div>
                 </div>
-                @else
-                    {{-- botoes de acao do player --}}
-                    <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
-                        {{--2 botões em uma linha flexível --}}
-                        <div class="d-flex gap-2 justify-content-center flex-wrap">
-                            {{-- 🔹 Lançar Dados --}}
-                            <button id="btn-roll" class="btn btn-outline-light" disabled>🎲 Rodar Dado</button>
-                            <button id="btn-skip" class="btn btn-outline-warning" disabled>⏭️ Pular</button>
-                        </div>
+            @else
+                {{-- botoes de acao do player --}}
+                <div class="flex-shrink-0 d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 p-2 bg-dark rounded-3 shadow mt-3" style="max-height: fit-content;">
+                    {{--2 botões em uma linha flexível --}}
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        {{-- 🔹 Lançar Dados --}}
+                        <button id="btn-roll" class="btn btn-outline-light" disabled>🎲 Rodar Dado</button>
+                        <button id="btn-skip" class="btn btn-outline-warning" disabled>⏭️ Pular</button>
                     </div>
+                </div>
             @endif
 
             {{-- Botão para abrir/fechar chat --}}
@@ -307,9 +314,74 @@
                 </ul>
             </div>
         </div>
-    </div>
-</div>
 
+        <!-- Offcanvas Ficha do Personagem (lado esquerdo) -->
+        @if(!$isDono && $personagemJogador)
+            <div class="offcanvas offcanvas-start text-light" tabindex="-1" id="offcanvasFicha"
+                aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
+
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasFichaLabel">
+                        <i class="fa-solid fa-scroll me-2"></i>Ficha de {{ $personagemJogador['nome'] ?? 'Personagem' }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+                </div>
+
+                <div class="offcanvas-body p-3 overflow-auto" style="max-height: calc(100vh - 60px);">
+                    <div class="row g-2">
+                        <!-- Header do Personagem -->
+                        <div class="col-12 mb-3 border-bottom border-secondary pb-2">
+                            <div><small><strong><i class="fa-solid fa-user-shield"></i> Raça:</strong> {{ $personagemJogador['raca'] ?? 'N/A' }}</small></div>
+                            <div><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Classe:</strong> {{ $personagemJogador['classe'] ?? 'N/A' }}</small></div>
+                            <div><small><strong><i class="fa-solid fa-signal"></i> Nível:</strong> {{ $personagemJogador['level'] ?? 1 }}</small></div>
+                        </div>
+
+                        <!-- Atributos Principais -->
+                        <div class="col-12 mb-2">
+                            <small class="text-warning"><strong>⚔️ Atributos Principais</strong></small>
+                        </div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-dumbbell"></i> Força:</strong> {{ $personagemJogador['forca'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-bolt"></i> Agilidade:</strong> {{ $personagemJogador['agilidade'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-brain"></i> Inteligência:</strong> {{ $personagemJogador['inteligencia'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-hand"></i> Destreza:</strong> {{ $personagemJogador['destreza'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-shield-heart"></i> Vitalidade:</strong> {{ $personagemJogador['vitalidade'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-eye"></i> Percepção:</strong> {{ $personagemJogador['percepcao'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-book"></i> Sabedoria:</strong> {{ $personagemJogador['sabedoria'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-comments"></i> Carisma:</strong> {{ $personagemJogador['carisma'] ?? 0 }}</small></div>
+
+                        <!-- Recursos de Vida/Mana -->
+                        <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
+                            <small class="text-info"><strong>❤️ Recursos</strong></small>
+                        </div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-heart"></i> Vida:</strong> {{ $personagemJogador['vida'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-droplet"></i> Mana:</strong> {{ $personagemJogador['mana'] ?? 0 }}</small></div>
+
+                        <!-- Iniciativa e Bônus -->
+                        <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
+                            <small class="text-success"><strong>⚡ Ações</strong></small>
+                        </div>
+                        <div class="col-12"><small><strong><i class="fa-solid fa-forward"></i> Iniciativa:</strong> {{ $personagemJogador['iniciativa'] ?? 0 }}</small></div>
+
+                        <!-- Ataques -->
+                        <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
+                            <small class="text-danger"><strong>⚔️ Ataques</strong></small>
+                        </div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Atk Mágico:</strong> {{ $personagemJogador['ataqueMagico'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-hand-fist"></i> Atk Corpo:</strong> {{ $personagemJogador['ataqueFisicoCorpo'] ?? 0 }}</small></div>
+                        <div class="col-12 mt-2"><small><strong><i class="fa-solid fa-bullseye"></i> Atk Distância:</strong> {{ $personagemJogador['ataqueFisicoDistancia'] ?? 0 }}</small></div>
+
+                        <!-- Defesa -->
+                        <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
+                            <small class="text-secondary"><strong>🛡️ Defesa</strong></small>
+                        </div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-shield-halved"></i> Defesa:</strong> {{ $personagemJogador['defesaPersonagem'] ?? 0 }}</small></div>
+                        <div class="col-6"><small><strong><i class="fa-solid fa-feather"></i> Esquiva:</strong> {{ $personagemJogador['esquivaPersonagem'] ?? 0 }}</small></div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
 
 <!-- Modal de Edição -->
 <div class="modal fade" id="editSalaModal" tabindex="-1" aria-hidden="true">
