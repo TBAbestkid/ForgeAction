@@ -115,6 +115,54 @@ function adicionarPersonagemOnline(personagem) {
     console.log(`➕ Personagem ${personagem.nome} adicionado`);
 }
 
+/**
+ * Atualiza a vida de um personagem no card (desktop e mobile)
+ */
+function atualizarVidaPersonagemCard(personagemId, novaVida) {
+    const cardDesktop = document.getElementById(`personagem-online-${personagemId}-pc`);
+    const cardMobile = document.getElementById(`personagem-online-${personagemId}-mb`);
+
+    const atualizarCard = (card) => {
+        if (!card) return;
+
+        // Busca o progress bar
+        const progressBar = card.querySelector('.progress-bar');
+        if (progressBar) {
+            // Limita entre 0 e vida máxima (usa vida original do card)
+            const vidaMax = parseInt(card.dataset.vida) || 100;
+            const vidaFinal = Math.max(0, Math.min(novaVida, vidaMax));
+
+            // Atualiza o texto
+            progressBar.innerText = `${vidaFinal}/${vidaMax}`;
+
+            // Calcula percentual
+            const percentual = (vidaFinal / vidaMax) * 100;
+            progressBar.style.width = percentual + '%';
+
+            // Muda a cor baseado na saúde
+            progressBar.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+            if (percentual > 50) {
+                progressBar.classList.add('bg-success');
+            } else if (percentual > 25) {
+                progressBar.classList.add('bg-warning');
+            } else {
+                progressBar.classList.add('bg-danger');
+            }
+
+            // Anima a mudança
+            card.style.animation = 'pulse-vida 0.5s ease-in-out';
+            setTimeout(() => {
+                card.style.animation = '';
+            }, 500);
+        }
+    };
+
+    atualizarCard(cardDesktop);
+    atualizarCard(cardMobile);
+
+    console.log(`❤️ Vida do personagem ${personagemId} atualizada para ${novaVida}`);
+}
+
 function AtualizarListaOnline(salaId, usuariosOnline) {
     console.log('🔄 RECONSTRUINDO lista completa...');
     console.log('👥 Usuários online recebidos:', usuariosOnline);
