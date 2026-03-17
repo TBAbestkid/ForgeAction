@@ -77,6 +77,18 @@ function atualizarInterfaceTurno(turnoEhMeu) {
     atualizarControleTurno();
 
     atualizarTextoTurno(turnoEhMeu);
+
+    // 🆕 Destaca o personagem da vez (se não for mestre)
+    if (!window.isMestre && !turnoDoMestre) {
+        const personagensNaSala = document.querySelectorAll('[id^="personagem-online-"]');
+        personagensNaSala.forEach(card => {
+            const usuarioIdDoCard = card.dataset.usuarioId;
+            if (String(usuarioIdDoCard) === String(window.turnState.turnoAtual)) {
+                const personagemId = card.dataset.id;
+                window.destacarPersonagemDaVez(personagemId);
+            }
+        });
+    }
 }
 
 function atualizarTextoTurno(turnoEhMeu) {
