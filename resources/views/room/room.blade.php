@@ -433,6 +433,106 @@
 @include('partials/alerts')
 @include('partials/invite')
 {{-- @include('partials/invite') --}}
+
+{{-- Estilos para animações de turno e modos de ação --}}
+<style>
+    /* Animação de pulse para cards selecionáveis */
+    @keyframes hz-pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+
+    /* Animação de pulse para perigo (dano) */
+    @keyframes hz-pulse-danger {
+        0% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
+    }
+
+    /* Animação de pulse para cura (sucesso) */
+    @keyframes hz-pulse-success {
+        0% {
+            box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+        }
+    }
+
+    /* Animação de pulse para upgrade (info) */
+    @keyframes hz-pulse-info {
+        0% {
+            box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+        }
+    }
+
+    /* Classes para modos de ação */
+    .hz-modo-dano {
+        animation: hz-pulse-danger 1.5s ease-in-out infinite !important;
+        transition: all 0.3s ease;
+    }
+
+    .hz-modo-cura {
+        animation: hz-pulse-success 1.5s ease-in-out infinite !important;
+        transition: all 0.3s ease;
+    }
+
+    .hz-modo-upgrade {
+        animation: hz-pulse-info 1.5s ease-in-out infinite !important;
+        transition: all 0.3s ease;
+    }
+
+    /* Turno atual */
+    .hz-turno {
+        animation: hz-pulse-warning 1s ease-in-out infinite;
+        transition: all 0.3s ease;
+    }
+
+    @keyframes hz-pulse-warning {
+        0% {
+            box-shadow: inset 0 0 0 3px rgba(255, 193, 7, 0.3);
+        }
+        50% {
+            box-shadow: inset 0 0 0 3px rgba(255, 193, 7, 0.7);
+        }
+        100% {
+            box-shadow: inset 0 0 0 3px rgba(255, 193, 7, 0.3);
+        }
+    }
+
+    /* Selecionável */
+    .hz-selecionavel {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .hz-selecionavel:hover {
+        transform: scale(1.02);
+    }
+</style>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('js/utils/alerts.js') }}"></script>
