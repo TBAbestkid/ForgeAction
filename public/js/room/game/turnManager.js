@@ -52,7 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDano.addEventListener('click', () => {
             console.log('🎯 Mestre causou dano');
             acaoMestreAtual = 'causarDano';
-            window.definirModoAcao('dano');
+            if (typeof window.definirModoAcao === 'function') {
+                window.definirModoAcao('dano');
+            } else {
+                console.warn('⚠️ definirModoAcao ainda não carregou');
+            }
             ativarModoSelecao();
         });
     }
@@ -62,7 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCurar.addEventListener('click', () => {
             console.log('🎯 Mestre curou um personagem');
             acaoMestreAtual = 'curarPersonagem';
-            window.definirModoAcao('cura');
+            if (typeof window.definirModoAcao === 'function') {
+                window.definirModoAcao('cura');
+            } else {
+                console.warn('⚠️ definirModoAcao ainda não carregou');
+            }
             ativarModoSelecao();
         });
     }
@@ -72,7 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btnUpar.addEventListener('click', () => {
             console.log('🎯 Mestre upou um personagem');
             acaoMestreAtual = 'uparPersonagem';
-            window.definirModoAcao('upgrade');
+            if (typeof window.definirModoAcao === 'function') {
+                window.definirModoAcao('upgrade');
+            } else {
+                console.warn('⚠️ definirModoAcao ainda não carregou');
+            }
             ativarModoSelecao();
         });
     }
@@ -288,5 +300,7 @@ function resetarSelecao() {
     personagemSelecionadoId = null;
     usuarioSelecionadoId = null;
     document.getElementById('inputValor').value = '';
-    window.limparModoAcao();
+    if (typeof window.limparModoAcao === 'function') {
+        window.limparModoAcao();
+    }
 }
