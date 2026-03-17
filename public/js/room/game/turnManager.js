@@ -258,6 +258,24 @@ function enviarAcaoMestre(valor) {
         valor: valor // Envia o valor para o servidor notificar
     });
 
+    // 🔥 Broadcast da atualização de vida para todos os jogadores
+    if (acaoMestreAtual === 'causarDano' || acaoMestreAtual === 'curarPersonagem') {
+        const salaId = window.CHAT_CONFIG?.salaId;
+        const cardDesktop = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`);
+        const cardMobile = document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
+
+        if (cardDesktop || cardMobile) {
+            const vidaAtual = parseInt(cardDesktop?.dataset.vida || cardMobile?.dataset.vida || 100);
+
+            ws.send('/app/enviar/' + salaId, {
+                acao: 'atualizacaoVida',
+                personagemId: personagemSelecionadoId,
+                novaVida: acaoMestreAtual === 'causarDano' ? vidaAtual - valor : vidaAtual + valor,
+                salaId: salaId
+            });
+        }
+    }
+
     // Se a ação for o cederTurno, passa o pro proximo turno
     if (acaoMestreAtual === 'cederTurno') {
         avancarTurno();
