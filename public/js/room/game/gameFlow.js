@@ -1,9 +1,86 @@
 // ====== GAME FLOW ======
-function getCardById(pid) {
-    return personagensContainer.querySelector(`.personagem-card[data-id="${pid}"]`) ||
-            document.querySelector(`.personagem-card[data-id="${pid}"]`);
+
+// Estado atual de seleção/modo
+let modoAcaoAtual = null;
+let personagemDaVezAtual = null;
+
+/**
+ * Destaca o personagem da vez com borda amarela (warning)
+ * Remove destaque anterior
+ */
+function destacarPersonagemDaVez(personagemId) {
+    // Remove destaque anterior da vez
+    document.querySelectorAll('.personagem-card.hz-turno').forEach(c => {
+        c.classList.remove('hz-turno', 'border', 'border-warning', 'border-3');
+    });
+
+    // Adiciona novo destaque
+    const card = getCardById(personagemId);
+    if (card) {
+        card.classList.add('hz-turno', 'border', 'border-warning', 'border-3');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        personagemDaVezAtual = personagemId;
+    }
 }
 
+/**
+ * Define o modo de ação do mestre e aplica cores aos cards
+ * Modos: 'dano', 'cura', 'upgrade'
+ */
+function definirModoAcao(modo) {
+    // Remove modo anterior
+    document.querySelectorAll('.personagem-card').forEach(c => {
+        c.classList.remove('hz-modo-dano', 'hz-modo-cura', 'hz-modo-upgrade');
+        c.classList.remove('border-danger', 'border-success', 'border-info');
+    });
+
+    if (!modo) {
+        modoAcaoAtual = null;
+        return;
+    }
+
+    modoAcaoAtual = modo;
+
+    // Mapear modo para classe e cor
+    const modoMap = {
+        'dano': { classe: 'hz-modo-dano', cor: 'border-danger' },
+        'cura': { classe: 'hz-modo-cura', cor: 'border-success' },
+        'upgrade': { classe: 'hz-modo-upgrade', cor: 'border-info' }
+    };
+
+    const config = modoMap[modo];
+    if (!config) return;
+
+    // Aplica a cor a todos os cards (exceto o do turno atual que mantém warning)
+    document.querySelectorAll('.personagem-card').forEach(card => {
+        // Se for o card da vez, mantém warning
+        if (card.classList.contains('hz-turno')) {
+            return;
+        }
+
+        card.classList.add(config.classe, 'border', config.cor, 'border-3', 'hz-selecionavel');
+
+        // Adiciona animação de pulse
+        card.style.animation = 'hz-pulse 1.5s ease-in-out infinite';
+    });
+
+    console.log(`🎯 Modo de ação: ${modo.toUpperCase()}`);
+}
+
+/**
+ * Remove modo de ação
+ */
+function limparModoAcao() {
+    definirModoAcao(null);
+    document.querySelectorAll('.personagem-card.hz-selecionavel').forEach(c => {
+        c.classList.remove('hz-selecionavel');
+        c.style.animation = '';
+    });
+}
+
+/**
+ * Destaca um personagem (versão anterior, mantida para compatibilidade)
+ */
 function destacarPersonagem(card) {
     document.querySelectorAll('.personagem-card').forEach(c => {
         c.classList.remove('border-warning', 'border-3');
@@ -14,40 +91,7 @@ function destacarPersonagem(card) {
     }
 }
 
-function setPlayerControlsEnabled(enabled, personagemId) {
-    const card = getCardById(personagemId);
-    if (!card) return;
-
-    const donoDoCard = String(card.dataset.usuarioId);
-    const souDono = donoDoCard === userId;
-
-    // Mestre nunca usa os controles de jogador
-    if (isMestre) {
-        if (turnControls) turnControls.classList.add('d-none');
-        if (diceOptions) diceOptions.classList.add('d-none');
-        if (btnRoll) btnRoll.disabled = true;
-        if (btnSkip) btnSkip.disabled = true;
-        return;
-    }
-
-    // Para jogadores: por padrão escondemos/desabilitamos controles
-    if (!turnControls) return;
-
-    if (souDono && enabled) {
-        // Mostrar controles apenas para o dono do personagem atual quando habilitado
-        turnControls.classList.remove('d-none');
-        if (diceOptions) diceOptions.classList.remove('d-none');
-        if (btnRoll) btnRoll.disabled = false;
-        if (btnSkip) btnSkip.disabled = false;
-    } else {
-        // Esconder/desabilitar para outros jogadores
-        turnControls.classList.add('d-none');
-        if (diceOptions) diceOptions.classList.add('d-none');
-        if (btnRoll) btnRoll.disabled = true;
-        if (btnSkip) btnSkip.disabled = true;
-    }
-}
-
-window.getCardById = getCardById;
 window.destacarPersonagem = destacarPersonagem;
-window.setPlayerControlsEnabled = setPlayerControlsEnabled;
+window.destacarPersonagemDaVez = destacarPersonagemDaVez;
+window.definirModoAcao = definirModoAcao;
+window.limparModoAcao = limparModoAcao;
