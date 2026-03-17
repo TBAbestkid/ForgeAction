@@ -5,12 +5,9 @@ let modoAcaoAtual = null;
 let personagemDaVezAtual = null;
 
 /**
- * Obtém o card do personagem pelo ID (fallback se não estiver definido)
+ * Obtém o card do personagem pelo ID
  */
 function getCardById(personagemId) {
-    if (window.getCardById) {
-        return window.getCardById(personagemId);
-    }
     return document.getElementById(`personagem-online-${personagemId}-pc`) ||
            document.getElementById(`personagem-online-${personagemId}-mb`);
 }
