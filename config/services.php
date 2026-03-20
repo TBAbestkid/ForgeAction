@@ -35,9 +35,9 @@ return [
         ],
     ],
     'api' => [
-        'base_url' => env('EXTERNAL_API_URL', 'https://narrow-christan-rokaideveloper-806169ef.koyeb.app'),
-        'user' => env('EXTERNAL_API_USER', 'roger'),
-        'pass' => env('EXTERNAL_API_PASS', 'roger@123'),
+        'base_url' => env('EXTERNAL_API_URL', 'http://forgeaction-back:9001/api'),
+        'user' => env('EXTERNAL_API_USER', 'admin'),
+        'pass' => env('EXTERNAL_API_PASS', 'admin'),
     ],
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
