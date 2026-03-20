@@ -51,7 +51,12 @@ jobs:
             git pull origin main
             docker rm forgeaction-front -f
             docker build -t forgeaction-front:latest .
-            docker run -d   --name forgeaction-front   --network bridge   -p 80:8080   -p 8080:8080   forgeaction-front:latest
+            docker run -d \
+              --name forgeaction-front \
+              --network rpg-api_backend \
+              -p 80:8080 \
+              -p 8080:8080 \
+              forgeaction-front:latest
             echo "✅ Deploy concluído!"
           EOF
 
