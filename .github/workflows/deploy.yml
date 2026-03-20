@@ -46,6 +46,11 @@ jobs:
 
       - name: 🚀 Executar deploy no servidor
         run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.ZEROTIER_SERVER_IP }} \
+            "echo 'API_BASE_URL=${{ secrets.API_BASE_URL }}
+          API_USER=${{ secrets.API_USER }}
+          API_PASS=${{ secrets.API_PASS }}' > /opt/forgeaction/ForgeAction/.env.api"
+      
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.ZEROTIER_SERVER_IP }} << 'EOF'
             cd /opt/forgeaction/ForgeAction
             git pull origin main
@@ -56,6 +61,9 @@ jobs:
               --network rpg-api_backend \
               -p 80:8080 \
               -p 8080:8080 \
+              -e API_BASE_URL="http://forgeaction-back:9001/api" \
+              -e API_USER="${{ secrets.API_USER }}" \
+              -e API_PASS="${{ secrets.API_PASS }}" \
               forgeaction-front:latest
             echo "✅ Deploy concluído!"
           EOF
