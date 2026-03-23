@@ -4,7 +4,7 @@
 @section('content')
 
 <div id="roomBackground"
-     style="background-image: url('{{ $sala['urlBackground'] }}')">
+     style="background-image: url('{{ $sala['urlBackground'] ? $sala['urlBackground'] : asset('images/default-bg.jpg') }}');">
 </div>
 
 <div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
@@ -42,8 +42,12 @@
                     </a>
                 </li>
             @endif
-            {{-- <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li> --}}
+            <li>
+                <a href="{{ route('home') }}" class="dropdown-item">
+                    <i class="fa-solid fa-door-open"></i>
+                    Sair da Sala
+                </a>
+            </li>
         </ul>
     </div>
     @if (!$isDono)
