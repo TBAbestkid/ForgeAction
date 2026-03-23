@@ -60,6 +60,17 @@ class SalaApiController extends Controller
                     ],
                 ],
             ]);
+        } else {
+            // se não veio imagem, seta a imagem padrão
+            $this->api->post("api/salas/{$salaId}/upload", [
+                'multipart' => [
+                    [
+                        'name'     => 'imagem',
+                        'contents' => fopen(public_path('assets/images/forge.png'), 'r'),
+                        'filename' => 'default-background.jpg',
+                    ],
+                ],
+            ]);
         }
 
         return redirect()->route('home')->with('success', 'Sala criada!');
