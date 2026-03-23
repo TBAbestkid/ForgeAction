@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\ApiService;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class SalaApiController extends Controller
 {
@@ -32,10 +33,36 @@ class SalaApiController extends Controller
      * POST /api/salas
      * Cria uma nova sala
      */
-    public function store(Request $request) {
-        return response()->json(
-            $this->api->post("api/salas", $request->all())
-        );
+    public function store(Request $request)
+    {
+        // cria sala
+        $response = $this->api->post('api/salas', [
+            'json' => [
+                'nome' => $request->nome,
+                'descricao' => $request->descricao,
+                'mestreId' => $request->mestreId,
+            ]
+        ]);
+
+        $data = $response;
+        $salaId = $data['id'];
+
+        // se veio imagem → upload
+        if ($request->hasFile('background')) {
+            $file = $request->file('background');
+
+            $this->api->post("api/salas/{$salaId}/upload", [
+                'multipart' => [
+                    [
+                        'name'     => 'imagem',
+                        'contents' => fopen($file->getPathname(), 'r'),
+                        'filename' => $file->getClientOriginalName(),
+                    ],
+                ],
+            ]);
+        }
+
+        return redirect()->route('home')->with('success', 'Sala criada!');
     }
 
     /**
