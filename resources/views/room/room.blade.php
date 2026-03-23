@@ -4,7 +4,7 @@
 @section('content')
 
 <div id="roomBackground"
-     style="background-image: url('{{ $sala['urlBackground'] ? $sala['urlBackground'] : asset('images/default-bg.jpg') }}');">
+     style="background-image: url('{{ $sala['urlBackground'] ? $sala['urlBackground'] : asset('assets/images/forge.png') }}');">
 </div>
 
 <div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
