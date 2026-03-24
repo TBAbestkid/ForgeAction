@@ -10,7 +10,7 @@
 <div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
 
     <div class="dropdown">
-        <button class="btn outline-btn-light text-dark dropdown-toggle" id="optionsMenu" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-light text-dark dropdown-toggle" id="optionsMenu" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fa-solid fa-ellipsis-vertical"></i>
         </button>
         <ul class="dropdown-menu">
@@ -27,8 +27,8 @@
                     Membros
                 </a>
             </li>
+            <li><hr class="dropdown-divider text-white"></li>
             @if($isDono)
-                <li><hr class="dropdown-divider text-white"></li>
                 <li>
                     <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#configModal">
                         <i class="fa-solid fa-user-plus"></i>
@@ -51,17 +51,17 @@
         </ul>
     </div>
     @if (!$isDono)
-        <button class="btn outline-btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFicha" aria-controls="offcanvasFicha">
+        <button class="btn btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFicha" aria-controls="offcanvasFicha">
             <i class="fa-solid fa-scroll me-2"></i>
             Ficha
         </button>
-    @else 
-        <button class="btn outline-btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFichas" aria-controls="offcanvasFichas">
+    @else
+        <button class="btn btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFichas" aria-controls="offcanvasFichas">
             <i class="fa-solid fa-scroll me-2"></i>
             Fichas
         </button>
     @endif
-    
+
 </div>
 
 <div class="position-absolute bottom-0 start-0 m-3">
@@ -137,14 +137,14 @@
         @else
             {{-- 🎲 Rodar Dado --}}
             <button id="btn-roll"
-                class="btn btn-outline-light btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                class="btn btn-light btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
                 title="Rodar Dado" disabled>
                 <i class="fa-solid fa-dice-d20"></i>
             </button>
 
             {{-- ⏭️ Pular Turno --}}
             <button id="btn-skip"
-                class="btn btn-outline-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
                 title="Pular Turno" disabled>
                 <i class="fa-solid fa-forward"></i>
             </button>
@@ -176,14 +176,15 @@
         aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="offcanvasFichaLabel">
-                <i class="fa-solid fa-scroll me-2">Fichas</i>
-             </h5>
-             <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
-                aria-label="Close"></button>
+                <i class="fa-solid fa-scroll me-2"> Fichas</i>
+            </h5>
+
+            <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
     </div>
-   
+
 @else
+    <!-- Ficha do jogador -->
     <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFicha"
         aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
 
@@ -304,6 +305,11 @@
                 aviso.style.display = 'none';
             };
         }, 1000);
+
+        // Esconde o aviso automaticamente após 5 segundos
+        setTimeout(() => {
+            aviso.style.display = 'none';
+        }, 5000);
     };
 
     function entrarEmFullscreen() {
