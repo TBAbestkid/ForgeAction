@@ -54,20 +54,16 @@ class SalaApiController extends Controller
         if ($request->hasFile('background')) {
             $file = $request->file('background');
 
-            $this->api->post("api/salas/{$salaId}/upload", [
-                'multipart' => [
-                    [
-                        'name'     => 'imagem',
-                        'contents' => fopen($file->getPathname(), 'r'),
-                        'filename' => $file->getClientOriginalName(),
-                    ],
-                ],
-            ]);
+            $this->api->uploadImage(
+                "api/salas/{$salaId}/upload",
+                'imagem',
+                fopen($file->getPathname(), 'r'),
+                $file->getClientOriginalName()
+            );
         }
 
         return redirect()->route('home')->with('success', 'Sala criada!');
     }
-
 
     /**
      * PUT /api/salas/{id}
