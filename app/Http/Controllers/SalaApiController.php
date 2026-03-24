@@ -47,7 +47,7 @@ class SalaApiController extends Controller
         // Verifica se a resposta contém o ID da sala criada
         if (!isset($response['id'])) {
             Log::error('Erro ao criar sala: resposta da API não contém ID', ['response' => $response]);
-            return redirect()->back()->withErrors(['error' => 'Erro ao criar sala. Tente novamente.']);
+            return redirect()->back()->with(['error' => 'Erro ao criar sala. Tente novamente. Erro: ' . ($response['message'] ?? 'Resposta inesperada da API')]);
         }
 
         $salaId = $response['id'];
