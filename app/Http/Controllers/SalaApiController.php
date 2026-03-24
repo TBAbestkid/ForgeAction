@@ -37,11 +37,9 @@ class SalaApiController extends Controller
     {
         // cria sala
         $response = $this->api->post('api/salas', [
-            'json' => [
-                'nome' => $request->nome,
-                'descricao' => $request->descricao,
-                'mestreId' => $request->mestreId,
-            ]
+            'nome' => $request->nome,
+            'descricao' => $request->descricao,
+            'mestreId' => session('user_id'),
         ]);
 
         // Verifica se a resposta contém o ID da sala criada
