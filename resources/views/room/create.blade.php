@@ -95,9 +95,12 @@
         dropzone.classList.remove('dragover');
 
         const file = e.dataTransfer.files[0];
-        input.files = e.dataTransfer.files;
-
-        previewImage(file);
+        if (file) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+            previewImage(file);
+        }
     });
 
     // quando selecionar manualmente
