@@ -55,7 +55,13 @@
             <i class="fa-solid fa-scroll me-2"></i>
             Ficha
         </button>
+    @else 
+        <button class="btn outline-btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFichas" aria-controls="offcanvasFichas">
+            <i class="fa-solid fa-scroll me-2"></i>
+            Fichas
+        </button>
     @endif
+    
 </div>
 
 <div class="position-absolute bottom-0 start-0 m-3">
@@ -165,6 +171,18 @@
             </div>
         </div>
     </div>
+    <!-- Fichas de players para o mestre -->
+    <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFichas"
+        aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasFichaLabel">
+                <i class="fa-solid fa-scroll me-2">Fichas</i>
+             </h5>
+             <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+        </div>
+    </div>
+   
 @else
     <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFicha"
         aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
