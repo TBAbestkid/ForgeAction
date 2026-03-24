@@ -181,11 +181,11 @@
             <h5 class="offcanvas-title" id="offcanvasFichaLabel">
                 <i class="fa-solid fa-scroll me-2"> Fichas</i>
             </h5>
-                <div id="coluna-personagens" class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
+            <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <div id="coluna-personagens" class="d-none d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
                     {{-- Personagens serão inseridos aqui via JS --}}
 
                 </div>
-            <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
     </div>
 
