@@ -175,7 +175,7 @@
         </div>
     </div>
     <!-- Fichas de players para o mestre -->
-    <div class="offcanvas offcanvas-end text-light d-flex justify-content-center align-content-start" tabindex="-1" id="offcanvasFichas"
+    <div class="offcanvas offcanvas-end text-light d-flex align-content-start" tabindex="-1" id="offcanvasFichas"
         aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="offcanvasFichaLabel">
