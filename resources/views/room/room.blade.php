@@ -64,26 +64,29 @@
 
 </div>
 
+{{-- Chat --}}
 <div class="position-absolute bottom-0 start-0 m-3">
 
     <!-- Botão -->
-    <button class="btn btn-dark mb-2"
-            data-bs-toggle="collapse"
-            data-bs-target="#chatCollapse">
-        💬 Chat
+    <button class="btn btn-dark mb-2" data-bs-toggle="collapse" data-bs-target="#chatCollapse">
+        <i class="fa-solid fa-comments"></i> Chat
     </button>
 
     <!-- Collapse -->
     <div class="collapse" id="chatCollapse">
-        <div class="chat-box rounded-4 shadow p-3">
+        <div class="chat-box rounded-4 shadow p-3" style="width: 400px; max-width: 90vw; height: 500px; background-color: rgba(0, 0, 0, 0.8);">
 
-            <div id="chatMessages" class="mb-3">
-                {{-- Mensagens --}}
+            <div id="chat-messages" class="mb-3">
+                {{-- Mensagens Exemplo  --}}
+                {{-- <div class="p-2 rounded bg-secondary text-light d-flex flex-column mb-2 align-items-start">
+                    <small class="d-block fw-bold opacity-75">Jogador</small>
+                    <span>Olá, pessoal!</span>
+                </div> --}}
             </div>
 
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Digite sua mensagem...">
-                <button class="btn btn-primary"> <i class="fa-solid fa-paper-plane"></i></button>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Digite sua mensagem..." id="chat-input">
+                <button class="btn btn-primary" id="chat-send"> <i class="fa-solid fa-paper-plane"></i></button>
             </div>
 
         </div>
@@ -294,6 +297,32 @@
     <i class="fa-solid fa-info-circle"></i>
     Pressione <strong>F11</strong> ou <strong>Clique aqui</strong> para entrar em tela cheia
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+{{-- Exporta variáveis PHP para JS --}}
+<script>
+    // const newWsUrl = "/ws";
+
+    // console.log("WebSocket URL:", newWsUrl);
+
+    window.CHAT_CONFIG = {
+        userId: {{ session('user_id') ?? 'null' }},
+        userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
+        salaId: {{ $sala['id'] }},
+        wsUrl: "{{ env('EXTERNAL_API_URL') }}" + "/ws",
+        // wsUrl: window.location.origin + "/ws",
+        isMestre: {{ $isDono ? 'true' : 'false' }}
+    };
+
+    window.csrfToken = "{{ csrf_token() }}";
+    const csrfToken = "{{ csrf_token() }}";
+    const routeSalasIndex = "{{ route('salas.index') }}";
+</script>
+
+<script src="{{ asset('js/utils/webSocketService.js') }}"></script>
+<script src="{{ asset('js/room/general/chatRoom.js') }}"></script>
 
 <script>
     window.onload = function() {
