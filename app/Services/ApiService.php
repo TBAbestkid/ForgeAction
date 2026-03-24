@@ -42,4 +42,13 @@ class ApiService
         return $this->withAuth()->delete("{$this->baseUrl}/{$path}")->json();
     }
 
+    // Para enviar imagens com multipart/form-data
+    public function uploadImage(string $path, string $fieldName, $contents, string $filename = null)
+    {
+        return $this->withAuth()
+            ->attach($fieldName, $contents, $filename)
+            ->post("{$this->baseUrl}/{$path}")
+            ->json();
+    }
+
 }
