@@ -111,7 +111,7 @@
         const reader = new FileReader();
 
         reader.onload = (e) => {
-            dropzone.innerHTML = `
+            dropzone.innerHTML += `
                 <img src="${e.target.result}"
                     style="max-width:100%; border-radius:8px;">
             `;
@@ -119,6 +119,7 @@
 
         reader.readAsDataURL(file);
     }
+
     const form = document.getElementById('createSalaForm');
 
     document.getElementById('btnCreateSala').addEventListener('click', function () {
