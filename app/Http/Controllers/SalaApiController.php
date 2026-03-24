@@ -44,8 +44,13 @@ class SalaApiController extends Controller
             ]
         ]);
 
-        $data = $response;
-        $salaId = $data['id'];
+        // Verifica se a resposta contém o ID da sala criada
+        if (!isset($response['id'])) {
+            Log::error('Erro ao criar sala: resposta da API não contém ID', ['response' => $response]);
+            return redirect()->back()->withErrors(['error' => 'Erro ao criar sala. Tente novamente.']);
+        }
+
+        $salaId = $response['id'];
 
         // se veio imagem → upload
         if ($request->hasFile('background')) {
@@ -64,6 +69,7 @@ class SalaApiController extends Controller
 
         return redirect()->route('home')->with('success', 'Sala criada!');
     }
+
 
     /**
      * PUT /api/salas/{id}
