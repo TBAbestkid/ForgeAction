@@ -114,10 +114,12 @@
         const reader = new FileReader();
 
         reader.onload = (e) => {
-            dropzone.innerHTML += `
-                <img src="${e.target.result}"
-                    style="max-width:100%; border-radius:8px;">
-            `;
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '100%';
+            img.style.borderRadius = '8px';
+
+            dropzone.appendChild(img);
         };
 
         reader.readAsDataURL(file);
