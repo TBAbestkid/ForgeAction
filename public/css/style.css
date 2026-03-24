@@ -170,17 +170,28 @@ body::before {
     opacity: 0;
 }
 
-#chat-messages {
+#chat-messages, #chatMessages {
     overflow-y: auto; /* scrollbar vertical */
     flex-grow: 1;      /* ocupa todo o espaço do chat-container */
     display: flex;
     flex-direction: column;
     gap: 0.5rem;       /* espaçamento entre mensagens */
+    /* Esconder a scrollbar mas mesmo assim rolar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE e Edge */
+}
+#chat-messages::-webkit-scrollbar, #chatMessages::-webkit-scrollbar {
+    width: 0; /* Chrome/Safari */
 }
 
 /* opcional: rolar até a última mensagem */
-#chat-messages.scroll-bottom {
+#chat-messages.scroll-bottom, #chatMessages.scroll-bottom {
     scroll-behavior: smooth;
+}
+
+.chat-box .input-group {
+    position: static;
+    margin-top: auto;
 }
 
 .scroll-invisible {
@@ -256,6 +267,9 @@ body::before {
 }
 
 .chat-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     width: 300px;
     max-height: 400px;
     background-color: rgba(255, 255, 255, 0.07);
@@ -263,10 +277,13 @@ body::before {
 }
 
 .collapse {
+    overflow: hidden;
+    max-height: 0;
     transform: translateY(20px);
     transition: all 0.3s ease;
 }
 
 .collapse.show {
     transform: translateY(0);
+    max-height: 500px;
 }
