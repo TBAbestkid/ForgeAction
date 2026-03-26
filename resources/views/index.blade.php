@@ -70,16 +70,10 @@
                                     <a href="{{ route('salas.create') }}" class="btn btn-outline-success shadow-sm">
                                         <i class="fa-solid fa-user-group me-1"></i> Criar sala
                                     </a>
-                                    <button class="btn btn-outline-danger x-4 py-2 shadow-sm btn-delete-sala">
-                                        <i class="fa-solid fa-trash"></i> Excluir sala
-                                    </button>
                                 @else
                                     <button class="btn btn-outline-success px-4 py-2 shadow-sm"
                                             data-bs-toggle="modal" data-bs-target="#modalSalabyCode">
                                         <i class="fa-solid fa-door-open me-2"></i> Entrar em Sala
-                                    </button>
-                                    <button class="btn btn-outline-danger x-4 py-2 shadow-sm btn-exit-sala">
-                                        <i class="fa-solid fa-door-open"></i> Sair da sala
                                     </button>
                                 @endif
                             </div>
@@ -329,9 +323,14 @@
                                 <button class="btn btn-sm btn-outline-secondary btn-copy" data-code="${sala.codigo}">
                                     <i class="fa-solid fa-clipboard"></i>
                                 </button>
+                                <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${sala.id}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
                             </div>
                         `
-                        : ` `;
+                        : `<button class="btn btn-sm btn-outline-danger btn-exit-sala" data-id="${sala.id}">
+                            <i class="fa-solid fa-door-open"></i> Sair
+                        </button>`;
 
                     $salasList.append(`
                         <li class="list-group-item d-flex justify-content-between align-items-center"
@@ -396,99 +395,109 @@
         /* -------------------------------------------------------------
         🏰  EXCLUIR OU SAIR DE SALA
         ------------------------------------------------------------- */
-        let deleteModeSala = false;
-        let exitMode = false;
-        let selectedSalaId = null;
+        let salaSelecionada = null;
+        let acaoSala = null; // 'deletar' ou 'sair'
 
-        $(document).on('click', '.btn-delete-sala', function () {
-            deleteModeSala = true;
-            exitMode = false;
-            showToast('Clique na sala que deseja deletar.', 'info');
+        // Modal
+        const modalElement = document.getElementById('modalConfirm');
+        const modal = new bootstrap.Modal(modalElement);
+
+        // Para o mestre: Deletar sala
+        $(document).on('click', '.btn-delete', function (e) {
+            e.stopPropagation();
+
+            salaSelecionada = $(this).data('id');
+            acaoSala = 'deletar';
+
+            $('#modalConfirmMessage').text('Tem certeza que deseja deletar esta sala?');
+
+            modal.show();
         });
 
-        $(document).on('click', '.btn-exit-sala', function () {
-            exitMode = true;
-            deleteModeSala = false;
-            showToast('Clique na sala que deseja sair.', 'info');
+        // Para o jogador: Sair da sala
+        $(document).on('click', '.btn-exit-sala', function (e) {
+            e.stopPropagation();
+
+            salaSelecionada = $(this).data('id');
+            acaoSala = 'sair';
+
+            $('#modalConfirmMessage').text('Tem certeza que deseja sair desta sala?');
+
+            modal.show();
         });
 
-        $(document).on('click', '#salasList li', function () {
-            if (!deleteModeSala && !exitMode) return;
+        $('#btnConfirmAction').on('click', function (e) {
+            e.preventDefault();
 
-            $('#salasList li').removeClass('border-danger border-2');
-            $(this).addClass('border-danger border-2');
+            if (!salaSelecionada || !acaoSala) return;
 
-            selectedSalaId = $(this).data('id');
+            const btn = $(this);
+            btn.prop('disabled', true);
 
-            /* --- Deletar sala --- */
-            if (deleteModeSala) {
-                showConfirm('Tem certeza que deseja deletar esta sala?', () => {
-                    $.ajax({
-                        url: `/api/salas/${selectedSalaId}`,
-                        type: 'DELETE',
-                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                        success: () => {
-                            $(`#salasList li[data-id="${selectedSalaId}"]`).fadeOut(300, function () {
-                                $(this).remove();
-                            });
-                            deleteModeSala = false;
-                            selectedSalaId = null;
-                        },
-                        error: () => {
-                            showAlert('Erro ao deletar a sala.');
-                            deleteModeSala = false;
-                        }
-                    });
+            let request;
+
+            // 🔴 DELETAR
+            if (acaoSala === 'deletar') {
+                request = $.ajax({
+                    url: `/api/salas/${salaSelecionada}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
                 });
-                return;
             }
 
-            /* --- Sair da sala --- */
-            if (exitMode) {
+            // 🟡 SAIR
+            if (acaoSala === 'sair') {
                 const userId = "{{ session('user_id') }}";
 
-                showConfirm('Tem certeza que deseja sair desta sala?', function () {
-                    $.ajax({
-                        url: `/api/salas/personagens/listar/${selectedSalaId}`,
-                        type: 'GET',
-                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                        success: personagens => {
-                            const personagem = personagens.find(p => p.usuarioId == userId);
-                            if (!personagem) {
-                                showToast('Seu personagem não foi encontrado nesta sala.');
-                                exitMode = false;
-                                return;
-                            }
+                request = $.ajax({
+                    url: `/api/salas/personagens/listar/${salaSelecionada}`,
+                    type: 'GET'
+                }).then(personagens => {
+                    const personagem = personagens.find(p => p.usuarioId == userId);
 
-                            const personagemId = personagem.personagemId;
+                    if (!personagem) {
+                        throw new Error('Personagem não encontrado');
+                    }
 
-                            $.ajax({
-                                url: `/api/salas/personagens/remover/${selectedSalaId}/${personagemId}`,
-                                type: 'DELETE',
-                                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                                success: res => {
-                                    showToast(res.message || 'Você saiu da sala.');
-                                    $(`#salasList li[data-id="${selectedSalaId}"]`).fadeOut(300, function () {
-                                        $(this).remove();
-                                    });
-
-                                    exitMode = false;
-                                    selectedSalaId = null;
-                                    loadSalas();
-                                },
-                                error: xhr => {
-                                    showAlert(xhr.responseJSON?.message || 'Erro ao sair da sala.');
-                                    exitMode = false;
-                                }
-                            });
-                        },
-                        error: () => {
-                            showAlert('Erro ao carregar os personagens da sala.');
-                            exitMode = false;
+                    return $.ajax({
+                        url: `/api/salas/personagens/remover/${salaSelecionada}/${personagem.personagemId}`,
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         }
                     });
                 });
             }
+
+            request
+                .then(() => {
+                    modal.hide();
+
+                    showToast(
+                        acaoSala === 'deletar'
+                            ? 'Sala deletada com sucesso!'
+                            : 'Você saiu da sala.'
+                    );
+
+                    $(`#salasList li[data-id="${salaSelecionada}"]`)
+                        .fadeOut(300, function () {
+                            $(this).remove();
+                        });
+
+                    salaSelecionada = null;
+                    acaoSala = null;
+                })
+                .catch((err) => {
+                    console.error(err);
+                    showAlert('Erro ao executar ação.');
+                    salaSelecionada = null;
+                    acaoSala = null;
+                })
+                .always(() => {
+                    btn.prop('disabled', false);
+                });
         });
 
         /* -------------------------------------------------------------
