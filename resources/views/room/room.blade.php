@@ -2,158 +2,163 @@
 @section('title', "{$sala['nome']} - ForgeAction")
 
 @section('content')
-
-<div id="roomBackground"
-     style="background-image: url('{{ $sala['urlBackground'] ? $sala['urlBackground'] : asset('assets/images/forge.png') }}');">
-</div>
-
-<div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
-
-    <div class="dropdown">
-        <button class="btn btn-light text-dark dropdown-toggle" id="optionsMenu" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-        </button>
-        <ul class="dropdown-menu">
-            {{-- Tanto para mestre quanto para player --}}
-            <li>
-                <button class="dropdown-item" type="button" id="fullscreen" onclick="entrarEmFullscreen()">
-                    <i class="fa-solid fa-expand"></i>
-                    Tela Cheia
-                </button>
-            </li>
-            <li>
-                <a href="#" class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMembers">
-                    <i class="fa-solid fa-users"></i>
-                    Membros
-                </a>
-            </li>
-            <li><hr class="dropdown-divider text-white"></li>
-            @if($isDono)
-                <li>
-                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#configModal">
-                        <i class="fa-solid fa-user-plus"></i>
-                        Convidar Membros
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#copiarcodigoSala">
-                        <i class="fa-solid fa-copy"></i>
-                        Copiar Código da Sala
-                    </a>
-                </li>
-            @endif
-            <li>
-                <a href="{{ route('home') }}" class="dropdown-item">
-                    <i class="fa-solid fa-door-open"></i>
-                    Sair da Sala
-                </a>
-            </li>
-        </ul>
+{{-- Manter tudo na tela visualmente, aqui dentro --}}
+<div id="roomContainer" class="">
+    {{-- Background da Sala --}}
+    <div id="roomBackground"
+        style="background-image: url('{{ $sala['urlBackground'] ? $sala['urlBackground'] : asset('assets/images/forge.png') }}');">
     </div>
-    @if (!$isDono)
-        <button class="btn btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFicha" aria-controls="offcanvasFicha">
-            <i class="fa-solid fa-scroll me-2"></i>
-            Ficha
-        </button>
-    @else
-        <button class="btn btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFichas" aria-controls="offcanvasFichas">
-            <i class="fa-solid fa-scroll me-2"></i>
-            Fichas
-        </button>
-    @endif
 
-</div>
+    {{-- Configurações de Sala, para mestre e player --}}
+    <div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
 
-{{-- Chat --}}
-<div class="position-absolute bottom-0 start-0 m-3">
-
-    <!-- Botão -->
-    <button class="btn btn-dark mb-2" data-bs-toggle="collapse" data-bs-target="#chatCollapse">
-        <i class="fa-solid fa-comments"></i> Chat
-    </button>
-
-    <!-- Collapse -->
-    <div class="collapse" id="chatCollapse">
-        <div class="chat-box rounded-4 shadow p-3" style="width: 400px; max-width: 90vw; height: 500px; background-color: rgba(0, 0, 0, 0.8);">
-
-            <div id="chat-messages" class="mb-3">
-                {{-- Mensagens Exemplo  --}}
-                {{-- <div class="p-2 rounded bg-secondary text-light d-flex flex-column mb-2 align-items-start">
-                    <small class="d-block fw-bold opacity-75">Jogador</small>
-                    <span>Olá, pessoal!</span>
-                </div> --}}
-            </div>
-
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Digite sua mensagem..." id="chat-input">
-                <button class="btn btn-primary" id="chat-send"> <i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-
+        <div class="dropdown">
+            <button class="btn btn-light text-dark dropdown-toggle" id="optionsMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <ul class="dropdown-menu">
+                {{-- Tanto para mestre quanto para player --}}
+                <li>
+                    <button class="dropdown-item" type="button" id="fullscreen" onclick="entrarEmFullscreen()">
+                        <i class="fa-solid fa-expand"></i>
+                        Tela Cheia
+                    </button>
+                </li>
+                <li>
+                    <a href="#" class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMembers">
+                        <i class="fa-solid fa-users"></i>
+                        Membros
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider text-white"></li>
+                @if($isDono)
+                    <li>
+                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#configModal">
+                            <i class="fa-solid fa-user-plus"></i>
+                            Convidar Membros
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#copiarcodigoSala">
+                            <i class="fa-solid fa-copy"></i>
+                            Copiar Código da Sala
+                        </a>
+                    </li>
+                @endif
+                <li>
+                    <a href="{{ route('home') }}" class="dropdown-item">
+                        <i class="fa-solid fa-door-open"></i>
+                        Sair da Sala
+                    </a>
+                </li>
+            </ul>
         </div>
-    </div>
-
-</div>
-
-{{-- Botões de Ações Mestre/Player --}}
-{{-- Usando de base a ideia de HUID --}}
-{{-- Botões de ação de mestre como linha abaixo de área --}}
-<div class="position-fixed bottom-0 start-50 translate-middle-x mb-3 z-3">
-    <div class="d-flex gap-3 px-3 py-2 rounded-4 shadow hud-bg">
-
-        @if($isDono)
-
-            <button id="btnIniciarTurno"
-                class="btn btn-success btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                title="Turno">
-                <i class="fa-solid fa-play"></i>
-            </button>
-
-            <button id="btnLancarMestre"
-                class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                title="Dados" disabled>
-                <i class="fa-solid fa-dice-d20"></i>
-            </button>
-
-            <button id="btnPermitirJogadaExtra"
-                class="btn btn-primary btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                title="Extra" disabled>
-                <i class="fa-solid fa-user-check"></i>
-            </button>
-
-            <button id="btnDano"
-                class="btn btn-danger btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                title="Dano" disabled>
-                <i class="fa-solid fa-burst"></i>
-            </button>
-
-            <button id="btnCurar"
-                class="btn btn-success btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                title="Curar" disabled>
-                <i class="fa-solid fa-heart-pulse"></i>
-            </button>
-
-            <button id="btnUpar"
-                class="btn btn-info btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                title="Upar" disabled>
-                <i class="fa-solid fa-arrow-up"></i>
+        @if (!$isDono)
+            <button class="btn btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFicha" aria-controls="offcanvasFicha">
+                <i class="fa-solid fa-scroll me-2"></i>
+                Ficha
             </button>
         @else
-            {{-- 🎲 Rodar Dado --}}
-            <button id="btn-roll"
-                class="btn btn-light btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                title="Rodar Dado" disabled>
-                <i class="fa-solid fa-dice-d20"></i>
-            </button>
-
-            {{-- ⏭️ Pular Turno --}}
-            <button id="btn-skip"
-                class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                title="Pular Turno" disabled>
-                <i class="fa-solid fa-forward"></i>
+            <button class="btn btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFichas" aria-controls="offcanvasFichas">
+                <i class="fa-solid fa-scroll me-2"></i>
+                Fichas
             </button>
         @endif
+
+    </div>
+
+    {{-- Chat --}}
+    <div class="position-absolute bottom-0 start-0 m-3">
+
+        <!-- Botão -->
+        <button class="btn btn-dark mb-2" data-bs-toggle="collapse" data-bs-target="#chatCollapse">
+            <i class="fa-solid fa-comments"></i> Chat
+        </button>
+
+        <!-- Collapse -->
+        <div class="collapse" id="chatCollapse">
+            <div class="chat-box rounded-4 shadow p-3" style="width: 400px; max-width: 90vw; height: 500px; background-color: rgba(0, 0, 0, 0.8);">
+
+                <div id="chat-messages" class="mb-3">
+                    {{-- Mensagens Exemplo  --}}
+                    {{-- <div class="p-2 rounded bg-secondary text-light d-flex flex-column mb-2 align-items-start">
+                        <small class="d-block fw-bold opacity-75">Jogador</small>
+                        <span>Olá, pessoal!</span>
+                    </div> --}}
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Digite sua mensagem..." id="chat-input">
+                    <button class="btn btn-primary" id="chat-send"> <i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    {{-- Botões de Ações Mestre/Player
+        Usando de base a ideia de HUID
+        Botões de ação de mestre como linha abaixo de área --}}
+    <div class="position-fixed bottom-0 start-50 translate-middle-x mb-3 z-3">
+        <div class="d-flex gap-3 px-3 py-2 rounded-4 shadow hud-bg">
+
+            @if($isDono)
+
+                <button id="btnIniciarTurno"
+                    class="btn btn-success btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                    title="Turno">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+
+                <button id="btnLancarMestre"
+                    class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                    title="Dados" disabled>
+                    <i class="fa-solid fa-dice-d20"></i>
+                </button>
+
+                <button id="btnPermitirJogadaExtra"
+                    class="btn btn-primary btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                    title="Extra" disabled>
+                    <i class="fa-solid fa-user-check"></i>
+                </button>
+
+                <button id="btnDano"
+                    class="btn btn-danger btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                    title="Dano" disabled>
+                    <i class="fa-solid fa-burst"></i>
+                </button>
+
+                <button id="btnCurar"
+                    class="btn btn-success btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                    title="Curar" disabled>
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </button>
+
+                <button id="btnUpar"
+                    class="btn btn-info btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                    title="Upar" disabled>
+                    <i class="fa-solid fa-arrow-up"></i>
+                </button>
+            @else
+                {{-- 🎲 Rodar Dado --}}
+                <button id="btn-roll"
+                    class="btn btn-light btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                    title="Rodar Dado" disabled>
+                    <i class="fa-solid fa-dice-d20"></i>
+                </button>
+
+                {{-- ⏭️ Pular Turno --}}
+                <button id="btn-skip"
+                    class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                    title="Pular Turno" disabled>
+                    <i class="fa-solid fa-forward"></i>
+                </button>
+            @endif
+        </div>
     </div>
 </div>
+
 
 @if ($isDono)
     <!-- Modal para input do valor -->
@@ -174,6 +179,7 @@
             </div>
         </div>
     </div>
+
     <!-- Fichas de players para o mestre -->
     <div class="offcanvas offcanvas-end text-light d-flex align-content-start" tabindex="-1" id="offcanvasFichas"
         aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
@@ -183,8 +189,9 @@
             </h5>
             <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-                <div id="coluna-personagens" class="d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
-                    {{-- Personagens serão inseridos aqui via JS --}}
+            <div id="coluna-personagens" class="d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
+                {{-- Personagens serão inseridos aqui via JS --}}
+            </div>
         </div>
     </div>
 
@@ -255,7 +262,7 @@
     </div>
 @endif
 
-<!-- Offcanvas direita -->
+<!-- Offcanvas direita (MEMBROS) -->
 <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasMembers"
     aria-labelledby="offcanvasMembersLabel" style="background-color: #1c1c1c; min-width: 250px;">
 
@@ -295,6 +302,7 @@
     </div>
 </div>
 
+{{-- Aviso de tela cheia --}}
 <div id="aviso-fullscreen" class="alert alert-info" style="display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1050; cursor: pointer;">
     <i class="fa-solid fa-info-circle"></i>
     Pressione <strong>F11</strong> ou <strong>Clique aqui</strong> para entrar em tela cheia
@@ -302,6 +310,12 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{{-- <script src="{{ asset('js/room/game/turnManager.js') }}"></script> --}}
+{{-- <script src="{{ asset('js/room/game/turnState.js') }}"></script> --}}
+{{-- <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script> --}}
+{{-- <script src="{{ asset('js/room/game/gameFlow.js') }}"></script> --}}
+{{-- <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script> --}}
+{{-- <script src="{{ asset('js/room/game/personagensManager.js') }}"></script> --}}
 
 {{-- Exporta variáveis PHP para JS --}}
 <script>
@@ -323,10 +337,12 @@
     const routeSalasIndex = "{{ route('salas.index') }}";
 </script>
 
+{{-- 1. Serviço WebSocket (fundamental) --}}
+<!-- Status styles for personagens (inline file) -->
 <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
+{{-- 2. Gerenciadores da sala --}}
 <script src="{{ asset('js/room/general/chatRoom.js') }}"></script>
 <script src="{{ asset('js/room/game/roomManager.js') }}"></script>
-<script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
 
 <script>
     window.onload = function() {
