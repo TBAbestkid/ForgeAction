@@ -159,47 +159,39 @@
     </div>
 
     {{-- Coluna central (DiceBox) --}}
-    <div id="dice-container" class="bg-dark rounded shadow-lg mx-2 position-relative"
-            style="flex: 1 1 45%; border: 2px solid #555; overflow: hidden; min-height: 420px;">
+    <div id="dice-container" class="position-fixed top-50 start-50 translate-middle"
+        style=" width: 25vw; height: 25vw; max-width: 400px; max-height: 400px; min-width: 250px; min-height: 250px; z-index: 5; background: transparent;">
 
-        {{-- 🎲 Área exclusiva do DiceBox --}}
+        {{-- 🎲 Área do Dice --}}
         <div id="dice-box"
             style="position: absolute; inset: 0; width: 100%; height: 100%;">
         </div>
 
-        {{-- Placeholder centralizado --}}
-        <div id="dice-placeholder" class="text-white text-center"
+        {{-- Placeholder --}}
+        <div id="dice-placeholder"
+            class="text-white text-center"
             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
             🎲 Aguardando início do turno...
         </div>
 
-        {{-- Controles fixos na parte inferior --}}
-        <div id="turnControls" class="d-none flex-column align-items-center gap-2"
-                style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); z-index: 10;">
+        {{-- Controles --}}
+        <div id="turnControls"
+            class="d-none flex-column align-items-center gap-2"
+            style="position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); z-index: 10;">
 
-            <div class="d-flex gap-2 flex-wrap justify-content-center align-items-center">
+            @if ($isDono)
+                <div class="form-check d-flex align-items-center gap-2 text-white">
+                    <input type="checkbox" id="ocultarDados" class="form-check-input">
+                    <label for="ocultarDados">Ocultar Dados</label>
+                </div>
+            @endif
 
-                @if ($isDono)
-                    <div class="form-check d-flex align-items-center gap-2">
-                        <input type="checkbox" name="ocultarDados" id="ocultarDados" class="form-check-input">
-
-                        <label for="ocultarDados" class="form-check-label text-white">
-                            Ocultar Dados aos Jogadores
-                        </label>
-                    </div>
-                @endif
-
-            </div>
-
-            <div id="diceOptions"
-                class="d-none mt-2 text-center">
-
+            <div id="diceOptions" class="d-none text-center">
                 <button class="btn btn-outline-primary m-1 diceBtn" data-sides="4">D4</button>
                 <button class="btn btn-outline-primary m-1 diceBtn" data-sides="6">D6</button>
                 <button class="btn btn-outline-primary m-1 diceBtn" data-sides="10">D10</button>
                 <button class="btn btn-outline-primary m-1 diceBtn" data-sides="12">D12</button>
                 <button class="btn btn-outline-primary m-1 diceBtn" data-sides="20">D20</button>
-
             </div>
         </div>
 
