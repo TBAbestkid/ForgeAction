@@ -159,28 +159,26 @@
     </div>
 
     {{-- Coluna central (DiceBox) --}}
-    <div id="dice-container" class="position-fixed top-50 start-50 translate-middle"
-        style=" width: 25vw; height: 25vw; max-width: 400px; max-height: 400px; min-width: 250px; min-height: 250px; z-index: 5; background: rgba(0, 0, 0, 0.25);">
+    <div id="dice-container" class="position-fixed top-50 start-50 translate-middle shadow-lg rounded-4 d-flex align-items-center justify-content-center"
+        style="width: 60vw; height: 50vh; max-width: 900px; min-height: 300px; z-index: 5; background: rgba(0, 0, 0, 0.25);">
 
         {{-- 🎲 Área do Dice --}}
         <div id="dice-box"
-            style="position: absolute; inset: 0; width: 100%; height: 100%;">
+            class="w-100 h-100 position-absolute top-0 start-0">
         </div>
 
         {{-- Placeholder --}}
         <div id="dice-placeholder"
-            class="text-white text-center"
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+            class="text-white text-center position-absolute top-50 start-50 translate-middle">
             🎲 Aguardando início do turno...
         </div>
 
         {{-- Controles --}}
         <div id="turnControls"
-            class="d-none flex-column align-items-center gap-2"
-            style="position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); z-index: 10;">
+            class="d-none flex-column align-items-center gap-2 position-absolute bottom-0 start-50 translate-middle-x mb-2">
 
             @if ($isDono)
-                <div class="form-check d-flex align-items-center gap-2 text-white">
+                <div class="form-check text-white">
                     <input type="checkbox" id="ocultarDados" class="form-check-input">
                     <label for="ocultarDados">Ocultar Dados</label>
                 </div>
