@@ -160,7 +160,7 @@
 
     {{-- Coluna central (DiceBox) --}}
     <div id="dice-container" class="position-fixed top-50 start-50 translate-middle"
-        style=" width: 25vw; height: 25vw; max-width: 400px; max-height: 400px; min-width: 250px; min-height: 250px; z-index: 5; background: transparent;">
+        style=" width: 25vw; height: 25vw; max-width: 400px; max-height: 400px; min-width: 250px; min-height: 250px; z-index: 5; background: rgba(0, 0, 0, 0.25);">
 
         {{-- 🎲 Área do Dice --}}
         <div id="dice-box"
