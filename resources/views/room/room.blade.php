@@ -58,11 +58,6 @@
                 <i class="fa-solid fa-scroll me-2"></i>
                 Ficha
             </button>
-        @else
-            <button class="btn btn-light text-dark ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFichas" aria-controls="offcanvasFichas">
-                <i class="fa-solid fa-scroll me-2"></i>
-                Fichas
-            </button>
         @endif
 
     </div>
@@ -193,10 +188,9 @@
             </div>
         </div>
         @if ($isDono)
-        <div class="col-12 mb-2">
-            <div id="coluna-personagens" class="d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
-                {{-- Personagens serão inseridos aqui via JS --}}
-            </div>
+        <div id="coluna-personagens"
+                class="d-flex flex-column gap-3 overflow-auto position-fixed top-50 end-0 translate-middle-y"
+                style="width: 220px; max-height: 70vh; padding: 0.5rem; z-index: 10;">
         </div>
         @endif
     </div>
