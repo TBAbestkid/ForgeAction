@@ -342,8 +342,8 @@
 {{-- <script src="{{ asset('js/room/game/turnState.js') }}"></script> --}}
 {{-- <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script> --}}
 {{-- <script src="{{ asset('js/room/game/gameFlow.js') }}"></script> --}}
-{{-- <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script> --}}
-{{-- <script src="{{ asset('js/room/game/personagensManager.js') }}"></script> --}}
+ <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script> 
+ <script src="{{ asset('js/room/game/personagensManager.js') }}"></script> 
 
 {{-- Exporta variáveis PHP para JS --}}
 <script>
