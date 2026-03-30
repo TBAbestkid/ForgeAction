@@ -192,7 +192,9 @@
                 <button class="btn btn-outline-primary m-1 diceBtn" data-sides="20">D20</button>
             </div>
         </div>
-
+         <div id="coluna-personagens" class="d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
+                {{-- Personagens serão inseridos aqui via JS --}}
+            </div>
     </div>
 </div>
 
@@ -226,9 +228,6 @@
             </h5>
             <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-            <div id="coluna-personagens" class="d-lg-flex flex-column gap-3 overflow-auto" style="flex: 0 0 25%; padding: 0.5rem; min-width: 160px; max-width: 240px;">
-                {{-- Personagens serão inseridos aqui via JS --}}
-            </div>
         </div>
     </div>
 
