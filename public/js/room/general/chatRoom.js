@@ -12,30 +12,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // ======= ELEMENTOS (desktop + mobile) =======
+    // ======= ELEMENTOS DESKTOP =======
     const messagesDesktop = document.getElementById('chat-messages');
-    const messagesMobile = document.getElementById('chat-messages-mobile');
     const systemLogs = document.getElementById('system-logs');
-    const systemLogsMobile = document.getElementById('system-logs-mobile');
-
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
-    const chatInputMobile = document.getElementById('chat-input-mobile');
-    const chatSendMobile = document.getElementById('chat-send-mobile');
 
-    // Fallback warnings but continue (mobile or desktop might be missing)
-    if (!messagesDesktop && !messagesMobile) console.warn('⚠️ Nenhum container de mensagens encontrado.');
-    if (!systemLogs && !systemLogsMobile) console.warn('⚠️ Nenhum container de logs do sistema encontrado.');
+    // Validação
+    if (!messagesDesktop) console.warn('⚠️ Chat messages container não encontrado.');
+    if (!systemLogs) console.warn('⚠️ System logs container não encontrado.');
 
     const userName = userLogin || 'Desconhecido';
     const channel = salaId.toString();
 
-    function appendToContainers(containers, el) {
-        containers.forEach(c => {
-            if (!c) return;
-            c.appendChild(el.cloneNode(true));
-            c.scrollTop = c.scrollHeight;
-        });
+    function scrollToBottom(container) {
+        if (container) {
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 0);
+        }
     }
 
     function makeMessageDiv(text, sender, isSystemMessage) {
@@ -43,93 +38,88 @@ document.addEventListener('DOMContentLoaded', () => {
         const isSelf = !isSystemMessage && sender === userName;
         div.className = `d-flex flex-column mb-2 ${isSelf ? 'align-items-end' : 'align-items-start'}`;
         div.innerHTML = `
-            <div class="p-2 rounded ${isSelf ? 'bg-primary text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-secondary text-light'}">
+            <div class="p-2 rounded ${isSelf ? 'bg-primary text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-secondary text-light'}" style="max-width: 70%;">
                 <small class="d-block fw-bold opacity-75">${sender}</small>
-                <span>${text}</span>
+                <span style="word-wrap: break-word;">${text}</span>
             </div>
         `;
         return div;
     }
 
-    function addMessage(text, sender = 'Sistema', isSystemMessage = false) {
-        // Em mobile, ambos chat e logs vão para o chat-mobile (não separa)
-        // Em desktop, separa entre chat-messages e system-logs
-        let containers = [];
+    function addMessage(text, sender = 'Sistema', isSystemMessage = false, container = null) {
+        let targetContainer = container;
 
-        if (isSystemMessage) {
-            // Mensagens de sistema vão para logs
-            if (systemLogs) containers.push(systemLogs);
-            if (systemLogsMobile) containers.push(systemLogsMobile);
-        } else {
-            // Mensagens de chat vão para chat
-            if (messagesDesktop) containers.push(messagesDesktop);
-            if (messagesMobile) containers.push(messagesMobile);
+        if (!targetContainer) {
+            // Se não especificar container, decidir automaticamente
+            targetContainer = isSystemMessage ? systemLogs : messagesDesktop;
         }
 
+        if (!targetContainer) return;
+
         const el = makeMessageDiv(text, sender, isSystemMessage);
-        appendToContainers(containers, el);
+        targetContainer.appendChild(el);
+        scrollToBottom(targetContainer);
     }
 
     function processMessage(data) {
         if (!data) return;
+
+        // Chat normal (usuário digitou mensagem)
         if (!data.acao || data.acao === 'chat') {
-            if (data.conteudo) addMessage(data.conteudo, data.autor || 'Sistema', false);
+            if (data.conteudo) {
+                addMessage(data.conteudo, data.autor || 'Desconhecido', false, messagesDesktop);
+            }
             return;
         }
 
+        // Ações de sistema
         switch (data.acao) {
             case 'sistema':
-                addMessage(data.conteudo, '🤖 Sistema', true);
+                addMessage(data.conteudo, '🤖 Sistema', true, systemLogs);
                 break;
+
             case 'playerEnter':
-                // ✅ Usa userLogin (enviado do roomManager)
-                const nomeEntrada = 'jogador' + data.usuarioId;
-                addMessage(`🟢 ${nomeEntrada} entrou na sala`, '🤖 Sistema', false);
+                const nomeEntrada = data.autor || 'Jogador ' + data.usuarioId;
+                addMessage(`🟢 ${nomeEntrada} entrou na sala`, '🤖 Sistema', true, systemLogs);
                 break;
+
             case 'playerExit':
-                const nomeSaida = 'jogador' + data.usuarioId;
-                addMessage(`🔴 ${nomeSaida} saiu da sala`, '🤖 Sistema', false);
+                const nomeSaida = data.autor || 'Jogador ' + data.usuarioId;
+                addMessage(`🔴 ${nomeSaida} saiu da sala`, '🤖 Sistema', true, systemLogs);
                 break;
+
             case 'erro':
-                addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema', true);
+                addMessage(`⚠️ ${data.conteudo}`, '❌ Sistema', true, systemLogs);
                 break;
 
             case 'lancarDados':
-
-                console.log("🔥 EU RECEBI? lancarDados", data);
-
+                console.log("🎲 Dados recebidos:", data);
                 const { faces, valor, oculto } = data;
 
-
                 if (oculto) {
-
                     if (window.isMestre) {
-                        // Mestre vê normalmente
+                        // Mestre vê os dados rolados
                         window.funcaoChamarDados(faces, valor);
                     } else {
-                        // Jogadores só recebem aviso
-                        console.log("🎲 Mestre rolou um dado secretamente...");
-
-                        addMessage("🎲 O mestre rolou um dado em segredo...", "🤖 Sistema", true);
+                        // Jogadores recebem aviso
+                        addMessage("🎲 O mestre rolou um dado em segredo...", "🤖 Sistema", true, systemLogs);
                     }
-
                 } else {
                     // Rolagem normal
                     window.funcaoChamarDados(faces, valor);
                 }
-
                 break;
-
 
             case 'atualizacaoVida':
                 console.log('❤️ Atualização de vida recebida:', data);
                 if (typeof window.atualizarVidaPersonagemCard === 'function') {
                     window.atualizarVidaPersonagemCard(data.personagemId, data.novaVida);
                 }
+                addMessage(data.conteudo, '🤖 Sistema', true, systemLogs);
                 break;
 
             case 'uparPersonagem':
-                addMessage(`📈 ${data.conteudo}`, '🤖 Sistema', true);
+                addMessage(data.conteudo, '🤖 Sistema', true, systemLogs);
                 break;
 
             default:
@@ -140,10 +130,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let isFirstConnect = true;
 
     function connectChat() {
-        if (isFirstConnect) addMessage(`🟢 Conectando ao chat...`, 'Sistema', false);
+        if (isFirstConnect) addMessage(`🟢 Conectando ao chat...`, 'Sistema', false, messagesDesktop);
 
         document.addEventListener('stomp.connected', () => {
-            if (isFirstConnect) isFirstConnect = false;
+            if (isFirstConnect) {
+                addMessage(`✅ Conectado!`, 'Sistema', false, messagesDesktop);
+                isFirstConnect = false;
+            }
             ws.subscribe(channel, (msg) => {
                 try {
                     const data = typeof msg === 'string' ? JSON.parse(msg) : msg;
@@ -165,8 +158,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function onStompError(event) { console.error('❌ Erro de conexão:', event.detail?.error); }
-    function onStompDisconnected() { console.log('🔴 Chat desconectado'); }
+    function onStompError(event) {
+        console.error('❌ Erro de conexão:', event.detail?.error);
+        addMessage('❌ Erro ao conectar no chat!', 'Sistema', true, messagesDesktop);
+    }
+
+    function onStompDisconnected() {
+        console.log('🔴 Chat desconectado');
+        addMessage('🔴 Desconectado do chat', 'Sistema', false, messagesDesktop);
+    }
 
     function sendMessageFrom(inputEl) {
         if (!inputEl) return;
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const status = ws.getStatus();
         if (!status.isConnected) {
-            addMessage('⚠️ Chat não conectado. Tentando reconectar...', 'Sistema', true);
+            addMessage('⚠️ Chat não conectado. Tentando reconectar...', 'Sistema', true, messagesDesktop);
             connectChat();
             return;
         }
@@ -193,11 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
         inputEl.focus();
     }
 
-    // Eventos: liga os botões/inputs desktop e mobile (se existirem)
+    // Eventos dos botões
     if (chatSend) chatSend.addEventListener('click', () => sendMessageFrom(chatInput));
     if (chatInput) chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessageFrom(chatInput); });
-    if (chatSendMobile) chatSendMobile.addEventListener('click', () => sendMessageFrom(chatInputMobile));
-    if (chatInputMobile) chatInputMobile.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessageFrom(chatInputMobile); });
 
     connectChat();
 });
