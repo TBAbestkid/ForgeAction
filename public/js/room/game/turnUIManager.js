@@ -112,3 +112,6 @@ function atualizarTextoTurno(turnoEhMeu) {
         placeholder.innerText = "⏳ Aguardando outro jogador...";
     }
 }
+
+// Exportar nér.... disponibilizar globalmente para o roomManager usar
+window.atualizarInterfaceTurno = atualizarInterfaceTurno;
