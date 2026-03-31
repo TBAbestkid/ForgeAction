@@ -63,7 +63,7 @@
     </div>
 
     {{-- Chat e Logs Desktop (pq pra cell eu não to muito afim) --}}
-    <div class="position-absolute bottom-0 start-0 m-3">
+    <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 100;">
 
         <!-- Botão com Badge de Notificações -->
         {{-- Meio que não tem problema inserir notificações bombasticas --}}
@@ -76,7 +76,7 @@
 
         <!-- Collapse -->
         <div class="collapse" id="chatCollapse">
-            <div class="chat-container rounded-4 shadow" style="width: 800px; max-width: 90vw; height: 500px; background-color: rgba(0, 0, 0, 0.8); display: flex; flex-direction: column;">
+            <div class="chat-container rounded-4 shadow" style="width: 400px; max-width: 90vw; height: 400px; background-color: rgba(0, 0, 0, 0.8); display: flex; flex-direction: column;">
 
                 <!-- Tabs para Chat e Logs -->
                 <ul class="nav nav-tabs nav-fill border-0" id="chatTabs" role="tablist">
