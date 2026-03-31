@@ -141,7 +141,28 @@
                     });
                 }
 
-                window.atualizarInterfaceTurno(turnoEhMeu);
+                if (typeof window.atualizarInterfaceTurno === 'function') {
+                    window.atualizarInterfaceTurno(turnoEhMeu);
+                } else {
+                    console.warn('⚠️ atualizarInterfaceTurno não disponível ainda: tentando aguardar carregamento...');
+
+                    let tentativas = 6; // ~900ms total
+                    const tentarUpdate = () => {
+                        if (typeof window.atualizarInterfaceTurno === 'function') {
+                            window.atualizarInterfaceTurno(turnoEhMeu);
+                            return;
+                        }
+
+                        tentativas -= 1;
+                        if (tentativas > 0) {
+                            window.setTimeout(tentarUpdate, 150);
+                        } else {
+                            console.error('🚨 atualizarInterfaceTurno não encontrada após tentativas. Verifique se turnUIManager.js foi incluído ou se há erro de carregamento.');
+                        }
+                    };
+
+                    tentarUpdate();
+                }
 
                 break;
 
