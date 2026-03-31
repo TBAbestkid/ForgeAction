@@ -92,7 +92,55 @@
 
     </div>
 
-    {{-- Botões de Ações Mestre/Player
+    {{-- Seção principal de jogo com layout flexbox --}}
+    <div id="game-section" class="position-fixed top-50 start-50 translate-middle d-flex gap-3 align-items-stretch"
+        style="width: 90vw; height: 60vh; max-width: 1200px; z-index: 5; transform: translate(-50%, -50%);">
+
+        {{-- Coluna central (DiceBox) --}}
+        <div id="dice-container" class="shadow-lg rounded-4 d-flex align-items-center justify-content-center flex-grow-1"
+            style="background: rgba(0, 0, 0, 0.25);">
+
+            {{-- 🎲 Área do Dice --}}
+            <div id="dice-box"
+                class="w-100 h-100 position-absolute top-0 start-0">
+            </div>
+
+            {{-- Placeholder --}}
+            <div id="dice-placeholder"
+                class="text-white text-center position-absolute top-50 start-50 translate-middle">
+                🎲 Aguardando início do turno...
+            </div>
+
+            {{-- Controles --}}
+            <div id="turnControls"
+                class="d-none flex-column align-items-center gap-2 position-absolute bottom-0 start-50 translate-middle-x mb-2">
+
+                @if ($isDono)
+                    <div class="form-check text-white">
+                        <input type="checkbox" id="ocultarDados" class="form-check-input">
+                        <label for="ocultarDados">Ocultar Dados</label>
+                    </div>
+                @endif
+
+                <div id="diceOptions" class="d-none text-center">
+                    <button class="btn btn-outline-primary m-1 diceBtn" data-sides="4">D4</button>
+                    <button class="btn btn-outline-primary m-1 diceBtn" data-sides="6">D6</button>
+                    <button class="btn btn-outline-primary m-1 diceBtn" data-sides="10">D10</button>
+                    <button class="btn btn-outline-primary m-1 diceBtn" data-sides="12">D12</button>
+                    <button class="btn btn-outline-primary m-1 diceBtn" data-sides="20">D20</button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Coluna direita (Personagens) --}}
+        @if ($isDono)
+            <div id="coluna-personagens" class="d-flex flex-column gap-3 overflow-auto rounded-4"
+                style="flex: 0 0 220px; max-height: 100%; padding: 0.5rem; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.1);">
+            </div>
+        @endif
+    </div>
+
+    {{-- Botões de Ações Mestre/Player (HUD abaixo)
         Usando de base a ideia de HUID
         Botões de ação de mestre como linha abaixo de área --}}
     <div class="position-fixed bottom-0 start-50 translate-middle-x mb-3 z-3">
@@ -151,48 +199,6 @@
                 </button>
             @endif
         </div>
-    </div>
-
-    {{-- Coluna central (DiceBox) --}}
-    <div id="dice-container" class="position-fixed top-50 start-50 translate-middle shadow-lg rounded-4 d-flex align-items-center justify-content-center"
-        style="width: 60vw; height: 50vh; max-width: 900px; min-height: 300px; z-index: 5; background: rgba(0, 0, 0, 0.25);">
-
-        {{-- 🎲 Área do Dice --}}
-        <div id="dice-box"
-            class="w-100 h-100 position-absolute top-0 start-0">
-        </div>
-
-        {{-- Placeholder --}}
-        <div id="dice-placeholder"
-            class="text-white text-center position-absolute top-50 start-50 translate-middle">
-            🎲 Aguardando início do turno...
-        </div>
-
-        {{-- Controles --}}
-        <div id="turnControls"
-            class="d-none flex-column align-items-center gap-2 position-absolute bottom-0 start-50 translate-middle-x mb-2">
-
-            @if ($isDono)
-                <div class="form-check text-white">
-                    <input type="checkbox" id="ocultarDados" class="form-check-input">
-                    <label for="ocultarDados">Ocultar Dados</label>
-                </div>
-            @endif
-
-            <div id="diceOptions" class="d-none text-center">
-                <button class="btn btn-outline-primary m-1 diceBtn" data-sides="4">D4</button>
-                <button class="btn btn-outline-primary m-1 diceBtn" data-sides="6">D6</button>
-                <button class="btn btn-outline-primary m-1 diceBtn" data-sides="10">D10</button>
-                <button class="btn btn-outline-primary m-1 diceBtn" data-sides="12">D12</button>
-                <button class="btn btn-outline-primary m-1 diceBtn" data-sides="20">D20</button>
-            </div>
-        </div>
-        @if ($isDono)
-        <div id="coluna-personagens"
-                class="d-flex flex-column gap-3 overflow-auto position-fixed top-50 end-0 translate-middle-y"
-                style="width: 220px; max-height: 70vh; padding: 0.5rem; z-index: 10;">
-        </div>
-        @endif
     </div>
 </div>
 
@@ -332,12 +338,12 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-{{-- <script src="{{ asset('js/room/game/turnManager.js') }}"></script> --}}
-{{-- <script src="{{ asset('js/room/game/turnState.js') }}"></script> --}}
-{{-- <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script> --}}
-{{-- <script src="{{ asset('js/room/game/gameFlow.js') }}"></script> --}}
- <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script> 
- <script src="{{ asset('js/room/game/personagensManager.js') }}"></script> 
+<script src="{{ asset('js/room/game/turnManager.js') }}"></script>
+<script src="{{ asset('js/room/game/turnState.js') }}"></script>
+<script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
+<script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
+ <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
+ <script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
 
 {{-- Exporta variáveis PHP para JS --}}
 <script>
