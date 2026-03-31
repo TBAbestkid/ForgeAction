@@ -336,26 +336,20 @@
     Pressione <strong>F11</strong> ou <strong>Clique aqui</strong> para entrar em tela cheia
 </div>
 
+{{-- 1. Dependências globais --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="{{ asset('js/room/game/turnManager.js') }}"></script>
-<script src="{{ asset('js/room/game/turnState.js') }}"></script>
-<script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
-<script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
- <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
- <script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
 
-{{-- Exporta variáveis PHP para JS --}}
+{{-- 2. Serviço WebSocket --}}
+<script src="{{ asset('js/utils/webSocketService.js') }}"></script>
+
+{{-- 3. Exporta variáveis PHP para JS --}}
 <script>
-    // const newWsUrl = "/ws";
-
-    // console.log("WebSocket URL:", newWsUrl);
-
     window.CHAT_CONFIG = {
         userId: {{ session('user_id') ?? 'null' }},
         userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
         salaId: {{ $sala['id'] }},
-        //wsUrl: "{{ env('EXTERNAL_API_URL') }}" + "/ws",
+        // wsUrl: "{{ env('EXTERNAL_API_URL') }}" + "/ws",
         wsUrl: window.location.origin + "/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
@@ -365,10 +359,19 @@
     const routeSalasIndex = "{{ route('salas.index') }}";
 </script>
 
-{{-- 1. Serviço WebSocket (fundamental) --}}
-<!-- Status styles for personagens (inline file) -->
-<script src="{{ asset('js/utils/webSocketService.js') }}"></script>
-{{-- 2. Gerenciadores da sala --}}
+{{-- 4. Gerenciadores de Estado e Turno (ordem: estado primeiro, depois manager) --}}
+<script src="{{ asset('js/room/game/turnState.js') }}"></script>
+<script src="{{ asset('js/room/game/turnManager.js') }}"></script>
+<script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
+
+{{-- 5. Gerenciadores de Personagens e Fluxo de Jogo --}}
+<script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
+<script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
+
+{{-- 6. Dados (módulo ES6) --}}
+<script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
+
+{{-- 7. Gerenciadores da Sala (após todos os anteriores) --}}
 <script src="{{ asset('js/room/general/chatRoom.js') }}"></script>
 <script src="{{ asset('js/room/game/roomManager.js') }}"></script>
 
