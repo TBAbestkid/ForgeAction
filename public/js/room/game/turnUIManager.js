@@ -6,6 +6,11 @@
 
 // turnUIManager.js
 let ws;
+// Placeholder global para evitar erro se roomManager tentar chamar antes do carregamento completo
+window.atualizarInterfaceTurno = window.atualizarInterfaceTurno || function(turnoEhMeu) {
+    console.warn('⚠️ atualizarInterfaceTurno placeholder chamada antes da implementação final:', turnoEhMeu);
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     ws = window.AppWebSocket;
     if (!ws) {
@@ -85,7 +90,11 @@ function atualizarInterfaceTurno(turnoEhMeu) {
             const usuarioIdDoCard = card.dataset.usuarioId;
             if (String(usuarioIdDoCard) === String(window.turnState.turnoAtual)) {
                 const personagemId = card.dataset.id;
-                window.destacarPersonagemDaVez(personagemId);
+                if (typeof window.destacarPersonagemDaVez === 'function') {
+                    window.destacarPersonagemDaVez(personagemId);
+                } else {
+                    console.warn('⚠️ destacarPersonagemDaVez não disponível ainda');
+                }
             }
         });
     }
