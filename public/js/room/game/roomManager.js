@@ -17,6 +17,9 @@
     const backChannel = String("backchannel/" + salaId);
     let connectNotified = false;
 
+    // Referência aos membros da sala (será preenchida pelo roomManager)
+    let membros = {};
+
     // ========== UTILS ==========
     function debugLog(...args) { console.log('[RM]', ...args); }
 
@@ -125,7 +128,20 @@
 
                 debugLog('🎲 Turno eh meu?', turnoEhMeu);
 
-                atualizarInterfaceTurno(turnoEhMeu);
+                // Enviar notificação do turno para o sistema
+                if (data.usuarioId === "mestre") {
+                    window.EnviarAcao('turnoMestre', {
+                        nomeJogador: 'Mestre'
+                    });
+                } else {
+                    // Get nome do jogador se disponível
+                    const nomeJogador = Object.values(membros).find(m => m.userId === data.usuarioId) || ('Jogador ' + data.usuarioId);
+                    window.EnviarAcao('turnoDo', {
+                        nomeJogador: nomeJogador
+                    });
+                }
+
+                window.atualizarInterfaceTurno(turnoEhMeu);
 
                 break;
 
