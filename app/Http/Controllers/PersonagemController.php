@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use Illuminate\Support\Facades\Log;
 
 class PersonagemController extends Controller
 {
@@ -20,6 +21,11 @@ class PersonagemController extends Controller
         if (!$request->session()->has('user_login')) {
             return redirect()->route('home')
                 ->with('error', 'Você deve estar logado para criar um personagem!');
+        }
+
+        // Se veio de uma sala, armazena na sessão para redirecionar depois
+        if ($request->has('salaId')) {
+            $request->session()->put('return_sala_id', $request->query('salaId'));
         }
 
         return view('registerPerson');
@@ -48,6 +54,31 @@ class PersonagemController extends Controller
             $response = $this->api->post("api/personagem", $payload);
 
             if (($response['status'] ?? '') === 'success') {
+                // Se tem salaId na sessão, adiciona à sala e entra direto
+                if ($request->session()->has('return_sala_id')) {
+                    $salaId = $request->session()->pull('return_sala_id');
+                    $personagemId = $response['data']['id'] ?? null;
+
+                    // Se conseguiu o ID do personagem, adiciona à sala
+                    if ($personagemId) {
+                        try {
+                            $this->api->post("api/salas/personagens/adicionar/{$salaId}/{$personagemId}");
+                            // Salva na sessão como personagem selecionado
+                            $request->session()->put('selected_character.id', $personagemId);
+
+                            // Redireciona direto para a sala
+                            return redirect()->route('room.room', ['id' => $salaId])
+                                ->with('success', 'Personagem criado com sucesso! Bem-vindo à sala!');
+                        } catch (\Exception $e) {
+                            Log::warning('Erro ao adicionar personagem à sala', ['erro' => $e->getMessage()]);
+                            // Se falhar, retorna para home com mensagem
+                            return redirect('/')->with('success', 'Personagem criado, mas houve um erro ao entrar na sala. Tente novamente.');
+                        }
+                    }
+
+                    return redirect('/')->with('success', 'Personagem criado com sucesso!');
+                }
+
                 return redirect('/')->with('success', 'Personagem criado com sucesso!');
             }
 
