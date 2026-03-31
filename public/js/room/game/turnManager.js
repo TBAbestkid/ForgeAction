@@ -114,6 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function iniciarRodada() {
     console.log(' 🚀 Iniciando rodada...');
 
+    // Envia notificação de sistema
+    window.EnviarAcao('turnoIniciado', {
+        nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre'
+    });
+
     ws.send('/app/backchannel/rodadas', {
             acao: "turnoMestre",
             salaId: window.CHAT_CONFIG?.salaId
@@ -171,6 +176,13 @@ function emitirLancamentoDados(faces) {
         const checkbox = document.getElementById('ocultarDados');
         oculto = checkbox?.checked ?? false;
     }
+
+    // Envia notificação de sistema
+    window.EnviarAcao(oculto ? 'lancarDadosOculto' : 'lancarDados', {
+        nomeJogador: window.CHAT_CONFIG?.userLogin || 'Jogador',
+        valor: valor,
+        faces: faces
+    });
 
     ws.send('/app/enviar/' + salaId, {
         acao: "lancarDados",
@@ -254,13 +266,44 @@ function enviarAcaoMestre(valor) {
 
     console.log(`🎯 Enviando ação do mestre: ${acaoMestreAtual} (usuário ${targetUsuarioId}, personagem ${personagemSelecionadoId}) com valor ${valor}`);
 
+    // Get personagem name from card for better logs
+    const card = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`) ||
+                 document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
+    const nomePersonagem = card?.dataset.nome || 'Personagem';
+
     // 🔥 Aplicar mudança de vida localmente usando a vida já armazenada
     if (acaoMestreAtual === 'causarDano') {
         const novaVida = vidaSelecionada - valor; // Dano reduz vida
         window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
+
+        // Envia notificação
+        window.EnviarAcao('causarDano', {
+            nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre',
+            nomePersonagem: nomePersonagem,
+            valor: valor
+        });
     } else if (acaoMestreAtual === 'curarPersonagem') {
         const novaVida = vidaSelecionada + valor; // Cura aumenta vida
         window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
+
+        // Envia notificação
+        window.EnviarAcao('curarPersonagem', {
+            nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre',
+            nomePersonagem: nomePersonagem,
+            valor: valor
+        });
+    } else if (acaoMestreAtual === 'uparPersonagem') {
+        // Envia notificação
+        window.EnviarAcao('uparPersonagem', {
+            nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre',
+            nomePersonagem: nomePersonagem
+        });
+    } else if (acaoMestreAtual === 'cederTurno') {
+        // Envia notificação
+        window.EnviarAcao('cederTurno', {
+            nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre',
+            nomeAlvo: 'Próximo Jogador'
+        });
     }
 
     ws.send('/app/backchannel/rodadas', {
