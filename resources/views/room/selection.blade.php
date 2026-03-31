@@ -101,7 +101,18 @@
                 </div>
             </div>
             @empty
-                <p class="text-center w-100 text-light mt-5">Você ainda não possui personagens disponíveis.</p>
+                <div class="carousel-item active personagem-item" style="width: 100%;">
+                    <div class="card bg-dark text-light border border-warning mx-auto" style="max-width: 22rem;">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-user-plus fa-4x mb-3 text-warning"></i>
+                            <h5 class="card-title fw-bold text-warning mb-3">Nenhum Personagem</h5>
+                            <p class="text-light mb-4">Você ainda não possui personagens disponíveis. Crie um novo para entrar na sala!</p>
+                            <a href="{{ route('registerPerson', ['salaId' => $sala['id']]) }}" class="btn btn-warning w-100 fw-bold">
+                                <i class="fas fa-plus me-2"></i> Criar Personagem
+                            </a>
+                        </div>
+                    </div>
+                </div>
             @endforelse
         </div>
 
