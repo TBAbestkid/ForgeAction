@@ -5,14 +5,13 @@
  */
 
 // turnUIManager.js
-let ws;
 // Placeholder global para evitar erro se roomManager tentar chamar antes do carregamento completo
 window.atualizarInterfaceTurno = window.atualizarInterfaceTurno || function(turnoEhMeu) {
     console.warn('⚠️ atualizarInterfaceTurno placeholder chamada antes da implementação final:', turnoEhMeu);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    ws = window.AppWebSocket;
+    const ws = window.AppWebSocket;
     if (!ws) {
         console.error('❌ WebSocket não disponível');
         return;
