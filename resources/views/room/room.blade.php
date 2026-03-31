@@ -62,29 +62,58 @@
 
     </div>
 
-    {{-- Chat --}}
+    {{-- Chat e Logs Desktop (pq pra cell eu não to muito afim) --}}
     <div class="position-absolute bottom-0 start-0 m-3">
 
-        <!-- Botão -->
-        <button class="btn btn-dark mb-2" data-bs-toggle="collapse" data-bs-target="#chatCollapse">
+        <!-- Botão com Badge de Notificações -->
+        {{-- Meio que não tem problema inserir notificações bombasticas --}}
+        <button class="btn btn-dark mb-2 position-relative" data-bs-toggle="collapse" data-bs-target="#chatCollapse">
             <i class="fa-solid fa-comments"></i> Chat
+            <span id="chat-notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
+                <span id="chat-notification-count">0</span>
+            </span>
         </button>
 
         <!-- Collapse -->
         <div class="collapse" id="chatCollapse">
-            <div class="chat-box rounded-4 shadow p-3" style="width: 400px; max-width: 90vw; height: 500px; background-color: rgba(0, 0, 0, 0.8);">
+            <div class="chat-container rounded-4 shadow" style="width: 800px; max-width: 90vw; height: 500px; background-color: rgba(0, 0, 0, 0.8); display: flex; flex-direction: column;">
 
-                <div id="chat-messages" class="mb-3">
-                    {{-- Mensagens Exemplo  --}}
-                    {{-- <div class="p-2 rounded bg-secondary text-light d-flex flex-column mb-2 align-items-start">
-                        <small class="d-block fw-bold opacity-75">Jogador</small>
-                        <span>Olá, pessoal!</span>
-                    </div> --}}
-                </div>
+                <!-- Tabs para Chat e Logs -->
+                <ul class="nav nav-tabs nav-fill border-0" id="chatTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active text-light border-0" id="chat-tab" data-bs-toggle="pill" data-bs-target="#chat-content" type="button" role="tab" aria-controls="chat-content" aria-selected="true">
+                            <i class="fa-solid fa-comments me-1"></i>Chat
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-light border-0" id="logs-tab" data-bs-toggle="pill" data-bs-target="#logs-content" type="button" role="tab" aria-controls="logs-content" aria-selected="false">
+                            <i class="fa-solid fa-list-ul me-1"></i>Logs
+                        </button>
+                    </li>
+                </ul>
 
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Digite sua mensagem..." id="chat-input">
-                    <button class="btn btn-primary" id="chat-send"> <i class="fa-solid fa-paper-plane"></i></button>
+                <!-- Conteúdo das Tabs -->
+                <div class="tab-content flex-grow-1 overflow-hidden" id="chatTabContent">
+
+                    <!-- Aba Chat -->
+                    <div class="tab-pane fade show active d-flex flex-column h-100" id="chat-content" role="tabpanel" aria-labelledby="chat-tab">
+                        <div id="chat-messages" class="flex-grow-1 overflow-auto mb-3 p-3" style="min-height: 0;">
+                            {{-- Mensagens serão inseridas aqui --}}
+                        </div>
+                        <div class="input-group p-3 border-top border-secondary">
+                            <input type="text" class="form-control" placeholder="Digite sua mensagem..." id="chat-input">
+                            <button class="btn btn-primary" id="chat-send">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Aba Logs -->
+                    <div class="tab-pane fade d-flex flex-column h-100" id="logs-content" role="tabpanel" aria-labelledby="logs-tab">
+                        <div id="system-logs" class="flex-grow-1 overflow-auto p-3" style="min-height: 0;">
+                            {{-- Logs do sistema serão inseridos aqui --}}
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -367,6 +396,7 @@
 {{-- 5. Gerenciadores de Personagens e Fluxo de Jogo --}}
 <script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
 <script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
+<script src="{{ asset('js/room/game/actionNotifier.js') }}"></script>
 
 {{-- 6. Dados (módulo ES6) --}}
 <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
