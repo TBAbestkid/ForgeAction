@@ -30,6 +30,8 @@ function atualizarBotoesPlayer(turnoEhMeu) {
 
     const habilitar = turnoEhMeu && !window.isMestre;
 
+    console.log('🎮 atualizarBotoesPlayer:', { turnoEhMeu, isMestre: window.isMestre, habilitar, btnRoll: !!btnRoll, btnSkip: !!btnSkip });
+
     if (btnRoll) {
         btnRoll.disabled = !habilitar;
         if (habilitar) {
@@ -128,6 +130,8 @@ function atualizarControleTurno() {
 }
 
 function atualizarInterfaceTurno(turnoEhMeu) {
+
+    console.log('🎯 [atualizarInterfaceTurno] Chamada:', { turnoEhMeu, turnoAtual: window.turnState.turnoAtual, rodadaIniciada: window.turnState.rodadaIniciada });
 
     const turnoDoMestre = window.turnState.turnoAtual === "mestre";
 
