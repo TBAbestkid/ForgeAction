@@ -129,7 +129,9 @@ function emitirLancamentoDados(faces) {
         salaId,
         faces,
         valor,
-        oculto
+        oculto,
+        nomeJogador: window.CHAT_CONFIG?.userLogin || 'Jogador',
+        usuarioId: window.CHAT_CONFIG?.userId
     });
 }
 
