@@ -363,3 +363,7 @@ function resetarSelecao() {
 
 // Expor função globalmente para outros módulos usarem
 window.avancarTurno = avancarTurno;
+window.toggleOpcoesDados = toggleOpcoesDados;
+window.permitirJogada = permitirJogada;
+window.definirModoAcao = definirModoAcao;
+window.ativarModoSelecao = ativarModoSelecao;
