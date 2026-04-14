@@ -94,19 +94,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             case 'lancarDados':
                 console.log("🎲 Dados recebidos:", data);
-                const { faces, valor, oculto } = data;
+                const { faces, valor, oculto, usuarioId } = data;
+                const nomeJogadorDados = data.nomeJogador || 'Jogador ' + usuarioId;
 
                 if (oculto) {
                     if (window.isMestre) {
                         // Mestre vê os dados rolados
                         window.funcaoChamarDados(faces, valor);
+                        addMessage(`🎲 ${nomeJogadorDados} rolou D${faces} (resultado: ${valor}) - OCULTO`, "🤖 Sistema", true, systemLogs);
                     } else {
                         // Jogadores recebem aviso
                         addMessage("🎲 O mestre rolou um dado em segredo...", "🤖 Sistema", true, systemLogs);
                     }
                 } else {
-                    // Rolagem normal
+                    // Rolagem normal - TODOS VEEM
                     window.funcaoChamarDados(faces, valor);
+                    addMessage(`🎲 ${nomeJogadorDados} rolou D${faces}: <strong>${valor}</strong>`, "🤖 Sistema", true, systemLogs);
                 }
                 break;
 
