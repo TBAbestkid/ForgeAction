@@ -32,16 +32,24 @@ function atualizarBotoesPlayer(turnoEhMeu) {
 
     if (btnRoll) {
         btnRoll.disabled = !habilitar;
-        // Remove event listeners se não for a vez
-        if (!habilitar) {
+        if (habilitar) {
+            // Adiciona event listener quando habilitar
+            btnRoll.addEventListener('click', window.toggleOpcoesDados);
+        } else {
+            // Remove event listeners se não for a vez
             btnRoll.replaceWith(btnRoll.cloneNode(true));
         }
     }
 
     if (btnSkip) {
         btnSkip.disabled = !habilitar;
-        // Remove event listeners se não for a vez
-        if (!habilitar) {
+        if (habilitar) {
+            // Adiciona event listener quando habilitar
+            btnSkip.addEventListener('click', () => {
+                window.avancarTurno?.();
+            });
+        } else {
+            // Remove event listeners se não for a vez
             btnSkip.replaceWith(btnSkip.cloneNode(true));
         }
     }
@@ -57,17 +65,50 @@ function atualizarBotoesMestre(turnoDoMestre) {
 
     const habilitar = window.isMestre && turnoDoMestre;
 
-    const botoes = [btnMestre, btnPermitir, btnDano, btnCurar, btnUpar];
-
-    botoes.forEach(btn => {
-        if (btn) {
-            btn.disabled = !habilitar;
-            // Remove event listeners se não for a vez
-            if (!habilitar) {
-                btn.replaceWith(btn.cloneNode(true));
-            }
+    if (btnMestre) {
+        btnMestre.disabled = !habilitar;
+        if (habilitar) {
+            btnMestre.addEventListener('click', window.toggleOpcoesDados);
+        } else {
+            btnMestre.replaceWith(btnMestre.cloneNode(true));
         }
-    });
+    }
+
+    if (btnPermitir) {
+        btnPermitir.disabled = !habilitar;
+        if (habilitar) {
+            btnPermitir.addEventListener('click', () => { window.permitirJogada?.(); });
+        } else {
+            btnPermitir.replaceWith(btnPermitir.cloneNode(true));
+        }
+    }
+
+    if (btnDano) {
+        btnDano.disabled = !habilitar;
+        if (habilitar) {
+            btnDano.addEventListener('click', () => { window.definirModoAcao?.('dano'); window.ativarModoSelecao?.(); });
+        } else {
+            btnDano.replaceWith(btnDano.cloneNode(true));
+        }
+    }
+
+    if (btnCurar) {
+        btnCurar.disabled = !habilitar;
+        if (habilitar) {
+            btnCurar.addEventListener('click', () => { window.definirModoAcao?.('cura'); window.ativarModoSelecao?.(); });
+        } else {
+            btnCurar.replaceWith(btnCurar.cloneNode(true));
+        }
+    }
+
+    if (btnUpar) {
+        btnUpar.disabled = !habilitar;
+        if (habilitar) {
+            btnUpar.addEventListener('click', () => { window.definirModoAcao?.('upgrade'); window.ativarModoSelecao?.(); });
+        } else {
+            btnUpar.replaceWith(btnUpar.cloneNode(true));
+        }
+    }
 }
 
 function atualizarControleTurno() {
