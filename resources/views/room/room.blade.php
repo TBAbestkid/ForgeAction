@@ -22,6 +22,7 @@
             box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 20px 45px rgba(0, 0, 0, 0.25);
             backdrop-filter: blur(8px);
             transition: transform 0.25s ease, opacity 0.25s ease;
+            pointer-events: none;
         }
 
         #dice-placeholder::after {
@@ -450,6 +451,8 @@
         wsUrl: window.location.origin + "/ws",
         isMestre: {{ $isDono ? 'true' : 'false' }}
     };
+
+    window.isMestre = {{ $isDono ? 'true' : 'false' }};
 
     window.csrfToken = "{{ csrf_token() }}";
     const csrfToken = "{{ csrf_token() }}";
