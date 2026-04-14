@@ -51,6 +51,8 @@ function handleRollComplete(results) {
     const valor = results?.total ?? null;
     console.log('🎲 Resultado final:', valor);
 
+    mostrarResultadoDados(valor);
+
     setTimeout(() => {
 
         console.log("🧹 Limpando dados...");
@@ -59,13 +61,31 @@ function handleRollComplete(results) {
             box.clearDice();
         }
 
-        if (!window.isMestre) {
-            console.log("⏭️ Player avançando turno automaticamente...");
+        // Avança turno automaticamente após rolar dados (apenas se for a vez do jogador)
+        const isMyTurn = window.turnState?.turnoAtual === String(window.CHAT_CONFIG?.userId);
+        if (isMyTurn) {
+            console.log("⏭️ Avançando turno automaticamente após rolagem...");
             window.avancarTurno?.();
         }
     }, 2000);
 }
 
+function mostrarResultadoDados(valor) {
+    const container = document.getElementById('dice-container');
+    if (!container || valor === null || valor === undefined) {
+        return;
+    }
+
+    const resultEl = document.createElement('div');
+    resultEl.className = 'dice-result';
+    resultEl.textContent = valor;
+    container.appendChild(resultEl);
+
+    resultEl.addEventListener('animationend', () => {
+        resultEl.remove();
+    });
+}
 
 // Torna acessível globalmente
 window.funcaoChamarDados = funcaoChamarDados;
+window.mostrarResultadoDados = mostrarResultadoDados;
