@@ -29,85 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Botoes do Mestre
-    const btnIniciar = document.getElementById('btnIniciarTurno');
-    if (btnIniciar) {
-        btnIniciar.addEventListener('click', () => {
-            if (!window.turnState.rodadaIniciada) {
-                iniciarRodada();
-            } else {
-                avancarTurnoMestre();
-            }
-        });
-    }
-
-    const btnMestre = document.getElementById('btnLancarMestre');
-    if (btnMestre) {
-        btnMestre.addEventListener('click', toggleOpcoesDados);
-    }
-
-    const btnPermitir = document.getElementById('btnPermitirJogadaExtra');
-    if (btnPermitir) {
-        btnPermitir.addEventListener('click', () => {
-            console.log('🎯 Mestre permitiu uma jogada extra');
-            acaoMestreAtual = 'cederTurno';
-            ativarModoSelecao();
-        });
-    }
-
-    const btnDano = document.getElementById('btnDano');
-    if (btnDano) {
-        btnDano.addEventListener('click', () => {
-            console.log('🎯 Mestre causou dano');
-            acaoMestreAtual = 'causarDano';
-            if (typeof window.definirModoAcao === 'function') {
-                window.definirModoAcao('dano');
-            } else {
-                console.warn('⚠️ definirModoAcao ainda não carregou');
-            }
-            ativarModoSelecao();
-        });
-    }
-
-    const btnCurar = document.getElementById('btnCurar');
-    if (btnCurar) {
-        btnCurar.addEventListener('click', () => {
-            console.log('🎯 Mestre curou um personagem');
-            acaoMestreAtual = 'curarPersonagem';
-            if (typeof window.definirModoAcao === 'function') {
-                window.definirModoAcao('cura');
-            } else {
-                console.warn('⚠️ definirModoAcao ainda não carregou');
-            }
-            ativarModoSelecao();
-        });
-    }
-
-    const btnUpar = document.getElementById('btnUpar');
-    if (btnUpar) {
-        btnUpar.addEventListener('click', () => {
-            console.log('🎯 Mestre upou um personagem');
-            acaoMestreAtual = 'uparPersonagem';
-            if (typeof window.definirModoAcao === 'function') {
-                window.definirModoAcao('upgrade');
-            } else {
-                console.warn('⚠️ definirModoAcao ainda não carregou');
-            }
-            ativarModoSelecao();
-        });
-    }
+    // Event listeners serão adicionados dinamicamente no turnUIManager.js
 
     // Botoes do Player
-    const btnRoll = document.getElementById('btn-roll');
-    if (btnRoll) {
-        btnRoll.addEventListener('click', toggleOpcoesDados);
-    }
-
-    const btnSkip = document.getElementById('btn-skip');
-    if (btnSkip) {
-        btnSkip.addEventListener('click', () => {
-            avancarTurno();
-        });
-    }
+    // Event listeners serão adicionados dinamicamente no turnUIManager.js
 });
 
 // Função para iniciar a rodada
