@@ -117,13 +117,6 @@ function emitirLancamentoDados(faces) {
         oculto = checkbox?.checked ?? false;
     }
 
-    // Envia notificação de sistema
-    window.EnviarAcao(oculto ? 'lancarDadosOculto' : 'lancarDados', {
-        nomeJogador: window.CHAT_CONFIG?.userLogin || 'Jogador',
-        valor: valor,
-        faces: faces
-    });
-
     ws.send('/app/enviar/' + salaId, {
         acao: "lancarDados",
         salaId,
