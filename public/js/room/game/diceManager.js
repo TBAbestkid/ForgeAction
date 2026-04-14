@@ -35,6 +35,12 @@ async function funcaoChamarDados(facesDados, valorForcado = null) {
 
     await initDiceBox();
 
+    // Desabilita botões do jogador ao rolar
+    const btnRoll = document.getElementById('btn-roll');
+    const btnSkip = document.getElementById('btn-skip');
+    if (btnRoll) btnRoll.disabled = true;
+    if (btnSkip) btnSkip.disabled = true;
+
     let rollString = `1d${facesDados}`;
 
     if (!isNaN(valorForcado) && valorForcado > 0) {
