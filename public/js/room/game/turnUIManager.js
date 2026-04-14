@@ -16,6 +16,27 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('❌ WebSocket não disponível');
         return;
     }
+
+    // ===== EVENT LISTENERS DOS BOTÕES DO MESTRE =====
+    if (window.isMestre) {
+        const btnIniciarTurno = document.getElementById('btnIniciarTurno');
+
+        if (btnIniciarTurno) {
+            btnIniciarTurno.addEventListener('click', () => {
+                // Se a rodada não iniciou, inicia. Caso contrário, avança para o próximo turno
+                if (!window.turnState.rodadaIniciada) {
+                    console.log('🚀 Botão pressionado: iniciando rodada');
+                    window.iniciarRodada?.();
+                } else {
+                    console.log('⏭️ Botão pressionado: avançando turno');
+                    window.avancarTurnoMestre?.();
+                }
+            });
+            console.log('✅ Event listener do btnIniciarTurno adicionado');
+        } else {
+            console.warn('⚠️ btnIniciarTurno não encontrado no DOM');
+        }
+    }
 });
 
 function alterarTextoTurno() {
