@@ -12,6 +12,7 @@
 
         #dice-box {
             z-index: 2;
+            pointer-events: none;
         }
 
         #dice-placeholder {
