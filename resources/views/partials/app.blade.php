@@ -75,13 +75,20 @@
                             </ul>
                         </li>
                         <!-- MOBILE DROPDOWN -->
-                        <li class="nav-item d-lg-none">
-                            <a class="nav-link" href="/perfil"><i class="fa-solid fa-user-cog me-2"></i> Configurações</a>
-                        </li>
-                        <li class="nav-item d-lg-none">
-                            <a class="nav-link text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair
+                        <li class="nav-item dropdown d-lg-none">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdownMobile"
+                            data-bs-toggle="dropdown">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}&background=0D8ABC&color=fff"
+                                    class="rounded-circle me-2" width="32" height="32" alt="Avatar">
+                                {{ session('user_login') }}
                             </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownMobile">
+                                <li><a class="dropdown-item" href="/perfil"><i class="fa-solid fa-user-cog me-2"></i> Configurações</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                    <i class="fa-solid fa-right-from-bracket me-2"></i> Sair</a>
+                                </li>
+                            </ul>
                         </li>
                     @else
                         <li class="nav-item">
