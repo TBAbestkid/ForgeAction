@@ -30,8 +30,21 @@ function atualizarBotoesPlayer(turnoEhMeu) {
 
     const habilitar = turnoEhMeu && !window.isMestre;
 
-    if (btnRoll) btnRoll.disabled = !habilitar;
-    if (btnSkip) btnSkip.disabled = !habilitar;
+    if (btnRoll) {
+        btnRoll.disabled = !habilitar;
+        // Remove event listeners se não for a vez
+        if (!habilitar) {
+            btnRoll.replaceWith(btnRoll.cloneNode(true));
+        }
+    }
+
+    if (btnSkip) {
+        btnSkip.disabled = !habilitar;
+        // Remove event listeners se não for a vez
+        if (!habilitar) {
+            btnSkip.replaceWith(btnSkip.cloneNode(true));
+        }
+    }
 }
 
 function atualizarBotoesMestre(turnoDoMestre) {
@@ -44,11 +57,17 @@ function atualizarBotoesMestre(turnoDoMestre) {
 
     const habilitar = window.isMestre && turnoDoMestre;
 
-    if (btnMestre) btnMestre.disabled = !habilitar;
-    if (btnPermitir) btnPermitir.disabled = !habilitar;
-    if (btnDano) btnDano.disabled = !habilitar;
-    if (btnCurar) btnCurar.disabled = !habilitar;
-    if (btnUpar) btnUpar.disabled = !habilitar;
+    const botoes = [btnMestre, btnPermitir, btnDano, btnCurar, btnUpar];
+
+    botoes.forEach(btn => {
+        if (btn) {
+            btn.disabled = !habilitar;
+            // Remove event listeners se não for a vez
+            if (!habilitar) {
+                btn.replaceWith(btn.cloneNode(true));
+            }
+        }
+    });
 }
 
 function atualizarControleTurno() {
