@@ -4,6 +4,74 @@
 @section('content')
 {{-- Manter tudo na tela visualmente, aqui dentro --}}
 <div id="roomContainer" class="">
+    <style>
+        #dice-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #dice-box {
+            z-index: 2;
+        }
+
+        #dice-placeholder {
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.55);
+            padding: 0.9rem 1.4rem;
+            border-radius: 1.5rem;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 20px 45px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(8px);
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        #dice-placeholder::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -14px;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 12px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(6px);
+            opacity: 0.85;
+        }
+
+        .dice-result {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.6);
+            font-size: 4rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 28px rgba(255,255,255,0.9), 0 0 60px rgba(0,0,0,0.45);
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0;
+            animation: diceValuePop 1.5s ease-out forwards;
+        }
+
+        @keyframes diceValuePop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.4);
+            }
+            55% {
+                opacity: 1;
+                transform: translate(-50%, -55%) scale(1.0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -70%) scale(0.8);
+            }
+        }
+    </style>
+
     {{-- Background da Sala --}}
     <div id="roomBackground"
         style="background-image: url('{{ $sala['urlBackground'] ? $sala['urlBackground'] : asset('assets/images/forge.png') }}');">
