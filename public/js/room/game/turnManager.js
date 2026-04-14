@@ -136,7 +136,22 @@ function avancarTurnoMestre() {
 }
 
 function avancarTurno() {
-    console.log(' ⏭️ Mestre avançando para o próximo turno...');
+    console.log(' ⏭️ Avançando para o próximo turno...');
+
+    // Verifica se é realmente a vez do jogador
+    if (!window.turnState.rodadaIniciada) {
+        console.warn('❌ Rodada não iniciada');
+        return;
+    }
+
+    const isMyTurn = window.turnState.turnoAtual === String(window.CHAT_CONFIG?.userId) ||
+                     (window.isMestre && window.turnState.turnoAtual === "mestre");
+
+    if (!isMyTurn) {
+        console.warn('❌ Não é sua vez!');
+        return;
+    }
+
     ws.send('/app/backchannel/rodadas', {
         acao: "turnoMestre",
         salaId: window.CHAT_CONFIG?.salaId
@@ -345,3 +360,6 @@ function resetarSelecao() {
         window.limparModoAcao();
     }
 }
+
+// Expor função globalmente para outros módulos usarem
+window.avancarTurno = avancarTurno;
