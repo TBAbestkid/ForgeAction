@@ -281,8 +281,36 @@ function resetarSelecao() {
     }
 }
 
+// Ativa o modo de ação do mestre (dano, cura, upgrade, cederTurno)
+function ativarModoAcao(modo) {
+    console.log(`🎬 Ativando modo: ${modo}`);
+
+    // Mapeia o modo visual para a ação do mestre
+    const modoMap = {
+        'dano': 'causarDano',
+        'cura': 'curarPersonagem',
+        'upgrade': 'uparPersonagem'
+    };
+
+    acaoMestreAtual = modoMap[modo] || null;
+
+    if (acaoMestreAtual) {
+        window.definirModoAcao?.(modo);
+        ativarModoSelecao();
+    }
+}
+
+// Ativa o modo de ceder turno (permite selecionar próximo jogador)
+function ativarModoCederTurno() {
+    console.log(`🎬 Ativando modo: cederTurno`);
+    acaoMestreAtual = 'cederTurno';
+    ativarModoSelecao();
+}
+
 // Expor função globalmente para outros módulos usarem
 window.avancarTurno = avancarTurno;
 window.toggleOpcoesDados = toggleOpcoesDados;
 window.permitirJogada = permitirJogada;
 window.ativarModoSelecao = ativarModoSelecao;
+window.ativarModoAcao = ativarModoAcao;
+window.ativarModoCederTurno = ativarModoCederTurno;
