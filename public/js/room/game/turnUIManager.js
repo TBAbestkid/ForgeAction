@@ -100,7 +100,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnPermitir) {
         btnPermitir.disabled = !habilitar;
         if (habilitar) {
-            btnPermitir.addEventListener('click', () => { window.permitirJogada?.(); });
+            btnPermitir.addEventListener('click', () => { window.ativarModoCederTurno?.(); });
         } else {
             btnPermitir.replaceWith(btnPermitir.cloneNode(true));
         }
@@ -109,7 +109,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnDano) {
         btnDano.disabled = !habilitar;
         if (habilitar) {
-            btnDano.addEventListener('click', () => { window.definirModoAcao?.('dano'); window.ativarModoSelecao?.(); });
+            btnDano.addEventListener('click', () => { window.ativarModoAcao?.('dano'); });
         } else {
             btnDano.replaceWith(btnDano.cloneNode(true));
         }
@@ -118,7 +118,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnCurar) {
         btnCurar.disabled = !habilitar;
         if (habilitar) {
-            btnCurar.addEventListener('click', () => { window.definirModoAcao?.('cura'); window.ativarModoSelecao?.(); });
+            btnCurar.addEventListener('click', () => { window.ativarModoAcao?.('cura'); });
         } else {
             btnCurar.replaceWith(btnCurar.cloneNode(true));
         }
@@ -127,7 +127,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnUpar) {
         btnUpar.disabled = !habilitar;
         if (habilitar) {
-            btnUpar.addEventListener('click', () => { window.definirModoAcao?.('upgrade'); window.ativarModoSelecao?.(); });
+            btnUpar.addEventListener('click', () => { window.ativarModoAcao?.('upgrade'); });
         } else {
             btnUpar.replaceWith(btnUpar.cloneNode(true));
         }
