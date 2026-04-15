@@ -27,22 +27,33 @@ function criarCardPersonagem(personagem, sufixo) {
 
     const personagemDiv = document.createElement('div');
     personagemDiv.className =
-        'bg-dark rounded p-1 text-center d-flex flex-column align-items-center';
+        'bg-dark rounded p-1 text-center d-flex flex-column align-items-center position-relative';
     personagemDiv.style.cursor = 'pointer';
 
     personagemDiv.id = `personagem-online-${personagem.id}-${sufixo}`;
-
-    // Collapse único por sufixo
-    const collapseId = `info-personagem-${personagem.id}-${sufixo}`;
-
-    personagemDiv.setAttribute('data-bs-toggle', 'collapse');
-    personagemDiv.setAttribute('data-bs-target', `#${collapseId}`);
-    personagemDiv.setAttribute('aria-expanded', 'false');
 
     personagemDiv.dataset.id = personagem.id;
     personagemDiv.dataset.usuarioId = personagem.usuarioId || '';
     personagemDiv.dataset.nome = personagem.nome;
     personagemDiv.dataset.vida = personagem.vida;
+    personagemDiv.dataset.classe = personagem.classe;
+    personagemDiv.dataset.raca = personagem.raca;
+    personagemDiv.dataset.level = personagem.level;
+    personagemDiv.dataset.forca = personagem.forca || 0;
+    personagemDiv.dataset.agilidade = personagem.agilidade || 0;
+    personagemDiv.dataset.inteligencia = personagem.inteligencia || 0;
+    personagemDiv.dataset.destreza = personagem.destreza || 0;
+    personagemDiv.dataset.vitalidade = personagem.vitalidade || 0;
+    personagemDiv.dataset.percepcao = personagem.percepcao || 0;
+    personagemDiv.dataset.sabedoria = personagem.sabedoria || 0;
+    personagemDiv.dataset.carisma = personagem.carisma || 0;
+    personagemDiv.dataset.mana = personagem.mana || 0;
+    personagemDiv.dataset.iniciativa = personagem.iniciativa || 0;
+    personagemDiv.dataset.ataqueMagico = personagem.ataqueMagico || 0;
+    personagemDiv.dataset.ataqueFisicoCorpo = personagem.ataqueFisicoCorpo || 0;
+    personagemDiv.dataset.ataqueFisicoDistancia = personagem.ataqueFisicoDistancia || 0;
+    personagemDiv.dataset.defesaPersonagem = personagem.defesaPersonagem || 0;
+    personagemDiv.dataset.esquivaPersonagem = personagem.esquivaPersonagem || 0;
 
     personagemDiv.innerHTML = `
         <strong class="small personagem-nome">${personagem.nome}</strong>
@@ -55,18 +66,12 @@ function criarCardPersonagem(personagem, sufixo) {
             </div>
         </div>
 
-        <div id="${collapseId}" class="collapse mt-1"
-            style="min-height: auto; max-height: 25vh; overflow: hidden;">
-
-            <div class="bg-dark rounded p-1 text-start text-light"
-                 style="font-size: 0.7rem;">
-
-                <strong>Classe:</strong> ${personagem.classe}<br>
-                <strong>Raça:</strong> ${personagem.raca}<br>
-                <strong>Nível:</strong> ${personagem.level}<br>
-
-            </div>
-        </div>
+        <button class="btn btn-sm btn-outline-info position-absolute bottom-0 end-0"
+                style="padding: 0.25rem 0.5rem; font-size: 0.75rem;"
+                onclick="event.stopPropagation(); abrirFichaPersonagem(this.parentElement)"
+                title="Ver Ficha Completa">
+            <i class="fa-solid fa-info"></i>
+        </button>
     `;
 
     // 🔥 Listener inteligente
@@ -173,21 +178,13 @@ function atualizarVidaPersonagemCard(personagemId, novaVida) {
  */
 function atualizarBarraVidaJogador(personagemId, novaVida) {
     const barraVida = document.getElementById('playerHealthBar');
-    if (!barraVida) {
-        console.log('❌ Barra de vida não encontrada no DOM');
-        return;
-    }
+    if (!barraVida) return; // Silencioso se não existir (mestre não tem barra)
 
     // Comparação string para garantir que funcione com ambos tipos
     const personagemIdBar = String(barraVida.dataset.personagemId);
     const personagemIdCompare = String(personagemId);
 
-    console.log(`🔍 Comparando IDs: ${personagemIdCompare} === ${personagemIdBar}`);
-
-    if (personagemIdCompare !== personagemIdBar) {
-        console.log(`⏭️ Personagem ${personagemId} não é do jogador (jogador tem ${personagemIdBar})`);
-        return;
-    }
+    if (personagemIdCompare !== personagemIdBar) return; // Não é do jogador
 
     const vidaMax = parseInt(barraVida.dataset.vidaMax) || 100;
     const vidaFinal = Math.max(0, Math.min(novaVida, vidaMax));
@@ -214,8 +211,6 @@ function atualizarBarraVidaJogador(personagemId, novaVida) {
     setTimeout(() => {
         barraVida.style.animation = 'pulse-vida 0.5s ease-in-out';
     }, 10);
-
-    console.log(`❤️ ✅ Barra de vida do jogador atualizada com sucesso: ${vidaFinal}/${vidaMax}`);
 }
 
 function AtualizarListaOnline(salaId, usuariosOnline) {
@@ -250,3 +245,107 @@ function AtualizarListaOnline(salaId, usuariosOnline) {
 // Expor funções globalmente
 window.atualizarVidaPersonagemCard = atualizarVidaPersonagemCard;
 window.atualizarBarraVidaJogador = atualizarBarraVidaJogador;
+
+/**
+ * Abre o offcanvas com a ficha completa do personagem
+ */
+function abrirFichaPersonagem(cardElement) {
+    const personagem = {
+        id: cardElement.dataset.id,
+        nome: cardElement.dataset.nome,
+        raca: cardElement.dataset.raca,
+        classe: cardElement.dataset.classe,
+        level: cardElement.dataset.level,
+        vida: cardElement.dataset.vida,
+        mana: cardElement.dataset.mana,
+        forca: cardElement.dataset.forca,
+        agilidade: cardElement.dataset.agilidade,
+        inteligencia: cardElement.dataset.inteligencia,
+        destreza: cardElement.dataset.destreza,
+        vitalidade: cardElement.dataset.vitalidade,
+        percepcao: cardElement.dataset.percepcao,
+        sabedoria: cardElement.dataset.sabedoria,
+        carisma: cardElement.dataset.carisma,
+        iniciativa: cardElement.dataset.iniciativa,
+        ataqueMagico: cardElement.dataset.ataqueMagico,
+        ataqueFisicoCorpo: cardElement.dataset.ataqueFisicoCorpo,
+        ataqueFisicoDistancia: cardElement.dataset.ataqueFisicoDistancia,
+        defesaPersonagem: cardElement.dataset.defesaPersonagem,
+        esquivaPersonagem: cardElement.dataset.esquivaPersonagem,
+    };
+
+    // Preenche o offcanvas genérico com os dados
+    const offcanvas = document.getElementById('offcanvasFichaPersonagem');
+    if (!offcanvas) {
+        console.error('Offcanvas #offcanvasFichaPersonagem não encontrado');
+        return;
+    }
+
+    // Atualiza o título
+    const titulo = offcanvas.querySelector('#offcanvasFichaPersonagemLabel');
+    if (titulo) {
+        titulo.innerHTML = `<i class="fa-solid fa-scroll me-2"></i>Ficha de ${personagem.nome}`;
+    }
+
+    // Atualiza o conteúdo (encontra o body do offcanvas)
+    const bodyOffcanvas = offcanvas.querySelector('.offcanvas-body');
+    if (bodyOffcanvas) {
+        bodyOffcanvas.innerHTML = `
+            <div class="row g-2">
+                <!-- Header do Personagem -->
+                <div class="col-12 mb-3 border-bottom border-secondary pb-2">
+                    <div><small><strong><i class="fa-solid fa-user-shield"></i> Raça:</strong> ${personagem.raca}</small></div>
+                    <div><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Classe:</strong> ${personagem.classe}</small></div>
+                    <div><small><strong><i class="fa-solid fa-signal"></i> Nível:</strong> ${personagem.level}</small></div>
+                </div>
+
+                <!-- Atributos Principais -->
+                <div class="col-12 mb-2">
+                    <small class="text-warning"><strong>⚔️ Atributos Principais</strong></small>
+                </div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-dumbbell"></i> Força:</strong> ${personagem.forca}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-bolt"></i> Agilidade:</strong> ${personagem.agilidade}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-brain"></i> Inteligência:</strong> ${personagem.inteligencia}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-hand"></i> Destreza:</strong> ${personagem.destreza}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-shield-heart"></i> Vitalidade:</strong> ${personagem.vitalidade}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-eye"></i> Percepção:</strong> ${personagem.percepcao}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-book"></i> Sabedoria:</strong> ${personagem.sabedoria}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-comments"></i> Carisma:</strong> ${personagem.carisma}</small></div>
+
+                <!-- Recursos de Vida/Mana -->
+                <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
+                    <small class="text-info"><strong>❤️ Recursos</strong></small>
+                </div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-heart"></i> Vida:</strong> ${personagem.vida}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-droplet"></i> Mana:</strong> ${personagem.mana}</small></div>
+
+                <!-- Iniciativa e Bônus -->
+                <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
+                    <small class="text-success"><strong>⚡ Ações</strong></small>
+                </div>
+                <div class="col-12"><small><strong><i class="fa-solid fa-forward"></i> Iniciativa:</strong> ${personagem.iniciativa}</small></div>
+
+                <!-- Ataques -->
+                <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
+                    <small class="text-danger"><strong>⚔️ Ataques</strong></small>
+                </div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Atk Mágico:</strong> ${personagem.ataqueMagico}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-hand-fist"></i> Atk Corpo:</strong> ${personagem.ataqueFisicoCorpo}</small></div>
+                <div class="col-12 mt-2"><small><strong><i class="fa-solid fa-bullseye"></i> Atk Distância:</strong> ${personagem.ataqueFisicoDistancia}</small></div>
+
+                <!-- Defesa -->
+                <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
+                    <small class="text-secondary"><strong>🛡️ Defesa</strong></small>
+                </div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-shield-halved"></i> Defesa:</strong> ${personagem.defesaPersonagem}</small></div>
+                <div class="col-6"><small><strong><i class="fa-solid fa-feather"></i> Esquiva:</strong> ${personagem.esquivaPersonagem}</small></div>
+            </div>
+        `;
+    }
+
+    // Abre o offcanvas usando Bootstrap
+    const offcanvasInstance = new bootstrap.Offcanvas(offcanvas);
+    offcanvasInstance.show();
+}
+
+window.abrirFichaPersonagem = abrirFichaPersonagem;
