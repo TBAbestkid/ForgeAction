@@ -285,5 +285,4 @@ function resetarSelecao() {
 window.avancarTurno = avancarTurno;
 window.toggleOpcoesDados = toggleOpcoesDados;
 window.permitirJogada = permitirJogada;
-window.definirModoAcao = definirModoAcao;
 window.ativarModoSelecao = ativarModoSelecao;
