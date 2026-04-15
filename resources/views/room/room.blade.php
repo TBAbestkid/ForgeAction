@@ -255,79 +255,80 @@
         Usando de base a ideia de HUID
         Botões de ação de mestre como linha abaixo de área --}}
     <div class="position-fixed bottom-0 start-50 translate-middle-x mb-3 z-3">
-        <div class="d-flex gap-3 px-3 py-2 rounded-4 shadow hud-bg">
+        <div class="d-flex flex-column gap-2 px-3 py-2 rounded-4 shadow hud-bg" style="align-items: center;">
 
             @if($isDono)
 
-                <button id="btnIniciarTurno"
-                    class="btn btn-success btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                    title="Turno">
-                    <i class="fa-solid fa-play"></i>
-                </button>
+                <div class="d-flex gap-3">
+                    <button id="btnIniciarTurno"
+                        class="btn btn-success btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                        title="Turno">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
 
-                <button id="btnLancarMestre"
-                    class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                    title="Dados" disabled>
-                    <i class="fa-solid fa-dice-d20"></i>
-                </button>
+                    <button id="btnLancarMestre"
+                        class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                        title="Dados" disabled>
+                        <i class="fa-solid fa-dice-d20"></i>
+                    </button>
 
-                <button id="btnPermitirJogadaExtra"
-                    class="btn btn-primary btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                    title="Extra" disabled>
-                    <i class="fa-solid fa-user-check"></i>
-                </button>
+                    <button id="btnPermitirJogadaExtra"
+                        class="btn btn-primary btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                        title="Extra" disabled>
+                        <i class="fa-solid fa-user-check"></i>
+                    </button>
 
-                <button id="btnDano"
-                    class="btn btn-danger btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                    title="Dano" disabled>
-                    <i class="fa-solid fa-burst"></i>
-                </button>
+                    <button id="btnDano"
+                        class="btn btn-danger btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                        title="Dano" disabled>
+                        <i class="fa-solid fa-burst"></i>
+                    </button>
 
-                <button id="btnCurar"
-                    class="btn btn-success btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                    title="Curar" disabled>
-                    <i class="fa-solid fa-heart-pulse"></i>
-                </button>
+                    <button id="btnCurar"
+                        class="btn btn-success btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                        title="Curar" disabled>
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </button>
 
-                <button id="btnUpar"
-                    class="btn btn-info btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                    title="Upar" disabled>
-                    <i class="fa-solid fa-arrow-up"></i>
-                </button>
+                    <button id="btnUpar"
+                        class="btn btn-info btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                        title="Upar" disabled>
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                </div>
             @else
-                {{-- 🎲 Rodar Dado --}}
-                <button id="btn-roll"
-                    class="btn btn-light btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                    title="Rodar Dado" disabled>
-                    <i class="fa-solid fa-dice-d20"></i>
-                </button>
+                {{-- 🎲 Rodar Dado e Pular Turno --}}
+                <div class="d-flex gap-3">
+                    <button id="btn-roll"
+                        class="btn btn-light btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                        title="Rodar Dado" disabled>
+                        <i class="fa-solid fa-dice-d20"></i>
+                    </button>
 
-                {{-- ⏭️ Pular Turno --}}
-                <button id="btn-skip"
-                    class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
-                    title="Pular Turno" disabled>
-                    <i class="fa-solid fa-forward"></i>
-                </button>
-            @endif
-        </div>
+                    <button id="btn-skip"
+                        class="btn btn-warning btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
+                        title="Pular Turno" disabled>
+                        <i class="fa-solid fa-forward"></i>
+                    </button>
+                </div>
 
-        {{-- ❤️ Barra de Vida do Jogador --}}
-        @if (!$isDono)
-            <div style="width: 240px; display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
-                <small class="text-danger"><i class="fa-solid fa-heart"></i> <strong>Vida</strong></small>
-                <div class="progress" style="height: 24px; font-size: 0.8rem;">
-                    <div id="playerHealthBar"
-                        class="progress-bar bg-success d-flex justify-content-center align-items-center text-dark fw-bold"
-                        role="progressbar"
-                        style="width: 100%;"
-                        data-personagem-id="{{ $personagemJogador['id'] ?? 0 }}"
-                        data-vida-max="{{ $personagemJogador['vida'] ?? 100 }}"
-                        data-vida-atual="{{ $personagemJogador['vida'] ?? 100 }}">
-                        {{ $personagemJogador['vida'] ?? 100 }}/{{ $personagemJogador['vida'] ?? 100 }}
+                {{-- ❤️ Barra de Vida do Jogador --}}
+                <div style="width: 240px; display: flex; flex-direction: column; gap: 4px;">
+                    <small class="text-danger" style="margin: 0;"><i class="fa-solid fa-heart"></i> <strong>Vida</strong></small>
+                    <div class="progress" style="height: 26px; font-size: 0.8rem;">
+                        <div id="playerHealthBar"
+                            class="progress-bar bg-success d-flex justify-content-center align-items-center text-dark fw-bold"
+                            role="progressbar"
+                            style="width: 100%;"
+                            data-personagem-id="{{ $personagemJogador['id'] ?? 0 }}"
+                            data-vida-max="{{ $personagemJogador['vida'] ?? 100 }}"
+                            data-vida-atual="{{ $personagemJogador['vida'] ?? 100 }}">
+                            {{ $personagemJogador['vida'] ?? 100 }}/{{ $personagemJogador['vida'] ?? 100 }}
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
+        </div>
     </div>
 </div>
 
