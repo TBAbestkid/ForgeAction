@@ -119,6 +119,8 @@ function adicionarPersonagemOnline(personagem) {
  * Atualiza a vida de um personagem no card (desktop e mobile)
  */
 function atualizarVidaPersonagemCard(personagemId, novaVida) {
+    console.log(`📊 atualizarVidaPersonagemCard chamada - ID: ${personagemId}, Nova Vida: ${novaVida}`);
+
     const cardDesktop = document.getElementById(`personagem-online-${personagemId}-pc`);
     const cardMobile = document.getElementById(`personagem-online-${personagemId}-mb`);
 
@@ -171,10 +173,21 @@ function atualizarVidaPersonagemCard(personagemId, novaVida) {
  */
 function atualizarBarraVidaJogador(personagemId, novaVida) {
     const barraVida = document.getElementById('playerHealthBar');
-    if (!barraVida) return;
+    if (!barraVida) {
+        console.log('❌ Barra de vida não encontrada no DOM');
+        return;
+    }
 
-    const personagemIdBar = parseInt(barraVida.dataset.personagemId);
-    if (personagemId !== personagemIdBar) return; // Não é o personagem deste jogador
+    // Comparação string para garantir que funcione com ambos tipos
+    const personagemIdBar = String(barraVida.dataset.personagemId);
+    const personagemIdCompare = String(personagemId);
+
+    console.log(`🔍 Comparando IDs: ${personagemIdCompare} === ${personagemIdBar}`);
+
+    if (personagemIdCompare !== personagemIdBar) {
+        console.log(`⏭️ Personagem ${personagemId} não é do jogador (jogador tem ${personagemIdBar})`);
+        return;
+    }
 
     const vidaMax = parseInt(barraVida.dataset.vidaMax) || 100;
     const vidaFinal = Math.max(0, Math.min(novaVida, vidaMax));
@@ -197,12 +210,12 @@ function atualizarBarraVidaJogador(personagemId, novaVida) {
     }
 
     // Anima a mudança
-    barraVida.style.animation = 'pulse-vida 0.5s ease-in-out';
+    barraVida.style.animation = 'none';
     setTimeout(() => {
-        barraVida.style.animation = '';
-    }, 500);
+        barraVida.style.animation = 'pulse-vida 0.5s ease-in-out';
+    }, 10);
 
-    console.log(`❤️ Barra de vida do jogador atualizada: ${vidaFinal}/${vidaMax}`);
+    console.log(`❤️ ✅ Barra de vida do jogador atualizada com sucesso: ${vidaFinal}/${vidaMax}`);
 }
 
 function AtualizarListaOnline(salaId, usuariosOnline) {
