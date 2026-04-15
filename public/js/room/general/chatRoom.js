@@ -125,6 +125,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 addMessage(data.conteudo, '🤖 Sistema', true, systemLogs);
                 break;
 
+            case 'abrirUpgradePersonagem':
+                // Verifica se a ação é para este usuário
+                if (data.usuarioAlvo == window.CHAT_CONFIG?.userId) {
+                    console.log('⭐ Abrindo offcanvas de upgrade:', data);
+                    if (typeof window.abrirUpgradePersonagem === 'function') {
+                        window.abrirUpgradePersonagem(data.dadosUpgrade);
+                    }
+                } else {
+                    console.log('⏭️ Upgrade não é para este usuário');
+                }
+                break;
+
+            case 'upgradeCompleto':
+            case 'upgradeCompletado':
+                addMessage(data.conteudo || `✅ ${data.nomeJogador || 'Jogador'} completou o upgrade! Nível: ${data.novoLevel}`, '⭐ Sistema', true, systemLogs);
+                break;
+
             default:
                 console.warn('⚠️ Ação desconhecida recebida:', data);
         }
