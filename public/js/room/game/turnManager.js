@@ -200,6 +200,7 @@ function enviarAcaoMestre(valor) {
     const targetUsuarioId = usuarioSelecionadoId || personagemSelecionadoId;
 
     console.log(`🎯 Enviando ação do mestre: ${acaoMestreAtual} (usuário ${targetUsuarioId}, personagem ${personagemSelecionadoId}) com valor ${valor}`);
+    console.log(`💾 personagemSelecionadoId type: ${typeof personagemSelecionadoId}, value: ${personagemSelecionadoId}`);
 
     // Get personagem name from card for better logs
     const card = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`) ||
@@ -209,6 +210,7 @@ function enviarAcaoMestre(valor) {
     // 🔥 Aplicar mudança de vida localmente usando a vida já armazenada
     if (acaoMestreAtual === 'causarDano') {
         const novaVida = vidaSelecionada - valor; // Dano reduz vida
+        console.log(`⚔️ DANO: vida atual ${vidaSelecionada} - dano ${valor} = ${novaVida}`);
         window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
 
         // Envia notificação
@@ -219,6 +221,7 @@ function enviarAcaoMestre(valor) {
         });
     } else if (acaoMestreAtual === 'curarPersonagem') {
         const novaVida = vidaSelecionada + valor; // Cura aumenta vida
+        console.log(`💚 CURA: vida atual ${vidaSelecionada} + cura ${valor} = ${novaVida}`);
         window.atualizarVidaPersonagemCard(personagemSelecionadoId, novaVida);
 
         // Envia notificação
