@@ -27,8 +27,9 @@ function criarCardPersonagem(personagem, sufixo) {
 
     const personagemDiv = document.createElement('div');
     personagemDiv.className =
-        'bg-dark rounded p-1 text-center d-flex flex-column align-items-center position-relative';
+        'bg-dark rounded p-2 text-center d-flex flex-column align-items-center position-relative';
     personagemDiv.style.cursor = 'pointer';
+    personagemDiv.style.minWidth = '140px';
 
     personagemDiv.id = `personagem-online-${personagem.id}-${sufixo}`;
 
@@ -56,22 +57,23 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.dataset.esquivaPersonagem = personagem.esquivaPersonagem || 0;
 
     personagemDiv.innerHTML = `
-        <strong class="small personagem-nome">${personagem.nome}</strong>
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+            <strong class="small personagem-nome" style="flex: 1; text-align: left;">${personagem.nome}</strong>
+            <button class="btn btn-sm btn-outline-info d-flex align-items-center justify-content-center"
+                    style="padding: 0.35rem; width: 28px; height: 28px; border-radius: 50%; font-size: 0.7rem; flex-shrink: 0;"
+                    onclick="event.stopPropagation(); abrirFichaPersonagem(this.closest('.bg-dark'))"
+                    title="Ver Ficha Completa">
+                <i class="fa-solid fa-info"></i>
+            </button>
+        </div>
 
-        <div class="progress mt-1 w-100" style="height: 14px; font-size:0.7rem;">
+        <div class="progress mt-2 w-100" style="height: 16px; font-size:0.7rem;">
             <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
                 role="progressbar"
                 style="width: 100%;">
                 ${personagem.vida}/${personagem.vida}
             </div>
         </div>
-
-        <button class="btn btn-sm btn-outline-info position-absolute bottom-0 end-0"
-                style="padding: 0.25rem 0.5rem; font-size: 0.75rem;"
-                onclick="event.stopPropagation(); abrirFichaPersonagem(this.parentElement)"
-                title="Ver Ficha Completa">
-            <i class="fa-solid fa-info"></i>
-        </button>
     `;
 
     // 🔥 Listener inteligente
