@@ -246,7 +246,7 @@
         {{-- Coluna direita (Personagens) --}}
         @if ($isDono)
             <div id="coluna-personagens" class="d-flex flex-column gap-3 overflow-auto rounded-4"
-                style="flex: 0 0 220px; max-height: 100%; padding: 0.5rem; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.1);">
+                style="flex: 0 0 240px; max-height: 100%; padding: 0.75rem; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.1);">
             </div>
         @endif
     </div>
