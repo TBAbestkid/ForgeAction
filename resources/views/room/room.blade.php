@@ -353,6 +353,22 @@
         </div>
     </div>
 
+    <!-- Offcanvas para Ficha de Personagem (genérico, usado pelo mestre) -->
+    <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFichaPersonagem"
+        aria-labelledby="offcanvasFichaPersonagemLabel" style="background-color: #1c1c1c; max-width: 320px;">
+
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasFichaPersonagemLabel">
+                <i class="fa-solid fa-scroll me-2"></i>Ficha
+            </h5>
+            <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body p-3 overflow-auto" style="max-height: calc(100vh - 60px);">
+            {{-- Conteúdo será preenchido dinamicamente por JavaScript --}}
+        </div>
+    </div>
 @else
     <!-- Ficha do jogador -->
     <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFicha"
