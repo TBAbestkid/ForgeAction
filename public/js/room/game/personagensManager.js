@@ -160,7 +160,49 @@ function atualizarVidaPersonagemCard(personagemId, novaVida) {
     atualizarCard(cardDesktop);
     atualizarCard(cardMobile);
 
+    // Atualiza a barra de vida do jogador se for o seu personagem
+    atualizarBarraVidaJogador(personagemId, novaVida);
+
     console.log(`❤️ Vida do personagem ${personagemId} atualizada para ${novaVida}`);
+}
+
+/**
+ * Atualiza a barra de vida do jogador no HUD
+ */
+function atualizarBarraVidaJogador(personagemId, novaVida) {
+    const barraVida = document.getElementById('playerHealthBar');
+    if (!barraVida) return;
+
+    const personagemIdBar = parseInt(barraVida.dataset.personagemId);
+    if (personagemId !== personagemIdBar) return; // Não é o personagem deste jogador
+
+    const vidaMax = parseInt(barraVida.dataset.vidaMax) || 100;
+    const vidaFinal = Math.max(0, Math.min(novaVida, vidaMax));
+
+    // Atualiza o texto
+    barraVida.innerText = `${vidaFinal}/${vidaMax}`;
+
+    // Calcula percentual
+    const percentual = (vidaFinal / vidaMax) * 100;
+    barraVida.style.width = percentual + '%';
+
+    // Muda a cor baseado na saúde
+    barraVida.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+    if (percentual > 50) {
+        barraVida.classList.add('bg-success');
+    } else if (percentual > 25) {
+        barraVida.classList.add('bg-warning');
+    } else {
+        barraVida.classList.add('bg-danger');
+    }
+
+    // Anima a mudança
+    barraVida.style.animation = 'pulse-vida 0.5s ease-in-out';
+    setTimeout(() => {
+        barraVida.style.animation = '';
+    }, 500);
+
+    console.log(`❤️ Barra de vida do jogador atualizada: ${vidaFinal}/${vidaMax}`);
 }
 
 function AtualizarListaOnline(salaId, usuariosOnline) {
@@ -191,3 +233,7 @@ function AtualizarListaOnline(salaId, usuariosOnline) {
         console.error('❌ Erro ao reconstruir lista:', error);
     });
 }
+
+// Expor funções globalmente
+window.atualizarVidaPersonagemCard = atualizarVidaPersonagemCard;
+window.atualizarBarraVidaJogador = atualizarBarraVidaJogador;
