@@ -308,24 +308,26 @@
                     title="Pular Turno" disabled>
                     <i class="fa-solid fa-forward"></i>
                 </button>
-
-                {{-- ❤️ Barra de Vida do Jogador --}}
-                <div style="width: 200px; display: flex; flex-direction: column; gap: 6px;">
-                    <small class="text-danger"><i class="fa-solid fa-heart"></i> <strong>Vida</strong></small>
-                    <div class="progress" style="height: 20px; font-size: 0.7rem;">
-                        <div id="playerHealthBar"
-                            class="progress-bar bg-success d-flex justify-content-center align-items-center text-dark fw-bold"
-                            role="progressbar"
-                            style="width: 100%;"
-                            data-personagem-id="{{ $personagemJogador['id'] ?? 0 }}"
-                            data-vida-max="{{ $personagemJogador['vida'] ?? 100 }}"
-                            data-vida-atual="{{ $personagemJogador['vida'] ?? 100 }}">
-                            {{ $personagemJogador['vida'] ?? 100 }}/{{ $personagemJogador['vida'] ?? 100 }}
-                        </div>
-                    </div>
-                </div>
             @endif
         </div>
+
+        {{-- ❤️ Barra de Vida do Jogador --}}
+        @if (!$isDono)
+            <div style="width: 240px; display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+                <small class="text-danger"><i class="fa-solid fa-heart"></i> <strong>Vida</strong></small>
+                <div class="progress" style="height: 24px; font-size: 0.8rem;">
+                    <div id="playerHealthBar"
+                        class="progress-bar bg-success d-flex justify-content-center align-items-center text-dark fw-bold"
+                        role="progressbar"
+                        style="width: 100%;"
+                        data-personagem-id="{{ $personagemJogador['id'] ?? 0 }}"
+                        data-vida-max="{{ $personagemJogador['vida'] ?? 100 }}"
+                        data-vida-atual="{{ $personagemJogador['vida'] ?? 100 }}">
+                        {{ $personagemJogador['vida'] ?? 100 }}/{{ $personagemJogador['vida'] ?? 100 }}
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 
