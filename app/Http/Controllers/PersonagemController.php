@@ -95,6 +95,16 @@ class PersonagemController extends Controller
 
 
     /**
+     * PUT /personagem/{personagemId}
+     */
+    public function update(Request $request, $personagemId)
+    {
+        return response()->json(
+            $this->api->put("api/personagem/{$personagemId}", $request->all())
+        );
+    }
+
+    /**
      * DELETE /api/personagem/{personagemId}
      */
     public function destroy($personagemId)
