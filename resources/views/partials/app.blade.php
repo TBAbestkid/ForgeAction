@@ -40,47 +40,58 @@
 </head>
 <body>
     <!-- Navbar simples -->
-    <nav class="navbar navbar-expand-lg navbar-dark font-medieval sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <i class="fa-brands fa-d-and-d"></i> ForgeAction
+    <nav class="navbar navbar-dark shadow-sm sticky-top">
+        <div class="container d-flex justify-content-between align-items-center">
+
+            <!-- LOGO -->
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
+                <i class="fa-brands fa-d-and-d"></i>
+                <span>ForgeAction</span>
             </a>
 
-            <!-- Botão para Menu Mobile -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <!-- USER / AUTH -->
+            @if(session('user_login'))
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white"
+                    href="#"
+                    id="userDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    @if(session('user_login'))
-                        <!-- USER DROPDOWN -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}&background=0D8ABC&color=fff"
-                                    class="rounded-circle me-2" width="32" height="32" alt="Avatar">
-                                <span class="d-none d-lg-inline">{{ session('user_login') }}</span>
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}"
+                            class="rounded-circle"
+                            width="32" height="32">
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="/perfil">
+                                <i class="fa-solid fa-user-cog me-2"></i> Configurações
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="/perfil"><i class="fa-solid fa-user-cog me-2"></i> Configurações</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                    <i class="fa-solid fa-right-from-bracket me-2"></i> Sair</a>
-                                </li>
-                            </ul>
                         </li>
-                    @else
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}"><i class="fa-solid fa-user"></i> Login</a>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger"
+                            href="#"
+                            data-bs-toggle="modal"
+                            data-bs-target="#logoutModal">
+                                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}"><i class="fa-solid fa-user-cog"></i> Cadastro</a>
-                        </li>
-                    @endif
-                </ul>
-            </div>
+                    </ul>
+                </div>
+            @else
+                <div class="d-flex gap-3">
+                    <a class="nav-link text-white" href="{{ route('login') }}">
+                        <i class="fa-solid fa-user"></i> Login
+                    </a>
+                    <a class="nav-link text-white" href="{{ route('register') }}">
+                        <i class="fa-solid fa-user-cog"></i> Cadastro
+                    </a>
+                </div>
+            @endif
+
         </div>
     </nav>
 
