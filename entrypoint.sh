@@ -41,5 +41,23 @@ php artisan tinker --execute="use Illuminate\Support\Facades\Log; Log::info('�
 
 echo "➡️  Verificação de permissões de storage e bootstrap..."
 
+echo "➡️  Corrigindo permissões do Laravel..."
+
+# Garante que as pastas existem
+mkdir -p /var/www/html/storage/logs
+mkdir -p /var/www/html/bootstrap/cache
+
+# Cria o arquivo de log se não existir
+touch /var/www/html/storage/logs/laravel.log
+
+# Corrige permissões (ESSENCIAL)
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+
+chmod -R 775 /var/www/html/storage
+chmod -R 775 /var/www/html/bootstrap/cache
+
+echo "✅ Permissões ajustadas"
+
 # Executa comando original (Apache)
 exec "$@"
