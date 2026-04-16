@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isSelf = !isSystemMessage && sender === userName;
         div.className = `d-flex flex-column mb-2 ${isSelf ? 'align-items-end' : 'align-items-start'}`;
         div.innerHTML = `
-            <div class="p-2 rounded ${isSelf ? 'bg-primary text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-secondary text-light'}" style="max-width: 70%;">
+            <div class="p-2 rounded ${isSelf ? 'bg-warning text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-secondary text-light'}" style="max-width: 70%;">
                 <small class="d-block fw-bold opacity-75">${sender}</small>
                 <span style="word-wrap: break-word;">${text}</span>
             </div>
