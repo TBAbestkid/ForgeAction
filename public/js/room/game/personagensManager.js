@@ -351,3 +351,213 @@ function abrirFichaPersonagem(cardElement) {
 }
 
 window.abrirFichaPersonagem = abrirFichaPersonagem;
+
+/**
+ * Abre o offcanvas para distribuição de pontos de upgrade
+ */
+function abrirUpgradePersonagem(dadosUpgrade) {
+    const offcanvas = document.getElementById('offcanvasUpgradePersonagem');
+    if (!offcanvas) {
+        console.error('Offcanvas #offcanvasUpgradePersonagem não encontrado');
+        return;
+    }
+
+    // Atualiza o título
+    const titulo = offcanvas.querySelector('#offcanvasUpgradePersonagemLabel');
+    if (titulo) {
+        titulo.innerHTML = `<i class="fa-solid fa-star me-2"></i>Upgrade - ${dadosUpgrade.nome}`;
+    }
+
+    const novoLevel = parseInt(dadosUpgrade.level) + 1;
+
+    // Atualiza o conteúdo
+    const content = document.getElementById('upgradeContent');
+    if (content) {
+        content.innerHTML = `
+            <div class="mb-4">
+                <h6 class="text-warning mb-3">
+                    <i class="fa-solid fa-arrow-up"></i> Parabéns! Você subiu de nível!
+                </h6>
+                <div class="alert alert-info">
+                    <strong>Nível:</strong> ${dadosUpgrade.level} → <span class="text-success">${novoLevel}</span><br>
+                    <strong>Pontos para distribuir:</strong> <span id="pontosRestantes" class="text-warning">5</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h6 class="text-info mb-3"><i class="fa-solid fa-dumbbell"></i> Atributos</h6>
+                <div id="atributosContainer"></div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button id="btnSalvarUpgrade" class="btn btn-success" onclick="salvarUpgradePersonagem(${dadosUpgrade.id}, ${novoLevel})">
+                    <i class="fa-solid fa-save me-2"></i>Salvar e Confirmar
+                </button>
+            </div>
+        `;
+
+        // Renderiza cada atributo
+        const atributosContainer = document.getElementById('atributosContainer');
+        const atributos = [
+            { key: 'forca', label: 'Força', icon: '⚔️' },
+            { key: 'agilidade', label: 'Agilidade', icon: '💨' },
+            { key: 'inteligencia', label: 'Inteligência', icon: '🧠' },
+            { key: 'destreza', label: 'Destreza', icon: '🎯' },
+            { key: 'vitalidade', label: 'Vitalidade', icon: '❤️' },
+            { key: 'percepcao', label: 'Percepção', icon: '👁️' },
+            { key: 'sabedoria', label: 'Sabedoria', icon: '📚' },
+            { key: 'carisma', label: 'Carisma', icon: '✨' }
+        ];
+
+        atributosContainer.innerHTML = atributos.map(attr => {
+            const valorAtual = parseInt(dadosUpgrade[attr.key]) || 0;
+            return `
+                <div class="mb-3 p-2 bg-dark rounded">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="mb-0">
+                            <strong>${attr.icon} ${attr.label}</strong>
+                        </label>
+                        <span class="badge bg-info">${valorAtual}</span>
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <button class="btn btn-outline-secondary" type="button"
+                                onclick="diminuirPonto('${attr.key}', ${valorAtual})">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <input type="number" class="form-control text-center"
+                               id="input-${attr.key}"
+                               data-atributo="${attr.key}"
+                               data-valor-original="${valorAtual}"
+                               value="0"
+                               readonly
+                               style="max-width: 60px;">
+                        <button class="btn btn-outline-success" type="button"
+                                onclick="aumentarPonto('${attr.key}', ${valorAtual})">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Abre o offcanvas usando Bootstrap
+    const offcanvasInstance = new bootstrap.Offcanvas(offcanvas);
+    offcanvasInstance.show();
+}
+
+/**
+ * Aumenta um ponto de um atributo (max 5 pontos totais)
+ */
+function aumentarPonto(atributo, valorOriginal) {
+    const input = document.getElementById(`input-${atributo}`);
+    if (!input) return;
+
+    const pontosUsados = Array.from(document.querySelectorAll('[data-atributo]'))
+        .reduce((sum, el) => sum + (parseInt(el.value) || 0), 0);
+
+    if (pontosUsados < 5) {
+        const novoValor = (parseInt(input.value) || 0) + 1;
+        input.value = novoValor;
+        atualizarPontosRestantes();
+    }
+}
+
+/**
+ * Diminui um ponto de um atributo (mínimo 0)
+ */
+function diminuirPonto(atributo, valorOriginal) {
+    const input = document.getElementById(`input-${atributo}`);
+    if (!input) return;
+
+    const novoValor = Math.max(0, (parseInt(input.value) || 0) - 1);
+    input.value = novoValor;
+    atualizarPontosRestantes();
+}
+
+/**
+ * Atualiza display dos pontos restantes
+ */
+function atualizarPontosRestantes() {
+    const pontosUsados = Array.from(document.querySelectorAll('[data-atributo]'))
+        .reduce((sum, el) => sum + (parseInt(el.value) || 0), 0);
+
+    const pontosRestantes = 5 - pontosUsados;
+    const elemento = document.getElementById('pontosRestantes');
+    if (elemento) {
+        elemento.textContent = pontosRestantes;
+        elemento.className = 'text-' + (pontosRestantes === 0 ? 'success' : 'warning');
+    }
+}
+
+/**
+ * Salva o upgrade e envia para a API
+ */
+async function salvarUpgradePersonagem(personagemId, novoLevel) {
+    // Coleta todos os pontos distribuídos
+    const atributos = {};
+    const atributosNames = ['forca', 'agilidade', 'inteligencia', 'destreza', 'vitalidade', 'percepcao', 'sabedoria', 'carisma'];
+
+    atributosNames.forEach(attr => {
+        const input = document.getElementById(`input-${attr}`);
+        const valorOriginal = parseInt(input?.dataset.valorOriginal) || 0;
+        const pontos = parseInt(input?.value) || 0;
+        atributos[attr] = valorOriginal + pontos;
+    });
+
+    // Prepara o payload
+    const payload = {
+        level: novoLevel,
+        ...atributos
+    };
+
+    console.log('📤 Enviando upgrade:', payload);
+
+    try {
+        const response = await $.ajax({
+            url: `/api/personagem/${personagemId}`,
+            method: "POST",
+            data: JSON.stringify(payload),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            dataType: 'json'
+        });
+
+        console.log('✅ Upgrade salvo com sucesso:', response);
+
+        // Fecha o offcanvas
+        const offcanvasElement = document.getElementById('offcanvasUpgradePersonagem');
+        const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement);
+        if (offcanvasInstance) {
+            offcanvasInstance.hide();
+        }
+
+        // Notifica o mestre via WebSocket
+        if (window.AppWebSocket) {
+            window.AppWebSocket.send('/app/backchannel/rodadas', {
+                acao: 'upgradeCompletado',
+                salaId: window.CHAT_CONFIG?.salaId,
+                personagemId: personagemId,
+                novoLevel: novoLevel,
+                usuarioId: window.CHAT_CONFIG?.userId
+            });
+        }
+
+        // Notifica no chat
+        window.EnviarAcao('upgradeCompleto', {
+            nomeJogador: window.CHAT_CONFIG?.userLogin || 'Jogador',
+            novoLevel: novoLevel
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao salvar upgrade:', error);
+        alert('Erro ao salvar upgrade. Tente novamente.');
+    }
+}
+
+window.abrirUpgradePersonagem = abrirUpgradePersonagem;
+window.aumentarPonto = aumentarPonto;
+window.diminuirPonto = diminuirPonto;
+window.salvarUpgradePersonagem = salvarUpgradePersonagem;
