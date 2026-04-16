@@ -515,8 +515,8 @@ async function salvarUpgradePersonagem(personagemId, novoLevel) {
 
     try {
         const response = await $.ajax({
-            url: `/api/personagem/${personagemId}`,
-            method: "POST",
+            url: `/personagem/${personagemId}`,
+            method: "PUT",
             data: JSON.stringify(payload),
             headers: {
                 'Content-Type': 'application/json',
