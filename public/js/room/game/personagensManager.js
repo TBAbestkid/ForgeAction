@@ -534,13 +534,24 @@ async function salvarUpgradePersonagem(personagemId, novoLevel) {
             offcanvasInstance.hide();
         }
 
-        // Notifica o mestre via WebSocket
+        // Atualiza o card do personagem com os novos valores
+        const cardElement = document.querySelector(`.bg-dark[data-id="${personagemId}"]`);
+        if (cardElement) {
+            cardElement.dataset.level = novoLevel;
+            atributosNames.forEach(attr => {
+                cardElement.dataset[attr] = atributos[attr];
+            });
+            console.log('🔄 Card do personagem atualizado com os novos valores');
+        }
+
+        // Notifica o mestre via WebSocket com dados atualizados
         if (window.AppWebSocket) {
             window.AppWebSocket.send('/app/backchannel/rodadas', {
                 acao: 'upgradeCompletado',
                 salaId: window.CHAT_CONFIG?.salaId,
                 personagemId: personagemId,
                 novoLevel: novoLevel,
+                atributos: atributos,
                 usuarioId: window.CHAT_CONFIG?.userId
             });
         }
