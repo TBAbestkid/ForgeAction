@@ -370,24 +370,6 @@
         </div>
     </div>
 
-    <!-- Offcanvas para Upgrade de Personagem -->
-    <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasUpgradePersonagem"
-        aria-labelledby="offcanvasUpgradePersonagemLabel" style="background-color: #1c1c1c; max-width: 380px;">
-
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasUpgradePersonagemLabel">
-                <i class="fa-solid fa-star me-2"></i>Distribuir Pontos
-            </h5>
-            <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
-                aria-label="Close"></button>
-        </div>
-
-        <div class="offcanvas-body p-3 overflow-auto" style="max-height: calc(100vh - 60px);">
-            <div id="upgradeContent">
-                {{-- Conteúdo será preenchido dinamicamente por JavaScript --}}
-            </div>
-        </div>
-    </div>
 @else
     <!-- Ficha do jogador -->
     <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFicha"
@@ -454,6 +436,25 @@
         </div>
     </div>
 @endif
+
+<!-- Offcanvas para Upgrade de Personagem (acessível para mestres e players) -->
+<div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasUpgradePersonagem"
+    aria-labelledby="offcanvasUpgradePersonagemLabel" style="background-color: #1c1c1c; max-width: 380px;">
+
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasUpgradePersonagemLabel">
+            <i class="fa-solid fa-star me-2"></i>Distribuir Pontos
+        </h5>
+        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body p-3 overflow-auto" style="max-height: calc(100vh - 60px);">
+        <div id="upgradeContent">
+            {{-- Conteúdo será preenchido dinamicamente por JavaScript --}}
+        </div>
+    </div>
+</div>
 
 <!-- Offcanvas direita (MEMBROS) -->
 <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasMembers"
