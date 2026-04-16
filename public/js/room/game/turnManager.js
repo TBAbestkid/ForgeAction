@@ -231,10 +231,37 @@ function enviarAcaoMestre(valor) {
             valor: valor
         });
     } else if (acaoMestreAtual === 'uparPersonagem') {
+        // Envia notificação de upgrade para o player
+        const card = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`) ||
+                     document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
+
+        // Prepara dados do personagem para upgrade
+        const dadosUpgrade = {
+            id: personagemSelecionadoId,
+            nome: nomePersonagem,
+            level: card?.dataset.level || 1,
+            forca: card?.dataset.forca || 0,
+            agilidade: card?.dataset.agilidade || 0,
+            inteligencia: card?.dataset.inteligencia || 0,
+            destreza: card?.dataset.destreza || 0,
+            vitalidade: card?.dataset.vitalidade || 0,
+            percepcao: card?.dataset.percepcao || 0,
+            sabedoria: card?.dataset.sabedoria || 0,
+            carisma: card?.dataset.carisma || 0
+        };
+
         // Envia notificação
         window.EnviarAcao('uparPersonagem', {
             nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre',
             nomePersonagem: nomePersonagem
+        });
+
+        // Envia evento via WebSocket para abrir offcanvas no player
+        ws.send('/app/enviar/' + window.CHAT_CONFIG?.salaId, {
+            acao: 'abrirUpgradePersonagem',
+            usuarioAlvo: targetUsuarioId,
+            personagemId: personagemSelecionadoId,
+            dadosUpgrade: dadosUpgrade
         });
     } else if (acaoMestreAtual === 'cederTurno') {
         // Envia notificação
