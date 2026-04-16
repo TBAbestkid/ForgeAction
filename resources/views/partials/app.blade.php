@@ -46,43 +46,24 @@
                 <i class="fa-brands fa-d-and-d"></i> ForgeAction
             </a>
 
-            <!-- Botão para Dropdown -->
+            <!-- Botão para Menu Mobile -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                @if (@session('user_login'))
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Avatar">
-                @else
-                    <span class="navbar-toggler-icon"></span>
-                @endif
+                <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     @if(session('user_login'))
-                        <!-- DESKTOP DROPDOWN -->
-                        <li class="nav-item dropdown d-none d-lg-block">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
-                            data-bs-toggle="dropdown">
+                        <!-- USER DROPDOWN -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}&background=0D8ABC&color=fff"
                                     class="rounded-circle me-2" width="32" height="32" alt="Avatar">
+                                <span class="d-none d-lg-inline">{{ session('user_login') }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="/perfil"><i class="fa-solid fa-user-cog me-2"></i> Configurações</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                    <i class="fa-solid fa-right-from-bracket me-2"></i> Sair</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <!-- MOBILE DROPDOWN -->
-                        <li class="nav-item dropdown d-lg-none">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdownMobile"
-                            data-bs-toggle="dropdown">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user_login')) }}&background=0D8ABC&color=fff"
-                                    class="rounded-circle me-2" width="32" height="32" alt="Avatar">
-                                {{ session('user_login') }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownMobile">
                                 <li><a class="dropdown-item" href="/perfil"><i class="fa-solid fa-user-cog me-2"></i> Configurações</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
