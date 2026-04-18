@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Variáveis
+# Variáveis    
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     APACHE_DOCUMENT_ROOT=/var/www/html/public \
     PATH="$PATH:/var/www/html/vendor/bin"
