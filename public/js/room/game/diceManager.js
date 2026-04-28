@@ -2,6 +2,7 @@
 import DiceBox from 'https://unpkg.com/@3d-dice/dice-box-threejs/dist/dice-box-threejs.es.js';
 
 let box = null;
+let ultimoValorForcado = null;
 
 /**
  * Inicializa o DiceBox se ainda não estiver pronto.
