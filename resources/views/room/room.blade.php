@@ -545,43 +545,106 @@
 <script src="{{ asset('js/room/game/roomManager.js') }}"></script>
 
 <script>
-    window.onload = function() {
+    /**
+     * =========================
+     * 📌 INICIALIZAÇÃO
+     * =========================
+     */
+    window.onload = function () {
         const aviso = document.getElementById('aviso-fullscreen');
+
+        // Mostra aviso depois de 1s
         setTimeout(() => {
+            if (!aviso) return;
+
             aviso.style.display = 'block';
-            aviso.onclick = function() {
+
+            // Ao clicar no aviso → entra em fullscreen
+            aviso.onclick = function () {
                 entrarEmFullscreen();
                 aviso.style.display = 'none';
             };
         }, 1000);
 
-        // Esconde o aviso automaticamente após 5 segundos
+        // Esconde automaticamente após 5s
         setTimeout(() => {
-            aviso.style.display = 'none';
+            if (aviso) aviso.style.display = 'none';
         }, 5000);
+
+        // Garante estado correto do botão ao carregar
+        atualizarBotaoFullscreen();
     };
 
-    function entrarEmFullscreen() {
-        const elem = document.documentElement;
-        const fullscreenButton = document.getElementById('fullscreen');
 
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari e Opera */
-            elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) { /* IE/Edge */
-            elem.msRequestFullscreen();
+    /**
+     * =========================
+     * 📌 LISTENERS GLOBAIS
+     * =========================
+     */
+
+    // Dispara quando entra/sai do fullscreen via API
+    document.addEventListener('fullscreenchange', atualizarBotaoFullscreen);
+
+    // Dispara quando tela muda tamanho (inclui F11)
+    window.addEventListener('resize', atualizarBotaoFullscreen);
+
+    // Intercepta F11 e usa nosso controle
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'F11') {
+            e.preventDefault(); // bloqueia fullscreen padrão do navegador
+            toggleFullscreen();
         }
+    });
 
-        if (fullscreenButton) {
-            fullscreenButton.innerHTML = '<i class="fa-solid fa-compress"></i> Minimizar';
-            fullscreenButton.onclick = sairDoFullscreen;
+
+    /**
+     * =========================
+     * 📌 CONTROLE DO BOTÃO
+     * =========================
+     */
+    function atualizarBotaoFullscreen() {
+        const btn = document.getElementById('fullscreen');
+        if (!btn) return;
+
+        // Detecta fullscreen via API
+        const isFullscreenAPI = !!document.fullscreenElement;
+
+        // Detecta fullscreen "real" (F11)
+        const isFullscreenReal = window.innerHeight === screen.height;
+
+        // Se qualquer um for true → está em fullscreen
+        if (isFullscreenAPI || isFullscreenReal) {
+            btn.innerHTML = '<i class="fa-solid fa-compress"></i> Minimizar';
+            btn.onclick = sairDoFullscreen;
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-expand"></i> Tela Cheia';
+            btn.onclick = entrarEmFullscreen;
         }
     }
 
-    function sairDoFullscreen() {
-        const fullscreenButton = document.getElementById('fullscreen'); // Ajustado para o ID correto
 
+    /**
+     * =========================
+     * 📌 AÇÕES DE FULLSCREEN
+     * =========================
+     */
+
+    // Entra em fullscreen usando API
+    function entrarEmFullscreen() {
+        const elem = document.documentElement;
+
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen(); // Safari
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen(); // IE/Edge antigo
+        }
+    }
+
+
+    // Sai do fullscreen
+    function sairDoFullscreen() {
         if (document.exitFullscreen) {
             document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
@@ -589,19 +652,19 @@
         } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
         }
-
-        // Volta o botão ao estado original
-        if (fullscreenButton) {
-            fullscreenButton.innerHTML = '<i class="fa-solid fa-expand"></i> Tela Cheia';
-            fullscreenButton.onclick = entrarEmFullscreen;
-        }
     }
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'F11') {
-            e.preventDefault(); // impede comportamento padrão
-            toggleFullscreen();
+
+    // Alterna entre entrar/sair
+    function toggleFullscreen() {
+        const isFullscreenAPI = !!document.fullscreenElement;
+        const isFullscreenReal = window.innerHeight === screen.height;
+
+        if (isFullscreenAPI || isFullscreenReal) {
+            sairDoFullscreen();
+        } else {
+            entrarEmFullscreen();
         }
-    });
+    }
 </script>
 @endsection
