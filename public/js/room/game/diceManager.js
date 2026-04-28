@@ -36,9 +36,12 @@ async function funcaoChamarDados(facesDados, valorForcado = null) {
 
     await initDiceBox();
 
+    ultimoValorForcado = valorForcado;
+
     // Desabilita botões do jogador ao rolar
     const btnRoll = document.getElementById('btn-roll');
     const btnSkip = document.getElementById('btn-skip');
+
     if (btnRoll) btnRoll.disabled = true;
     if (btnSkip) btnSkip.disabled = true;
 
@@ -55,7 +58,8 @@ function handleRollComplete(results) {
 
     console.log("🔥 onRollComplete disparou");
 
-    const valor = results?.total ?? null;
+    const valor = ultimoValorForcado ?? results?.total ?? null;
+
     console.log('🎲 Resultado final:', valor);
 
     mostrarResultadoDados(valor);
@@ -75,6 +79,9 @@ function handleRollComplete(results) {
             window.avancarTurno?.();
         }
     }, 2000);
+
+    // limpa o valor forçado para a próxima rolagem normal
+    ultimoValorForcado = null;
 }
 
 function mostrarResultadoDados(valor) {
