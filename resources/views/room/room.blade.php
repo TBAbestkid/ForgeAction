@@ -376,8 +376,12 @@
         aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
 
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasFichaLabel">
-                <i class="fa-solid fa-scroll me-2"></i>Ficha de {{ $personagemJogador['nome'] ?? 'Personagem' }}
+            <h5 class="offcanvas-title d-flex align-items-center" id="offcanvasFichaLabel">
+                <i class="fa-solid fa-scroll me-2"></i>
+
+                <span class="personagem-nome" style="min-width: 0;">
+                    Ficha de {{ $personagemJogador['nome'] ?? 'Personagem' }}
+                </span>
             </h5>
             <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
                 aria-label="Close"></button>
