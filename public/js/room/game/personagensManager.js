@@ -286,7 +286,12 @@ function abrirFichaPersonagem(cardElement) {
     // Atualiza o título
     const titulo = offcanvas.querySelector('#offcanvasFichaPersonagemLabel');
     if (titulo) {
-        titulo.innerHTML = `<i class="fa-solid fa-scroll me-2"></i>Ficha de ${personagem.nome}`;
+        titulo.innerHTML = `
+            <i class="fa-solid fa-scroll me-2"></i>
+            <span class="personagem-nome" style="min-width: 0;" title="${personagem.nome}">
+                Ficha de ${personagem.nome}
+            </span>
+        `;
     }
 
     // Atualiza o conteúdo (encontra o body do offcanvas)
