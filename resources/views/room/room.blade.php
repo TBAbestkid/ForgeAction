@@ -376,10 +376,10 @@
         aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
 
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title d-flex align-items-center" id="offcanvasFichaLabel">
+            <h5 class="offcanvas-title d-flex align-items-center w-100" id="offcanvasFichaLabel">
                 <i class="fa-solid fa-scroll me-2"></i>
 
-                <span class="personagem-nome" style="min-width: 0;">
+                <span class="personagem-nome flex-grow-1" title="{{ $personagemJogador['nome'] ?? 'Personagem' }}">
                     Ficha de {{ $personagemJogador['nome'] ?? 'Personagem' }}
                 </span>
             </h5>

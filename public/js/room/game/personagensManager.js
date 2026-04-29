@@ -288,7 +288,7 @@ function abrirFichaPersonagem(cardElement) {
     if (titulo) {
         titulo.innerHTML = `
             <i class="fa-solid fa-scroll me-2"></i>
-            <span class="personagem-nome" style="min-width: 0;" title="${personagem.nome}">
+            <span class="personagem-nome flex-grow-1" title="${personagem.nome}">
                 Ficha de ${personagem.nome}
             </span>
         `;
