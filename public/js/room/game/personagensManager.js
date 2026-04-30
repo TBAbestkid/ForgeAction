@@ -34,7 +34,7 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.id = `personagem-online-${personagem.id}-${sufixo}`;
 
     personagemDiv.dataset.id = personagem.id;
-    personagemDiv.dataset.usuarioId = personagem.usuarioId || '';
+    personagemDiv.dataset.usuarioId = personagem.usuarioId;
     personagemDiv.dataset.nome = personagem.nome;
     personagemDiv.dataset.vida = personagem.vida;
     personagemDiv.dataset.classe = personagem.classe;
@@ -57,15 +57,15 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.dataset.esquivaPersonagem = personagem.esquivaPersonagem || 0;
 
     personagemDiv.innerHTML = `
-        <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
-            <strong class="small personagem-nome" style="flex: 1; text-align: left;">${personagem.nome}</strong>
-            <strong class="small text-muted" style="flex-shrink: 0;">${personagem.classe} - ${personagem.raca}</strong>
-            <button class="btn btn-sm btn-outline-info d-flex align-items-center justify-content-center"
-                    style="padding: 0.35rem; width: 28px; height: 28px; border-radius: 50%; font-size: 0.7rem; flex-shrink: 0;"
-                    onclick="event.stopPropagation(); abrirFichaPersonagem(this.closest('.bg-dark'))"
-                    title="Ver Ficha Completa">
-                <i class="fa-solid fa-info"></i>
-            </button>
+        <div class="d-flex flex-column align-items-center gap-2 w-100">
+
+            <strong class="small personagem-nome" style="flex: 1; text-align: left;">
+                ${personagem.nome}
+            </strong>
+
+            <strong class="small text-muted" style="flex-shrink: 0;">
+                ${personagem.classe} - ${personagem.raca}
+            </strong>
         </div>
 
         <div class="progress mt-2 w-100" style="height: 16px; font-size:0.7rem;">
@@ -76,6 +76,20 @@ function criarCardPersonagem(personagem, sufixo) {
             </div>
         </div>
     `;
+    if (window.isMestre) {
+        const btn = document.createElement('button');
+
+        btn.className = 'btn btn-sm btn-outline-info position-absolute top-0 end-0 m-1';
+        btn.innerHTML = `<i class="fa-solid fa-eye"></i>`;
+        btn.title = 'Ver ficha completa';
+
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            abrirFichaPersonagem(personagemDiv);
+        };
+
+        personagemDiv.appendChild(btn);
+    }
 
     // 🔥 Listener inteligente
     personagemDiv.addEventListener('click', (e) => {
