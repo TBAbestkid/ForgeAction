@@ -209,12 +209,24 @@ function atualizarTextoTurno(turnoEhMeu) {
 
     let nomePersonagem = null;
 
+    console.log('🔎 Turno atual:', window.turnState.turnoAtual);
+    console.log('📦 Cards encontrados:', personagensNaSala);
+
     personagensNaSala.forEach(card => {
         const usuarioIdDoCard = card.dataset.usuarioId;
+
         if (String(usuarioIdDoCard) === String(window.turnState.turnoAtual)) {
-            const nomeEl = card.querySelector('.personagem-nome')?.innerText || "Jogador Desconecido";
-            if (nomeEl) {
-                nomePersonagem = nomeEl.innerText.trim() || "Jogador Desconecido";
+
+            const nomeEl = card.querySelector('.personagem-nome');
+
+            console.log('🧩 Card:', card);
+            console.log('🆔 dataset.usuarioId:', usuarioIdDoCard);
+            console.log('🔤 nomeEl:', nomeEl);
+
+            if (nomeEl && nomeEl.innerText) {
+                nomePersonagem = nomeEl.innerText.trim();
+            } else {
+                console.warn('⚠️ Nome do personagem não encontrado no card:', card);
             }
         }
     });
