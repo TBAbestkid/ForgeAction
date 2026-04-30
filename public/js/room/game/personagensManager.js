@@ -63,7 +63,7 @@ function criarCardPersonagem(personagem, sufixo) {
                 ${personagem.nome}
             </strong>
 
-            <strong class="small text-muted" style="flex-shrink: 0;">
+            <strong class="small text-white" style="flex-shrink: 0;">
                 ${personagem.classe} - ${personagem.raca}
             </strong>
         </div>
