@@ -59,6 +59,7 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.innerHTML = `
         <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
             <strong class="small personagem-nome" style="flex: 1; text-align: left;">${personagem.nome}</strong>
+            <strong class="small text-muted" style="flex-shrink: 0;">${personagem.classe} - ${personagem.raca}</strong>
             <button class="btn btn-sm btn-outline-info d-flex align-items-center justify-content-center"
                     style="padding: 0.35rem; width: 28px; height: 28px; border-radius: 50%; font-size: 0.7rem; flex-shrink: 0;"
                     onclick="event.stopPropagation(); abrirFichaPersonagem(this.closest('.bg-dark'))"
