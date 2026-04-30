@@ -204,40 +204,30 @@ function atualizarTextoTurno(turnoEhMeu) {
         return;
     }
 
-    // Pega o nome do jogador da vez
-    const personagensNaSala = document.querySelectorAll('[id^="personagem-online-"]');
+    const card = document.querySelector(`[data-usuario-id="${window.turnState.turnoAtual}"]`);
 
-    let nomePersonagem = null;
+    if (card) {
+        const nomeEl = card.querySelector('.personagem-nome');
 
-    console.log('🔎 Turno atual:', window.turnState.turnoAtual);
-    console.log('📦 Cards encontrados:', personagensNaSala);
+        if (nomeEl && nomeEl.innerText) {
+            const nomeCompleto = nomeEl.innerText.trim();
 
-    personagensNaSala.forEach(card => {
-        const usuarioIdDoCard = card.dataset.usuarioId;
+            const MAX_LENGTH = 20;
+            let nome =  nomeCompleto;
 
-        if (String(usuarioIdDoCard) === String(window.turnState.turnoAtual)) {
-
-            const nomeEl = card.querySelector('.personagem-nome');
-
-            console.log('🧩 Card:', card);
-            console.log('🆔 dataset.usuarioId:', usuarioIdDoCard);
-            console.log('🔤 nomeEl:', nomeEl);
-
-            if (nomeEl && nomeEl.innerText) {
-                nomePersonagem = nomeEl.innerText.trim();
-            } else {
-                console.warn('⚠️ Nome do personagem não encontrado no card:', card);
+            if (nome.length > MAX_LENGTH) {
+                nome = nome.slice(0, MAX_LENGTH).trimEnd() + '...';
             }
-        }
-    });
+            placeholder.innerText = `🎲 Turno de ${nome}`;
+            placeholder.title = nomeCompleto;
 
-    if (nomePersonagem) {
-        placeholder.innerText = `🎲 Turno de ${nomePersonagem}`;
-    } else {
-        console.warn('⚠️ Não conseguiu identificar o jogador da vez para atualizar o placeholder');
-        placeholder.innerText = "🎲 Turno de um jogador...";
+            return;
+        }
     }
+    console.warn('⚠️ Não encontrou personagem do turno atual');
+    placeholder.innerText = "🎲 Turno de um jogador...";
 }
+
 
 // Exportar nér.... disponibilizar globalmente para o roomManager usar
 window.atualizarInterfaceTurno = atualizarInterfaceTurno;
