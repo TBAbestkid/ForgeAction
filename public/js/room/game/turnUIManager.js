@@ -202,7 +202,20 @@ function atualizarTextoTurno(turnoEhMeu) {
     if (window.turnState.turnoAtual === "mestre") {
         placeholder.innerText = "🧙 Turno do Mestre";
     } else {
-        placeholder.innerText = "⏳ Aguardando outro jogador...";
+
+        const personagemNaVez = window.personagens.find(
+            p => String(p.usuarioId) === String(window.turnState.turnoAtual)
+        );
+        const nomePersonagem = personagemNaVez ? personagemNaVez.nome : "Personagem Desconecido";
+
+        if (personagemNaVez) {
+            console.log('👀 Personagem da vez encontrado:', { personagemNaVez });
+            placeholder.innerText = `🎲 Turno de ${nomePersonagem}`;
+        } else {
+            console.warn('⚠️ Personagem da vez NÃO encontrado para usuarioId:', window.turnState.turnoAtual);
+            placeholder.innerText = "🎲 Turno de um jogador";
+        }
+
     }
 }
 
