@@ -201,21 +201,29 @@ function atualizarTextoTurno(turnoEhMeu) {
 
     if (window.turnState.turnoAtual === "mestre") {
         placeholder.innerText = "🧙 Turno do Mestre";
-    } else {
+        return;
+    }
 
-        const personagemNaVez = window.personagens.find(
-            p => String(p.usuarioId) === String(window.turnState.turnoAtual)
-        );
-        const nomePersonagem = personagemNaVez ? personagemNaVez.nome : "Personagem Desconecido";
+    // Pega o nome do jogador da vez
+    const personagensNaSala = document.querySelectorAll('[id^="personagem-online-"]');
 
-        if (personagemNaVez) {
-            console.log('👀 Personagem da vez encontrado:', { personagemNaVez });
-            placeholder.innerText = `🎲 Turno de ${nomePersonagem}`;
-        } else {
-            console.warn('⚠️ Personagem da vez NÃO encontrado para usuarioId:', window.turnState.turnoAtual);
-            placeholder.innerText = "🎲 Turno de um jogador";
+    let nomePersonagem = null;
+
+    personagensNaSala.forEach(card => {
+        const usuarioIdDoCard = card.dataset.usuarioId;
+        if (String(usuarioIdDoCard) === String(window.turnState.turnoAtual)) {
+            const nomeEl = card.querySelector('.personagem-nome')?.innerText || "Jogador Desconecido";
+            if (nomeEl) {
+                nomePersonagem = nomeEl.innerText.trim() || "Jogador Desconecido";
+            }
         }
+    });
 
+    if (nomePersonagem) {
+        placeholder.innerText = `🎲 Turno de ${nomePersonagem}`;
+    } else {
+        console.warn('⚠️ Não conseguiu identificar o jogador da vez para atualizar o placeholder');
+        placeholder.innerText = "🎲 Turno de um jogador...";
     }
 }
 
