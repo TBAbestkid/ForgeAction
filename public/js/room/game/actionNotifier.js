@@ -40,6 +40,17 @@ class ActionNotifier {
     }
 
     /**
+     * Obtém o nome de exibição baseado no tipo de usuário
+     */
+    getNomeExibicao(nomePersonagem) {
+        // Se for mestre, sempre mostrar "Mestre"
+        if (window.isMestre) return '🧙 Mestre';
+
+        // Caso contrário, usar nome do personagem fornecido
+        return nomePersonagem || window.CHAT_CONFIG?.userLogin || 'Jogador';
+    }
+
+    /**
      * Envia uma ação de sistema para todos os jogadores
      * @param {string} acao - Tipo de ação (turno, dados, dano, cura, upar, etc)
      * @param {object} dados - Dados adicionais da ação
@@ -54,12 +65,22 @@ class ActionNotifier {
         const userId = window.CHAT_CONFIG?.userId;
         const userLogin = window.CHAT_CONFIG?.userLogin;
 
+        // Se for mestre, sobrescrever nomeJogador para "Mestre"
+        if (window.isMestre) {
+            dados.nomeJogador = '🧙 Mestre';
+        } else if (!dados.nomeJogador) {
+            // Se não for mestre e não temos nomeJogador, usar o nome do personagem ou login
+            dados.nomeJogador = dados.nomePersonagem || userLogin;
+        }
+
         const payload = {
             acao: 'sistema',
             tipo: acao,
             conteudo: this.formatarMensagem(acao, dados),
             usuarioId: userId,
             autor: userLogin,
+            nomePersonagem: dados.nomePersonagem,
+            nomeJogador: dados.nomeJogador,
             salaId: salaId,
             timestamp: new Date().toISOString(),
             dados: dados
