@@ -34,10 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getNomeExibicao(data) {
-        // Se for mestre, sempre mostrar "Mestre"
-        if (window.isMestre) return '🧙 Mestre';
-
-        // Caso contrário, usar nome do personagem
+        // Usar o nome que vem na mensagem (já foi processado corretamente no servidor/cliente que enviou)
         return data.nomePersonagem || data.nomeJogador || data.autor || 'Desconhecido';
     }
 
