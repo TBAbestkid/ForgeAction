@@ -33,6 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getNomeExibicao(data) {
+        // Se for mestre, sempre mostrar "Mestre"
+        if (window.isMestre) return '🧙 Mestre';
+
+        // Caso contrário, usar nome do personagem
+        return data.nomePersonagem || data.nomeJogador || data.autor || 'Desconhecido';
+    }
+
     function makeMessageDiv(text, sender, isSystemMessage) {
         const div = document.createElement('div');
         const isSelf = !isSystemMessage && sender === userName;
@@ -64,10 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function processMessage(data) {
         if (!data) return;
 
+        const nomeExibicao = getNomeExibicao(data);
+
         // Chat normal (usuário digitou mensagem)
         if (!data.acao || data.acao === 'chat') {
             if (data.conteudo) {
-                addMessage(data.conteudo, data.autor || 'Desconhecido', false, messagesDesktop);
+                addMessage(data.conteudo, nomeExibicao, false, messagesDesktop);
             }
             return;
         }
@@ -79,13 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
 
             case 'playerEnter':
-                const nomeEntrada = data.autor || 'Jogador ' + data.usuarioId;
-                addMessage(`🟢 ${nomeEntrada} entrou na sala`, '🤖 Sistema', true, systemLogs);
+                addMessage(`🟢 ${nomeExibicao} entrou na sala`, '🤖 Sistema', true, systemLogs);
                 break;
 
             case 'playerExit':
-                const nomeSaida = data.autor || 'Jogador ' + data.usuarioId;
-                addMessage(`🔴 ${nomeSaida} saiu da sala`, '🤖 Sistema', true, systemLogs);
+                addMessage(`🔴 ${nomeExibicao} saiu da sala`, '🤖 Sistema', true, systemLogs);
                 break;
 
             case 'erro':
