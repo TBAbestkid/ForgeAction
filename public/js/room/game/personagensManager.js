@@ -13,6 +13,39 @@ async function carregarPersonagensSala(salaId) {
     }
 }
 
+window.racasMap = {};
+window.classesMap = {};
+
+async function carregarEnums() {
+    try {
+        const [racasRes, classesRes] = await Promise.all([
+            fetch('/enums/racas'),
+            fetch('/enums/classes')
+        ]);
+
+        const racasJson = await racasRes.json();
+        const classesJson = await classesRes.json();
+
+        racasJson.data.forEach(r => {
+            window.racasMap[r.constante] = r.descricao;
+        });
+
+        classesJson.data.forEach(c => {
+            window.classesMap[c.constante] = c.descricao;
+        });
+
+        console.log('✅ Enums carregados:', {
+            racas: window.racasMap,
+            classes: window.classesMap
+        });
+
+    } catch (err) {
+        console.error('❌ Erro ao carregar enums:', err);
+    }
+}
+
+await carregarEnums();
+
 function limparListaPersonagensOnline() {
     const colunaPersonagens = document.getElementById('coluna-personagens');
     const colunaMobile = document.getElementById('coluna-personagens-mobile');
@@ -27,7 +60,7 @@ function criarCardPersonagem(personagem, sufixo) {
 
     const personagemDiv = document.createElement('div');
     personagemDiv.className =
-        'bg-dark rounded p-2 text-center d-flex flex-column align-items-center position-relative';
+        'bg-dark rounded p-2 text-center d-flex flex-column align-items-start position-relative';
     personagemDiv.style.cursor = 'pointer';
     personagemDiv.style.minWidth = '140px';
 
@@ -59,12 +92,12 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.innerHTML = `
         <div class="d-flex flex-column align-items-center gap-2 w-100">
 
-            <strong class="small personagem-nome" style="flex: 1; text-align: left;">
+            <strong class="small personagem-nome w-100 text-start" style="flex: 1; text-align: left;">
                 ${personagem.nome}
             </strong>
 
             <strong class="small text-white" style="flex-shrink: 0;">
-                ${personagem.classe} - ${personagem.raca}
+                ${classeFormatada} - ${racaFormatada}
             </strong>
         </div>
 
