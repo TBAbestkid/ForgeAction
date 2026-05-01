@@ -532,6 +532,7 @@
 </script>
 
 {{-- 4. Gerenciadores de Estado e Turno (ordem: estado primeiro, depois manager) --}}
+<script type="module" src="{{ asset('js/room/general/enums.js') }}"></script>
 <script src="{{ asset('js/room/game/turnState.js') }}"></script>
 <script src="{{ asset('js/room/game/turnManager.js') }}"></script>
 <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>

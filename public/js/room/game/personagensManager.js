@@ -13,39 +13,6 @@ async function carregarPersonagensSala(salaId) {
     }
 }
 
-window.racasMap = {};
-window.classesMap = {};
-
-async function carregarEnums() {
-    try {
-        const [racasRes, classesRes] = await Promise.all([
-            fetch('/enums/racas'),
-            fetch('/enums/classes')
-        ]);
-
-        const racasJson = await racasRes.json();
-        const classesJson = await classesRes.json();
-
-        racasJson.data.forEach(r => {
-            window.racasMap[r.constante] = r.descricao;
-        });
-
-        classesJson.data.forEach(c => {
-            window.classesMap[c.constante] = c.descricao;
-        });
-
-        console.log('✅ Enums carregados:', {
-            racas: window.racasMap,
-            classes: window.classesMap
-        });
-
-    } catch (err) {
-        console.error('❌ Erro ao carregar enums:', err);
-    }
-}
-
-await carregarEnums();
-
 function limparListaPersonagensOnline() {
     const colunaPersonagens = document.getElementById('coluna-personagens');
     const colunaMobile = document.getElementById('coluna-personagens-mobile');
@@ -65,6 +32,9 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.style.minWidth = '140px';
 
     personagemDiv.id = `personagem-online-${personagem.id}-${sufixo}`;
+
+    const classeFormatada = window.classesMap[personagem.classe] || personagem.classe;
+    const racaFormatada = window.racasMap[personagem.raca] || personagem.raca;
 
     personagemDiv.dataset.id = personagem.id;
     personagemDiv.dataset.usuarioId = personagem.usuarioId;
@@ -293,6 +263,7 @@ function AtualizarListaOnline(salaId, usuariosOnline) {
 }
 
 // Expor funções globalmente
+window.AtualizarListaOnline = AtualizarListaOnline;
 window.atualizarVidaPersonagemCard = atualizarVidaPersonagemCard;
 window.atualizarBarraVidaJogador = atualizarBarraVidaJogador;
 
