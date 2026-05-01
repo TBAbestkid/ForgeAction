@@ -185,8 +185,9 @@ function selecionarPersonagem(usuarioId, personagemId) {
     modal.show();
 }
 
-document.getElementById('btnConfirmarValor')
-    .addEventListener('click', () => {
+const btnConfirmarValor = document.getElementById('btnConfirmarValor');
+if (btnConfirmarValor) {
+    btnConfirmarValor.addEventListener('click', () => {
 
         const valor = parseInt(document.getElementById('inputValor').value);
 
@@ -194,7 +195,8 @@ document.getElementById('btnConfirmarValor')
 
         enviarAcaoMestre(valor);
         resetarSelecao();
-});
+    });
+}
 
 function enviarAcaoMestre(valor) {
     const targetUsuarioId = usuarioSelecionadoId || personagemSelecionadoId;
