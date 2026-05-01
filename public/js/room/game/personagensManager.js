@@ -414,7 +414,7 @@ function abrirUpgradePersonagem(dadosUpgrade) {
             </div>
 
             <div class="d-grid gap-2">
-                <button id="btnSalvarUpgrade" class="btn btn-success" onclick="salvarUpgradePersonagem(${dadosUpgrade.id}, ${novoLevel})">
+                <button id="btnSalvarUpgrade" class="btn btn-success" onclick="salvarUpgradePersonagem(${dadosUpgrade.id}, ${novoLevel}, '${dadosUpgrade.nome}')">
                     <i class="fa-solid fa-save me-2"></i>Salvar e Confirmar
                 </button>
             </div>
@@ -517,7 +517,7 @@ function atualizarPontosRestantes() {
 /**
  * Salva o upgrade e envia para a API
  */
-async function salvarUpgradePersonagem(personagemId, novoLevel) {
+async function salvarUpgradePersonagem(personagemId, novoLevel, nomePersonagem = 'Personagem') {
     // Coleta todos os pontos distribuídos
     const atributos = {};
     const atributosNames = ['forca', 'agilidade', 'inteligencia', 'destreza', 'vitalidade', 'percepcao', 'sabedoria', 'carisma'];
@@ -582,7 +582,7 @@ async function salvarUpgradePersonagem(personagemId, novoLevel) {
 
         // Notifica no chat
         window.EnviarAcao('upgradeCompleto', {
-            nomeJogador: window.CHAT_CONFIG?.userLogin || 'Jogador',
+            nomePersonagem: nomePersonagem || 'Personagem',
             novoLevel: novoLevel
         });
 
