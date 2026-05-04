@@ -109,6 +109,8 @@
                 }
             } else {
                 console.warn("Campo de senha não encontrado para o ícone:", this);
+            }
+            });
         })
     });
 </script>
