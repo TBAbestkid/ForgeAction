@@ -42,14 +42,23 @@
                 <label for="login" class="text-light"><i class="fa-solid fa-user me-1"></i> Nome de usuário</label>
             </div>
 
-            <div class="form-floating mb-3 text-light">
-                <input type="password" name="senha" class="form-control" id="senha" placeholder="Senha" required>
-                <label for="senha" class="text-light"><i class="fa-solid fa-lock me-1"></i> Senha</label>
+            <div class="form-floating mb-3 text-light position-relative">
+                <input type="password" name="senha" class="form-control pe-5" id="senha" placeholder="Senha" required>
+                <label for="senha" class="text-light">
+                    <i class="fa-solid fa-lock me-1"></i> Senha
+                </label>
+
+                <i class="fa-solid fa-regular fa-face-kiss-beam position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer toggle-password" data-target="senha"></i>
             </div>
 
-            <div class="form-floating mb-4 text-light">
-                <input type="password" id="passwordConfirm" class="form-control" placeholder="Confirme a senha" required>
-                <label for="passwordConfirm" class="text-light"><i class="fa-solid fa-check-double me-1"></i> Confirmar senha</label>
+            <div class="form-floating mb-4 text-light position-relative">
+                <input type="password" id="passwordConfirm" class="form-control pe-5" placeholder="Confirme a senha" required>
+                <label for="passwordConfirm" class="text-light">
+                    <i class="fa-solid fa-check-double me-1"></i> Confirmar senha
+                </label>
+
+                <i class="fa-solid fa-eye position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer toggle-password"
+                data-target="passwordConfirm"></i>
             </div>
 
             <button type="submit" class="btn btn-primary w-100 py-2">
@@ -113,6 +122,22 @@
                 showLoading(5000);
             }
 
+        });
+
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.addEventListener('click', function () {
+                const input = document.getElementById(this.dataset.target);
+
+                if (input.type === "password") {
+                    input.type = "text";
+                    this.classList.remove("fa-eye");
+                    this.classList.add("fa-eye-slash");
+                } else {
+                    input.type = "password";
+                    this.classList.remove("fa-eye-slash");
+                    this.classList.add("fa-eye");
+                }
+            });
         });
     });
 </script>
