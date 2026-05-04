@@ -48,7 +48,7 @@
                     <i class="fa-solid fa-lock me-1"></i> Senha
                 </label>
 
-                <i class="fa-solid fa-regular fa-face-kiss-beam position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer toggle-password" data-target="senha"></i>
+                <i class="fa-solid fa-eye position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer toggle-password" data-target="senha"></i>
             </div>
 
             <div class="form-floating mb-4 text-light position-relative">
