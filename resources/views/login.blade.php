@@ -39,6 +39,8 @@
             <div class="form-floating mb-3 text-light">
                 <input type="password" name="senha" class="form-control" id="floatingPassword" placeholder="Insira a Senha">
                 <label for="floatingPassword" class="text-light"><i class="fa-solid fa-lock me-1"></i>Senha</label>
+
+                <i class="fa-solid fa-regular fa-face-kiss-beam position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer toggle-password" data-target="floatingPassword"></i>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -90,6 +92,24 @@
         } else {
             console.warn("Form ou overlay não encontrados!");
         }
+
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                }
+            } else {
+                console.warn("Campo de senha não encontrado para o ícone:", this);
+        })
     });
 </script>
 
