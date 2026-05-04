@@ -40,7 +40,7 @@
                 <input type="password" name="senha" class="form-control" id="floatingPassword" placeholder="Insira a Senha">
                 <label for="floatingPassword" class="text-light"><i class="fa-solid fa-lock me-1"></i>Senha</label>
 
-                <i class="fa-solid fa-regular fa-face-kiss-beam position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer toggle-password" data-target="floatingPassword"></i>
+                <i class="fa-solid fa-eye position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer toggle-password" data-target="floatingPassword"></i>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
