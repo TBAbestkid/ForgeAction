@@ -86,7 +86,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     const btnCurar = document.getElementById('btnCurar');
     const btnUpar = document.getElementById('btnUpar');
 
-    const habilitar = window.isMestre;
+    const habilitar = window.isMestre && turnoDoMestre;
 
     if (btnMestre) {
         btnMestre.disabled = !habilitar;
