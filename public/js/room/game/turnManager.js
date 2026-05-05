@@ -45,19 +45,27 @@ function iniciarRodada() {
     });
 
     ws.send('/app/backchannel/rodadas', {
-            acao: "turnoMestre",
-            salaId: window.CHAT_CONFIG?.salaId
-        }
+        acao: "turnoMestre",
+        salaId: window.CHAT_CONFIG?.salaId
+    }
     );
 }
 
 // Função para avançar para o próximo turno
 function avancarTurnoMestre() {
     console.log(' ⏭️ Avançando para o próximo turno...');
-    ws.send('/app/backchannel/rodadas', {
-        acao: "proximoTurno",
-        salaId: window.CHAT_CONFIG?.salaId
-    });
+    if (turnoDoMestre) {
+        ws.send('/app/backchannel/rodadas', {
+            acao: "proximoTurno",
+            salaId: window.CHAT_CONFIG?.salaId
+        });
+    } else {
+        ws.send('/app/backchannel/rodadas', {
+            acao: "turnoMestre",
+            salaId: window.CHAT_CONFIG?.salaId
+        });
+    }
+
 }
 
 function avancarTurno() {
@@ -70,7 +78,7 @@ function avancarTurno() {
     }
 
     const isMyTurn = window.turnState.turnoAtual === String(window.CHAT_CONFIG?.userId) ||
-                     (window.isMestre && window.turnState.turnoAtual === "mestre");
+        (window.isMestre && window.turnState.turnoAtual === "mestre");
 
     if (!isMyTurn) {
         console.warn('❌ Não é sua vez!');
@@ -86,7 +94,7 @@ function avancarTurno() {
 function toggleOpcoesDados() {
 
     const turnControls = document.getElementById('turnControls');
-    const diceOptions  = document.getElementById('diceOptions');
+    const diceOptions = document.getElementById('diceOptions');
 
     if (!turnControls || !diceOptions) return;
 
@@ -152,7 +160,7 @@ function selecionarPersonagem(usuarioId, personagemId) {
 
     // Pega dados do card na hora do clique
     const card = document.getElementById(`personagem-online-${personagemId}-pc`) ||
-                 document.getElementById(`personagem-online-${personagemId}-mb`);
+        document.getElementById(`personagem-online-${personagemId}-mb`);
 
     const vidaAtual = card ? parseInt(card.dataset.vida || 100) : 100;
 
@@ -206,7 +214,7 @@ function enviarAcaoMestre(valor) {
 
     // Get personagem name from card for better logs
     const card = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`) ||
-                 document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
+        document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
     const nomePersonagem = card?.dataset.nome || 'Personagem';
 
     // 🔥 Aplicar mudança de vida localmente usando a vida já armazenada
@@ -235,7 +243,7 @@ function enviarAcaoMestre(valor) {
     } else if (acaoMestreAtual === 'uparPersonagem') {
         // Envia notificação de upgrade para o player
         const card = document.getElementById(`personagem-online-${personagemSelecionadoId}-pc`) ||
-                     document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
+            document.getElementById(`personagem-online-${personagemSelecionadoId}-mb`);
 
         // Prepara dados do personagem para upgrade
         const dadosUpgrade = {
