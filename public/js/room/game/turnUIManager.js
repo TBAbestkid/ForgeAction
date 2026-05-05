@@ -86,7 +86,16 @@ function atualizarBotoesMestre(turnoDoMestre) {
     const btnCurar = document.getElementById('btnCurar');
     const btnUpar = document.getElementById('btnUpar');
 
-    const habilitar = window.isMestre && (turnoDoMestre || window.turnState.rodadaIniciada);
+    const habilitar = window.isMestre && turnoDoMestre;
+
+    if(!turnoDoMestre) {
+        btnMestre.disabled = !habilitar;
+        if (habilitar) {
+            btnMestre.addEventListener('click', window.toggleOpcoesDados);
+        } else {
+            btnMestre.replaceWith(btnMestre.cloneNode(true));
+        }
+    }
 
     if (btnMestre) {
         btnMestre.disabled = !habilitar;
