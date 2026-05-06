@@ -121,12 +121,29 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'atualizacaoVida':
                 console.log('❤️ Atualização de vida recebida:', data);
                 if (typeof window.atualizarVidaPersonagemCard === 'function') {
+                    // Atualiza o card de vida do personagem
                     window.atualizarVidaPersonagemCard(data.personagemId, data.novaVida);
+                    // Toca o som de vida ou dano com base no modo do mestre
+                    if (window.isMestre) {
+                        if (data.novaVida < data.vidaAnterior) {
+                            window.audioManager.play('dano');
+                        } else {
+                            window.audioManager.play('vida');
+                        }
+                    } else {
+                        // Para os jogadores, só toca som de vida (sem dano), para não dar pistas
+                        if (data.novaVida > data.vidaAnterior) {
+                            window.audioManager.play('vida');
+                        }
+                    }
                 }
                 addMessage(data.conteudo, '🤖 Sistema', true, systemLogs);
                 break;
 
             case 'uparPersonagem':
+                console.log('⭐ Atualização de up de personagem recebida:', data);
+                // Toca o som de up
+                window.audioManager.play('up');
                 addMessage(data.conteudo, '🤖 Sistema', true, systemLogs);
                 break;
 
