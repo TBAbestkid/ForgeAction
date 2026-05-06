@@ -24,11 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnIniciarTurno) {
             btnIniciarTurno.addEventListener('click', () => {
                 // Se a rodada não iniciou, inicia. Caso contrário, avança para o próximo turno
+                console.log('⏭️ Botão pressionado: avançando turno (UI)', {
+                    rodadaIniciada: window.turnState?.rodadaIniciada,
+                    turnoAtual: window.turnState?.turnoAtual,
+                    userId: window.CHAT_CONFIG?.userId,
+                    isMestre: window.isMestre
+                });
+
                 if (!window.turnState.rodadaIniciada) {
                     console.log('🚀 Botão pressionado: iniciando rodada');
                     window.iniciarRodada?.();
                 } else {
-                    console.log('⏭️ Botão pressionado: avançando turno');
+                    console.log('⏭️ Botão pressionado: avançando turno (chamando avancarTurnoMestre)');
                     window.avancarTurnoMestre?.();
                 }
             });
