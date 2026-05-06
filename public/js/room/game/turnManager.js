@@ -51,7 +51,7 @@ function iniciarRodada() {
     );
 }
 
-// Função para avançar para o próximo turno
+//novo comentario
 function avancarTurnoMestre() {
     console.log(' ⏭️ Avançando para o próximo turno...');
 
