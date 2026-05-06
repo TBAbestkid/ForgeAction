@@ -85,10 +85,9 @@ function avancarTurno() {
         return;
     }
 
-    ws.send('/app/backchannel/rodadas', {
-        acao: "turnoMestre",
-        salaId: window.CHAT_CONFIG?.salaId
-    });
+    const payload = { acao: "turnoMestre", salaId: window.CHAT_CONFIG?.salaId };
+    console.log('⤴️ Enviando WS /app/backchannel/rodadas ->', payload, { isMyTurn, turnoAtual: window.turnState.turnoAtual, userId: window.CHAT_CONFIG?.userId });
+    ws.send('/app/backchannel/rodadas', payload);
 }
 
 function toggleOpcoesDados() {
