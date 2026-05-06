@@ -21,8 +21,6 @@ class AudioManager {
     // critico:
     // https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022584/critico_s0nqyo.mp3
 
-
-
     // vida:
     // https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022579/vida_hijagz.mp3
 
@@ -33,13 +31,13 @@ class AudioManager {
         const basePath = 'assets/sound';
 
         this.sounds = {
-            critico: new Audio(basePath + '/critico.mp3'),
-            dano: new Audio(basePath + '/dano.mp3'),
-            falha: new Audio(basePath + '/falha.mp3'),
-            normal: new Audio(basePath + '/normal.mp3'),
-            turno: new Audio(basePath + '/turno.mp3'),
-            up: new Audio(basePath + '/up.mp3'),
-            vida: new Audio(basePath + '/vida.mp3'),
+            critico: new Audio('https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022584/critico_s0nqyo.mp3'),
+            dano: new Audio('https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022592/dano_ljxrei.mp3'),
+            falha: new Audio('https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022588/falha_jifime.mp3'),
+            normal: new Audio('https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022586/normal_gmtkls.mp3'),
+            turno: new Audio('https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022590/turno_vsfhwe.mp3'),
+            up: new Audio('https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022577/up_bws14x.mp3'),
+            vida: new Audio('https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022579/vida_hijagz.mp3'),
             // Depois é pra trocar pelos links do Cloudinary, mas por enquanto é mais fácil testar localmente
 
         };
