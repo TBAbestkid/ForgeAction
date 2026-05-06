@@ -136,7 +136,10 @@
                     let tentativas = 6; // ~900ms total
                     const tentarUpdate = () => {
                         if (typeof window.atualizarInterfaceTurno === 'function') {
+                            // Atualizar interface
                             window.atualizarInterfaceTurno(turnoEhMeu);
+                            // Toca o som de turno
+                            window.audioManager.play('turno');
                             return;
                         }
 
