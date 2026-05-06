@@ -54,6 +54,9 @@ function iniciarRodada() {
 // Função para avançar para o próximo turno
 function avancarTurnoMestre() {
     console.log(' ⏭️ Avançando para o próximo turno...');
+
+    const turnoDoMestre = window.turnState?.turnoAtual === 'mestre';
+
     if (turnoDoMestre) {
         ws.send('/app/backchannel/rodadas', {
             acao: "proximoTurno",
