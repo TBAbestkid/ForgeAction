@@ -1,3 +1,6 @@
+// Debug helper
+function debugLog(...args) { console.log('[AudioManager]', ...args); }
+
 class AudioManager {
     constructor() {
         this.sounds = {};
@@ -42,8 +45,21 @@ class AudioManager {
 
         };
 
-        Object.values(this.sounds).forEach(audio => {
+        Object.entries(this.sounds).forEach(([name, audio]) => {
             audio.volume = this.volume;
+
+            // Event listeners para debug
+            audio.addEventListener('loadstart', () => {
+                debugLog(`📥 Carregando áudio: ${name}`);
+            });
+
+            audio.addEventListener('canplay', () => {
+                debugLog(`✅ Áudio pronto: ${name}`);
+            });
+
+            audio.addEventListener('error', (e) => {
+                console.error(`❌ Erro ao carregar áudio "${name}":`, e, audio.error);
+            });
         });
 
         debugLog('🔊 Sons carregados:', Object.keys(this.sounds));
@@ -53,14 +69,33 @@ class AudioManager {
         const sound = this.sounds[name];
 
         if (!sound) {
-            console.warn(`Som "${name}" não encontrado!`);
+            console.error(`❌ Som "${name}" não encontrado!`);
             return;
         }
 
-        // Clona a bomba do audio
-        const clone = sound.cloneNode();
-        clone.volume = this.volume;
-        clone.play();
+        try {
+            // Clona o audio corretamente
+            const clone = sound.cloneNode(true);
+            clone.volume = this.volume;
+
+            debugLog(`🔊 Tocando som: ${name} (volume: ${this.volume})`);
+
+            const playPromise = clone.play();
+
+            // Trata a Promise de play()
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        debugLog(`▶️ Som iniciado: ${name}`);
+                    })
+                    .catch(error => {
+                        console.error(`❌ Erro ao reproduzir "${name}":`, error.name, error.message);
+                        debugLog(`Erro: ${error.name} - ${error.message}`);
+                    });
+            }
+        } catch (error) {
+            console.error(`❌ Exceção ao tocar som "${name}":`, error);
+        }
     }
 
     setVolume(volume) {
@@ -68,7 +103,8 @@ class AudioManager {
         Object.values(this.sounds).forEach(audio => {
             audio.volume = volume;
         });
-        debugLog(`🔊 Volume ajustado para ${volume}`);
+
+        console.log(`🔊 Volume ajustado para ${volume}`);
     }
 }
 
