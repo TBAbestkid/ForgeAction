@@ -361,6 +361,9 @@
             <h5 class="offcanvas-title" id="offcanvasFichaPersonagemLabel">
                 <i class="fa-solid fa-scroll me-2"></i>Ficha
             </h5>
+            <button type="button" class="btn btn-outline-info btn-sm rounded-3" id="fixarFicha" title="Fixar Ficha">
+                    <i class="fa-solid fa-thumbtack"></i>
+            </button>
             <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
                 aria-label="Close"></button>
         </div>
@@ -383,6 +386,9 @@
                     Ficha de {{ $personagemJogador['nome'] ?? 'Personagem' }}
                 </span>
             </h5>
+            <button type="button" class="btn btn-outline-info btn-sm rounded-3" id="fixarFicha" title="Fixar Ficha">
+                    <i class="fa-solid fa-thumbtack"></i>
+            </button>
             <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas"
                 aria-label="Close"></button>
         </div>
@@ -537,6 +543,9 @@
 <script src="{{ asset('js/room/game/turnManager.js') }}"></script>
 <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
 
+{{-- 4.5. Efeitos sonoros --}}
+<script src="{{ asset('js/room/game/sound/audioManager.js') }}"></script>
+
 {{-- 5. Gerenciadores de Personagens e Fluxo de Jogo --}}
 <script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
 <script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
@@ -671,5 +680,21 @@
             entrarEmFullscreen();
         }
     }
+
+    /**
+     * =========================
+     * 📌 FIXAR FICHA
+     * =========================
+     */
+    document.getElementById('fixarFicha').addEventListener('click', function() {
+        const offcanvas = document.getElementById('offcanvasFichaPersonagem');
+        const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvas);
+
+        if (bsOffcanvas._isShown) {
+            bsOffcanvas.hide();
+        } else {
+            bsOffcanvas.show();
+        }
+    });
 </script>
 @endsection
