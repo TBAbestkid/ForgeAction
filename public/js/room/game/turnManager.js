@@ -35,35 +35,40 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners serão adicionados dinamicamente no turnUIManager.js
 });
 
+// Função para iniciar a rodada
 function iniciarRodada() {
     console.log(' 🚀 Iniciando rodada...');
 
+    // Envia notificação de sistema
     window.EnviarAcao('turnoIniciado', {
         nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre'
     });
 
-    const payload = {
+    ws.send('/app/backchannel/rodadas', {
         acao: "turnoMestre",
         salaId: window.CHAT_CONFIG?.salaId
-    };
-    console.log('⤴️ Enviando WS /app/backchannel/rodadas ->', payload);
-    ws.send('/app/backchannel/rodadas', payload);
+    }
+    );
 }
 
-//novo comentario
+// Função para avançar para o próximo turno
 function avancarTurnoMestre() {
     console.log(' ⏭️ Avançando para o próximo turno...');
 
     const turnoDoMestre = window.turnState?.turnoAtual === 'mestre';
 
     if (turnoDoMestre) {
-        const payload = { acao: "proximoTurno", salaId: window.CHAT_CONFIG?.salaId };
-        console.log('⤴️ Enviando WS /app/backchannel/rodadas ->', payload);
-        ws.send('/app/backchannel/rodadas', payload);
+        console.log(' ⏭️ Avançando para o próximo turno do player')
+        ws.send('/app/backchannel/rodadas', {
+            acao: "proximoTurno",
+            salaId: window.CHAT_CONFIG?.salaId
+        });
     } else {
-        const payload = { acao: "turnoMestre", salaId: window.CHAT_CONFIG?.salaId };
-        console.log('⤴️ Enviando WS /app/backchannel/rodadas ->', payload);
-        ws.send('/app/backchannel/rodadas', payload);
+        console.log(' ⏭️ Avançando para o próximo turno do mestre')
+        ws.send('/app/backchannel/rodadas', {
+            acao: "turnoMestre",
+            salaId: window.CHAT_CONFIG?.salaId
+        });
     }
 
 }
@@ -85,9 +90,10 @@ function avancarTurno() {
         return;
     }
 
-    const payload = { acao: "turnoMestre", salaId: window.CHAT_CONFIG?.salaId };
-    console.log('⤴️ Enviando WS /app/backchannel/rodadas ->', payload, { isMyTurn, turnoAtual: window.turnState.turnoAtual, userId: window.CHAT_CONFIG?.userId });
-    ws.send('/app/backchannel/rodadas', payload);
+    ws.send('/app/backchannel/rodadas', {
+        acao: "turnoMestre",
+        salaId: window.CHAT_CONFIG?.salaId
+    });
 }
 
 function toggleOpcoesDados() {
