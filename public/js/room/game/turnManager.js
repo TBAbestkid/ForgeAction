@@ -35,11 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners serão adicionados dinamicamente no turnUIManager.js
 });
 
-// Função para iniciar a rodada
 function iniciarRodada() {
     console.log(' 🚀 Iniciando rodada...');
 
-    // Envia notificação de sistema
     window.EnviarAcao('turnoIniciado', {
         nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre'
     });
