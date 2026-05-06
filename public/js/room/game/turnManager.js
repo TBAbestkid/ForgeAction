@@ -58,17 +58,17 @@ function avancarTurnoMestre() {
     const turnoDoMestre = window.turnState?.turnoAtual === 'mestre';
 
     if (turnoDoMestre) {
-        console.log(' ⏭️ Avançando para o próximo turno do player')
-        ws.send('/app/backchannel/rodadas', {
-            acao: "proximoTurno",
-            salaId: window.CHAT_CONFIG?.salaId
-        });
+        console.log(' ⏭️ Avançando para o próximo turno do player');
+        const payload = { acao: "proximoTurno", salaId: window.CHAT_CONFIG?.salaId };
+        console.log('DEBUG ws vs AppWebSocket:', { ws, AppWebSocket: window.AppWebSocket, same: ws === window.AppWebSocket, wsSendType: typeof (ws && ws.send), appWsSendType: typeof (window.AppWebSocket && window.AppWebSocket.send) });
+        console.log('⤴️ Enviando WS /app/backchannel/rodadas ->', payload);
+        (window.AppWebSocket || ws).send('/app/backchannel/rodadas', payload);
     } else {
-        console.log(' ⏭️ Avançando para o próximo turno do mestre')
-        ws.send('/app/backchannel/rodadas', {
-            acao: "turnoMestre",
-            salaId: window.CHAT_CONFIG?.salaId
-        });
+        console.log(' ⏭️ Avançando para o próximo turno do mestre');
+        const payload = { acao: "turnoMestre", salaId: window.CHAT_CONFIG?.salaId };
+        console.log('DEBUG ws vs AppWebSocket:', { ws, AppWebSocket: window.AppWebSocket, same: ws === window.AppWebSocket, wsSendType: typeof (ws && ws.send), appWsSendType: typeof (window.AppWebSocket && window.AppWebSocket.send) });
+        console.log('⤴️ Enviando WS /app/backchannel/rodadas ->', payload);
+        (window.AppWebSocket || ws).send('/app/backchannel/rodadas', payload);
     }
 
 }
