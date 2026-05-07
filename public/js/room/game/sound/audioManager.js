@@ -4,7 +4,7 @@ function debugLog(...args) { console.log('[AudioManager]', ...args); }
 class AudioManager {
     constructor() {
         this.sounds = {};
-        this.volume = 0.5;
+        this.volume = 0.7;
 
         this.loadSounds();
     }
@@ -31,7 +31,7 @@ class AudioManager {
     // https://res.cloudinary.com/dyqxn8ci9/video/upload/v1778022577/up_bws14x.mp3
 
     loadSounds() {
-        const basePath = 'assets/sound';
+        const basePath = '/assets/audio';
 
         this.sounds = {
             critico: new Audio(basePath + '/critico.mp3'),
