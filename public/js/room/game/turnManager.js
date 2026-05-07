@@ -55,22 +55,32 @@ function iniciarRodada() {
 function avancarTurnoMestre() {
     console.log(' ⏭️ Avançando para o próximo turno...');
 
+    // Verificação: só o mestre pode chamar isso
+    if (!window.isMestre) {
+        console.warn('❌ Apenas o mestre pode avançar turnos!');
+        return;
+    }
+
+    // Verificação: rodada deve estar iniciada
+    if (!window.turnState?.rodadaIniciada) {
+        console.warn('❌ Rodada não iniciada');
+        return;
+    }
+
+    // Se não é a vez do mestre, usar a função dos players para passar para o mestre
     const turnoDoMestre = window.turnState?.turnoAtual === 'mestre';
 
-    if (turnoDoMestre) {
-        console.log(' ⏭️ Avançando para o próximo turno do player')
+    if (!turnoDoMestre) {
+        console.log(' ⏭️ Pulando turno de jogador → passando para mestre')
+        avancarTurno();
+    } else {
+        // Se é a vez do mestre, passar para o próximo jogador
+        console.log(' ⏭️ Avançando de turno do mestre para próximo jogador')
         ws.send('/app/backchannel/rodadas', {
             acao: "proximoTurno",
             salaId: window.CHAT_CONFIG?.salaId
         });
-    } else {
-        console.log(' ⏭️ Avançando para o próximo turno do mestre')
-        ws.send('/app/backchannel/rodadas', {
-            acao: "turnoMestre",
-            salaId: window.CHAT_CONFIG?.salaId
-        });
     }
-
 }
 
 function avancarTurno() {
@@ -308,9 +318,9 @@ function enviarAcaoMestre(valor) {
         });
     }
 
-    // Se a ação for o cederTurno, passa o pro proximo turno
+    // Se a ação for o cederTurno, passa para o próximo turno (via mestre)
     if (acaoMestreAtual === 'cederTurno') {
-        avancarTurno();
+        avancarTurnoMestre();
     }
 
 }
