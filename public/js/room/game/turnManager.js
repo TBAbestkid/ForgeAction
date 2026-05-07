@@ -72,7 +72,10 @@ function avancarTurnoMestre() {
 
     if (!turnoDoMestre) {
         console.log(' ⏭️ Pulando turno de jogador → passando para mestre')
-        avancarTurno();
+        ws.send('/app/backchannel/rodadas', {
+            acao: "turnoMestre",
+            salaId: window.CHAT_CONFIG?.salaId
+        });
     } else {
         // Se é a vez do mestre, passar para o próximo jogador
         console.log(' ⏭️ Avançando de turno do mestre para próximo jogador')
