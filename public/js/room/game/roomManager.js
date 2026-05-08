@@ -140,6 +140,7 @@
                             window.atualizarInterfaceTurno(turnoEhMeu);
                             // Toca o som de turno
                             window.audioManager.play('turno');
+                            window.audioManager.setVolume(1);
                             return;
                         }
 

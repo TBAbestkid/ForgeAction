@@ -127,13 +127,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (window.isMestre) {
                         if (data.novaVida < data.vidaAnterior) {
                             window.audioManager.play('dano');
+                            window.audioManager.setVolume(1);
                         } else {
                             window.audioManager.play('vida');
+                            window.audioManager.setVolume(1);
                         }
                     } else {
                         // Para os jogadores, só toca som de vida (sem dano), para não dar pistas
                         if (data.novaVida > data.vidaAnterior) {
                             window.audioManager.play('vida');
+                            window.audioManager.setVolume(1);
                         }
                     }
                 }
@@ -144,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('⭐ Atualização de up de personagem recebida:', data);
                 // Toca o som de up
                 window.audioManager.play('up');
+                window.audioManager.setVolume(1);
                 addMessage(data.conteudo, '🤖 Sistema', true, systemLogs);
                 break;
 
