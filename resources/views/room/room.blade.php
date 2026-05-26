@@ -207,6 +207,12 @@
     <div id="game-section" class="position-fixed top-50 start-50 translate-middle d-flex gap-3 align-items-stretch"
         style="width: 90vw; height: 60vh; max-width: 1200px; z-index: 5; transform: translate(-50%, -50%);">
 
+        {{-- Grid de Batalha --}}
+        <div class="grid-container"
+            style="width: 90vw; height: 60vh; max-width: 1200px; z-index: -1; transform: translate(-50%, -50%);">
+
+        </div>
+
         {{-- Coluna central (DiceBox) --}}
         <div id="dice-container" class="shadow-lg rounded-4 d-flex align-items-center justify-content-center flex-grow-1"
             style="background: rgba(0, 0, 0, 0.25);">
@@ -215,6 +221,7 @@
             <div id="dice-box"
                 class="w-100 h-100 position-absolute top-0 start-0">
             </div>
+
 
             {{-- Placeholder --}}
             <div id="dice-placeholder"
@@ -539,11 +546,13 @@
 
 {{-- 4. Gerenciadores de Estado e Turno (ordem: estado primeiro, depois manager) --}}
 <script type="module" src="{{ asset('js/room/general/enums.js') }}"></script>
-<script src="{{ asset('js/room/game/mathUtils.js') }}"></script>
-<script src="{{ asset('js/room/game/grid.js') }}"></script>
 <script src="{{ asset('js/room/game/turnState.js') }}"></script>
 <script src="{{ asset('js/room/game/turnManager.js') }}"></script>
 <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
+
+{{-- 4.4. Grid de Batalha --}}
+<script src="{{ asset('js/room/game/mathUtils.js') }}"></script>
+<script src="{{ asset('js/room/game/grid.js') }}"></script>
 
 {{-- 4.5. Efeitos sonoros --}}
 <script src="{{ asset('js/room/game/sound/audioManager.js') }}"></script>

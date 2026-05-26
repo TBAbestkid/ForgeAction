@@ -21,9 +21,9 @@ function initStage(width, height) {
     originX = width / 2;
     originY = height / 2;
 
-    const container = document.getElementById('dice-container');
+    const container = document.getElementById('grid-container');
 
-    stage = new Konva.Stage({ container: 'dice-container', width, height });
+    stage = new Konva.Stage({ container: 'grid-container', width, height });
 
     layer = new Konva.Layer({
         clip: { x: 0, y: 0, width, height },
