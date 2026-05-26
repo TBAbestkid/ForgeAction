@@ -102,6 +102,11 @@
 
             case 'round':
 
+                const w = stage ? stage.width() : 800;
+                const h = stage ? stage.height() : 600;
+                initStage(w, h);
+                fillGrid(w, h);
+                createPiece(0, 0);
                 debugLog('🎲 Rodada iniciada');
 
                 debugLog('É o mestre?', isMestre);
