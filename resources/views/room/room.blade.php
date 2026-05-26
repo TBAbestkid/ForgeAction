@@ -208,10 +208,10 @@
         style="width: 90vw; height: 60vh; max-width: 1200px; z-index: 5; transform: translate(-50%, -50%);">
 
         {{-- Grid de Batalha --}}
-        <div class="grid-container"
+        {{-- <div class="grid-container"
             style="width: 90vw; height: 60vh; max-width: 1200px; z-index: -1; transform: translate(-50%, -50%);">
 
-        </div>
+        </div> --}}
 
         {{-- Coluna central (DiceBox) --}}
         <div id="dice-container" class="shadow-lg rounded-4 d-flex align-items-center justify-content-center flex-grow-1"
