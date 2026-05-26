@@ -207,31 +207,34 @@
     <div id="game-section" class="position-fixed top-50 start-50 translate-middle d-flex gap-3 align-items-stretch"
         style="width: 90vw; height: 60vh; max-width: 1200px; z-index: 5; transform: translate(-50%, -50%);">
 
-        {{-- Grid de Batalha --}}
-        {{-- <div class="grid-container"
-            style="width: 90vw; height: 60vh; max-width: 1200px; z-index: -1; transform: translate(-50%, -50%);">
-
-        </div> --}}
-
         {{-- Coluna central (DiceBox) --}}
-        <div id="dice-container" class="shadow-lg rounded-4 d-flex align-items-center justify-content-center flex-grow-1"
-            style="background: rgba(0, 0, 0, 0.25);">
+        <div id="dice-container"
+            class="shadow-lg rounded-4 d-flex align-items-center justify-content-center flex-grow-1 position-relative"
+            style="background: rgba(0,0,0,.25); overflow:hidden;">
 
-            {{-- 🎲 Área do Dice --}}
-            <div id="dice-box"
-                class="w-100 h-100 position-absolute top-0 start-0">
-            </div>
-
-
-            {{-- Placeholder --}}
+            {{-- Placeholder (mais atrás) --}}
             <div id="dice-placeholder"
-                class="text-white text-center position-absolute top-50 start-50 translate-middle">
+                class="text-white text-center position-absolute top-50 start-50 translate-middle"
+                style="z-index:10;">
                 🎲 Aguardando início do turno...
             </div>
 
-            {{-- Controles --}}
+            {{-- Grid (na frente do placeholder) --}}
+            <div id="grid-layer"
+                class="position-absolute top-0 start-0 w-100 h-100"
+                style="z-index:20;">
+            </div>
+
+            {{-- Dice (na frente do grid) --}}
+            <div id="dice-box"
+                class="position-absolute top-0 start-0 w-100 h-100"
+                style="z-index:30;">
+            </div>
+
+            {{-- Controles (na frente de tudo) --}}
             <div id="turnControls"
-                class="d-none flex-column align-items-center gap-2 position-absolute bottom-0 start-50 translate-middle-x mb-2">
+                class="d-none flex-column align-items-center gap-2 position-absolute bottom-0 start-50 translate-middle-x mb-2"
+                style="z-index:40;">
 
                 @if ($isDono)
                     <div class="form-check text-white">

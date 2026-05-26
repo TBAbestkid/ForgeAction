@@ -18,12 +18,13 @@ function initStage(width, height) {
     }
 
     hexGrid.clear();
+
     originX = width / 2;
     originY = height / 2;
 
-    const container = document.getElementById('dice-container');
+    const container = document.getElementById('grid-layer');
 
-    stage = new Konva.Stage({ container: 'dice-container', width, height });
+    stage = new Konva.Stage({ container: 'grid-layer', width, height });
 
     layer = new Konva.Layer({
         clip: { x: 0, y: 0, width, height },
@@ -140,18 +141,18 @@ function createPiece(q, r) {
 }
 
 
-document.addEventListener('DOMContentLoaded', () => {
+// document.addEventListener('DOMContentLoaded', () => {
 
-    const btnIniciarTurno = document.getElementById('btnIniciarTurno');
+//     const btnIniciarTurno = document.getElementById('btnIniciarTurno');
 
-    if (btnIniciarTurno) {
-        btnIniciarTurno.addEventListener('click', () => {
-            const w = stage ? stage.width() : 800;
-            const h = stage ? stage.height() : 600;
-            initStage(w, h);
-            fillGrid(w, h);
-            createPiece(0, 0);
-        });
-    }
+//     if (btnIniciarTurno) {
+//         btnIniciarTurno.addEventListener('click', () => {
+//             const w = stage ? stage.width() : 800;
+//             const h = stage ? stage.height() : 600;
+//             initStage(w, h);
+//             fillGrid(w, h);
+//             createPiece(0, 0);
+//         });
+//     }
 
-});
+// });
