@@ -4,7 +4,7 @@ function debugLog(...args) { console.log('[AudioManager]', ...args); }
 class AudioManager {
     constructor() {
         this.sounds = {};
-        this.volume = 20.5; // Volume padrão (0.0 a 1.0)
+        this.volume = 1; // Volume padrão (0.0 a 1.0)
 
         this.loadSounds();
     }
