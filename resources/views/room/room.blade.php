@@ -44,13 +44,20 @@
             top: 35%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.6);
+
             font-size: 4rem;
             font-weight: 700;
-            color: #ffffff;
-            text-shadow: 0 0 28px rgba(255,255,255,0.9), 0 0 60px rgba(0,0,0,0.45);
-            z-index: 3;
+
+            color: #fff;
+            text-shadow:
+                0 0 28px rgba(255,255,255,.9),
+                0 0 60px rgba(0,0,0,.45);
+
+            z-index: 35; /* ← antes era 3 */
+
             pointer-events: none;
             opacity: 0;
+
             animation: diceValuePop 1.5s ease-out forwards;
         }
 

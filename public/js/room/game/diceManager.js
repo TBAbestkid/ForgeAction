@@ -86,13 +86,23 @@ function handleRollComplete(results) {
 
 function mostrarResultadoDados(valor) {
     const container = document.getElementById('dice-container');
-    if (!container || valor === null || valor === undefined) {
-        return;
-    }
+
+    if (!container || valor == null) return;
 
     const resultEl = document.createElement('div');
+
     resultEl.className = 'dice-result';
     resultEl.textContent = valor;
+
+    Object.assign(resultEl.style, {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: '35', // entre dice e controles
+        pointerEvents: 'none'
+    });
+
     container.appendChild(resultEl);
 
     resultEl.addEventListener('animationend', () => {
