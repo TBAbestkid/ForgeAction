@@ -74,6 +74,7 @@
 <script>
     const dropzone = document.getElementById('dropzone');
     const input = document.getElementById('backgroundInput');
+    const form = document.getElementById('createSalaForm');
 
     // clicar abre o seletor
     dropzone.addEventListener('click', () => input.click());
@@ -151,7 +152,15 @@
             imgContainer.appendChild(removeBtn);
             dropzone.appendChild(imgContainer);
 
+            // Re-adicionar o input hidden
+            dropzone.appendChild(input);
+        };
 
+        reader.readAsDataURL(file);
+    }
+
+    // Validação e envio do formulário
+    document.getElementById('btnCreateSala').addEventListener('click', function () {
         const nome = form.querySelector('[name="nome"]').value.trim();
 
         // ❌ validação
