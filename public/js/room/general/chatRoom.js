@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const { userId, userLogin, salaId, wsUrl } = window.CHAT_CONFIG || {};
+    const { userId, userLogin, salaId, wsUrl, nomePersonagem } = window.CHAT_CONFIG || {};
     if (!wsUrl || !salaId) {
         console.error('❌ CHAT_CONFIG inválido — wsUrl ou salaId ausente.');
         return;
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!messagesDesktop) console.warn('⚠️ Chat messages container não encontrado.');
     if (!systemLogs) console.warn('⚠️ System logs container não encontrado.');
 
-    const userName = userLogin || 'Desconhecido';
+    const userName = nomePersonagem || userLogin || 'Desconhecido';
     const channel = salaId.toString();
 
     function scrollToBottom(container) {
@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             acao: 'chat',
             conteudo: msg,
             autor: userName,
+            nomePersonagem: userName,
             userId,
             salaId
         };
