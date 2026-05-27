@@ -91,6 +91,47 @@
                 transform: scaleX(1);
             }
         }
+
+        /**
+         * 📌 SISTEMA DE PIN (FIXAR FICHA)
+         */
+        #fixarFichaMestre,
+        #fixarFichaJogador {
+            transition: all 0.3s ease;
+        }
+
+        #fixarFichaMestre.active,
+        #fixarFichaJogador.active {
+            transform: rotate(-15deg) scale(1.1);
+            box-shadow: 0 0 12px rgba(17, 150, 243, 0.6);
+        }
+
+        .offcanvas-pinned {
+            box-shadow: inset -4px 0 0 0 rgba(17, 150, 243, 0.4) !important;
+        }
+
+        .offcanvas-pinned .offcanvas-header {
+            border-bottom: 2px solid rgba(17, 150, 243, 0.4);
+        }
+
+        /**
+         * Dica visual: ESC para desfixar
+         */
+        .offcanvas-pinned::after {
+            content: '';
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 12px;
+            background: rgba(17, 150, 243, 0.1);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: rgba(17, 150, 243, 0.8);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1;
+        }
     </style>
 
     {{-- Background da Sala --}}
@@ -371,6 +412,7 @@
 
     <!-- Offcanvas para Ficha de Personagem (genérico, usado pelo mestre) -->
     <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFichaPersonagem"
+        data-bs-scroll="false" data-bs-backdrop="true"
         aria-labelledby="offcanvasFichaPersonagemLabel" style="background-color: #1c1c1c; max-width: 320px;">
 
         <div class="offcanvas-header">
@@ -392,6 +434,7 @@
 @else
     <!-- Ficha do jogador -->
     <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFicha"
+        data-bs-scroll="false" data-bs-backdrop="true"
         aria-labelledby="offcanvasFichaLabel" style="background-color: #1c1c1c; max-width: 280px;">
 
         <div class="offcanvas-header">
@@ -711,34 +754,127 @@
 
     /**
      * =========================
-     * 📌 FIXAR FICHA
+     * 📌 SISTEMA DE PIN (FIXAR FICHA)
      * =========================
+     * Permite fixar a ficha aberta para visualizar enquanto joga
+     * - Ativa data-bs-scroll quando fixado
+     * - Desativa backdrop quando fixado
+     * - ESC desfixa automaticamente
      */
-    // Fixar ficha do mestre
-    const fixarMestre = document.getElementById('fixarFichaMestre');
-    if (fixarMestre) {
-        fixarMestre.addEventListener('click', function() {
-            const offcanvas = document.getElementById('offcanvasFichaPersonagem');
-            const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvas);
+    class PinManager {
+        constructor(offcanvasId, pinButtonId) {
+            this.offcanvasId = offcanvasId;
+            this.offcanvas = document.getElementById(offcanvasId);
+            this.pinBtn = document.getElementById(pinButtonId);
+            this.isFixed = false;
+            this.bsOffcanvas = null;
 
-            if (bsOffcanvas && bsOffcanvas._isShown) {
-                bsOffcanvas.hide();
+            if (!this.offcanvas || !this.pinBtn) {
+                console.warn(`PinManager: Elementos não encontrados (${offcanvasId}, ${pinButtonId})`);
+                return;
             }
-        });
+
+            this.init();
+        }
+
+        init() {
+            // Ao abrir o offcanvas, atualizar state do PIN
+            this.offcanvas.addEventListener('show.bs.offcanvas', () => {
+                this.bsOffcanvas = bootstrap.Offcanvas.getInstance(this.offcanvas);
+                // Resetar pin ao abrir
+                if (this.isFixed) {
+                    this.unpin();
+                }
+            });
+
+            // Botão PIN
+            this.pinBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggle();
+            });
+
+            // ESC para desfixar
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.isFixed) {
+                    this.unpin();
+                }
+            });
+        }
+
+        toggle() {
+            if (this.isFixed) {
+                this.unpin();
+            } else {
+                this.pin();
+            }
+        }
+
+        pin() {
+            // ✅ Ativar scroll do body - permite scrollar a página enquanto ficha está aberta
+            this.offcanvas.setAttribute('data-bs-scroll', 'true');
+
+            // ✅ Desabilitar backdrop - não deixa escuro atrás
+            this.offcanvas.setAttribute('data-bs-backdrop', 'false');
+
+            // ✅ Mudar visual do botão PIN
+            this.pinBtn.classList.add('active');
+            this.pinBtn.style.backgroundColor = 'rgba(17, 150, 243, 0.3)';
+            this.pinBtn.style.borderColor = 'rgba(17, 150, 243, 0.8)';
+            this.pinBtn.title = 'Desfixar Ficha (pressione ESC)';
+
+            // ✅ Adicionar classe visual no offcanvas
+            this.offcanvas.classList.add('offcanvas-pinned');
+
+            this.isFixed = true;
+
+            // Feedback visual
+            if (typeof showToast === 'function') {
+                showToast('✓ Ficha fixada! Você pode interagir com o mapa.');
+            }
+
+            console.log(`✓ Ficha ${this.offcanvasId} fixada`);
+        }
+
+        unpin() {
+            // ✅ Desativar scroll do body
+            this.offcanvas.setAttribute('data-bs-scroll', 'false');
+
+            // ✅ Reabilitar backdrop
+            this.offcanvas.setAttribute('data-bs-backdrop', 'true');
+
+            // ✅ Restaurar visual do botão PIN
+            this.pinBtn.classList.remove('active');
+            this.pinBtn.style.backgroundColor = '';
+            this.pinBtn.style.borderColor = '';
+            this.pinBtn.title = 'Fixar Ficha (você pode interagir enquanto ela fica aberta)';
+
+            // ✅ Remover classe visual no offcanvas
+            this.offcanvas.classList.remove('offcanvas-pinned');
+
+            this.isFixed = false;
+
+            // Feedback visual
+            if (typeof showToast === 'function') {
+                showToast('✓ Ficha desfixada');
+            }
+
+            console.log(`✓ Ficha ${this.offcanvasId} desfixada`);
+        }
     }
 
-    // Fixar ficha do jogador
-    const fixarJogador = document.getElementById('fixarFichaJogador');
-    if (fixarJogador) {
-        fixarJogador.addEventListener('click', function() {
-            const offcanvas = document.getElementById('offcanvasFicha');
-            const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvas);
-
-            if (bsOffcanvas && bsOffcanvas._isShown) {
-                bsOffcanvas.hide();
-            }
-        });
+    // ✅ Inicializar PIN para MESTRE
+    if (document.getElementById('fixarFichaMestre')) {
+        const pinMestre = new PinManager('offcanvasFichaPersonagem', 'fixarFichaMestre');
+        window.pinMestre = pinMestre; // Expor globalmente se necessário
     }
+
+    // ✅ Inicializar PIN para JOGADOR
+    if (document.getElementById('fixarFichaJogador')) {
+        const pinJogador = new PinManager('offcanvasFicha', 'fixarFichaJogador');
+        window.pinJogador = pinJogador; // Expor globalmente se necessário
+    }
+
 
     /**
      * ✅ CONVITES E CÓPIA DE CÓDIGO
