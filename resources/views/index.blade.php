@@ -234,7 +234,7 @@
                                     style="cursor: pointer;">
 
                                     <div>
-                                        <strong class="fs-5">${p.nome}</strong><br>
+                                        <strong class="fs-5 text-truncate">${p.nome}</strong><br>
                                         <small>${racas[p.raca] ?? p.raca} | ${classes[p.classe] ?? p.classe}</small>
                                     </div>
 

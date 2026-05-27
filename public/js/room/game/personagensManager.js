@@ -62,7 +62,7 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.innerHTML = `
         <div class="d-flex flex-column align-items-center gap-2 w-100">
 
-            <strong class="small personagem-nome w-100 text-start" style="flex: 1; text-align: left;">
+            <strong class="small personagem-nome w-100 text-start text-truncate" style="flex: 1; text-align: left;">
                 ${personagem.nome}
             </strong>
 
