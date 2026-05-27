@@ -288,6 +288,24 @@ body::before {
     max-height: 500px;
 }
 
+/* Truncar nome em cards de personagem */
+.personagem-card strong.fs-5 {
+    display: block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Overflow em salas */
+.sala-card strong,
+.personagem-card strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .personagem-nome {
     overflow: hidden;
     text-overflow: ellipsis;
