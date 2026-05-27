@@ -118,17 +118,16 @@
                         <i class="fa-solid fa-users"></i>
                         Membros
                     </a>
-                </li>
                 <li><hr class="dropdown-divider text-white"></li>
                 @if($isDono)
                     <li>
-                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#configModal">
+                        <a href="#" class="dropdown-item" data-action="convidar">
                             <i class="fa-solid fa-user-plus"></i>
                             Convidar Membros
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#copiarcodigoSala">
+                        <a href="#" class="dropdown-item" data-action="copiar-codigo" data-code="{{ $sala['codigo'] ?? '' }}">
                             <i class="fa-solid fa-copy"></i>
                             Copiar Código da Sala
                         </a>
@@ -523,54 +522,9 @@
     </div>
 </div>
 
-<!-- Modal de Convite -->
-<div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title" id="configModalLabel">
-                    <i class="fa-solid fa-user-plus me-2"></i> Convidar Usuários
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-                <label for="selectUser" class="form-label">Pesquisar e selecionar usuários:</label>
-                <select id="selectUser" class="form-select select2-multi w-100" multiple="multiple"></select>
-                <div id="selectedUsers" class="d-flex flex-wrap gap-2 mt-2"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" id="btnSendInvite">Enviar Convite</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Copiar Código -->
-<div class="modal fade" id="copiarcodigoSala" tabindex="-1" aria-labelledby="copiarcodigoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title" id="copiarcodigoLabel">
-                    <i class="fa-solid fa-copy me-2"></i> Código da Sala
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body text-center">
-                <p class="text-secondary mb-3">Compartilhe este código com seus amigos:</p>
-                <div class="input-group">
-                    <input type="text" class="form-control bg-secondary text-white border-0" id="codigoSalaInput" value="{{ $sala['codigo'] ?? '' }}" readonly>
-                    <button class="btn btn-primary" type="button" id="btnCopiarCodigo">
-                        <i class="fa-solid fa-copy"></i> Copiar
-                    </button>
-                </div>
-                <small class="text-success mt-2" id="copiarMensagem" style="display: none;">
-                    <i class="fa-solid fa-check"></i> Código copiado!
-                </small>
-            </div>
-        </div>
-    </div>
-</div>
+{{-- Modais compartilhados --}}
+@include('partials.invite')
+@include('partials.copyCode')
 
 {{-- Aviso de tela cheia --}}
 <div id="aviso-fullscreen" class="alert alert-info" style="display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1050; cursor: pointer;">
@@ -624,6 +578,9 @@
 
 {{-- 6. Dados (módulo ES6) --}}
 <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
+
+{{-- 6.5. Gerenciador unificado de convites e cópia de código --}}
+<script src="{{ asset('js/room/general/conviteManager.js') }}"></script>
 
 {{-- 7. Gerenciadores da Sala (após todos os anteriores) --}}
 <script src="{{ asset('js/room/general/chatRoom.js') }}"></script>
@@ -784,134 +741,13 @@
     }
 
     /**
-     * =========================
-     * 📌 CONVITE E CÓPIA DE CÓDIGO
-     * =========================
+     * ✅ CONVITES E CÓPIA DE CÓDIGO
+     * Gerenciados automaticamente pelo conviteManager.js
+     * Detecta: .btn-invite, [data-action="convidar"]
+     * Detecta: .btn-copy, [data-action="copiar-codigo"]
      */
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
     const salaId = {{ $sala['id'] }};
-    let usuarios = [];
 
-    // Abrir modal de convite
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-        if (item.textContent.includes('Convidar')) {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const modal = new bootstrap.Modal(document.getElementById('configModal'));
-                modal.show();
-
-                // Carregar usuários disponíveis
-                carregarUsuariosDisponiveis();
-            });
-        }
-    });
-
-    function carregarUsuariosDisponiveis() {
-        // Buscar membros atuais
-        fetch(`/api/salas/personagens/listar/${salaId}`)
-            .then(res => res.json())
-            .then(personagens => {
-                const membrosAtuais = personagens.map(p => p.usuarioId);
-
-                // Buscar todos os usuários
-                fetch('/usuario')
-                    .then(res => res.json())
-                    .then(response => {
-                        if (response.status !== 'success' || !Array.isArray(response.data)) {
-                            alert('Erro ao carregar usuários.');
-                            return;
-                        }
-
-                        usuarios = response.data;
-                        const select = document.getElementById('selectUser');
-                        select.innerHTML = '<option></option>';
-
-                        const disponiveis = usuarios.filter(u => !membrosAtuais.includes(u.id));
-
-                        disponiveis.forEach(user => {
-                            const option = document.createElement('option');
-                            option.value = user.email;
-                            option.textContent = `${user.login} (${user.email})`;
-                            select.appendChild(option);
-                        });
-
-                        // Reinicializar Select2 se disponível
-                        if (typeof $ !== 'undefined' && $.fn.select2) {
-                            if (jQuery(select).hasClass('select2-hidden-accessible')) {
-                                jQuery(select).select2('destroy');
-                            }
-
-                            jQuery(select).select2({
-                                theme: 'bootstrap-5',
-                                placeholder: 'Selecione um ou mais usuários...',
-                                dropdownParent: jQuery('#configModal'),
-                                width: '100%',
-                                allowClear: true
-                            });
-
-                            jQuery(select).on('change', function() {
-                                const emails = jQuery(this).val();
-                                const div = document.getElementById('selectedUsers');
-                                div.innerHTML = '';
-
-                                if (!emails || emails.length === 0) return;
-
-                                emails.forEach(email => {
-                                    const user = usuarios.find(u => u.email === email);
-                                    const badge = document.createElement('span');
-                                    badge.className = 'badge bg-success px-3 py-2 d-flex align-items-center gap-2';
-                                    badge.innerHTML = `<i class="fa-solid fa-user"></i> ${user ? user.login : email}`;
-                                    div.appendChild(badge);
-                                });
-                            });
-                        }
-                    })
-                    .catch(err => alert('Erro ao carregar usuários.'));
-            })
-            .catch(err => alert('Erro ao carregar membros da sala.'));
-    }
-
-    // Enviar convite
-    document.getElementById('btnSendInvite').addEventListener('click', function() {
-        const select = document.getElementById('selectUser');
-        const emails = typeof $ !== 'undefined' ? jQuery(select).val() : Array.from(select.selectedOptions).map(o => o.value);
-
-        if (!emails || emails.length === 0) {
-            alert('Selecione ao menos um usuário para enviar convite.');
-            return;
-        }
-
-        fetch('/api/enviar-invite', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({
-                salaId: salaId,
-                emails: emails
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            alert(data.message || 'Convites enviados!');
-            bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
-        })
-        .catch(err => alert('Erro ao enviar convite.'));
-    });
-
-    // Copiar código
-    document.getElementById('btnCopiarCodigo')?.addEventListener('click', function() {
-        const codigoInput = document.getElementById('codigoSalaInput');
-        const mensagem = document.getElementById('copiarMensagem');
-
-        codigoInput.select();
-        document.execCommand('copy');
-
-        mensagem.style.display = 'block';
-        setTimeout(() => {
-            mensagem.style.display = 'none';
-        }, 2000);
-    });
 </script>
 @endsection
