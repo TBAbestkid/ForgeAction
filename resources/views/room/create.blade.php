@@ -118,16 +118,39 @@
             img.src = e.target.result;
             img.style.maxWidth = '100%';
             img.style.borderRadius = '8px';
+            img.style.cursor = 'pointer';
 
-            dropzone.appendChild(img);
-        };
+            // Limpar completamente o conteúdo anterior
+            dropzone.innerHTML = '';
 
-        reader.readAsDataURL(file);
-    }
+            // Criar container para a imagem
+            const imgContainer = document.createElement('div');
+            imgContainer.style.position = 'relative';
+            imgContainer.style.display = 'inline-block';
+            imgContainer.style.width = '100%';
 
-    const form = document.getElementById('createSalaForm');
+            // Adicionar imagem
+            imgContainer.appendChild(img);
 
-    document.getElementById('btnCreateSala').addEventListener('click', function () {
+            // Criar botão de remover
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-sm btn-danger';
+            removeBtn.innerHTML = '<i class="fa-solid fa-trash me-1"></i>Remover';
+            removeBtn.style.marginTop = '10px';
+            removeBtn.style.width = '100%';
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                input.value = '';
+                dropzone.innerHTML = `
+                    <p class="mb-1">Arraste uma imagem aqui</p>
+                    <small>ou clique para selecionar</small>
+                `;
+            });
+
+            imgContainer.appendChild(removeBtn);
+            dropzone.appendChild(imgContainer);
+
 
         const nome = form.querySelector('[name="nome"]').value.trim();
 
