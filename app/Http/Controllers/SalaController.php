@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Helpers\ApiResponse;
 use App\Services\ApiService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Cache;
 
 class SalaController extends Controller
 {
@@ -22,21 +23,14 @@ class SalaController extends Controller
         $userId = session('user_id');
         $userRole = session('user_role');
 
-        if (!$userId) {
-            return redirect()->route('login')->with('error', 'Você precisa estar logado.');
-        }
-
-        $outrasSalas = (array) ($this->api->get("api/salas/jogador/{$userId}") ?? []);
+        $outrasSalas = $this->listFromApi($this->api->get("api/salas/jogador/{$userId}"));
         $minhasSalas = [];
 
         if ($userRole === 'MASTER') {
-            $minhasSalas = (array) ($this->api->get("api/salas/mestre/{$userId}") ?? []);
+            $minhasSalas = $this->listFromApi($this->api->get("api/salas/mestre/{$userId}"));
         }
 
-        // 🔹 Para cada sala, buscar número de personagens
-        $todasAsSalas = [&$outrasSalas, &$minhasSalas];
-
-        foreach ($todasAsSalas as &$lista) {
+        foreach ([&$outrasSalas, &$minhasSalas] as &$lista) {
             foreach ($lista as &$sala) {
                 if (!isset($sala['id'])) {
                     $sala['total_jogadores'] = 0;
@@ -44,10 +38,10 @@ class SalaController extends Controller
                 }
 
                 try {
-                    $personagens = $this->api->get("api/salas/personagens/listar/{$sala['id']}");
-                    $sala['total_jogadores'] = is_array($personagens) ? count($personagens) : 0;
+                    $personagens = $this->listFromApi($this->api->get("api/salas/personagens/listar/{$sala['id']}"));
+                    $sala['total_jogadores'] = count($personagens);
                 } catch (\Exception $e) {
-                    $sala['total_jogadores'] = 0; // fallback seguro
+                    $sala['total_jogadores'] = 0;
                 }
             }
         }
@@ -58,19 +52,13 @@ class SalaController extends Controller
     public function invite()
     {
         return response()->json(
-            $this->api->get("api/usuario")
+            $this->api->get('api/usuario')
         );
     }
 
     public function createRoom()
     {
-        $user = session('user_login');
-        if (!$user) {
-            return redirect()->route('login')->with('error', 'Você precisa estar logado.');
-        }
-
-        $userRole = session('user_role');
-        if ($userRole !== 'MASTER') {
+        if (session('user_role') !== 'MASTER') {
             return redirect()->route('home')->with('error', 'Apenas mestres podem criar salas.');
         }
 
@@ -79,33 +67,22 @@ class SalaController extends Controller
 
     public function sendInvite(Request $request)
     {
-        $emails = $request->emails;
-        $salaId = $request->salaId;
+        $validated = $request->validate([
+            'salaId' => 'required|integer',
+            'emails' => 'required|array|min:1',
+            'emails.*' => 'required|email',
+        ]);
+
         $userId = session('user_id');
+        $salaId = (int) $validated['salaId'];
 
-        // Busca a sala do dono
-        $salasResponse = $this->api->get("api/salas/mestre/{$userId}");
-
-        if (!$salasResponse || !is_array($salasResponse) || count($salasResponse) === 0) {
-            return response()->json(['message' => 'Erro ao recuperar suas salas.'], 404);
-        }
-
-        // Procura a sala correta
-        $sala = collect($salasResponse)->firstWhere('id', (int) $salaId);
-
+        $sala = $this->findSalaDoMestre($salaId, $userId);
         if (!$sala) {
-            return response()->json(['message' => 'Sala não encontrada.'], 404);
+            return response()->json(['message' => 'Voce nao tem permissao para convidar nesta sala.'], 403);
         }
-
-        if ($sala['mestre'] != $userId) {
-            return response()->json(['message' => 'Você não tem permissão para convidar nesta sala.'], 403);
-        }
-
-        $dono = session('user_login');
 
         $tokens = [];
-
-        foreach ($emails as $email) {
+        foreach ($validated['emails'] as $email) {
             $token = Str::random(64);
 
             Cache::put('invite_sala_' . $token, [
@@ -117,21 +94,17 @@ class SalaController extends Controller
             $tokens[$email] = route('api.invite.accept', ['token' => $token]);
         }
 
-        // Link de convite
-        $inviteLink = route('api.invite.accept', ['token' => $token]);
-
-        // Monta o HTML do e-mail
+        $inviteLink = reset($tokens);
         $html = view('emails.invite', [
             'sala' => $sala,
-            'remetente' => $dono,
-            'link' => $inviteLink
+            'remetente' => session('user_login'),
+            'link' => $inviteLink,
         ])->render();
 
-        // Envia via API
-        $response = $this->api->post("api/email/enviar", [
-            'assunto' => "Convite para a sala {$sala['nome']}",
+        $response = $this->api->post('api/email/enviar', [
+            'assunto' => 'Convite para a sala ' . ($sala['nome'] ?? ''),
             'corpo' => $html,
-            'destinatarios' => $emails,
+            'destinatarios' => $validated['emails'],
         ]);
 
         if (($response['status'] ?? '') !== 'success') {
@@ -143,143 +116,81 @@ class SalaController extends Controller
 
     public function authenticated(Request $request, $user)
     {
-        Log::info('authenticated - usuário logado', [
+        Log::info('authenticated - usuario logado', [
             'user_id' => $user->id ?? null,
             'user_email' => $user->email ?? null,
-            'invite_token_session' => session('invite_token')
+            'invite_token_session' => session('invite_token'),
         ]);
 
-        // Se houver token de convite na sessão
         if (session()->has('invite_token')) {
             $token = session()->pull('invite_token');
-            Log::info('authenticated - redirecionando para convite', ['token' => $token]);
-
             return redirect()->route('api.invite.accept', ['token' => $token]);
         }
 
-        Log::info('authenticated - redirecionando normalmente para salas');
         return redirect()->route('home');
     }
 
-    // Se usuario possuir um personagem na sessão, ele pode só entrar direto na sala
     public function acceptInvite($token)
     {
-
-        // Log::info('acceptInvite - iniciado', ['token' => $token]);
-
         $data = Cache::get('invite_sala_' . $token);
-        // Log::info('acceptInvite - dados do cache', ['data' => $data]);
 
         if (!$data) {
-            // Log::warning('acceptInvite - convite expirado ou inválido', ['token' => $token]);
-            return redirect()->route('home')->withErrors(['token' => 'Convite expirado ou inválido.']);
+            return redirect()->route('home')->withErrors(['token' => 'Convite expirado ou invalido.']);
         }
 
-        $salaId = $data['salaId'] ?? null;
-        $email = $data['email'] ?? null;
-        // Log::info('acceptInvite - dados básicos', ['salaId' => $salaId, 'email' => $email]);
-
         if (!session('user_id')) {
-            // Log::info('acceptInvite - usuário não logado, redirecionando para login', ['token' => $token]);
             session(['invite_token' => $token]);
             return redirect()->route('login');
         }
 
+        $salaId = (int) ($data['salaId'] ?? 0);
         $salaOwnerId = $data['donoId'] ?? null;
-        // Log::info('acceptInvite - dono da sala', ['donoId' => $salaOwnerId]);
 
         if (!$salaOwnerId) {
-            // Log::error('acceptInvite - dono da sala ausente');
-            return redirect()->route('home')->withErrors(['sala' => 'Não foi possível identificar o dono da sala.']);
+            return redirect()->route('home')->withErrors(['sala' => 'Nao foi possivel identificar o dono da sala.']);
         }
 
-        // 🔹 Busca todas as salas do dono
-        $salasResponse = $this->api->get("api/salas/mestre/{$salaOwnerId}");
-        // Log::info('acceptInvite - resposta da API salas', ['salasResponse' => $salasResponse]);
-
-        $salas = isset($salasResponse['data']) ? $salasResponse['data'] : $salasResponse;
-        $sala = collect($salas)->firstWhere('id', (int) $salaId);
-        // Log::info('acceptInvite - sala filtrada', ['sala' => $sala]);
-
+        $sala = $this->findSalaDoMestre($salaId, $salaOwnerId);
         if (!$sala) {
-            // Log::error('acceptInvite - sala não encontrada', ['salaId' => $salaId]);
-            return redirect()->route('home')->withErrors(['sala' => 'Sala não encontrada.']);
+            return redirect()->route('home')->withErrors(['sala' => 'Sala nao encontrada.']);
         }
 
-        // 🔹 Busca personagens
-        $personagensResponse = $this->api->get("api/personagem/usuario/" . session('user_id'));
-        // Log::info('acceptInvite - resposta personagens', ['response' => $personagensResponse]);
-
-        if (!isset($personagensResponse['status']) || $personagensResponse['status'] !== 'success') {
-            // Log::warning('API retornou erro ao buscar personagens', ['response' => $personagensResponse]);
-            $personagens = [];
-        } else {
-            $personagens = $personagensResponse['data'] ?? [];
-        }
-
-        // Log::info('acceptInvite - personagens carregados', [
-        //     'user_id' => session('user_id'),
-        //     'total' => count($personagens),
-        //     'nomes' => array_column($personagens, 'nome')
-        // ]);
-
+        $personagens = $this->personagensDoUsuario(session('user_id'));
         if (count($personagens) === 0) {
-            return redirect()->route('personagem.create')
-                ->with('info', 'Você precisa criar um personagem antes de entrar na sala.');
-        }
-
-        if (session()->has('selected_character')) {
-            // {{ url('salas/personagens/adicionar/'.$sala['id']) }}
-            // Eu então pego o id da sala eo id do personagem da sessão e faço a chamada para adicionar o personagem na sala
-            $personagemIdSessao = session('selected_character.id');
-            $this->api->post("api/salas/personagens/adicionar/{$salaId}/{$personagemIdSessao}");
-            // Log::info('acceptInvite - personagem selecionado na sessão, entrando na sala', [
-            //     'personagem' => session('selected_character')
-            // ]);
-            return redirect()->route('room.room', ['id' => $salaId]);
+            return redirect()->route('registerPerson', ['salaId' => $salaId])
+                ->with('info', 'Voce precisa criar um personagem antes de entrar na sala.');
         }
 
         return view('room.selection', [
             'sala' => $sala,
-            'personagens' => $personagens
+            'personagens' => $personagens,
         ]);
     }
 
     public function enterByCode(Request $request)
     {
-        $code = $request->query('codigo');
+        $validated = $request->validate([
+            'codigo' => 'required|string|max:100',
+        ]);
+
         $userId = session('user_id');
+        $salaResponse = $this->api->get('api/salas/codigo/' . rawurlencode($validated['codigo']));
 
-        if (!$userId) {
-            return redirect()->route('login')->with('error', 'Você precisa estar logado para entrar na sala.');
-        }
-
-        // Busca sala pelo código
-        $salaResponse = $this->api->get("api/salas/codigo/{$code}");
-
-        // Se retornou erro (404 ou outro)
         if (!$salaResponse || isset($salaResponse['error'])) {
             return redirect()->route('home')->withErrors([
-                'codigo' => 'Código inválido ou sala não encontrada.'
+                'codigo' => 'Codigo invalido ou sala nao encontrada.',
             ]);
         }
 
-        $sala = $salaResponse;
-        // // dd($salaResponse);
-        // // dd($sala);
-
-        // === Busca personagens ===
-        $personagensResponse = $this->api->get("api/personagem/usuario/{$userId}");
-        $personagens = $personagensResponse['data'] ?? [];
-
+        $personagens = $this->personagensDoUsuario($userId);
         if (empty($personagens)) {
-            return redirect()->route('personagem.create')
-                ->with('info', 'Você precisa criar um personagem antes de entrar na sala.');
+            return redirect()->route('registerPerson', ['salaId' => $salaResponse['id'] ?? null])
+                ->with('info', 'Voce precisa criar um personagem antes de entrar na sala.');
         }
 
         return view('room.selection', [
-            'sala' => $sala,
-            'personagens' => $personagens
+            'sala' => $salaResponse,
+            'personagens' => $personagens,
         ]);
     }
 
@@ -288,71 +199,98 @@ class SalaController extends Controller
         $userId = session('user_id');
         $userRole = session('user_role');
 
-        if (!$userId) {
-            return redirect()->route('login')->with('error', 'Você precisa estar logado.');
+        $sala = $this->api->get("api/salas/{$id}");
+        if (!$sala) {
+            abort(404, 'Sala nao encontrada.');
         }
 
-        // 🔹 Busca sala
-        $sala = $this->api->get("api/salas/{$id}");
-        if (!$sala) abort(404, 'Sala não encontrada.');
-
-        // 🔹 Busca membros
-        $personagens = collect($this->api->get("api/salas/personagens/listar/{$id}") ?? []);
-
-        // Extraímos os usuários dos personagens
+        $personagens = collect($this->listFromApi($this->api->get("api/salas/personagens/listar/{$id}")));
         $usuariosNaSala = $personagens->pluck('usuarioId')->unique()->values();
 
-        // 🔹 O mestre SEMPRE precisa estar na lista
         if (!$usuariosNaSala->contains($sala['mestre'])) {
             $usuariosNaSala->push($sala['mestre']);
         }
 
-        // 🔹 Buscar logins dos usuários (em um map id => login)
-        $membros = $usuariosNaSala->mapWithKeys(function($uid) {
+        $membros = $usuariosNaSala->mapWithKeys(function ($uid) {
             $u = $this->api->get("api/usuario/{$uid}");
             return [$uid => $u['data']['login'] ?? 'Desconhecido'];
         });
 
-        // 🔹 Verificar se o usuário acessante tem permissão
-        $isDono = ($userRole === 'MASTER' && $sala['mestre'] == $userId);
-
-        $salasDoJogador = collect($this->api->get("api/salas/jogador/{$userId}") ?? []);
-        $isConvidado = $salasDoJogador->contains('id', $id);
+        $isDono = ($userRole === 'MASTER' && (int) ($sala['mestre'] ?? 0) === (int) $userId);
+        $isConvidado = collect($this->salasDoJogador($userId))->contains(function ($salaDoJogador) use ($id) {
+            return (int) ($salaDoJogador['id'] ?? 0) === (int) $id;
+        });
 
         if (!$isDono && !$isConvidado) {
-            return redirect()->route('home')->with('error', 'Você não tem permissão para acessar esta sala.');
+            return redirect()->route('home')->with('error', 'Voce nao tem permissao para acessar esta sala.');
         }
-        // dd($sala, $membros, $isDono, $isConvidado);
 
-        // 🔹 Buscar personagem do jogador (para exibir na ficha)
         $personagemJogador = null;
         if (!$isDono) {
-            // Filtra o personagem do usuário atual (reutiliza a busca anterior)
             $personagemObj = $personagens->firstWhere('usuarioId', $userId);
 
             if ($personagemObj) {
-                // Busca detalhes completos do personagem
-                $personagemJogador = $this->api->get("api/personagem/{$personagemObj['id']}");
-                if (isset($personagemJogador['data'])) {
-                    $personagemJogador = $personagemJogador['data'];
-                }
+                $personagemJogador = $this->api->get('api/personagem/' . ($personagemObj['id'] ?? $personagemObj['personagemId']));
+                $personagemJogador = $personagemJogador['data'] ?? $personagemJogador;
             }
         }
 
-        // 🔹 Retorna apenas o necessário
         return view('room.room', [
-            'sala'   => $sala,
+            'sala' => $sala,
             'isDono' => $isDono,
             'membros' => $membros,
-            'personagemJogador' => $personagemJogador
+            'personagemJogador' => $personagemJogador,
         ]);
     }
 
     public function adicionarPersonagem(Request $request, $salaId)
     {
-        $personagemId = $request->personagemId;
-        $this->api->post("api/salas/personagens/adicionar/{$salaId}/{$personagemId}");
+        $validated = $request->validate([
+            'personagemId' => 'required|integer',
+        ]);
+
+        if (!$this->usuarioPossuiPersonagem(session('user_id'), $validated['personagemId'])) {
+            abort(403, 'Voce nao tem permissao para usar este personagem.');
+        }
+
+        $this->api->post("api/salas/personagens/adicionar/{$salaId}/{$validated['personagemId']}");
+
         return redirect()->route('room.room', ['id' => $salaId]);
     }
 
+    private function findSalaDoMestre(int $salaId, $mestreId): ?array
+    {
+        $salas = $this->listFromApi($this->api->get("api/salas/mestre/{$mestreId}"));
+
+        return collect($salas)->first(function ($sala) use ($salaId, $mestreId) {
+            return (int) ($sala['id'] ?? 0) === $salaId
+                && (int) ($sala['mestre'] ?? $mestreId) === (int) $mestreId;
+        });
+    }
+
+    private function salasDoJogador($userId): array
+    {
+        return $this->listFromApi($this->api->get("api/salas/jogador/{$userId}"));
+    }
+
+    private function personagensDoUsuario($userId): array
+    {
+        return $this->listFromApi($this->api->get("api/personagem/usuario/{$userId}"));
+    }
+
+    private function usuarioPossuiPersonagem($userId, $personagemId): bool
+    {
+        return collect($this->personagensDoUsuario($userId))->contains(function ($personagem) use ($personagemId) {
+            return (int) ($personagem['id'] ?? $personagem['personagemId'] ?? 0) === (int) $personagemId;
+        });
+    }
+
+    private function listFromApi($response): array
+    {
+        if (isset($response['data']) && is_array($response['data'])) {
+            return $response['data'];
+        }
+
+        return is_array($response) ? $response : [];
+    }
 }
