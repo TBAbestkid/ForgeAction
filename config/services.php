@@ -35,9 +35,9 @@ return [
         ],
     ],
     'api' => [
-        'base_url' => env('EXTERNAL_API_URL', 'http://forgeaction-back:9001/api'),
-        'user' => env('EXTERNAL_API_USER', 'admin'),
-        'pass' => env('EXTERNAL_API_PASS', 'admin'),
+        'base_url' => env('EXTERNAL_API_URL'),
+        'user' => env('EXTERNAL_API_USER'),
+        'pass' => env('EXTERNAL_API_PASS'),
     ],
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
