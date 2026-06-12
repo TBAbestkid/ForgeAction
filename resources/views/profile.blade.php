@@ -5,7 +5,6 @@
 @section('content')
 <div class="container my-5">
     <div class="card shadow p-4 mx-auto" style="max-width: 800px;">
-        <!-- Botão de Voltar -->
         <div class="text-start">
             <a href="{{ url('/') }}" class="btn btn-outline-light mb-4 px-4 py-2 shadow-sm">
                 <i class="fa-solid fa-arrow-left me-2"></i> Voltar para Home
@@ -13,32 +12,17 @@
         </div>
 
         <div class="row g-4 align-items-center">
-            {{-- Coluna esquerda: ícone + login --}}
             <div class="col-md-4 text-center border-end">
                 <i class="fa-solid fa-user-circle text-light" style="font-size: 8rem;"></i>
                 <h3 class="mt-3 mb-0 text-light">{{ $user['login'] }}</h3>
                 <p class="text-light mb-0"><i class="fa-solid fa-id-badge me-1"></i>{{ ucfirst(strtolower($user['role'])) }}</p>
 
-                {{-- Toggle para mudar o papel --}}
-                <div class="form-check form-switch mt-4">
-                    <input class="form-check-input" type="checkbox" id="toggleRole"
-                        {{ $user['role'] === 'MASTER' ? 'checked' : '' }}>
-                    <label class="form-check-label fw-bold text-light" for="toggleRole">
-                        {!! $user['role'] === 'MASTER'
-                            ? '<i class="fa-solid fa-chess-king me-1"></i> Mestre Ativo'
-                            : '<i class="fa-solid fa-user me-1"></i> Player Padrão' !!}
-                    </label>
-                </div>
-
-                {{-- Botão Editar Perfil --}}
                 <button id="btnEditProfile" class="btn btn-outline-light mt-4 w-100">
                     <i class="fa-solid fa-pen-to-square me-1"></i> Editar Perfil
                 </button>
             </div>
 
-            {{-- Coluna direita: informações editáveis --}}
             <div class="col-md-8">
-                {{-- Email --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold text-light">
                         <i class="fa-solid fa-envelope me-1"></i> Email
@@ -52,7 +36,6 @@
                     </div>
                 </div>
 
-                {{-- Senha Atual --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold text-light">
                         <i class="fa-solid fa-lock me-1"></i> Senha Atual
@@ -61,7 +44,6 @@
                         placeholder="Digite a senha atual" disabled>
                 </div>
 
-                {{-- Nova Senha --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold text-light">
                         <i class="fa-solid fa-key me-1"></i> Nova Senha
@@ -70,7 +52,6 @@
                         placeholder="Digite a nova senha" disabled>
                 </div>
 
-                {{-- Confirmar senha --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold text-light">
                         <i class="fa-solid fa-key me-1"></i> Confirmar Senha
@@ -95,7 +76,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const editBtn = document.getElementById("btnEditProfile");
-        const inputs = document.querySelectorAll("#email, #senha, #senhaAtual, #senhaConfirm, #toggleRole");
+        const inputs = document.querySelectorAll("#email, #senha, #senhaAtual, #senhaConfirm");
         const buttons = document.querySelectorAll("#btnUpdateEmail, #btnUpdatePassword");
 
         const emailInput = document.getElementById('email');
@@ -106,15 +87,8 @@
         const senhaConfirmInput = document.getElementById('senhaConfirm');
         const btnUpdatePassword = document.getElementById('btnUpdatePassword');
 
-        const toggleRole = document.getElementById('toggleRole');
-        const roleLabel = toggleRole.nextElementSibling;
-
         let editMode = false;
 
-        const emailLog = "{{ $user['email'] }}";
-        const loginLog = "{{ $user['login'] }}";
-        console.log('Perfil carregado para o usuário:', loginLog, 'com email:', emailLog);
-        // --- Atualizar Email --- Funciona!
         btnUpdateEmail.addEventListener('click', function(e) {
             e.preventDefault();
             fetch("{{ route('profile.updateEmail') }}", {
@@ -123,31 +97,24 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({
-                    email: emailInput.value,
-                    role: toggleRole.checked ? 'MASTER' : 'PLAYER'
-                })
+                body: JSON.stringify({ email: emailInput.value })
             })
             .then(res => res.json())
             .then(res => {
-                if(res.status === 'success') showToast(res.message, 'success');
+                if (res.status === 'success') showToast(res.message, 'success');
                 else showAlert(res.message || 'Erro ao atualizar email');
             })
-            .catch(err => {
-                console.error(err);
-                showAlert('Erro na requisição');
-            });
+            .catch(() => showAlert('Erro na requisicao'));
         });
 
-        // --- Atualizar Senha ---
         btnUpdatePassword.addEventListener('click', function(e) {
             e.preventDefault();
             const senha = senhaInput.value.trim();
             const senhaAtual = senhaAtualInput.value.trim();
             const senhaConfirm = senhaConfirmInput.value.trim();
 
-            if(!senha || !senhaConfirm || !senhaAtual) return showAlert('Preencha os três campos de senha');
-            if(senha !== senhaConfirm) return showAlert('As senhas não coincidem');
+            if (!senha || !senhaConfirm || !senhaAtual) return showAlert('Preencha os tres campos de senha');
+            if (senha !== senhaConfirm) return showAlert('As senhas nao coincidem');
 
             fetch("{{ route('profile.updatePassword') }}", {
                 method: 'PUT',
@@ -159,48 +126,18 @@
             })
             .then(res => res.json())
             .then(res => {
-                if(res.status === 'success') {
+                if (res.status === 'success') {
                     showToast(res.message, 'success');
                     senhaInput.value = '';
                     senhaAtualInput.value = '';
                     senhaConfirmInput.value = '';
-                } else showAlert(res.message || 'Erro ao atualizar senha');
-            })
-            .catch(err => {
-                console.error(err);
-                showAlert('Erro na requisição');
-            });
-        });
-
-        // --- Alternar Role ---
-        toggleRole.addEventListener('change', function() {
-            const newRole = toggleRole.checked ? 'MASTER' : 'PLAYER';
-
-            fetch("{{ route('profile.updateRole') }}", {
-                method: 'PUT', // use PUT direto
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ role: newRole })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if(res.status === 'success') {
-                    roleLabel.textContent = newRole === 'MASTER' ? 'Mestre Ativo' : 'Player Padrão';
-                    roleLabel.classList.add('text-light');
-                    showToast(`Role alterado para ${newRole}`, 'success');
                 } else {
-                    showAlert(res.message || 'Erro ao atualizar role');
+                    showAlert(res.message || 'Erro ao atualizar senha');
                 }
             })
-            .catch(err => {
-                console.error('Erro no fetch:', err);
-                showAlert('Erro na requisição');
-            });
+            .catch(() => showAlert('Erro na requisicao'));
         });
 
-        // --- Botão de edição ---
         editBtn.addEventListener("click", () => {
             editMode = !editMode;
 
@@ -208,16 +145,13 @@
             buttons.forEach(btn => btn.disabled = !editMode);
 
             if (editMode) {
-                editBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações';
+                editBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Alteracoes';
                 editBtn.classList.remove("btn-outline-light");
                 editBtn.classList.add("btn-success");
             } else {
                 editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Editar Perfil';
                 editBtn.classList.remove("btn-success");
                 editBtn.classList.add("btn-outline-light");
-
-                // Aqui você pode chamar uma função pra salvar automaticamente
-                console.log("💾 Alterações salvas!");
             }
         });
     });
