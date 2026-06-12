@@ -135,6 +135,9 @@
 
                 if (typeof window.atualizarInterfaceTurno === 'function') {
                     window.atualizarInterfaceTurno(turnoEhMeu);
+                    if (turnoEhMeu) {
+                        window.audioManager?.play('turno');
+                    }
                 } else {
                     console.warn('⚠️ atualizarInterfaceTurno não disponível ainda: tentando aguardar carregamento...');
 
@@ -144,8 +147,9 @@
                             // Atualizar interface
                             window.atualizarInterfaceTurno(turnoEhMeu);
                             // Toca o som de turno
-                            window.audioManager.play('turno');
-                            window.audioManager.setVolume(1);
+                            if (turnoEhMeu) {
+                                window.audioManager?.play('turno');
+                            }
                             return;
                         }
 

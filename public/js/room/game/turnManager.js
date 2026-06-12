@@ -317,6 +317,8 @@ function enviarAcaoMestre(valor) {
             acao: 'atualizacaoVida',
             personagemId: personagemSelecionadoId,
             novaVida: novaVida,
+            vidaAnterior: vidaSelecionada,
+            tipo: acaoMestreAtual === 'causarDano' ? 'dano' : 'vida',
             salaId: salaId
         });
     }

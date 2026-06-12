@@ -13,6 +13,16 @@ async function carregarPersonagensSala(salaId) {
     }
 }
 
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char]));
+}
+
 function limparListaPersonagensOnline() {
     const colunaPersonagens = document.getElementById('coluna-personagens');
     const colunaMobile = document.getElementById('coluna-personagens-mobile');
@@ -35,6 +45,9 @@ function criarCardPersonagem(personagem, sufixo) {
 
     const classeFormatada = window.classesMap[personagem.classe] || personagem.classe;
     const racaFormatada = window.racasMap[personagem.raca] || personagem.raca;
+    const nomeSeguro = escapeHtml(personagem.nome);
+    const classeSeguro = escapeHtml(classeFormatada);
+    const racaSeguro = escapeHtml(racaFormatada);
 
     personagemDiv.dataset.id = personagem.id;
     personagemDiv.dataset.usuarioId = personagem.usuarioId;
@@ -60,14 +73,14 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.dataset.esquivaPersonagem = personagem.esquivaPersonagem || 0;
 
     personagemDiv.innerHTML = `
-        <div class="d-flex flex-column align-items-center gap-2 w-100">
+        <div class="d-flex flex-column align-items-stretch gap-2 w-100 personagem-card-nome-wrap">
 
-            <strong class="small personagem-nome w-100 text-start text-truncate" style="flex: 1; text-align: left;">
-                ${personagem.nome}
+            <strong class="small personagem-nome w-100 text-start" title="${nomeSeguro}">
+                ${nomeSeguro}
             </strong>
 
-            <strong class="small text-white" style="flex-shrink: 0;">
-                ${classeFormatada} - ${racaFormatada}
+            <strong class="small text-white text-start text-truncate w-100" title="${classeSeguro} - ${racaSeguro}" style="min-width: 0;">
+                ${classeSeguro} - ${racaSeguro}
             </strong>
         </div>
 
@@ -75,7 +88,7 @@ function criarCardPersonagem(personagem, sufixo) {
             <div class="progress-bar bg-success d-flex justify-content-center align-items-center"
                 role="progressbar"
                 style="width: 100%;">
-                ${personagem.vida}/${personagem.vida}
+                ${escapeHtml(personagem.vida)}/${escapeHtml(personagem.vida)}
             </div>
         </div>
     `;
@@ -305,10 +318,11 @@ function abrirFichaPersonagem(cardElement) {
     // Atualiza o título
     const titulo = offcanvas.querySelector('#offcanvasFichaPersonagemLabel');
     if (titulo) {
+        const nomeSeguro = escapeHtml(personagem.nome);
         titulo.innerHTML = `
             <i class="fa-solid fa-scroll me-2"></i>
-            <span class="personagem-nome flex-grow-1" title="${personagem.nome}">
-                Ficha de ${personagem.nome}
+            <span class="personagem-nome flex-grow-1" title="${nomeSeguro}">
+                Ficha de ${nomeSeguro}
             </span>
         `;
     }
@@ -316,6 +330,8 @@ function abrirFichaPersonagem(cardElement) {
     // Atualiza o conteúdo (encontra o body do offcanvas)
     const bodyOffcanvas = offcanvas.querySelector('.offcanvas-body');
     if (bodyOffcanvas) {
+        const racaSeguro = escapeHtml(personagem.raca);
+        const classeSeguro = escapeHtml(personagem.classe);
         bodyOffcanvas.innerHTML = `
             <div class="row g-2">
                 <!-- Header do Personagem -->
