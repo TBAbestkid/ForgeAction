@@ -63,6 +63,7 @@ function handleRollComplete(results) {
     console.log('🎲 Resultado final:', valor);
 
     mostrarResultadoDados(valor);
+    window.audioManager?.playDiceResult?.(valor);
 
     setTimeout(() => {
 
