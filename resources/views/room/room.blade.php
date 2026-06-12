@@ -108,6 +108,35 @@
 
         .offcanvas-pinned {
             box-shadow: inset -4px 0 0 0 rgba(17, 150, 243, 0.4) !important;
+            pointer-events: auto;
+        }
+
+        body.offcanvas-interactive {
+            overflow: auto !important;
+            padding-right: 0 !important;
+        }
+
+        body.offcanvas-interactive .offcanvas-backdrop {
+            display: none !important;
+        }
+
+        .personagem-nome {
+            display: block;
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .personagem-card-nome-wrap {
+            min-width: 0;
+            max-width: 100%;
+            padding-right: 2.25rem;
+        }
+
+        #coluna-personagens {
+            overflow-x: hidden !important;
         }
 
         .offcanvas-pinned .offcanvas-header {
@@ -787,6 +816,13 @@
                 }
             });
 
+            this.offcanvas.addEventListener('hidden.bs.offcanvas', () => {
+                if (this.isFixed) {
+                    this.unpin();
+                }
+                document.body.classList.remove('offcanvas-interactive');
+            });
+
             // Botão PIN
             this.pinBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -816,6 +852,10 @@
 
             // ✅ Desabilitar backdrop - não deixa escuro atrás
             this.offcanvas.setAttribute('data-bs-backdrop', 'false');
+            document.body.classList.add('offcanvas-interactive');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            document.querySelectorAll('.offcanvas-backdrop').forEach(backdrop => backdrop.remove());
 
             // ✅ Mudar visual do botão PIN
             this.pinBtn.classList.add('active');
@@ -842,6 +882,7 @@
 
             // ✅ Reabilitar backdrop
             this.offcanvas.setAttribute('data-bs-backdrop', 'true');
+            document.body.classList.remove('offcanvas-interactive');
 
             // ✅ Restaurar visual do botão PIN
             this.pinBtn.classList.remove('active');
