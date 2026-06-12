@@ -228,39 +228,42 @@ $(document).ready(function () {
      * 📋 COPIAR CÓDIGO DA SALA
      * =================================
      */
-
     /**
-     * Abrir modal de cópia de código
+     * Abrir modal de copia de codigo
      */
+    function abrirModalCodigo(codigo) {
+        if (!codigo) return;
+
+        const input = document.getElementById('inputCodigoSalaCopiar');
+        const modalEl = document.getElementById('modalCopiarCodigo');
+
+        if (!input || !modalEl) return;
+
+        input.value = String(codigo);
+        input.setAttribute('value', String(codigo));
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+
+        modalEl.addEventListener('shown.bs.modal', () => {
+            input.value = String(codigo);
+            input.setAttribute('value', String(codigo));
+        }, { once: true });
+    }
+
     $(document).on('click', '[data-action="copiar-codigo"], .btn-copy, .dropdown-item', function (e) {
-        // Verificar se é um botão de cópia
-        if ($(this).data('action') === 'copiar-codigo' || $(this).hasClass('btn-copy')) {
-            e.preventDefault();
-            const codigo = $(this).data('code');
+        const $btn = $(this);
+        const isCopyAction = $btn.data('action') === 'copiar-codigo'
+            || $btn.hasClass('btn-copy')
+            || ($btn.hasClass('dropdown-item') && $btn.text().includes('Copiar'));
 
-            if (codigo) {
-                const input = document.getElementById('inputCodigoSalaCopiar');
-                if (input) {
-                    input.value = codigo;
-                    const modal = new bootstrap.Modal(document.getElementById('modalCopiarCodigo'));
-                    modal.show();
-                }
-            }
-        }
-        // Alternativa: dropdown items que contenham "Copiar"
-        else if ($(this).hasClass('dropdown-item') && $(this).text().includes('Copiar')) {
-            e.preventDefault();
-            const codigo = $(this).data('code');
+        if (!isCopyAction) return;
 
-            if (codigo) {
-                const input = document.getElementById('inputCodigoSalaCopiar');
-                if (input) {
-                    input.value = codigo;
-                    const modal = new bootstrap.Modal(document.getElementById('modalCopiarCodigo'));
-                    modal.show();
-                }
-            }
-        }
+        e.preventDefault();
+        e.stopPropagation();
+
+        const codigo = this.dataset.code || $btn.attr('data-code') || $btn.data('code');
+        abrirModalCodigo(codigo);
     });
 
     /**
