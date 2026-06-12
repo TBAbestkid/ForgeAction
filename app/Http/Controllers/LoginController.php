@@ -70,10 +70,11 @@ class LoginController extends Controller
         return back()->with('error', $response['message'] ?? 'Falha no login.');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        session()->forget('user_login');
-        session()->forget('selected_character');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect('/')->with('success', 'Logout realizado com sucesso!');
     }
 
