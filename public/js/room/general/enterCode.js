@@ -1,84 +1,64 @@
-// ======== ENTRAR NA SALA PELO CÓDIGO ========
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("[DEBUG] DOM totalmente carregado.");
+    const modalSalaCodigo = document.getElementById('modalSalabyCode');
+    const btnEntrarSalaCodigo = modalSalaCodigo?.querySelector('#btnEntrarSalaCodigo');
+    const inputCodigoSala = modalSalaCodigo?.querySelector('#inputCodigoSala');
 
-    const btnEntrarSalaCodigo = document.getElementById('btnEntrarSalaCodigo');
-    const inputCodigoSala = document.getElementById('inputCodigoSala');
+    if (!modalSalaCodigo || !btnEntrarSalaCodigo || !inputCodigoSala) {
+        return;
+    }
 
-    console.log("[DEBUG] Elemento btnEntrarSalaCodigo:", btnEntrarSalaCodigo);
-    console.log("[DEBUG] Elemento inputCodigoSala:", inputCodigoSala);
-
-    btnEntrarSalaCodigo?.addEventListener('click', async () => {
-        console.log("[DEBUG] Botão 'Entrar Sala' clicado.");
-
+    btnEntrarSalaCodigo.addEventListener('click', async () => {
         const codigo = inputCodigoSala.value.trim();
-        console.log("[DEBUG] Código digitado:", codigo);
 
         if (!codigo) {
-            console.warn("[DEBUG] Código vazio!");
-            showToast('Por favor, insira um código.', 'danger');
+            showToast('Por favor, insira um codigo.', 'danger');
+            inputCodigoSala.focus();
             return;
         }
 
         try {
-            console.log(`[DEBUG] Fazendo request GET /api/codigo/${codigo}`);
-
-            const response = await fetch(`/api/codigo/${codigo}`, {
-                headers: { 'Accept': 'application/json' }
+            const codigoSeguro = encodeURIComponent(codigo);
+            const response = await fetch(`/api/codigo/${codigoSeguro}`, {
+                headers: { Accept: 'application/json' },
             });
 
-            console.log("[DEBUG] response.status =", response.status);
-            console.log("[DEBUG] response.ok =", response.ok);
-
             if (response.status === 404) {
-                console.warn("[DEBUG] API retornou 404 → Sala não encontrada.");
-                showToast('Código inválido ou sala não encontrada.', 'danger');
+                showToast('Codigo invalido ou sala nao encontrada.', 'danger');
                 return;
             }
 
             if (!response.ok) {
-                console.error("[DEBUG] response.ok = false → Erro inesperado:", response);
-                showToast('Erro inesperado ao verificar código.', 'danger');
+                showToast('Erro inesperado ao verificar codigo.', 'danger');
                 return;
             }
 
-            const sala = await response.json();
-            console.log("[DEBUG] JSON recebido da API:", sala);
-
-            console.log("[DEBUG] Redirecionando para rota Laravel...");
-            window.location.href = `/salas/entrar/codigo?codigo=${codigo}`;
-
+            window.location.href = `/salas/entrar/codigo?codigo=${codigoSeguro}`;
         } catch (e) {
-            console.error("[DEBUG] Erro no try/catch:", e);
-            showToast('Erro ao validar código da sala.', 'danger');
+            showToast('Erro ao validar codigo da sala.', 'danger');
         }
     });
 
-    // ======== COPIAR CÓDIGO DA SALA ========
-    document.addEventListener('click', async (e) => {
+    inputCodigoSala.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            btnEntrarSalaCodigo.click();
+        }
+    });
 
+    document.addEventListener('click', async (e) => {
         const btn = e.target.closest('.btn-copy');
         if (!btn) return;
 
-        console.log("[DEBUG] Botão copiar clicado:", btn);
-
         const code = btn.dataset.code;
-        console.log("[DEBUG] Código encontrado no data-code:", code);
-
         if (!code) {
-            console.warn("[DEBUG] Nenhum código para copiar.");
-            showToast('Nenhum código disponível para copiar.', 'danger');
+            showToast('Nenhum codigo disponivel para copiar.', 'danger');
             return;
         }
 
         try {
-            console.log("[DEBUG] Tentando copiar código...");
-
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                console.log("[DEBUG] Copiando com navigator.clipboard.writeText()");
                 await navigator.clipboard.writeText(code);
             } else {
-                console.log("[DEBUG] Copiando via método fallback (input invisível)");
                 const tempInput = document.createElement('input');
                 tempInput.value = code;
                 document.body.appendChild(tempInput);
@@ -87,12 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.removeChild(tempInput);
             }
 
-            console.log("[DEBUG] Código copiado com sucesso!");
-            showToast('Código copiado para a área de transferência!', 'success');
-
+            showToast('Codigo copiado para a area de transferencia!', 'success');
         } catch (err) {
-            console.error("[DEBUG] Erro ao copiar código:", err);
-            showToast('Falha ao copiar o código.', 'danger');
+            showToast('Falha ao copiar o codigo.', 'danger');
         }
     });
 });

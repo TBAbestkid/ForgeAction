@@ -239,7 +239,7 @@ $(document).ready(function () {
             const codigo = $(this).data('code');
 
             if (codigo) {
-                const input = document.getElementById('inputCodigoSala');
+                const input = document.getElementById('inputCodigoSalaCopiar');
                 if (input) {
                     input.value = codigo;
                     const modal = new bootstrap.Modal(document.getElementById('modalCopiarCodigo'));
@@ -253,7 +253,7 @@ $(document).ready(function () {
             const codigo = $(this).data('code');
 
             if (codigo) {
-                const input = document.getElementById('inputCodigoSala');
+                const input = document.getElementById('inputCodigoSalaCopiar');
                 if (input) {
                     input.value = codigo;
                     const modal = new bootstrap.Modal(document.getElementById('modalCopiarCodigo'));
@@ -267,7 +267,7 @@ $(document).ready(function () {
      * Botão para copiar código
      */
     $(document).on('click', '#btnCopiarCodigoSala', function () {
-        const input = document.getElementById('inputCodigoSala');
+        const input = document.getElementById('inputCodigoSalaCopiar');
         const mensagem = document.getElementById('mensagemCopiaoCodigo');
 
         if (!input || !input.value) {

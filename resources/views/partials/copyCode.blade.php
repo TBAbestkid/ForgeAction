@@ -11,7 +11,7 @@
             <div class="modal-body text-center">
                 <p class="text-secondary mb-3">Compartilhe este código com seus amigos:</p>
                 <div class="input-group">
-                    <input type="text" class="form-control bg-secondary text-white border-0" id="inputCodigoSala" readonly>
+                    <input type="text" class="form-control bg-secondary text-white border-0" id="inputCodigoSalaCopiar" readonly>
                     <button class="btn btn-primary" type="button" id="btnCopiarCodigoSala">
                         <i class="fa-solid fa-copy"></i> Copiar
                     </button>
