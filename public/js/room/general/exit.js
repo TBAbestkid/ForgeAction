@@ -6,7 +6,7 @@ $(document).ready(function () {
     ------------------------------------------------------------- */
     $(document).on('click', '.btn-leave', function () {
         const salaId = $(this).data('id');
-        const userId = window.CHAT_CONFIG.userId;
+        const userId = window.CHAT_CONFIG?.userId || window.userId;
 
         showConfirm('Tem certeza que deseja sair desta sala?', function () {
             showToast('Saindo da sala...');
@@ -16,8 +16,8 @@ $(document).ready(function () {
                 url: `/api/salas/personagens/listar/${salaId}`,
                 type: 'GET',
                 data: { _token: window.csrfToken },
-                success: function (personagens) {
-                    console.log("Personagens recebidos:", personagens);
+                success: function (response) {
+                    const personagens = Array.isArray(response) ? response : (response.data || []);
                     const personagem = personagens.find(p => p.usuarioId == userId);
 
                     if (!personagem) {
@@ -25,7 +25,7 @@ $(document).ready(function () {
                         return;
                     }
 
-                    const personagemId = personagem.personagemId;
+                    const personagemId = personagem.personagemId || personagem.id;
 
                     // 🔹 Passo 2: chamar a rota de saída
                     $.ajax({
