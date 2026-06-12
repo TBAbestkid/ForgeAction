@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Helpers\ApiResponse;
 use App\Services\ApiService;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class SalaApiController extends Controller
@@ -17,40 +16,39 @@ class SalaApiController extends Controller
         $this->api = $api;
     }
 
-    // ---------- Salas ----------
-
-    /**
-     * GET /api/salas
-     * Retorna todas as salas
-     */
-    public function get() {
-        return response()->json(
-            $this->api->get("api/salas")
-        );
+    public function get()
+    {
+        return response()->json($this->api->get('api/salas'));
     }
 
-    /**
-     * POST /api/salas
-     * Cria uma nova sala
-     */
     public function store(Request $request)
     {
-        // cria sala
+        if (session('user_role') !== 'MASTER') {
+            return redirect()->route('home')->with('error', 'Apenas mestres podem criar salas.');
+        }
+
+        $validated = $request->validate([
+            'nome' => 'required|string|max:100',
+            'descricao' => 'nullable|string|max:1000',
+            'background' => 'nullable|image|max:2048',
+        ]);
+
         $response = $this->api->post('api/salas', [
-            'nome' => $request->nome,
-            'descricao' => $request->descricao,
+            'nome' => $validated['nome'],
+            'descricao' => $validated['descricao'] ?? null,
             'mestreId' => session('user_id'),
         ]);
 
-        // Verifica se a resposta contém o ID da sala criada
         if (!isset($response['id'])) {
-            Log::error('Erro ao criar sala: resposta da API não contém ID', ['response' => $response]);
-            return redirect()->back()->with(['error' => 'Erro ao criar sala. Tente novamente. Erro: ' . ($response['message'] ?? 'Resposta inesperada da API')]);
+            Log::error('Erro ao criar sala: resposta da API nao contem ID', ['response' => $response]);
+
+            return redirect()->back()->with([
+                'error' => 'Erro ao criar sala. Tente novamente. Erro: ' . ($response['message'] ?? 'Resposta inesperada da API'),
+            ]);
         }
 
         $salaId = $response['id'];
 
-        // se veio imagem → upload
         if ($request->hasFile('background')) {
             $file = $request->file('background');
 
@@ -65,117 +63,151 @@ class SalaApiController extends Controller
         return redirect()->route('home')->with('success', 'Sala criada!');
     }
 
-    /**
-     * PUT /api/salas/{id}
-     * Atualiza uma sala existente
-     */
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
+        if (!$this->mestrePossuiSala($id)) {
+            return ApiResponse::error('Voce nao tem permissao para editar esta sala.', 403);
+        }
+
+        $validated = $request->validate([
+            'nome' => 'sometimes|string|max:100',
+            'descricao' => 'sometimes|nullable|string|max:1000',
+        ]);
+
+        return response()->json($this->api->put("api/salas/{$id}", $validated));
+    }
+
+    public function destroy($id)
+    {
+        if (!$this->mestrePossuiSala($id)) {
+            return ApiResponse::error('Voce nao tem permissao para excluir esta sala.', 403);
+        }
+
+        return response()->json($this->api->delete("api/salas/{$id}"));
+    }
+
+    public function getByJogador($usuarioId)
+    {
+        if ((int) $usuarioId !== (int) session('user_id')) {
+            return ApiResponse::error('Voce nao tem permissao para listar salas deste jogador.', 403);
+        }
+
+        return response()->json($this->api->get("api/salas/jogador/{$usuarioId}"));
+    }
+
+    public function getByMestre($usuarioId)
+    {
+        if ((int) $usuarioId !== (int) session('user_id') || session('user_role') !== 'MASTER') {
+            return ApiResponse::error('Voce nao tem permissao para listar salas deste mestre.', 403);
+        }
+
+        return response()->json($this->api->get("api/salas/mestre/{$usuarioId}"));
+    }
+
+    public function getByNome($nome)
+    {
+        return response()->json($this->api->get('api/salas/buscar/' . rawurlencode($nome)));
+    }
+
+    public function getById($id)
+    {
+        if (!$this->usuarioPodeAcessarSala($id)) {
+            return ApiResponse::error('Voce nao tem permissao para acessar esta sala.', 403);
+        }
+
+        return response()->json($this->api->get("api/salas/{$id}"));
+    }
+
+    public function listarPersonagens($salaId)
+    {
+        if (!$this->usuarioPodeAcessarSala($salaId)) {
+            return ApiResponse::error('Voce nao tem permissao para listar personagens desta sala.', 403);
+        }
+
+        return response()->json($this->api->get("api/salas/personagens/listar/{$salaId}"));
+    }
+
+    public function adicionarPersonagem($salaId, $personagemId)
+    {
+        if (!$this->usuarioPossuiPersonagem($personagemId) && !$this->mestrePossuiSala($salaId)) {
+            return ApiResponse::error('Voce nao tem permissao para adicionar este personagem.', 403);
+        }
+
+        return response()->json($this->api->post("api/salas/personagens/adicionar/{$salaId}/{$personagemId}"));
+    }
+
+    public function removerPersonagem($salaId, $personagemId)
+    {
+        $podeRemover = $this->mestrePossuiSala($salaId) || $this->usuarioPossuiPersonagem($personagemId);
+
+        if (!$podeRemover) {
+            return ApiResponse::error('Voce nao tem permissao para remover este personagem.', 403);
+        }
+
+        return response()->json($this->api->delete("api/salas/personagens/remover/{$salaId}/{$personagemId}"));
+    }
+
+    public function getByCode($code)
+    {
+        return response()->json($this->api->get('api/salas/codigo/' . rawurlencode($code)));
+    }
+
+    public function adicionarPersonagemByCode(Request $request)
+    {
+        $validated = $request->validate([
+            'codigo' => 'required|string|max:100',
+            'personagemId' => 'required|integer',
+        ]);
+
+        if (!$this->usuarioPossuiPersonagem($validated['personagemId'])) {
+            return ApiResponse::error('Voce nao tem permissao para usar este personagem.', 403);
+        }
+
         return response()->json(
-            $this->api->put("api/salas/{$id}", $request->all())
+            $this->api->post("api/salas/codigo/{$validated['codigo']}/personagens/{$validated['personagemId']}")
         );
     }
 
-    /**
-     * DELETE /api/salas/{id}
-     * Deleta uma sala
-     */
-    public function destroy($id) {
-        return response()->json(
-            $this->api->delete("api/salas/{$id}")
-        );
+    private function mestrePossuiSala($salaId): bool
+    {
+        if (session('user_role') !== 'MASTER') {
+            return false;
+        }
+
+        $salas = $this->listFromApi($this->api->get('api/salas/mestre/' . session('user_id')));
+
+        return collect($salas)->contains(function ($sala) use ($salaId) {
+            return (int) ($sala['id'] ?? 0) === (int) $salaId
+                && (int) ($sala['mestre'] ?? session('user_id')) === (int) session('user_id');
+        });
     }
 
-    /**
-     * GET /api/salas/jogador/{usuarioId}
-     * Retorna as salas em que o jogador participa
-     */
-    public function getByJogador($usuarioId) {
-        return response()->json(
-            $this->api->get("api/salas/jogador/{$usuarioId}")
-        );
+    private function usuarioPodeAcessarSala($salaId): bool
+    {
+        if ($this->mestrePossuiSala($salaId)) {
+            return true;
+        }
+
+        $salas = $this->listFromApi($this->api->get('api/salas/jogador/' . session('user_id')));
+
+        return collect($salas)->contains(fn ($sala) => (int) ($sala['id'] ?? 0) === (int) $salaId);
     }
 
-    /**
-     * GET /api/salas/mestre/{usuarioId}
-     * Retorna as salas em que o usuário é mestre
-     */
-    public function getByMestre($usuarioId) {
-        return response()->json(
-            $this->api->get("api/salas/mestre/{$usuarioId}")
-        );
+    private function usuarioPossuiPersonagem($personagemId): bool
+    {
+        $personagens = $this->listFromApi($this->api->get('api/personagem/usuario/' . session('user_id')));
+
+        return collect($personagens)->contains(function ($personagem) use ($personagemId) {
+            return (int) ($personagem['id'] ?? $personagem['personagemId'] ?? 0) === (int) $personagemId;
+        });
     }
 
-    /**
-     * GET /api/salas/buscar/{nome}
-     * Busca salas pelo nome
-     */
-    public function getByNome($nome) {
-        return response()->json(
-            $this->api->get("api/salas/buscar/{$nome}")
-        );
-    }
+    private function listFromApi($response): array
+    {
+        if (isset($response['data']) && is_array($response['data'])) {
+            return $response['data'];
+        }
 
-    /**
-     * GET /api/salas/{id}
-     * Retorna os detalhes de uma sala específica
-     */
-    public function getById($id) {
-        return response()->json(
-            $this->api->get("api/salas/{$id}")
-        );
-    }
-
-    // ---------- Personagens em Salas ----------
-
-    /**
-     * GET /api/salas/personagens/listar/{salaId}
-     * Lista todos os personagens de uma sala
-     */
-    public function listarPersonagens($salaId) {
-        return response()->json(
-            $this->api->get("api/salas/personagens/listar/{$salaId}")
-        );
-    }
-
-    /**
-     * POST /api/salas/personagens/adicionar/{salaId}/{personagemId}
-     * Adiciona um personagem a uma sala
-     */
-    public function adicionarPersonagem($salaId, $personagemId) {
-        return response()->json(
-            $this->api->post("api/salas/personagens/adicionar/{$salaId}/{$personagemId}")
-        );
-    }
-
-    /**
-     * DELETE /api/salas/personagens/remover/{salaId}/{personagemId}
-     * Remove um personagem de uma sala
-     */
-    public function removerPersonagem($salaId, $personagemId) {
-        return response()->json(
-            $this->api->delete("api/salas/personagens/remover/{$salaId}/{$personagemId}")
-        );
-    }
-
-    // ---------- Code by Sala ----------
-
-    /**
-     * GET /api/codigo/{code}
-     * Retorna o código único de uma sala
-     */
-    public function getByCode($code) {
-        return response()->json(
-            $this->api->get("api/salas/codigo/{$code}")
-        );
-    }
-
-    /**
-     * POST /api/codigo/{code}/personagens/{personagemId}
-     * Adiciona um personagem a uma sala usando o código único
-     */
-    public function adicionarPersonagemByCode($code, $personagemId) {
-        return response()->json(
-            $this->api->post("api/salas/codigo/{$code}/personagens/{$personagemId}")
-        );
+        return is_array($response) ? $response : [];
     }
 }
