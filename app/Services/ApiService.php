@@ -12,9 +12,16 @@ class ApiService
 
     public function __construct()
     {
-        $this->baseUrl = config('services.api.base_url', 'https://narrow-christan-rokaideveloper-806169ef.koyeb.app');
-        $this->user = config('services.api.user', 'admin');
-        $this->pass = config('services.api.pass', 'admin');
+        $baseUrl = config('services.api.base_url');
+        $this->user = config('services.api.user');
+        $this->pass = config('services.api.pass');
+
+        if (!$baseUrl || !$this->user || !$this->pass) {
+            throw new \RuntimeException('External API configuration is incomplete. Check EXTERNAL_API_URL, EXTERNAL_API_USER and EXTERNAL_API_PASS.');
+        }
+
+        $baseUrl = rtrim($baseUrl, '/');
+        $this->baseUrl = preg_replace('#/api$#', '', $baseUrl);
     }
 
     protected function withAuth()
@@ -22,24 +29,29 @@ class ApiService
         return Http::withBasicAuth($this->user, $this->pass);
     }
 
+    protected function url(string $path): string
+    {
+        return "{$this->baseUrl}/" . ltrim($path, '/');
+    }
+
     public function get(string $path, array $query = [])
     {
-        return $this->withAuth()->get("{$this->baseUrl}/{$path}", $query)->json();
+        return $this->withAuth()->get($this->url($path), $query)->json();
     }
 
     public function post(string $path, array $data = [])
     {
-        return $this->withAuth()->post("{$this->baseUrl}/{$path}", $data)->json();
+        return $this->withAuth()->post($this->url($path), $data)->json();
     }
 
     public function put(string $path, array $data = [])
     {
-        return $this->withAuth()->put("{$this->baseUrl}/{$path}", $data)->json();
+        return $this->withAuth()->put($this->url($path), $data)->json();
     }
 
     public function delete(string $path)
     {
-        return $this->withAuth()->delete("{$this->baseUrl}/{$path}")->json();
+        return $this->withAuth()->delete($this->url($path))->json();
     }
 
     // Para enviar imagens com multipart/form-data
@@ -47,7 +59,7 @@ class ApiService
     {
         return $this->withAuth()
             ->attach($fieldName, $contents, $filename)
-            ->post("{$this->baseUrl}/{$path}")
+            ->post($this->url($path))
             ->json();
     }
 
