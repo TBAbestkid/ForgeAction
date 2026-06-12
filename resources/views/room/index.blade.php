@@ -157,10 +157,10 @@
     window.csrfToken = "{{ csrf_token() }}";
     const routeSalasIndex = "{{ route('salas.index') }}";
 </script>
-<script src="{{ asset('js/room/invite.js') }}"></script>
-<script src="{{ asset('js/room/exit.js') }}"></script>
-<script src="{{ asset('js/room/delete.js') }}"></script>
-<script src="{{ asset('js/room/enter-code.js') }}"></script>
+<script src="{{ asset('js/room/general/invite.js') }}"></script>
+<script src="{{ asset('js/room/general/exit.js') }}"></script>
+<script src="{{ asset('js/room/general/delete.js') }}"></script>
+<script src="{{ asset('js/room/general/enterCode.js') }}"></script>
 <script>
 
     // ======== FILTRO DE SALAS (com debounce e feedback) ========
@@ -198,4 +198,3 @@
     });
 </script>
 @endsection
-
