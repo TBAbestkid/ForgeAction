@@ -98,6 +98,24 @@ class AudioManager {
         }
     }
 
+    playDiceResult(value) {
+        const result = Number(value);
+
+        if (!Number.isFinite(result)) return;
+
+        if (result >= 16) {
+            this.play('critico');
+            return;
+        }
+
+        if (result >= 6) {
+            this.play('normal');
+            return;
+        }
+
+        this.play('falha');
+    }
+
     setVolume(volume) {
         this.volume = volume;
         Object.values(this.sounds).forEach(audio => {
