@@ -1,157 +1,91 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Logs;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Broadcast;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\GoogleController;
-use App\Http\Controllers\ChatController;
-use App\Events\MessageSent;
-
-use App\Mail\TestMail;
-use App\Mail\InviteMail;
-
-/* -----------------------------------------
- *  Controllers da Api externa            /
- * --------------------------------------
- */
-use App\Http\Controllers\BonusPersonagemController;
-use App\Http\Controllers\PersonagemController;
 use App\Http\Controllers\EnumController;
-use App\Http\Controllers\SalaController;
+use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PersonagemController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\SalaApiController;
+use App\Http\Controllers\SalaController;
+use App\Http\Controllers\UserController;
 
 Route::view('/loading', 'loading')->name('loading');
 Route::view('/chat-teste', 'chat')->name('chat');
 Route::view('/baixar', 'pwa.download')->name('pwa.download');
 
-// -------------------- LOGIN --------------------
-// Exibir formulário de login
 Route::get('/login', [LoginController::class, 'login'])->name('login');
-// Processar login
 Route::post('/login', [LoginController::class, 'postLogin'])->name('login.post');
-// Logout
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-// Update, para MASTER ou PLAYER
-Route::put('/login/update', [LoginController::class, 'update'])->name('login.update');
-// Esqueceu a senha?
+
 Route::get('/login/forgot-password', [AuthController::class, 'forgotpassword'])->name('forgot-password');
 Route::post('/login/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('forgot-password.send');
 Route::get('/login/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
 Route::post('/login/reset-password', [AuthController::class, 'reset'])->name('password.update');
 
-// Login com Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
-// -------------------- REGISTRO --------------------
-// Exibir formulário de registro
 Route::get('/register', [RegisterController::class, 'register'])->name('register');
-
-// Processar registro do usuário
 Route::post('/register', [RegisterController::class, 'registerPost'])->name('register.post');
 
-// Redireciona '/' para '/home'
-Route::get('/', function () {
-    return redirect()->route('home');
-});
-
-// Home
+Route::get('/', fn () => redirect()->route('home'));
 Route::get('/home', [DashboardController::class, 'index'])->name('home');
-
-// Sobre
 Route::get('/sobre-forgeaction', [DashboardController::class, 'about'])->name('about');
-
-// Apenas logado
-Route::get('/dashboard', [DashboardController::class, 'dash'])->name('dashboard');
-Route::get('/perfil', [AuthController::class, 'profile'])->name('profile');
-
-// Rota pra acessar apenas a view de criar personagem:
-Route::get('/registro-personagem', [PersonagemController::class, 'personagem'])->name('registerPerson');
-
-// Selecionar personagem
-Route::post('/personagem/selecionar', [PersonagemController::class, 'select'])->name('character.select');
-// Deselecionar personagem
-Route::post('/personagem/deselecionar', [PersonagemController::class, 'deselect'])->name('character.deselect');
-// Para testar os dados
 Route::get('/dados-teste', [DashboardController::class, 'dice'])->name('dice');
 
-// Atualizar perfil
-Route::get('/perfil', [UserController::class, 'profile'])->name('profile'); // Página de perfil
-
-// Rotas da API de usuário
-Route::put('/perfil/email', [UserController::class, 'updateEmail'])->name('profile.updateEmail');
-Route::put('/perfil/role', [UserController::class, 'updateRole'])->name('profile.updateRole');
-Route::put('/perfil/senha', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
-// 🔹 Rota para listar todos os usuários
-Route::get('/usuario', [UserController::class, 'get'])->name('api.users.list');
-
-// 🔹 Rota para buscar um usuário específico
-Route::get('/usuario/{usuarioId}', [UserController::class, 'getById'])->name('api.users.show');
-
-/*
- *--------------------------------------------
- *   Rotas de personagem (API)              /
- *------------------------------------------
- */
-
-// Personagem principal
-Route::get('/personagem/{personagemId}', [PersonagemController::class, 'show']);
-Route::post('/personagem', [PersonagemController::class, 'store'])->name('personagem.store');
-Route::put('/personagem/{personagemId}', [PersonagemController::class, 'update'])->name('personagem.update');
-Route::delete('/personagem/{personagemId}', [PersonagemController::class, 'destroy']);
-Route::get('/personagem/usuario/{usuarioId}', [PersonagemController::class, 'showByUsuario']);
-
-// Apenas tudo néh
 Route::get('/enums/personagem', [EnumController::class, 'getPersonagemEnums']);
-
-// Enum de raças e classes
 Route::get('/enums/racas', [EnumController::class, 'racas']);
 Route::get('/enums/classes', [EnumController::class, 'classes']);
 Route::get('/enums/bonus-racas/{raca}', [EnumController::class, 'bonusRacas']);
 
-// Rotas de página
-Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
-Route::get('/salas/criar', [SalaController::class, 'createRoom'])->name('salas.create');
-Route::get('/salas/{id}', [SalaController::class, 'room'])->name('room.room');
-Route::post('/salas/personagens/adicionar/{salaId}', [SalaController::class, 'adicionarPersonagem']);
-Route::get('/salas/entrar/codigo', [SalaController::class, 'enterByCode'])->name('salas.codigo.entrar');
+// Invitation acceptance must stay public so anonymous users can be sent to login.
+Route::get('/api/convite/{token}', [SalaController::class, 'acceptInvite'])->name('api.invite.accept');
 
+Route::middleware('user.session')->group(function () {
+    Route::get('/perfil', [UserController::class, 'profile'])->name('profile');
+    Route::put('/perfil/email', [UserController::class, 'updateEmail'])->name('profile.updateEmail');
+    Route::put('/perfil/role', [UserController::class, 'updateRole'])->name('profile.updateRole');
+    Route::put('/perfil/senha', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
 
-// ---------- ROTAS DE API PARA SALAS ----------
-Route::prefix('api')->group(function () {
+    Route::get('/usuario', [UserController::class, 'get'])->name('api.users.list');
+    Route::get('/usuario/{usuarioId}', [UserController::class, 'getById'])->name('api.users.show');
 
-    // ---------- SALAS ----------
+    Route::get('/registro-personagem', [PersonagemController::class, 'personagem'])->name('registerPerson');
+    Route::get('/personagem/usuario/{usuarioId}', [PersonagemController::class, 'showByUsuario']);
+    Route::get('/personagem/{personagemId}', [PersonagemController::class, 'show']);
+    Route::post('/personagem', [PersonagemController::class, 'store'])->name('personagem.store');
+    Route::put('/personagem/{personagemId}', [PersonagemController::class, 'update'])->name('personagem.update');
+    Route::delete('/personagem/{personagemId}', [PersonagemController::class, 'destroy']);
+
+    Route::get('/salas', [SalaController::class, 'index'])->name('salas.index');
+    Route::get('/salas/criar', [SalaController::class, 'createRoom'])->name('salas.create');
+    Route::get('/salas/entrar/codigo', [SalaController::class, 'enterByCode'])->name('salas.codigo.entrar');
+    Route::get('/salas/{id}', [SalaController::class, 'room'])->name('room.room');
+    Route::post('/salas/personagens/adicionar/{salaId}', [SalaController::class, 'adicionarPersonagem']);
+});
+
+Route::middleware('user.session')->prefix('api')->group(function () {
     Route::get('/salas', [SalaApiController::class, 'get'])->name('api.salas.get');
-    Route::get('/salas/{id}', [SalaApiController::class, 'getById'])->name('api.salas.getById');
     Route::post('/salas', [SalaApiController::class, 'store'])->name('api.salas.store');
-    Route::put('/salas/{id}', [SalaApiController::class, 'update'])->name('api.salas.update');
-    Route::delete('/salas/{id}', [SalaApiController::class, 'destroy'])->name('api.salas.destroy');
 
-    // ---------- SALAS POR USUÁRIO ----------
     Route::get('/salas/jogador/{usuarioId}', [SalaApiController::class, 'getByJogador'])->name('api.salas.jogador');
     Route::get('/salas/mestre/{usuarioId}', [SalaApiController::class, 'getByMestre'])->name('api.salas.mestre');
     Route::get('/salas/buscar/{nome}', [SalaApiController::class, 'getByNome'])->name('api.salas.buscar');
 
-    // ---------- PERSONAGENS EM SALAS ----------
     Route::get('/salas/personagens/listar/{salaId}', [SalaApiController::class, 'listarPersonagens'])->name('api.salas.personagens.listar');
     Route::post('/salas/personagens/adicionar/{salaId}/{personagemId}', [SalaApiController::class, 'adicionarPersonagem'])->name('api.salas.personagens.adicionar');
     Route::delete('/salas/personagens/remover/{salaId}/{personagemId}', [SalaApiController::class, 'removerPersonagem'])->name('api.salas.personagens.remover');
 
-    // ---------- CONVITES / USUÁRIOS ----------
     Route::get('/usuario', [SalaController::class, 'invite'])->name('api.usuarios.invite');
     Route::post('/enviar-invite', [SalaController::class, 'sendInvite'])->name('api.enviar.invite');
-    Route::get('/convite/{token}', [SalaController::class, 'acceptInvite'])->name('api.invite.accept');
 
-    // ---------- CODIGO DE SALA ----------
     Route::get('/codigo/{codigo}', [SalaApiController::class, 'getByCode'])->name('api.salas.codigo');
     Route::post('/codigo/adicionar', [SalaApiController::class, 'adicionarPersonagemByCode'])->name('api.salas.codigo.adiciona');
+
+    Route::get('/salas/{id}', [SalaApiController::class, 'getById'])->name('api.salas.getById');
+    Route::put('/salas/{id}', [SalaApiController::class, 'update'])->name('api.salas.update');
+    Route::delete('/salas/{id}', [SalaApiController::class, 'destroy'])->name('api.salas.destroy');
 });
