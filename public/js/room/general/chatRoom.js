@@ -42,12 +42,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = document.createElement('div');
         const isSelf = !isSystemMessage && sender === userName;
         div.className = `d-flex flex-column mb-2 ${isSelf ? 'align-items-end' : 'align-items-start'}`;
-        div.innerHTML = `
-            <div class="p-2 rounded ${isSelf ? 'bg-warning text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-primary text-light'}" style="max-width: 70%;">
-                <small class="d-block fw-bold opacity-75">${sender}</small>
-                <span style="word-wrap: break-word;">${text}</span>
-            </div>
-        `;
+
+        const bubble = document.createElement('div');
+        bubble.className = `p-2 rounded ${isSelf ? 'bg-warning text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-primary text-light'}`;
+        bubble.style.maxWidth = '70%';
+
+        const senderEl = document.createElement('small');
+        senderEl.className = 'd-block fw-bold opacity-75';
+        senderEl.textContent = sender;
+
+        const textEl = document.createElement('span');
+        textEl.style.wordWrap = 'break-word';
+        textEl.textContent = text;
+
+        bubble.appendChild(senderEl);
+        bubble.appendChild(textEl);
+        div.appendChild(bubble);
+
         return div;
     }
 
@@ -114,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     // Rolagem normal - TODOS VEEM
                     window.funcaoChamarDados(faces, valor);
-                    addMessage(`🎲 ${nomeJogadorDados} rolou D${faces}: <strong>${valor}</strong>`, "🤖 Sistema", true, systemLogs);
+                    addMessage(`🎲 ${nomeJogadorDados} rolou D${faces}: ${valor}`, "🤖 Sistema", true, systemLogs);
                 }
                 break;
 
