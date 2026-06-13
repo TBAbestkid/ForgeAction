@@ -32,8 +32,8 @@ $(document).ready(function () {
      */
     function getSalaId(btn = null) {
         // Se estiver em uma sala (room.blade.php)
-        if (typeof salaId !== 'undefined' && salaId !== null) {
-            return salaId;
+        if (typeof window.salaId !== 'undefined' && window.salaId !== null) {
+            return window.salaId;
         }
 
         // Se o botão tiver data-id
@@ -162,7 +162,12 @@ $(document).ready(function () {
             const user = usuarios.find(u => u.email === email);
             const badge = document.createElement('span');
             badge.className = 'badge bg-success px-3 py-2 d-flex align-items-center gap-2';
-            badge.innerHTML = `<i class="fa-solid fa-user"></i> ${user ? user.login : email}`;
+
+            const icon = document.createElement('i');
+            icon.className = 'fa-solid fa-user';
+            badge.appendChild(icon);
+            badge.appendChild(document.createTextNode(user ? user.login : email));
+
             div.appendChild(badge);
         });
     }
