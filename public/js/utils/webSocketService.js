@@ -1,21 +1,16 @@
-// webSocketService.js
-// Serviço global unificado para WebSocket via SockJS + STOMP
-
+// Global WebSocket service using SockJS + STOMP.
 window.AppWebSocket = (() => {
-    // ======== VARIÁVEIS INTERNAS ========
-    let stompClient = null;         // Cliente STOMP atual
-    let isConnected = false;        // Status da conexão
-    let reconnectTimer = null;      // Timer para reconexão
-    let subscriptions = new Map();  // Mapa de inscrições ativas
-    let connectionConfig = null;    // Configuração atual da conexão
+    let stompClient = null;
+    let isConnected = false;
+    let reconnectTimer = null;
+    let subscriptions = new Map();
+    let connectionConfig = null;
 
-    // Configurações padrão
     const DEFAULT_CONFIG = {
-        reconnectDelay: 3000,       // Delay para reconexão (ms)
-        debug: false                // Modo debug (desligado por padrão para evitar logs duplicados)
+        reconnectDelay: 3000,
+        debug: false
     };
 
-    // ======== UTILITÁRIOS INTERNOS ========
     function debugLog(...args) {
         if (DEFAULT_CONFIG.debug) {
             console.log('[WS]', ...args);
@@ -29,159 +24,158 @@ window.AppWebSocket = (() => {
         }
     }
 
-    // ======== GERENCIAMENTO DE EVENTOS ========
     function dispatchGlobalEvent(eventName, detail) {
         document.dispatchEvent(new CustomEvent(eventName, {
             bubbles: true,
             detail
         }));
-        debugLog(`📡 Evento disparado: ${eventName}`, detail);
+        debugLog(`Evento disparado: ${eventName}`, detail);
     }
 
-    // ======== GERENCIAMENTO DE SUBSCRIÇÕES ========
+    function attachStompSubscription(channel, entry) {
+        if (!stompClient?.connected) return null;
+
+        const topic = entry.topic || `/topic/${channel}`;
+        entry.topic = topic;
+        entry.subscription = stompClient.subscribe(topic, (message) => {
+            try {
+                const data = JSON.parse(message.body);
+                dispatchGlobalEvent('ws.message', data);
+
+                entry.callbacks.forEach((callback) => {
+                    try {
+                        callback(data);
+                    } catch (callbackError) {
+                        console.error('Erro em callback de mensagem:', callbackError);
+                    }
+                });
+            } catch (error) {
+                console.error('Erro ao processar mensagem:', error);
+            }
+        });
+
+        debugLog(`Inscrito no canal: ${topic}`);
+        return entry.subscription;
+    }
+
     function subscribe(channel, callback) {
         if (!stompClient?.connected) {
-            debugLog('❌ Não é possível se inscrever: cliente não conectado');
+            debugLog('Nao e possivel se inscrever: cliente nao conectado');
             return null;
         }
-        // Evita dupla inscrição para o mesmo canal
+
         if (subscriptions.has(channel)) {
-            debugLog(`⚠️ Já existe inscrição para canal ${channel}, ignorando nova inscrição.`);
-            return null;
+            const existing = subscriptions.get(channel);
+            if (callback && !existing.callbacks.includes(callback)) {
+                existing.callbacks.push(callback);
+            }
+            return existing.subscription;
         }
 
         try {
-            const topic = '/topic/' + channel;
-            debugLog(`📡 Inscrevendo no canal: ${topic}`);
+            const entry = {
+                topic: `/topic/${channel}`,
+                callbacks: callback ? [callback] : [],
+                subscription: null
+            };
 
-            const subscription = stompClient.subscribe(topic, (message) => {
-                try {
-                    const data = JSON.parse(message.body);
-                    // Dispara evento global para qualquer módulo interessado
-                    dispatchGlobalEvent('ws.message', data);
-                    // Executa callback específico se fornecido
-                    if (callback) callback(data);
-                } catch (e) {
-                    console.error('❌ Erro ao processar mensagem:', e);
-                }
-            });
-
-            // Armazena a subscrição para recriar em reconexões
-            subscriptions.set(channel, { topic, callback });
-            debugLog(`✅ Inscrito com sucesso no canal: ${topic}`);
-
+            const subscription = attachStompSubscription(channel, entry);
+            subscriptions.set(channel, entry);
             return subscription;
-        } catch (e) {
-            console.error('❌ Erro ao se inscrever:', e);
+        } catch (error) {
+            console.error('Erro ao se inscrever:', error);
             return null;
         }
     }
 
     function resubscribeAll() {
-        debugLog('🔄 Reinscrevendo em todos os canais...');
-        subscriptions.forEach(({ topic, callback }, channel) => {
-            subscribe(channel, callback);
+        debugLog('Reinscrevendo em todos os canais...');
+        subscriptions.forEach((entry, channel) => {
+            attachStompSubscription(channel, entry);
         });
     }
 
-    // ======== CONEXÃO PRINCIPAL ========
-    function connect(wsUrl, channel, onMessage, headers  = {}) {
-        // Evita conexões duplicadas
+    function connect(wsUrl, channel, onMessage, headers = {}) {
         if (isConnected) {
-            debugLog('ℹ️ Já conectado, ignorando nova tentativa');
+            debugLog('Ja conectado, ignorando nova tentativa');
             return;
         }
 
-        debugLog('� Iniciando conexão:', wsUrl);
+        connectionConfig = { wsUrl, channel, onMessage, headers };
 
-        // Armazena configuração para reconexões
-        connectionConfig = { wsUrl, channel, onMessage, headers};
-
-        // Cria conexão SockJS
         const socket = new SockJS(wsUrl);
         stompClient = Stomp.over(socket);
-
-        // Desativa logs do STOMP
         stompClient.debug = DEFAULT_CONFIG.debug ? console.log : null;
 
         stompClient.connect(headers,
-            // Sucesso
             () => {
-                debugLog('✅ Conectado com sucesso!');
                 isConnected = true;
                 clearReconnectTimer();
 
-                // Inscreve no canal principal
+                resubscribeAll();
+
                 if (channel) {
                     subscribe(channel, onMessage);
                 }
 
-                // Reinscreve em todos os canais anteriores
-                resubscribeAll();
-
-                // Notifica todos os módulos
                 dispatchGlobalEvent('stomp.connected', {
                     stompClient,
                     isReconnect: reconnectTimer !== null
                 });
             },
-            // Erro
             (error) => {
-                console.error('❌ Erro de conexão:', error);
+                console.error('Erro de conexao:', error);
                 isConnected = false;
 
-                // Agenda reconexão
                 clearReconnectTimer();
                 reconnectTimer = setTimeout(() => {
-                    debugLog('🔄 Tentando reconectar...');
-                    connect(connectionConfig.wsUrl,
-                           connectionConfig.channel,
-                           connectionConfig.onMessage);
+                    if (!connectionConfig) return;
+
+                    connect(
+                        connectionConfig.wsUrl,
+                        connectionConfig.channel,
+                        connectionConfig.onMessage,
+                        connectionConfig.headers
+                    );
                 }, DEFAULT_CONFIG.reconnectDelay);
 
-                // Notifica erro
                 dispatchGlobalEvent('stomp.error', { error });
             }
         );
     }
 
-    // ======== ENVIO DE MENSAGENS ========
     function send(destination, payload) {
         if (!isConnected || !stompClient?.connected) {
-            console.warn('⚠️ Não é possível enviar: sem conexão ativa');
+            console.warn('Nao e possivel enviar: sem conexao ativa');
             return false;
         }
 
         try {
             stompClient.send(destination, {}, JSON.stringify(payload));
-            debugLog('📤 Mensagem enviada:', destination, payload);
+            debugLog('Mensagem enviada:', destination, payload);
             return true;
-        } catch (e) {
-            console.error('❌ Erro ao enviar mensagem:', e);
+        } catch (error) {
+            console.error('Erro ao enviar mensagem:', error);
             return false;
         }
     }
 
-    // ======== DESCONEXÃO ========
     function disconnect() {
         clearReconnectTimer();
 
         if (stompClient?.connected) {
             stompClient.disconnect(() => {
-                debugLog('� Desconectado do servidor');
                 isConnected = false;
                 dispatchGlobalEvent('stomp.disconnected', {});
             });
         }
 
-        // Limpa estado
         stompClient = null;
         isConnected = false;
         subscriptions.clear();
         connectionConfig = null;
     }
 
-    // ======== INTERFACE PÚBLICA ========
     return {
         connect,
         disconnect,
