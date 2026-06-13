@@ -64,7 +64,7 @@ function atualizarBotoesPlayer(turnoEhMeu) {
         btnRoll.disabled = !habilitar;
         if (habilitar) {
             // Adiciona event listener quando habilitar
-            btnRoll.addEventListener('click', window.toggleOpcoesDados);
+            btnRoll.onclick = window.toggleOpcoesDados;
         } else {
             // Remove event listeners se não for a vez
             btnRoll.replaceWith(btnRoll.cloneNode(true));
@@ -75,9 +75,9 @@ function atualizarBotoesPlayer(turnoEhMeu) {
         btnSkip.disabled = !habilitar;
         if (habilitar) {
             // Adiciona event listener quando habilitar
-            btnSkip.addEventListener('click', () => {
+            btnSkip.onclick = () => {
                 window.avancarTurno?.();
-            });
+            };
         } else {
             // Remove event listeners se não for a vez
             btnSkip.replaceWith(btnSkip.cloneNode(true));
@@ -98,7 +98,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnMestre) {
         btnMestre.disabled = !habilitar;
         if (habilitar) {
-            btnMestre.addEventListener('click', window.toggleOpcoesDados);
+            btnMestre.onclick = window.toggleOpcoesDados;
         } else {
             btnMestre.replaceWith(btnMestre.cloneNode(true));
         }
@@ -107,7 +107,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnPermitir) {
         btnPermitir.disabled = !habilitar;
         if (habilitar) {
-            btnPermitir.addEventListener('click', () => { window.ativarModoCederTurno?.(); });
+            btnPermitir.onclick = () => { window.ativarModoCederTurno?.(); };
         } else {
             btnPermitir.replaceWith(btnPermitir.cloneNode(true));
         }
@@ -116,7 +116,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnDano) {
         btnDano.disabled = !habilitar;
         if (habilitar) {
-            btnDano.addEventListener('click', () => { window.ativarModoAcao?.('dano'); });
+            btnDano.onclick = () => { window.ativarModoAcao?.('dano'); };
         } else {
             btnDano.replaceWith(btnDano.cloneNode(true));
         }
@@ -125,7 +125,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnCurar) {
         btnCurar.disabled = !habilitar;
         if (habilitar) {
-            btnCurar.addEventListener('click', () => { window.ativarModoAcao?.('cura'); });
+            btnCurar.onclick = () => { window.ativarModoAcao?.('cura'); };
         } else {
             btnCurar.replaceWith(btnCurar.cloneNode(true));
         }
@@ -134,7 +134,7 @@ function atualizarBotoesMestre(turnoDoMestre) {
     if (btnUpar) {
         btnUpar.disabled = !habilitar;
         if (habilitar) {
-            btnUpar.addEventListener('click', () => { window.ativarModoAcao?.('upgrade'); });
+            btnUpar.onclick = () => { window.ativarModoAcao?.('upgrade'); };
         } else {
             btnUpar.replaceWith(btnUpar.cloneNode(true));
         }
