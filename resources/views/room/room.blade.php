@@ -702,20 +702,20 @@
     {{-- 3. Exporta variáveis PHP para JS --}}
     <script>
         window.CHAT_CONFIG = {
-            userId: {{ session('user_id') ?? 'null' }},
-            userLogin: "{{ session('user_login') ?? 'Desconhecido' }}",
-            salaId: {{ $sala['id'] }},
+            userId: @json(session('user_id')),
+            userLogin: @json(session('user_login') ?? 'Desconhecido'),
+            salaId: @json($sala['id']),
             // wsUrl: "{{ env('EXTERNAL_API_URL') }}" + "/ws",
             wsUrl: window.location.origin + "/ws",
             isMestre: {{ $isDono ? 'true' : 'false' }},
-            nomePersonagem: "{{ $isDono ? 'Mestre' : $personagemJogador['nome'] ?? 'Desconhecido' }}"
+            nomePersonagem: @json($isDono ? 'Mestre' : ($personagemJogador['nome'] ?? 'Desconhecido'))
         };
 
         window.isMestre = {{ $isDono ? 'true' : 'false' }};
 
-        window.csrfToken = "{{ csrf_token() }}";
-        const csrfToken = "{{ csrf_token() }}";
-        const routeSalasIndex = "{{ route('salas.index') }}";
+        window.csrfToken = @json(csrf_token());
+        window.salaId = @json($sala['id']);
+        window.routeSalasIndex = @json(route('salas.index'));
     </script>
 
     {{-- 3.5. Gerenciadores gerais da sala --}}
@@ -758,7 +758,7 @@
          * Detecta: .btn-invite, [data-action="convidar"]
          * Detecta: .btn-copy, [data-action="copiar-codigo"]
          */
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-        const salaId = {{ $sala['id'] }};
+        window.csrfToken = window.csrfToken || document.querySelector('meta[name="csrf-token"]')?.content || '';
+        window.salaId = window.salaId || @json($sala['id']);
     </script>
 @endsection
