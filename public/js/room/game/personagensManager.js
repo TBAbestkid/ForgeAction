@@ -3,7 +3,7 @@ async function carregarPersonagensSala(salaId) {
         const response = await $.ajax({
             url: `/api/salas/personagens/listar/${salaId}`,
             method: "GET",
-            data: { _token: csrfToken }
+            data: { _token: window.csrfToken }
         });
         console.log('✅ Personagens carregados com sucesso:', response);
         return response || [];
@@ -37,7 +37,7 @@ function criarCardPersonagem(personagem, sufixo) {
 
     const personagemDiv = document.createElement('div');
     personagemDiv.className =
-        'bg-dark rounded p-2 text-center d-flex flex-column align-items-start position-relative';
+        'personagem-card bg-dark rounded p-2 text-center d-flex flex-column align-items-start position-relative';
     personagemDiv.style.cursor = 'pointer';
     personagemDiv.style.minWidth = '140px';
 
@@ -309,6 +309,30 @@ function abrirFichaPersonagem(cardElement) {
     };
 
     // Preenche o offcanvas genérico com os dados
+    [
+        'raca',
+        'classe',
+        'level',
+        'vida',
+        'mana',
+        'forca',
+        'agilidade',
+        'inteligencia',
+        'destreza',
+        'vitalidade',
+        'percepcao',
+        'sabedoria',
+        'carisma',
+        'iniciativa',
+        'ataqueMagico',
+        'ataqueFisicoCorpo',
+        'ataqueFisicoDistancia',
+        'defesaPersonagem',
+        'esquivaPersonagem',
+    ].forEach((campo) => {
+        personagem[campo] = escapeHtml(personagem[campo]);
+    });
+
     const offcanvas = document.getElementById('offcanvasFichaPersonagem');
     if (!offcanvas) {
         console.error('Offcanvas #offcanvasFichaPersonagem não encontrado');
@@ -386,7 +410,7 @@ function abrirFichaPersonagem(cardElement) {
     }
 
     // Abre o offcanvas usando Bootstrap
-    const offcanvasInstance = new bootstrap.Offcanvas(offcanvas);
+    const offcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(offcanvas);
     offcanvasInstance.show();
 }
 
@@ -403,12 +427,17 @@ function abrirUpgradePersonagem(dadosUpgrade) {
     }
 
     // Atualiza o título
+    const personagemId = Number(dadosUpgrade.id);
+    const nomePersonagem = String(dadosUpgrade.nome || 'Personagem');
+    const nomePersonagemSeguro = escapeHtml(nomePersonagem);
+
     const titulo = offcanvas.querySelector('#offcanvasUpgradePersonagemLabel');
     if (titulo) {
-        titulo.innerHTML = `<i class="fa-solid fa-star me-2"></i>Upgrade - ${dadosUpgrade.nome}`;
+        titulo.innerHTML = `<i class="fa-solid fa-star me-2"></i>Upgrade - ${nomePersonagemSeguro}`;
     }
 
-    const novoLevel = parseInt(dadosUpgrade.level) + 1;
+    const levelAtual = parseInt(dadosUpgrade.level, 10) || 0;
+    const novoLevel = levelAtual + 1;
 
     // Atualiza o conteúdo
     const content = document.getElementById('upgradeContent');
@@ -419,7 +448,7 @@ function abrirUpgradePersonagem(dadosUpgrade) {
                     <i class="fa-solid fa-arrow-up"></i> Parabéns! Você subiu de nível!
                 </h6>
                 <div class="alert alert-info">
-                    <strong>Nível:</strong> ${dadosUpgrade.level} → <span class="text-success">${novoLevel}</span><br>
+                    <strong>Nível:</strong> ${levelAtual} → <span class="text-success">${novoLevel}</span><br>
                     <strong>Pontos para distribuir:</strong> <span id="pontosRestantes" class="text-warning">5</span>
                 </div>
             </div>
@@ -430,11 +459,15 @@ function abrirUpgradePersonagem(dadosUpgrade) {
             </div>
 
             <div class="d-grid gap-2">
-                <button id="btnSalvarUpgrade" class="btn btn-success" onclick="salvarUpgradePersonagem(${dadosUpgrade.id}, ${novoLevel}, '${dadosUpgrade.nome}')">
+                <button id="btnSalvarUpgrade" class="btn btn-success" type="button">
                     <i class="fa-solid fa-save me-2"></i>Salvar e Confirmar
                 </button>
             </div>
         `;
+
+        document.getElementById('btnSalvarUpgrade')?.addEventListener('click', () => {
+            salvarUpgradePersonagem(personagemId, novoLevel, nomePersonagem);
+        });
 
         // Renderiza cada atributo
         const atributosContainer = document.getElementById('atributosContainer');
@@ -482,7 +515,7 @@ function abrirUpgradePersonagem(dadosUpgrade) {
     }
 
     // Abre o offcanvas usando Bootstrap
-    const offcanvasInstance = new bootstrap.Offcanvas(offcanvas);
+    const offcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(offcanvas);
     offcanvasInstance.show();
 }
 
@@ -560,7 +593,7 @@ async function salvarUpgradePersonagem(personagemId, novoLevel, nomePersonagem =
             data: JSON.stringify(payload),
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
+                'X-CSRF-TOKEN': window.csrfToken
             },
             dataType: 'json'
         });
@@ -575,7 +608,7 @@ async function salvarUpgradePersonagem(personagemId, novoLevel, nomePersonagem =
         }
 
         // Atualiza o card do personagem com os novos valores
-        const cardElement = document.querySelector(`.bg-dark[data-id="${personagemId}"]`);
+        const cardElement = document.querySelector(`.personagem-card[data-id="${personagemId}"]`);
         if (cardElement) {
             cardElement.dataset.level = novoLevel;
             atributosNames.forEach(attr => {
