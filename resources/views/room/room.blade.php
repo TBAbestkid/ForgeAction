@@ -141,8 +141,64 @@
                 padding-right: 2.25rem;
             }
 
+            .room-text-safe {
+                min-width: 0;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .room-wrap-safe {
+                min-width: 0;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
             #coluna-personagens {
                 overflow-x: hidden !important;
+            }
+
+            #dice-placeholder {
+                max-width: calc(100% - 2rem);
+                overflow-wrap: anywhere;
+            }
+
+            .chat-container,
+            #chat-content,
+            #logs-content,
+            #chat-messages,
+            #system-logs {
+                min-width: 0;
+            }
+
+            .hud-bg {
+                max-width: calc(100vw - 1rem);
+            }
+
+            .hud-bg > .d-flex {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            #offcanvasFichaPersonagem .offcanvas-header,
+            #offcanvasUpgradePersonagem .offcanvas-header,
+            #offcanvasMembers .offcanvas-header {
+                gap: 0.5rem;
+            }
+
+            #offcanvasFichaPersonagem .offcanvas-title,
+            #offcanvasUpgradePersonagem .offcanvas-title,
+            #offcanvasMembers .offcanvas-title {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            #lista-membros .list-group-item > div,
+            #lista-membros .list-group-item > .room-text-safe {
+                min-width: 0;
             }
 
             .offcanvas-ficha-player {
@@ -183,6 +239,11 @@
                 #coluna-personagens {
                     flex-basis: 180px !important;
                     padding: 0.5rem !important;
+                }
+
+                .chat-container {
+                    width: min(400px, 92vw) !important;
+                    height: min(400px, 54vh) !important;
                 }
 
                 .hud-btn {
@@ -662,7 +723,9 @@
                 <li class="list-group-item bg-dark text-warning d-flex justify-content-between align-items-center">
                     <div>
                         <i class="fa-solid fa-crown text-warning me-2"></i>
-                        <strong>{{ $membros[$mestreId] ?? 'Mestre' }}</strong>
+                        <strong class="room-text-safe d-inline-block" title="{{ $membros[$mestreId] ?? 'Mestre' }}">
+                            {{ $membros[$mestreId] ?? 'Mestre' }}
+                        </strong>
                     </div>
                     <span><span class="members-list-dot offline"></span></span>
                 </li>
@@ -673,7 +736,7 @@
 
                     <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center"
                         data-user-id="{{ $uid }}">
-                        {{ $login }}
+                        <span class="room-text-safe d-inline-block" title="{{ $login }}">{{ $login }}</span>
                         <span><span class="members-list-dot offline"></span></span>
                     </li>
                 @endforeach
