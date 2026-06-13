@@ -221,6 +221,7 @@ function atualizarBarraVidaJogador(personagemId, novaVida) {
 
     const vidaMax = parseInt(barraVida.dataset.vidaMax) || 100;
     const vidaFinal = Math.max(0, Math.min(novaVida, vidaMax));
+    barraVida.dataset.vidaAtual = vidaFinal;
 
     // Atualiza o texto
     barraVida.innerText = `${vidaFinal}/${vidaMax}`;
@@ -239,11 +240,29 @@ function atualizarBarraVidaJogador(personagemId, novaVida) {
         barraVida.classList.add('bg-danger');
     }
 
+    atualizarOverlayVidaBaixa(percentual, vidaFinal);
+
     // Anima a mudança
     barraVida.style.animation = 'none';
     setTimeout(() => {
         barraVida.style.animation = 'pulse-vida 0.5s ease-in-out';
     }, 10);
+}
+
+function atualizarOverlayVidaBaixa(percentual, vidaAtual) {
+    const overlay = document.getElementById('lowHealthOverlay');
+    if (!overlay) return;
+
+    overlay.classList.remove('is-wounded', 'is-critical');
+
+    if (vidaAtual <= 0 || percentual <= 25) {
+        overlay.classList.add('is-critical');
+        return;
+    }
+
+    if (percentual <= 50) {
+        overlay.classList.add('is-wounded');
+    }
 }
 
 function AtualizarListaOnline(salaId, usuariosOnline) {
@@ -645,3 +664,13 @@ window.abrirUpgradePersonagem = abrirUpgradePersonagem;
 window.aumentarPonto = aumentarPonto;
 window.diminuirPonto = diminuirPonto;
 window.salvarUpgradePersonagem = salvarUpgradePersonagem;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const barraVida = document.getElementById('playerHealthBar');
+    if (!barraVida) return;
+
+    const vidaMax = parseInt(barraVida.dataset.vidaMax, 10) || 100;
+    const vidaAtual = parseInt(barraVida.dataset.vidaAtual, 10) || vidaMax;
+    const percentual = (vidaAtual / vidaMax) * 100;
+    atualizarOverlayVidaBaixa(percentual, vidaAtual);
+});

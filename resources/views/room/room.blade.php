@@ -98,6 +98,42 @@
                 }
             }
 
+            @keyframes lowHealthPulse {
+                0%,
+                100% {
+                    opacity: 0.45;
+                }
+
+                50% {
+                    opacity: 0.9;
+                }
+            }
+
+            #lowHealthOverlay {
+                position: fixed;
+                inset: 0;
+                z-index: 4;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.35s ease;
+                background:
+                    radial-gradient(circle at center, rgba(180, 0, 0, 0) 44%, rgba(180, 0, 0, 0.24) 78%, rgba(180, 0, 0, 0.52) 100%),
+                    linear-gradient(90deg, rgba(170, 0, 0, 0.34), rgba(170, 0, 0, 0) 18%, rgba(170, 0, 0, 0) 82%, rgba(170, 0, 0, 0.34));
+            }
+
+            #lowHealthOverlay.is-wounded {
+                opacity: 0.4;
+                animation: lowHealthPulse 2.2s ease-in-out infinite;
+            }
+
+            #lowHealthOverlay.is-critical {
+                opacity: 0.85;
+                animation: lowHealthPulse 1.15s ease-in-out infinite;
+                background:
+                    radial-gradient(circle at center, rgba(220, 0, 0, 0) 34%, rgba(220, 0, 0, 0.34) 70%, rgba(220, 0, 0, 0.72) 100%),
+                    linear-gradient(90deg, rgba(220, 0, 0, 0.48), rgba(220, 0, 0, 0) 22%, rgba(220, 0, 0, 0) 78%, rgba(220, 0, 0, 0.48));
+            }
+
             /**
              * 📌 SISTEMA DE PIN (FIXAR FICHA)
              */
@@ -283,6 +319,10 @@
         </div>
 
         {{-- Configurações de Sala, para mestre e player --}}
+        @if (!$isDono)
+            <div id="lowHealthOverlay" aria-hidden="true"></div>
+        @endif
+
         <div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
 
             <div class="dropdown">
