@@ -335,7 +335,8 @@ function resetarSelecao() {
     personagemSelecionadoId = null;
     usuarioSelecionadoId = null;
     vidaSelecionada = 0;
-    document.getElementById('inputValor').value = '';
+    const inputValor = document.getElementById('inputValor');
+    if (inputValor) inputValor.value = '';
     if (typeof window.limparModoAcao === 'function') {
         window.limparModoAcao();
     }
@@ -368,6 +369,8 @@ function ativarModoCederTurno() {
 }
 
 // Expor função globalmente para outros módulos usarem
+window.iniciarRodada = iniciarRodada;
+window.avancarTurnoMestre = avancarTurnoMestre;
 window.avancarTurno = avancarTurno;
 window.toggleOpcoesDados = toggleOpcoesDados;
 window.permitirJogada = permitirJogada;
