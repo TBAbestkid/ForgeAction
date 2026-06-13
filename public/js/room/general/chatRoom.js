@@ -41,9 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const senderEl = document.createElement('small');
         senderEl.className = 'd-block fw-bold opacity-75';
         senderEl.textContent = sender;
+        senderEl.style.maxWidth = '100%';
+        senderEl.style.overflow = 'hidden';
+        senderEl.style.textOverflow = 'ellipsis';
+        senderEl.style.whiteSpace = 'nowrap';
+        senderEl.title = sender;
 
         const textEl = document.createElement('span');
         textEl.style.wordWrap = 'break-word';
+        textEl.style.overflowWrap = 'anywhere';
         textEl.textContent = text ?? '';
 
         bubble.appendChild(senderEl);
