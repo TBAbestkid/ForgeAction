@@ -885,6 +885,7 @@
                 this.pinBtn = document.getElementById(pinButtonId);
                 this.isFixed = false;
                 this.bsOffcanvas = null;
+                this.allowHideOnce = false;
 
                 if (!this.offcanvas || !this.pinBtn) {
                     console.warn(`PinManager: Elementos não encontrados (${offcanvasId}, ${pinButtonId})`);
@@ -909,6 +910,26 @@
                         this.unpin();
                     }
                     document.body.classList.remove('offcanvas-interactive');
+                    this.allowHideOnce = false;
+                });
+
+                this.offcanvas.addEventListener('hide.bs.offcanvas', (e) => {
+                    if (!this.isFixed || this.allowHideOnce) {
+                        this.allowHideOnce = false;
+                        return;
+                    }
+
+                    e.preventDefault();
+                    this.removeBackdrops();
+                });
+
+                this.offcanvas.querySelectorAll('[data-bs-dismiss="offcanvas"]').forEach((closeBtn) => {
+                    closeBtn.addEventListener('click', () => {
+                        if (!this.isFixed) return;
+
+                        this.allowHideOnce = true;
+                        this.unpin();
+                    });
                 });
 
                 // Botão PIN
@@ -934,16 +955,30 @@
                 }
             }
 
+            syncBootstrapConfig(backdrop, scroll) {
+                this.bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(this.offcanvas);
+
+                if (!this.bsOffcanvas?._config) return;
+
+                this.bsOffcanvas._config.backdrop = backdrop;
+                this.bsOffcanvas._config.scroll = scroll;
+            }
+
+            removeBackdrops() {
+                document.body.classList.add('offcanvas-interactive');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                document.querySelectorAll('.offcanvas-backdrop').forEach(backdrop => backdrop.remove());
+            }
+
             pin() {
                 // ✅ Ativar scroll do body - permite scrollar a página enquanto ficha está aberta
                 this.offcanvas.setAttribute('data-bs-scroll', 'true');
 
                 // ✅ Desabilitar backdrop - não deixa escuro atrás
                 this.offcanvas.setAttribute('data-bs-backdrop', 'false');
-                document.body.classList.add('offcanvas-interactive');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-                document.querySelectorAll('.offcanvas-backdrop').forEach(backdrop => backdrop.remove());
+                this.syncBootstrapConfig(false, true);
+                this.removeBackdrops();
 
                 // ✅ Mudar visual do botão PIN
                 this.pinBtn.classList.add('active');
@@ -970,6 +1005,7 @@
 
                 // ✅ Reabilitar backdrop
                 this.offcanvas.setAttribute('data-bs-backdrop', 'true');
+                this.syncBootstrapConfig(true, false);
                 document.body.classList.remove('offcanvas-interactive');
 
                 // ✅ Restaurar visual do botão PIN
