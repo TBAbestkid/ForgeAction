@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const bubble = document.createElement('div');
         bubble.className = `p-2 rounded ${isSelf ? 'bg-warning text-white' : isSystemMessage ? 'bg-info text-dark' : 'bg-primary text-light'}`;
         bubble.style.maxWidth = '70%';
+        bubble.style.minWidth = '0';
+        bubble.style.overflowWrap = 'anywhere';
 
         const senderEl = document.createElement('small');
         senderEl.className = 'd-block fw-bold opacity-75';
