@@ -3,7 +3,7 @@
  * 📌 INICIALIZAÇÃO
  * =========================
  */
-window.onload = function() {
+window.addEventListener('load', () => {
     const aviso = document.getElementById('aviso-fullscreen');
 
     // Mostra aviso depois de 1s
@@ -26,7 +26,7 @@ window.onload = function() {
 
     // Garante estado correto do botão ao carregar
     atualizarBotaoFullscreen();
-};
+});
 
 
 /**
