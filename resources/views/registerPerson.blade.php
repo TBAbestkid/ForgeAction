@@ -80,13 +80,61 @@
                     </button>
                 </div>
 
-                <div class="row g-3">
-                    @foreach(['forca','agilidade','inteligencia','sabedoria','destreza','vitalidade','percepcao','carisma'] as $attr)
-                        <div class="col-md-6 form-floating">
-                            <input type="number" name="{{ $attr }}" class="form-control" placeholder="{{ ucfirst($attr) }}" required min="1" value="1">
-                            <label class="text-light">{{ ucfirst($attr) }}</label>
-                        </div>
-                    @endforeach
+                <div class="alert alert-info">
+                    <strong>Pontos utilizados:</strong> <span id="attrs-used">8</span>/23<br>
+                    <strong>Pontos para distribuir:</strong> <span id="attrs-remaining" class="text-warning">15</span>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-info mb-3">
+                        <i class="fa-solid fa-dumbbell"></i> Atributos
+                    </h6>
+
+                    <div class="row g-3">
+                        @php
+                            $atributos = [
+                                ['key' => 'forca', 'label' => 'Força', 'icon' => 'fa-hand-fist'],
+                                ['key' => 'agilidade', 'label' => 'Agilidade', 'icon' => 'fa-bolt'],
+                                ['key' => 'inteligencia', 'label' => 'Inteligência', 'icon' => 'fa-brain'],
+                                ['key' => 'sabedoria', 'label' => 'Sabedoria', 'icon' => 'fa-book'],
+                                ['key' => 'destreza', 'label' => 'Destreza', 'icon' => 'fa-bullseye'],
+                                ['key' => 'vitalidade', 'label' => 'Vitalidade', 'icon' => 'fa-shield-heart'],
+                                ['key' => 'percepcao', 'label' => 'Percepção', 'icon' => 'fa-eye'],
+                                ['key' => 'carisma', 'label' => 'Carisma', 'icon' => 'fa-comments'],
+                            ];
+                        @endphp
+
+                        @foreach($atributos as $attr)
+                            <div class="col-md-6">
+                                <div class="mb-1 p-2 bg-dark rounded">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label for="attr-{{ $attr['key'] }}" class="mb-0 text-light">
+                                            <strong>
+                                                <i class="fa-solid {{ $attr['icon'] }} me-1"></i>{{ $attr['label'] }}
+                                            </strong>
+                                        </label>
+                                        <span class="badge bg-info" id="badge-{{ $attr['key'] }}">1</span>
+                                    </div>
+
+                                    <div class="input-group input-group-sm">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            data-attr-action="decrease" data-attr="{{ $attr['key'] }}"
+                                            aria-label="Diminuir {{ $attr['label'] }}">
+                                            <i class="fa-solid fa-minus"></i>
+                                        </button>
+                                        <input type="number" name="{{ $attr['key'] }}" id="attr-{{ $attr['key'] }}"
+                                            class="form-control text-center" required min="1" value="1" readonly
+                                            style="max-width: 70px;">
+                                        <button class="btn btn-outline-success" type="button"
+                                            data-attr-action="increase" data-attr="{{ $attr['key'] }}"
+                                            aria-label="Aumentar {{ $attr['label'] }}">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
 
                 <div id="attrs-message" class="text-warning fw-bold mt-3"></div>
@@ -178,6 +226,8 @@
         const stepInfo = document.getElementById('step-info');
         const stepAttrs = document.getElementById('step-attrs');
         const attrsMsg = document.getElementById('attrs-message');
+        const attrsUsed = document.getElementById('attrs-used');
+        const attrsRemaining = document.getElementById('attrs-remaining');
 
         const infoFields = ['nome','classe','raca','idade','genero'].map(id => document.getElementById(id));
 
@@ -230,6 +280,53 @@
             return valid;
         }
 
+        function getAttrsSum() {
+            return ATTRS.reduce((sum, a) => {
+                const el = form.querySelector(`[name="${a}"]`);
+                return sum + (parseInt(el?.value, 10) || 0);
+            }, 0);
+        }
+
+        function updateAttrControls(sum) {
+            ATTRS.forEach(a => {
+                const el = form.querySelector(`[name="${a}"]`);
+                const value = parseInt(el?.value, 10) || 0;
+                const badge = document.getElementById(`badge-${a}`);
+                const decreaseBtn = form.querySelector(`[data-attr-action="decrease"][data-attr="${a}"]`);
+                const increaseBtn = form.querySelector(`[data-attr-action="increase"][data-attr="${a}"]`);
+
+                if (badge) badge.textContent = value;
+                if (decreaseBtn) decreaseBtn.disabled = value <= 1;
+                if (increaseBtn) increaseBtn.disabled = sum >= TOTAL_POINTS;
+            });
+        }
+
+        function updateAttrsSummary(sum) {
+            const remaining = TOTAL_POINTS - sum;
+
+            if (attrsUsed) attrsUsed.textContent = sum;
+            if (attrsRemaining) {
+                attrsRemaining.textContent = Math.max(0, remaining);
+                attrsRemaining.className = remaining === 0 ? 'text-success' : 'text-warning';
+            }
+
+            return remaining;
+        }
+
+        function adjustAttr(attr, delta) {
+            const el = form.querySelector(`[name="${attr}"]`);
+            if (!el) return;
+
+            const currentValue = parseInt(el.value, 10) || 1;
+            const currentSum = getAttrsSum();
+
+            if (delta > 0 && currentSum >= TOTAL_POINTS) return;
+            if (delta < 0 && currentValue <= 1) return;
+
+            el.value = currentValue + delta;
+            validateAttrs();
+        }
+
         // Valida atributos em tempo real
         function validateAttrs() {
             let sum = 0, valid = true;
@@ -246,7 +343,8 @@
                 }
             });
 
-            const remaining = TOTAL_POINTS - sum;
+            const remaining = updateAttrsSummary(sum);
+            updateAttrControls(sum);
 
             if(remaining > 0){
                 attrsMsg.textContent = `Você ainda tem ${remaining} ponto(s) para distribuir`;
@@ -290,6 +388,14 @@
             const el = form.querySelector(`[name="${a}"]`);
             if(!el) return;
             el.addEventListener('input', validateAttrs);
+        });
+
+        form.querySelectorAll('[data-attr-action]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const attr = btn.dataset.attr;
+                const delta = btn.dataset.attrAction === 'increase' ? 1 : -1;
+                adjustAttr(attr, delta);
+            });
         });
 
         // chama uma vez no load para atualizar mensagem
