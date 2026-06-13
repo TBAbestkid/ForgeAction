@@ -72,7 +72,7 @@ function axialNeighbors(q, r) {
   return AX_DIRECTIONS.map(d => ({ q: q + d.dq, r: r + d.dr }));
 }
 
-module.exports = {
+Object.assign(window, {
   radius,
   HEX_SIZE,
   axialToPixel,
@@ -80,4 +80,4 @@ module.exports = {
   pixelToAxial,
   hexKey,
   axialNeighbors,
-};
+});
