@@ -182,7 +182,7 @@ function createPiece(q, r, usuarioId, color) {
     window.gridHandlers = {
 
         piece_created(data) {
-            const { usuarioId, color, q, r } = data.payload;
+            const { usuarioId, color, q, r } = data.payload;''
             const existing = pieceLayer.findOne(`#piece-${usuarioId}`);
             if (existing) return; // ← esse guard evita duplicata
             createPiece(q, r, usuarioId, color);
@@ -190,12 +190,16 @@ function createPiece(q, r, usuarioId, color) {
         },
 
         movePiecePlayer(data) {
+            console.log('[GRID] movePiecePlayer recebido:', data);
+
             const myId = String(window.CHAT_CONFIG?.userId);
             if (String(data.usuarioId) === myId) return;
 
-            const { from, to } = data.payload;
+            const { to } = data.payload;
             const piece = pieceLayer.findOne(`#piece-${data.usuarioId}`);
             const target = hexGrid.get(hexKey(to.q, to.r));
+
+            console.log('[GRID] piece:', piece, 'target:', target);
 
             if (!piece || !target) return;
 
