@@ -155,7 +155,7 @@ function createPiece(q, r, usuarioId, color) {
 
     // Só broadcasta se foi criação local (não replicação de outro jogador)
     if (isLocal) {
-        const ws     = getWs();
+        const ws = getWs();
         const salaId = getSalaId();
 
         if (ws && salaId) {
@@ -167,7 +167,7 @@ function createPiece(q, r, usuarioId, color) {
             });
         }
     }
-}function createPiece(q, r, usuarioId, color) {
+} function createPiece(q, r, usuarioId, color) {
     const { x, y } = axialToPixel(q, r);
 
     // Se não veio color (criação local), gera e broadcasta
@@ -191,7 +191,7 @@ function createPiece(q, r, usuarioId, color) {
 
     // Só broadcasta se foi criação local (não replicação de outro jogador)
     if (isLocal) {
-        const ws     = getWs();
+        const ws = getWs();
         const salaId = getSalaId();
 
         if (ws && salaId) {
@@ -208,15 +208,16 @@ function createPiece(q, r, usuarioId, color) {
 window.gridHandlers = {
 
     piece_created(data) {
-    const { usuarioId, color, q, r } = data.payload;
-    const existing = pieceLayer.findOne(`#piece-${usuarioId}`);
-    if (existing) return; // ← esse guard evita duplicata
-    createPiece(q, r, usuarioId, color);
-    },  
+        const { usuarioId, color, q, r } = data.payload;
+        const existing = pieceLayer.findOne(`#piece-${usuarioId}`);
+        if (existing) return; // ← esse guard evita duplicata
+        createPiece(q, r, usuarioId, color);
+        console.log("criou")
+    },
 
     movePiecePlayer(data) {
         const { from, to } = data.payload;
-        const piece  = pieceLayer.findOne(`#piece-${data.usuarioId}`);
+        const piece = pieceLayer.findOne(`#piece-${data.usuarioId}`);
         const target = hexGrid.get(hexKey(to.q, to.r));
 
         if (!piece || !target) return;
@@ -225,5 +226,6 @@ window.gridHandlers = {
         piece.setAttr('hexQ', to.q);
         piece.setAttr('hexR', to.r);
         pieceLayer.batchDraw();
+        console.log("moveu")
     }
 };
