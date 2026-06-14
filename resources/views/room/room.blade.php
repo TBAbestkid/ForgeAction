@@ -112,7 +112,7 @@
             #lowHealthOverlay {
                 position: fixed;
                 inset: 0;
-                z-index: 4;
+                z-index: 45;
                 pointer-events: none;
                 opacity: 0;
                 transition: opacity 0.35s ease;
@@ -344,6 +344,7 @@
                             <i class="fa-solid fa-users"></i>
                             Membros
                         </a>
+                    </li>
                     <li>
                         <hr class="dropdown-divider text-white">
                     </li>
@@ -460,7 +461,7 @@
 
                 {{-- Placeholder (mais atrás) --}}
                 <div id="dice-placeholder"
-                    class="text-white text-center position-absolute top-50 start-50 translate-middle" style="z-index:10;">
+                    class="text-white text-center position-absolute top-50 start-50 translate-middle" style="z-index:32;">
                     🎲 Aguardando início do turno...
                 </div>
 
@@ -505,7 +506,7 @@
         {{-- Botões de Ações Mestre/Player (HUD abaixo)
         Usando de base a ideia de HUID
         Botões de ação de mestre como linha abaixo de área --}}
-        <div class="position-fixed bottom-0 start-50 translate-middle-x mb-3 z-3">
+        <div class="position-fixed bottom-0 start-50 translate-middle-x mb-3" style="z-index: 50;">
             <div class="d-flex flex-column gap-2 px-3 py-2 rounded-4 shadow hud-bg" style="align-items: center;">
 
                 @if ($isDono)
