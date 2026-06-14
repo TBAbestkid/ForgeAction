@@ -127,8 +127,19 @@ function onPieceDragEnd(e) {
     piece.setAttr('hexR', r);
     pieceLayer.batchDraw();
 
-    const movePayload = { from: { q: fromQ, r: fromR }, to: { q, r } };
-    console.log('move:', movePayload);
+    // Envia movimento
+    const ws = getWs();
+    const salaId = getSalaId();
+    const usuarioId = window.CHAT_CONFIG?.userId;
+
+    if (ws && salaId) {
+        ws.send('/app/enviar/' + salaId, {
+            acao: 'movePiecePlayer',
+            usuarioId,
+            salaId,
+            payload: { from: { q: fromQ, r: fromR }, to: { q, r } }
+        });
+    }
 }
 
 function createPiece(q, r, usuarioId, color) {
@@ -167,65 +178,31 @@ function createPiece(q, r, usuarioId, color) {
             });
         }
     }
-} function createPiece(q, r, usuarioId, color) {
-    const { x, y } = axialToPixel(q, r);
 
-    // Se não veio color (criação local), gera e broadcasta
-    const isLocal = !color;
-    const pieceColor = color ?? '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+    window.gridHandlers = {
 
-    const piece = new Konva.Circle({
-        x: originX + x,
-        y: originY + y,
-        radius: HEX_SIZE * 0.4,
-        fill: pieceColor,
-        id: `piece-${usuarioId}`,
-        draggable: true,
-        hexQ: q,
-        hexR: r,
-    });
+        piece_created(data) {
+            const { usuarioId, color, q, r } = data.payload;
+            const existing = pieceLayer.findOne(`#piece-${usuarioId}`);
+            if (existing) return; // ← esse guard evita duplicata
+            createPiece(q, r, usuarioId, color);
+            console.log("criou")
+        },
 
-    piece.on('dragend', onPieceDragEnd);
-    pieceLayer.add(piece);
-    pieceLayer.batchDraw();
+        movePiecePlayer(data) {
+            const myId = String(window.CHAT_CONFIG?.userId);
+            if (String(data.usuarioId) === myId) return;
 
-    // Só broadcasta se foi criação local (não replicação de outro jogador)
-    if (isLocal) {
-        const ws = getWs();
-        const salaId = getSalaId();
+            const { from, to } = data.payload;
+            const piece = pieceLayer.findOne(`#piece-${data.usuarioId}`);
+            const target = hexGrid.get(hexKey(to.q, to.r));
 
-        if (ws && salaId) {
-            ws.send('/app/enviar/' + salaId, {
-                acao: 'piece_created',
-                usuarioId,
-                salaId,
-                payload: { usuarioId, color: pieceColor, q, r }
-            });
+            if (!piece || !target) return;
+
+            piece.position({ x: target.shape.x(), y: target.shape.y() });
+            piece.setAttr('hexQ', to.q);
+            piece.setAttr('hexR', to.r);
+            pieceLayer.batchDraw();
         }
     }
 }
-
-window.gridHandlers = {
-
-    piece_created(data) {
-        const { usuarioId, color, q, r } = data.payload;
-        const existing = pieceLayer.findOne(`#piece-${usuarioId}`);
-        if (existing) return; // ← esse guard evita duplicata
-        createPiece(q, r, usuarioId, color);
-        console.log("criou")
-    },
-
-    movePiecePlayer(data) {
-        const { from, to } = data.payload;
-        const piece = pieceLayer.findOne(`#piece-${data.usuarioId}`);
-        const target = hexGrid.get(hexKey(to.q, to.r));
-
-        if (!piece || !target) return;
-
-        piece.position({ x: target.shape.x(), y: target.shape.y() });
-        piece.setAttr('hexQ', to.q);
-        piece.setAttr('hexR', to.r);
-        pieceLayer.batchDraw();
-        console.log("moveu")
-    }
-};
