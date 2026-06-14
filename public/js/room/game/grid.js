@@ -208,12 +208,11 @@ function createPiece(q, r, usuarioId, color) {
 window.gridHandlers = {
 
     piece_created(data) {
-        const { usuarioId, color, q, r } = data.payload;
-        // Evita duplicar peça própria (já criada localmente)
-        const existing = pieceLayer.findOne(`#piece-${usuarioId}`);
-        if (existing) return;
-        createPiece(q, r, usuarioId, color);
-    },
+    const { usuarioId, color, q, r } = data.payload;
+    const existing = pieceLayer.findOne(`#piece-${usuarioId}`);
+    if (existing) return; // ← esse guard evita duplicata
+    createPiece(q, r, usuarioId, color);
+    },  
 
     movePiecePlayer(data) {
         const { from, to } = data.payload;
