@@ -106,7 +106,7 @@
                 const h = stage ? stage.height() : 600;
                 initStage(w, h);
                 fillGrid(w, h);
-                createPiece(0, 0);
+                createPiece(0, 0, usuarioId);
                 debugLog('🎲 Rodada iniciada');
 
                 debugLog('É o mestre?', isMestre);
@@ -168,6 +168,14 @@
 
             case 'rodadaEncerrada':
                 debugLog(' 🛑 Rodada encerrada');
+                break;
+
+            case 'piece_created':
+                window.gridHandlers?.piece_created(data);
+                break;
+
+            case 'movePiecePlayer':
+                window.gridHandlers?.movePiecePlayer(data);
                 break;
 
             default:

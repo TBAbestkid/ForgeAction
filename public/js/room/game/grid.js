@@ -9,6 +9,15 @@ if (typeof window !== 'undefined') window.hexGrid = hexGrid;
 
 // -------------------------------------------------------
 
+function getWs() {
+    return window.AppWebSocket || null;
+}
+
+function getSalaId() {
+    return window.CHAT_CONFIG?.salaId ?? null;
+}
+
+//-------------------------------------------------------
 function initStage(width, height) {
     if (stage) {
         stage.destroy();
@@ -122,14 +131,19 @@ function onPieceDragEnd(e) {
     console.log('move:', movePayload);
 }
 
-function createPiece(q, r) {
+function createPiece(q, r, usuarioId, color) {
     const { x, y } = axialToPixel(q, r);
+
+    // Se não veio color (criação local), gera e broadcasta
+    const isLocal = !color;
+    const pieceColor = color ?? '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
 
     const piece = new Konva.Circle({
         x: originX + x,
         y: originY + y,
         radius: HEX_SIZE * 0.4,
-        fill: 'red',
+        fill: pieceColor,
+        id: `piece-${usuarioId}`,
         draggable: true,
         hexQ: q,
         hexR: r,
@@ -138,21 +152,79 @@ function createPiece(q, r) {
     piece.on('dragend', onPieceDragEnd);
     pieceLayer.add(piece);
     pieceLayer.batchDraw();
+
+    // Só broadcasta se foi criação local (não replicação de outro jogador)
+    if (isLocal) {
+        const ws     = getWs();
+        const salaId = getSalaId();
+
+        if (ws && salaId) {
+            ws.send('/app/enviar/' + salaId, {
+                acao: 'piece_created',
+                usuarioId,
+                salaId,
+                payload: { usuarioId, color: pieceColor, q, r }
+            });
+        }
+    }
+}function createPiece(q, r, usuarioId, color) {
+    const { x, y } = axialToPixel(q, r);
+
+    // Se não veio color (criação local), gera e broadcasta
+    const isLocal = !color;
+    const pieceColor = color ?? '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+
+    const piece = new Konva.Circle({
+        x: originX + x,
+        y: originY + y,
+        radius: HEX_SIZE * 0.4,
+        fill: pieceColor,
+        id: `piece-${usuarioId}`,
+        draggable: true,
+        hexQ: q,
+        hexR: r,
+    });
+
+    piece.on('dragend', onPieceDragEnd);
+    pieceLayer.add(piece);
+    pieceLayer.batchDraw();
+
+    // Só broadcasta se foi criação local (não replicação de outro jogador)
+    if (isLocal) {
+        const ws     = getWs();
+        const salaId = getSalaId();
+
+        if (ws && salaId) {
+            ws.send('/app/enviar/' + salaId, {
+                acao: 'piece_created',
+                usuarioId,
+                salaId,
+                payload: { usuarioId, color: pieceColor, q, r }
+            });
+        }
+    }
 }
 
+window.gridHandlers = {
 
-// document.addEventListener('DOMContentLoaded', () => {
+    piece_created(data) {
+        const { usuarioId, color, q, r } = data.payload;
+        // Evita duplicar peça própria (já criada localmente)
+        const existing = pieceLayer.findOne(`#piece-${usuarioId}`);
+        if (existing) return;
+        createPiece(q, r, usuarioId, color);
+    },
 
-//     const btnIniciarTurno = document.getElementById('btnIniciarTurno');
+    movePiecePlayer(data) {
+        const { from, to } = data.payload;
+        const piece  = pieceLayer.findOne(`#piece-${data.usuarioId}`);
+        const target = hexGrid.get(hexKey(to.q, to.r));
 
-//     if (btnIniciarTurno) {
-//         btnIniciarTurno.addEventListener('click', () => {
-//             const w = stage ? stage.width() : 800;
-//             const h = stage ? stage.height() : 600;
-//             initStage(w, h);
-//             fillGrid(w, h);
-//             createPiece(0, 0);
-//         });
-//     }
+        if (!piece || !target) return;
 
-// });
+        piece.position({ x: target.shape.x(), y: target.shape.y() });
+        piece.setAttr('hexQ', to.q);
+        piece.setAttr('hexR', to.r);
+        pieceLayer.batchDraw();
+    }
+};
