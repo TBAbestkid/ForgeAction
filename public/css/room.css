@@ -14,13 +14,13 @@
 }
 
 /* Estados ativos dos botões de ação do mestre */
-#btn-dano.active {
+#btnDano.active {
     background-color: rgba(220, 53, 69, 0.2);
     border-color: #dc3545 !important;
     box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
 }
 
-#btn-curar.active {
+#btnCurar.active {
     background-color: rgba(40, 167, 69, 0.2);
     border-color: #28a745 !important;
     box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
