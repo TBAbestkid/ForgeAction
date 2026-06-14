@@ -101,12 +101,21 @@
                 break;
 
             case 'round':
-
                 const w = stage ? stage.width() : 800;
                 const h = stage ? stage.height() : 600;
-                initStage(w, h);
-                fillGrid(w, h);
-                createPiece(0, 0, usuarioId);
+
+                // Só inicializa o stage se ainda não existe
+                if (!stage) {
+                    initStage(w, h);
+                    fillGrid(w, h);
+                }
+
+                // Só cria a peça se ainda não existe
+                if (!pieceLayer.findOne(`#piece-${userId}`)) {
+                    createPiece(0, 0, userId);
+                }
+
+                break;
                 debugLog('🎲 Rodada iniciada');
 
                 debugLog('É o mestre?', isMestre);
