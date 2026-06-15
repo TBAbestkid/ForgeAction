@@ -5,6 +5,7 @@ let personagemSelecionadoId = null;
 let usuarioSelecionadoId = null;
 let vidaSelecionada = 0;
 let ws = null;
+let rodadaIniciando = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     ws = window.AppWebSocket;
@@ -36,19 +37,64 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Função para iniciar a rodada
+function setBotaoRodadaPendente(pendente) {
+    const btn = document.getElementById('btnIniciarTurno');
+    if (!btn) return;
+
+    btn.disabled = pendente;
+    btn.title = pendente ? 'Iniciando rodada...' : 'Turno';
+}
+
+document.addEventListener('ws.message', (event) => {
+    if (event.detail?.acao !== 'round') return;
+
+    rodadaIniciando = false;
+    setBotaoRodadaPendente(false);
+});
+
 function iniciarRodada() {
     console.log(' 🚀 Iniciando rodada...');
 
-    // Envia notificação de sistema
-    window.EnviarAcao('turnoIniciado', {
-        nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre'
-    });
 
-    ws.send('/app/backchannel/rodadas', {
+    if (rodadaIniciando || window.turnState?.rodadaIniciada) {
+        console.warn('Rodada ja esta iniciada ou aguardando resposta do servidor.');
+        return;
+    }
+
+    rodadaIniciando = true;
+    setBotaoRodadaPendente(true);
+
+    if (!ws?.getStatus?.().isConnected) {
+        rodadaIniciando = false;
+        setBotaoRodadaPendente(false);
+        console.warn('WebSocket nao conectado; rodada nao foi iniciada.');
+        return;
+    }
+    const rodadaEnviada = ws.send('/app/backchannel/rodadas', {
         acao: "turnoMestre",
         salaId: window.CHAT_CONFIG?.salaId
     }
     );
+
+    if (!rodadaEnviada) {
+        rodadaIniciando = false;
+        setBotaoRodadaPendente(false);
+        console.warn('WebSocket recusou o envio; rodada nao foi iniciada.');
+        return;
+    }
+
+    // Envia notificação de sistema apenas depois do evento de rodada ser aceito
+    window.EnviarAcao('turnoIniciado', {
+        nomeJogador: window.CHAT_CONFIG?.userLogin || 'Mestre'
+    });
+
+    setTimeout(() => {
+        if (window.turnState?.rodadaIniciada) return;
+
+        rodadaIniciando = false;
+        setBotaoRodadaPendente(false);
+        console.warn('Servidor nao confirmou inicio da rodada dentro do tempo esperado.');
+    }, 5000);
 }
 
 // Função para avançar para o próximo turno
