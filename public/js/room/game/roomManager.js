@@ -115,7 +115,6 @@
                     createPiece(0, 0, userId);
                 }
 
-                break;
                 debugLog('🎲 Rodada iniciada');
 
                 debugLog('É o mestre?', isMestre);
