@@ -803,14 +803,19 @@
     {{-- 2. Serviço WebSocket --}}
     <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
 
+    @php
+        $apiBaseUrl = rtrim((string) config('services.api.base_url'), '/');
+        $wsBaseUrl = preg_replace('#/api$#', '', $apiBaseUrl);
+        $wsUrl = $wsBaseUrl ? $wsBaseUrl . '/ws' : null;
+    @endphp
+
     {{-- 3. Exporta variáveis PHP para JS --}}
     <script>
         window.CHAT_CONFIG = {
             userId: @json(session('user_id')),
             userLogin: @json(session('user_login') ?? 'Desconhecido'),
             salaId: @json($sala['id']),
-            // wsUrl: "{{ env('EXTERNAL_API_URL') }}" + "/ws",
-            wsUrl: window.location.origin + "/ws",
+            wsUrl: @json($wsUrl) || window.location.origin + "/ws",
             isMestre: {{ $isDono ? 'true' : 'false' }},
             nomePersonagem: @json($isDono ? 'Mestre' : ($personagemJogador['nome'] ?? 'Desconhecido'))
         };
