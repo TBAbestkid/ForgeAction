@@ -101,11 +101,11 @@
             @keyframes lowHealthPulse {
                 0%,
                 100% {
-                    opacity: 0.45;
+                    opacity: var(--low-health-opacity-min, 0.1);
                 }
 
                 50% {
-                    opacity: 0.9;
+                    opacity: var(--low-health-opacity-max, 0.18);
                 }
             }
 
@@ -122,16 +122,20 @@
             }
 
             #lowHealthOverlay.is-wounded {
-                opacity: 0.26;
+                --low-health-opacity-min: 0.08;
+                --low-health-opacity-max: 0.18;
+                opacity: 0.14;
                 animation: lowHealthPulse 2.2s ease-in-out infinite;
             }
 
             #lowHealthOverlay.is-critical {
-                opacity: 0.55;
+                --low-health-opacity-min: 0.22;
+                --low-health-opacity-max: 0.38;
+                opacity: 0.3;
                 animation: lowHealthPulse 1.15s ease-in-out infinite;
                 background:
-                    radial-gradient(circle at center, rgba(220, 0, 0, 0) 44%, rgba(220, 0, 0, 0.24) 76%, rgba(220, 0, 0, 0.48) 100%),
-                    linear-gradient(90deg, rgba(220, 0, 0, 0.34), rgba(220, 0, 0, 0) 20%, rgba(220, 0, 0, 0) 80%, rgba(220, 0, 0, 0.34));
+                    radial-gradient(circle at center, rgba(220, 0, 0, 0) 48%, rgba(220, 0, 0, 0.18) 78%, rgba(220, 0, 0, 0.34) 100%),
+                    linear-gradient(90deg, rgba(220, 0, 0, 0.26), rgba(220, 0, 0, 0) 20%, rgba(220, 0, 0, 0) 80%, rgba(220, 0, 0, 0.26));
             }
 
             /**
