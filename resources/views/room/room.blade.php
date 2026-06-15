@@ -801,13 +801,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     {{-- 2. Serviço WebSocket --}}
-    <script src="{{ asset('js/utils/webSocketService.js') }}"></script>
-
-    @php
-        $apiBaseUrl = rtrim((string) config('services.api.base_url'), '/');
-        $wsBaseUrl = preg_replace('#/api$#', '', $apiBaseUrl);
-        $wsUrl = $wsBaseUrl ? $wsBaseUrl . '/ws' : null;
-    @endphp
+    <script src="{{ asset('js/utils/webSocketService.js') }}?v={{ filemtime(public_path('js/utils/webSocketService.js')) }}"></script>
 
     {{-- 3. Exporta variáveis PHP para JS --}}
     <script>
@@ -815,7 +809,7 @@
             userId: @json(session('user_id')),
             userLogin: @json(session('user_login') ?? 'Desconhecido'),
             salaId: @json($sala['id']),
-            wsUrl: @json($wsUrl) || window.location.origin + "/ws",
+            wsUrl: window.location.origin + "/ws",
             isMestre: {{ $isDono ? 'true' : 'false' }},
             nomePersonagem: @json($isDono ? 'Mestre' : ($personagemJogador['nome'] ?? 'Desconhecido'))
         };
@@ -834,7 +828,7 @@
     {{-- 4. Gerenciadores de Estado e Turno (ordem: estado primeiro, depois manager) --}}
     <script type="module" src="{{ asset('js/room/general/enums.js') }}"></script>
     <script src="{{ asset('js/room/game/turnState.js') }}"></script>
-    <script src="{{ asset('js/room/game/turnManager.js') }}"></script>
+    <script src="{{ asset('js/room/game/turnManager.js') }}?v={{ filemtime(public_path('js/room/game/turnManager.js')) }}"></script>
     <script src="{{ asset('js/room/game/turnUIManager.js') }}"></script>
 
     {{-- 4.4. Grid de Batalha --}}
@@ -857,7 +851,7 @@
 
     {{-- 7. Gerenciadores da Sala (após todos os anteriores) --}}
     <script src="{{ asset('js/room/general/chatRoom.js') }}"></script>
-    <script src="{{ asset('js/room/game/roomManager.js') }}"></script>
+    <script src="{{ asset('js/room/game/roomManager.js') }}?v={{ filemtime(public_path('js/room/game/roomManager.js')) }}"></script>
 
     <script>
 
