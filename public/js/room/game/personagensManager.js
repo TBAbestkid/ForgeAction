@@ -53,6 +53,8 @@ function criarCardPersonagem(personagem, sufixo) {
     personagemDiv.dataset.usuarioId = personagem.usuarioId;
     personagemDiv.dataset.nome = personagem.nome;
     personagemDiv.dataset.vida = personagem.vida;
+    personagemDiv.dataset.vidaMax = personagem.vida;
+    personagemDiv.dataset.vidaAtual = personagem.vida;
     personagemDiv.dataset.classe = personagem.classe;
     personagemDiv.dataset.raca = personagem.raca;
     personagemDiv.dataset.level = personagem.level;
@@ -168,9 +170,10 @@ function atualizarVidaPersonagemCard(personagemId, novaVida) {
         // Busca o progress bar
         const progressBar = card.querySelector('.progress-bar');
         if (progressBar) {
-            // Limita entre 0 e vida máxima (usa vida original do card)
-            const vidaMax = parseInt(card.dataset.vida) || 100;
+            // Limita entre 0 e vida máxima, mantendo a vida atual separada do valor máximo
+            const vidaMax = parseInt(card.dataset.vidaMax || card.dataset.vida) || 100;
             const vidaFinal = Math.max(0, Math.min(novaVida, vidaMax));
+            card.dataset.vidaAtual = vidaFinal;
 
             // Atualiza o texto
             progressBar.innerText = `${vidaFinal}/${vidaMax}`;
