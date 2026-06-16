@@ -4,285 +4,13 @@
 @section('content')
     {{-- Manter tudo na tela visualmente, aqui dentro --}}
     <div id="roomContainer" class="">
-        <style>
-            #dice-container {
-                position: relative;
-                overflow: hidden;
-            }
-
-            #dice-box {
-                z-index: 2;
-                pointer-events: none;
-            }
-
-            #dice-placeholder {
-                z-index: 1;
-                background: rgba(0, 0, 0, 0.55);
-                padding: 0.9rem 1.4rem;
-                border-radius: 1.5rem;
-                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 20px 45px rgba(0, 0, 0, 0.25);
-                backdrop-filter: blur(8px);
-                transition: transform 0.25s ease, opacity 0.25s ease;
-                pointer-events: none;
-            }
-
-            #dice-placeholder::after {
-                content: '';
-                position: absolute;
-                left: 50%;
-                bottom: -14px;
-                transform: translateX(-50%);
-                width: 180px;
-                height: 12px;
-                background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
-                filter: blur(6px);
-                opacity: 0.85;
-            }
-
-            .dice-result {
-                position: absolute;
-                top: 35%;
-                left: 50%;
-                transform: translate(-50%, -50%) scale(0.6);
-
-                font-size: 4rem;
-                font-weight: 700;
-
-                color: #fff;
-                text-shadow:
-                    0 0 28px rgba(255, 255, 255, .9),
-                    0 0 60px rgba(0, 0, 0, .45);
-
-                z-index: 35;
-                /* ← antes era 3 */
-
-                pointer-events: none;
-                opacity: 0;
-
-                animation: diceValuePop 1.5s ease-out forwards;
-            }
-
-            @keyframes diceValuePop {
-                0% {
-                    opacity: 0;
-                    transform: translate(-50%, -50%) scale(0.5);
-                }
-
-                20% {
-                    opacity: 1;
-                    transform: translate(-50%, -50%) scale(1.4);
-                }
-
-                55% {
-                    opacity: 1;
-                    transform: translate(-50%, -55%) scale(1.0);
-                }
-
-                100% {
-                    opacity: 0;
-                    transform: translate(-50%, -70%) scale(0.8);
-                }
-            }
-
-            @keyframes pulse-vida {
-                0% {
-                    transform: scaleX(1);
-                }
-
-                50% {
-                    transform: scaleX(1.05);
-                }
-
-                100% {
-                    transform: scaleX(1);
-                }
-            }
-
-            /**
-             * 📌 SISTEMA DE PIN (FIXAR FICHA)
-             */
-            #fixarFichaMestre,
-            #fixarFichaJogador {
-                transition: all 0.3s ease;
-            }
-
-            #fixarFichaMestre.active,
-            #fixarFichaJogador.active {
-                transform: rotate(-15deg) scale(1.1);
-                box-shadow: 0 0 12px rgba(17, 150, 243, 0.6);
-            }
-
-            .offcanvas-pinned {
-                box-shadow: inset -4px 0 0 0 rgba(17, 150, 243, 0.4) !important;
-                pointer-events: auto;
-            }
-
-            body.offcanvas-interactive {
-                overflow: auto !important;
-                padding-right: 0 !important;
-            }
-
-            body.offcanvas-interactive .offcanvas-backdrop {
-                display: none !important;
-            }
-
-            .personagem-nome {
-                display: block;
-                min-width: 0;
-                max-width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .personagem-card-nome-wrap {
-                min-width: 0;
-                max-width: 100%;
-                padding-right: 2.25rem;
-            }
-
-            .room-text-safe {
-                min-width: 0;
-                max-width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .room-wrap-safe {
-                min-width: 0;
-                overflow-wrap: anywhere;
-                word-break: break-word;
-            }
-
-            #coluna-personagens {
-                overflow-x: hidden !important;
-            }
-
-            #dice-placeholder {
-                max-width: calc(100% - 2rem);
-                overflow-wrap: anywhere;
-            }
-
-            .chat-container,
-            #chat-content,
-            #logs-content,
-            #chat-messages,
-            #system-logs {
-                min-width: 0;
-            }
-
-            .hud-bg {
-                max-width: calc(100vw - 1rem);
-            }
-
-            .hud-bg > .d-flex {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            #offcanvasFichaPersonagem .offcanvas-header,
-            #offcanvasUpgradePersonagem .offcanvas-header,
-            #offcanvasMembers .offcanvas-header {
-                gap: 0.5rem;
-            }
-
-            #offcanvasFichaPersonagem .offcanvas-title,
-            #offcanvasUpgradePersonagem .offcanvas-title,
-            #offcanvasMembers .offcanvas-title {
-                min-width: 0;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            #lista-membros .list-group-item > div,
-            #lista-membros .list-group-item > .room-text-safe {
-                min-width: 0;
-            }
-
-            .offcanvas-ficha-player {
-                width: min(92vw, 360px) !important;
-                max-width: 92vw !important;
-            }
-
-            .ficha-player-header {
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-
-            .ficha-player-title {
-                min-width: 0;
-                line-height: 1.25;
-                padding-top: 0.25rem;
-            }
-
-            .ficha-player-title .personagem-nome {
-                flex: 1 1 auto;
-            }
-
-            .ficha-player-actions {
-                flex: 0 0 auto;
-            }
-
-            .ficha-player-body small {
-                overflow-wrap: anywhere;
-            }
-
-            @media (max-width: 768px) {
-                #game-section {
-                    width: 94vw !important;
-                    height: 56vh !important;
-                    gap: 0.5rem !important;
-                }
-
-                #coluna-personagens {
-                    flex-basis: 180px !important;
-                    padding: 0.5rem !important;
-                }
-
-                .chat-container {
-                    width: min(400px, 92vw) !important;
-                    height: min(400px, 54vh) !important;
-                }
-
-                .hud-btn {
-                    width: 52px;
-                    height: 52px;
-                    font-size: 1.2rem;
-                }
-            }
-
-            .offcanvas-pinned .offcanvas-header {
-                border-bottom: 2px solid rgba(17, 150, 243, 0.4);
-            }
-
-            /**
-             * Dica visual: ESC para desfixar
-             */
-            .offcanvas-pinned::after {
-                content: '';
-                position: fixed;
-                top: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 6px 12px;
-                background: rgba(17, 150, 243, 0.1);
-                border-radius: 4px;
-                font-size: 0.75rem;
-                color: rgba(17, 150, 243, 0.8);
-                pointer-events: none;
-                white-space: nowrap;
-                z-index: 1;
-            }
-        </style>
 
         {{-- Background da Sala --}}
         <div id="roomBackground"
             style="background-image: url('{{ $sala['urlBackground'] ? $sala['urlBackground'] : asset('assets/images/forge.png') }}');">
         </div>
 
-        {{-- Configurações de Sala, para mestre e player --}}
+        {{-- ConfiguraÃ§Ãµes de Sala, para mestre e player --}}
         @include('partials.death', ['enabled' => !$isDono])
 
         <div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
@@ -321,7 +49,7 @@
                             <a href="#" class="dropdown-item" data-action="copiar-codigo"
                                 data-code="{{ $sala['codigo'] ?? '' }}">
                                 <i class="fa-solid fa-copy"></i>
-                                Copiar Código da Sala
+                                Copiar CÃ³digo da Sala
                             </a>
                         </li>
                     @endif
@@ -343,11 +71,11 @@
 
         </div>
 
-        {{-- Chat e Logs Desktop (pq pra cell eu não to muito afim) --}}
+        {{-- Chat e Logs Desktop (pq pra cell eu nÃ£o to muito afim) --}}
         <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 100;">
 
-            <!-- Botão com Badge de Notificações -->
-            {{-- Meio que não tem problema inserir notificações bombasticas --}}
+            <!-- BotÃ£o com Badge de NotificaÃ§Ãµes -->
+            {{-- Meio que nÃ£o tem problema inserir notificaÃ§Ãµes bombasticas --}}
             <button class="btn btn-dark mb-2 position-relative" data-bs-toggle="collapse" data-bs-target="#chatCollapse">
                 <i class="fa-solid fa-comments"></i> Chat
                 <span id="chat-notification-badge"
@@ -380,14 +108,14 @@
                         </li>
                     </ul>
 
-                    <!-- Conteúdo das Tabs -->
+                    <!-- ConteÃºdo das Tabs -->
                     <div class="tab-content flex-grow-1 overflow-hidden" id="chatTabContent">
 
                         <!-- Aba Chat -->
                         <div class="tab-pane fade show active d-flex flex-column h-100" id="chat-content" role="tabpanel"
                             aria-labelledby="chat-tab">
                             <div id="chat-messages" class="flex-grow-1 overflow-auto mb-3 p-3" style="min-height: 0;">
-                                {{-- Mensagens serão inseridas aqui --}}
+                                {{-- Mensagens serÃ£o inseridas aqui --}}
                             </div>
                             <div class="input-group p-3 border-top border-secondary">
                                 <input type="text" class="form-control" placeholder="Digite sua mensagem..."
@@ -402,7 +130,7 @@
                         <div class="tab-pane fade d-flex flex-column h-100" id="logs-content" role="tabpanel"
                             aria-labelledby="logs-tab">
                             <div id="system-logs" class="flex-grow-1 overflow-auto p-3" style="min-height: 0;">
-                                {{-- Logs do sistema serão inseridos aqui --}}
+                                {{-- Logs do sistema serÃ£o inseridos aqui --}}
                             </div>
                         </div>
                     </div>
@@ -412,7 +140,7 @@
 
         </div>
 
-        {{-- Seção principal de jogo com layout flexbox --}}
+        {{-- SeÃ§Ã£o principal de jogo com layout flexbox --}}
         <div id="game-section" class="position-fixed top-50 start-50 translate-middle d-flex gap-3 align-items-stretch"
             style="width: 90vw; height: 60vh; max-width: 1200px; z-index: 5; transform: translate(-50%, -50%);">
 
@@ -421,10 +149,10 @@
                 class="shadow-lg rounded-4 d-flex align-items-center justify-content-center flex-grow-1 position-relative"
                 style="background: rgba(0,0,0,.25); overflow:hidden;">
 
-                {{-- Placeholder (mais atrás) --}}
+                {{-- Placeholder (mais atrÃ¡s) --}}
                 <div id="dice-placeholder"
                     class="text-white text-center position-absolute top-50 start-50 translate-middle" style="z-index:32;">
-                    🎲 Aguardando início do turno...
+                    ðŸŽ² Aguardando inÃ­cio do turno...
                 </div>
 
                 {{-- Grid (na frente do placeholder) --}}
@@ -465,9 +193,9 @@
             {{-- @endif --}}
         </div>
 
-        {{-- Botões de Ações Mestre/Player (HUD abaixo)
+        {{-- BotÃµes de AÃ§Ãµes Mestre/Player (HUD abaixo)
         Usando de base a ideia de HUID
-        Botões de ação de mestre como linha abaixo de área --}}
+        BotÃµes de aÃ§Ã£o de mestre como linha abaixo de Ã¡rea --}}
         <div class="position-fixed bottom-0 start-50 translate-middle-x mb-3" style="z-index: 50;">
             <div class="d-flex flex-column gap-2 px-3 py-2 rounded-4 shadow hud-bg" style="align-items: center;">
 
@@ -510,7 +238,7 @@
                         </button>
                     </div>
                 @else
-                    {{-- 🎲 Rodar Dado e Pular Turno --}}
+                    {{-- ðŸŽ² Rodar Dado e Pular Turno --}}
                     <div class="d-flex gap-3">
                         <button id="btn-roll"
                             class="btn btn-light btn-lg rounded-3 d-flex align-items-center justify-content-center hud-btn"
@@ -525,7 +253,7 @@
                         </button>
                     </div>
 
-                    {{-- ❤️ Barra de Vida do Jogador --}}
+                    {{-- â¤ï¸ Barra de Vida do Jogador --}}
                     <div style="width: 240px; display: flex; flex-direction: column; gap: 4px;">
                         <small class="text-danger" style="margin: 0;"><i class="fa-solid fa-heart"></i>
                             <strong>Vida</strong></small>
@@ -567,7 +295,7 @@
             </div>
         </div>
 
-        <!-- Offcanvas para Ficha de Personagem (genérico, usado pelo mestre) -->
+        <!-- Offcanvas para Ficha de Personagem (genÃ©rico, usado pelo mestre) -->
         <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasFichaPersonagem"
             data-bs-scroll="false" data-bs-backdrop="true" aria-labelledby="offcanvasFichaPersonagemLabel"
             style="background-color: #1c1c1c; max-width: 320px;">
@@ -585,7 +313,7 @@
             </div>
 
             <div class="offcanvas-body p-3 overflow-auto" style="max-height: calc(100vh - 60px);">
-                {{-- Conteúdo será preenchido dinamicamente por JavaScript --}}
+                {{-- ConteÃºdo serÃ¡ preenchido dinamicamente por JavaScript --}}
             </div>
         </div>
     @else
@@ -617,29 +345,29 @@
                 <div class="row g-2">
                     <!-- Header do Personagem -->
                     <div class="col-12 mb-3 border-bottom border-secondary pb-2">
-                        <div><small><strong><i class="fa-solid fa-user-shield"></i> Raça:</strong>
+                        <div><small><strong><i class="fa-solid fa-user-shield"></i> RaÃ§a:</strong>
                                 {{ $personagemJogador['raca'] ?? 'N/A' }}</small></div>
                         <div><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Classe:</strong>
                                 {{ $personagemJogador['classe'] ?? 'N/A' }}</small></div>
-                        <div><small><strong><i class="fa-solid fa-signal"></i> Nível:</strong>
+                        <div><small><strong><i class="fa-solid fa-signal"></i> NÃ­vel:</strong>
                                 {{ $personagemJogador['level'] ?? 1 }}</small></div>
                     </div>
 
                     <!-- Atributos Principais -->
                     <div class="col-12 mb-2">
-                        <small class="text-warning"><strong>⚔️ Atributos Principais</strong></small>
+                        <small class="text-warning"><strong>âš”ï¸ Atributos Principais</strong></small>
                     </div>
-                    <div class="col-6"><small><strong><i class="fa-solid fa-dumbbell"></i> Força:</strong>
+                    <div class="col-6"><small><strong><i class="fa-solid fa-dumbbell"></i> ForÃ§a:</strong>
                             {{ $personagemJogador['forca'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-bolt"></i> Agilidade:</strong>
                             {{ $personagemJogador['agilidade'] ?? 0 }}</small></div>
-                    <div class="col-6"><small><strong><i class="fa-solid fa-brain"></i> Inteligência:</strong>
+                    <div class="col-6"><small><strong><i class="fa-solid fa-brain"></i> InteligÃªncia:</strong>
                             {{ $personagemJogador['inteligencia'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-hand"></i> Destreza:</strong>
                             {{ $personagemJogador['destreza'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-shield-heart"></i> Vitalidade:</strong>
                             {{ $personagemJogador['vitalidade'] ?? 0 }}</small></div>
-                    <div class="col-6"><small><strong><i class="fa-solid fa-eye"></i> Percepção:</strong>
+                    <div class="col-6"><small><strong><i class="fa-solid fa-eye"></i> PercepÃ§Ã£o:</strong>
                             {{ $personagemJogador['percepcao'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-book"></i> Sabedoria:</strong>
                             {{ $personagemJogador['sabedoria'] ?? 0 }}</small></div>
@@ -648,34 +376,34 @@
 
                     <!-- Recursos de Vida/Mana -->
                     <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
-                        <small class="text-info"><strong>❤️ Recursos</strong></small>
+                        <small class="text-info"><strong>â¤ï¸ Recursos</strong></small>
                     </div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-heart"></i> Vida:</strong>
                             {{ $personagemJogador['vida'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-droplet"></i> Mana:</strong>
                             {{ $personagemJogador['mana'] ?? 0 }}</small></div>
 
-                    <!-- Iniciativa e Bônus -->
+                    <!-- Iniciativa e BÃ´nus -->
                     <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
-                        <small class="text-success"><strong>⚡ Ações</strong></small>
+                        <small class="text-success"><strong>âš¡ AÃ§Ãµes</strong></small>
                     </div>
                     <div class="col-12"><small><strong><i class="fa-solid fa-forward"></i> Iniciativa:</strong>
                             {{ $personagemJogador['iniciativa'] ?? 0 }}</small></div>
 
                     <!-- Ataques -->
                     <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
-                        <small class="text-danger"><strong>⚔️ Ataques</strong></small>
+                        <small class="text-danger"><strong>âš”ï¸ Ataques</strong></small>
                     </div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Atk
-                                Mágico:</strong> {{ $personagemJogador['ataqueMagico'] ?? 0 }}</small></div>
+                                MÃ¡gico:</strong> {{ $personagemJogador['ataqueMagico'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-hand-fist"></i> Atk Corpo:</strong>
                             {{ $personagemJogador['ataqueFisicoCorpo'] ?? 0 }}</small></div>
-                    <div class="col-12 mt-2"><small><strong><i class="fa-solid fa-bullseye"></i> Atk Distância:</strong>
+                    <div class="col-12 mt-2"><small><strong><i class="fa-solid fa-bullseye"></i> Atk DistÃ¢ncia:</strong>
                             {{ $personagemJogador['ataqueFisicoDistancia'] ?? 0 }}</small></div>
 
                     <!-- Defesa -->
                     <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
-                        <small class="text-secondary"><strong>🛡️ Defesa</strong></small>
+                        <small class="text-secondary"><strong>ðŸ›¡ï¸ Defesa</strong></small>
                     </div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-shield-halved"></i> Defesa:</strong>
                             {{ $personagemJogador['defesaPersonagem'] ?? 0 }}</small></div>
@@ -686,7 +414,7 @@
         </div>
     @endif
 
-    <!-- Offcanvas para Upgrade de Personagem (acessível para mestres e players) -->
+    <!-- Offcanvas para Upgrade de Personagem (acessÃ­vel para mestres e players) -->
     <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasUpgradePersonagem"
         aria-labelledby="offcanvasUpgradePersonagemLabel" style="background-color: #1c1c1c; max-width: 380px;">
 
@@ -700,7 +428,7 @@
 
         <div class="offcanvas-body p-3 overflow-auto" style="max-height: calc(100vh - 60px);">
             <div id="upgradeContent">
-                {{-- Conteúdo será preenchido dinamicamente por JavaScript --}}
+                {{-- ConteÃºdo serÃ¡ preenchido dinamicamente por JavaScript --}}
             </div>
         </div>
     </div>
@@ -718,7 +446,7 @@
         <div class="offcanvas-body p-0">
             <ul id="lista-membros" class="list-group list-group-flush overflow-auto" style="max-height: 500px;">
 
-                {{-- 🔹 Primeiro o Mestre (dono da sala) --}}
+                {{-- ðŸ”¹ Primeiro o Mestre (dono da sala) --}}
                 @php
                     $mestreId = $sala['mestre'];
                 @endphp
@@ -733,7 +461,7 @@
                     <span><span class="members-list-dot offline"></span></span>
                 </li>
 
-                {{-- 🔹 Depois os Players (exceto o mestre) --}}
+                {{-- ðŸ”¹ Depois os Players (exceto o mestre) --}}
                 @foreach ($membros as $uid => $login)
                     @continue($uid == $mestreId)
 
@@ -758,14 +486,14 @@
         Pressione <strong>F11</strong> ou <strong>Clique aqui</strong> para entrar em tela cheia
     </div>
 
-    {{-- 1. Dependências globais --}}
+    {{-- 1. DependÃªncias globais --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    {{-- 2. Serviço WebSocket --}}
+    {{-- 2. ServiÃ§o WebSocket --}}
     <script src="{{ asset('js/utils/webSocketService.js') }}?v={{ filemtime(public_path('js/utils/webSocketService.js')) }}"></script>
 
-    {{-- 3. Exporta variáveis PHP para JS --}}
+    {{-- 3. Exporta variÃ¡veis PHP para JS --}}
     <script>
         window.CHAT_CONFIG = {
             userId: @json(session('user_id')),
@@ -806,20 +534,20 @@
     <script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
     <script src="{{ asset('js/room/game/actionNotifier.js') }}"></script>
 
-    {{-- 6. Dados (módulo ES6) --}}
+    {{-- 6. Dados (mÃ³dulo ES6) --}}
     <script type="module" src="{{ asset('js/room/game/diceManager.js') }}"></script>
 
-    {{-- 6.5. Gerenciador unificado de convites e cópia de código --}}
+    {{-- 6.5. Gerenciador unificado de convites e cÃ³pia de cÃ³digo --}}
     <script src="{{ asset('js/room/general/conviteManager.js') }}"></script>
 
-    {{-- 7. Gerenciadores da Sala (após todos os anteriores) --}}
+    {{-- 7. Gerenciadores da Sala (apÃ³s todos os anteriores) --}}
     <script src="{{ asset('js/room/general/chatRoom.js') }}"></script>
     <script src="{{ asset('js/room/game/roomManager.js') }}?v={{ filemtime(public_path('js/room/game/roomManager.js')) }}"></script>
 
     <script>
 
         /**
-         * ✅ CONVITES E CÓPIA DE CÓDIGO
+         * âœ… CONVITES E CÃ“PIA DE CÃ“DIGO
          * Gerenciados automaticamente pelo conviteManager.js
          * Detecta: .btn-invite, [data-action="convidar"]
          * Detecta: .btn-copy, [data-action="copiar-codigo"]
