@@ -98,46 +98,6 @@
                 }
             }
 
-            @keyframes lowHealthPulse {
-                0%,
-                100% {
-                    opacity: var(--low-health-opacity-min, 0.1);
-                }
-
-                50% {
-                    opacity: var(--low-health-opacity-max, 0.18);
-                }
-            }
-
-            #lowHealthOverlay {
-                position: fixed;
-                inset: 0;
-                z-index: 4;
-                pointer-events: none;
-                opacity: 0;
-                transition: opacity 0.35s ease;
-                background:
-                    radial-gradient(circle at center, rgba(180, 0, 0, 0) 52%, rgba(180, 0, 0, 0.14) 82%, rgba(180, 0, 0, 0.32) 100%),
-                    linear-gradient(90deg, rgba(170, 0, 0, 0.22), rgba(170, 0, 0, 0) 16%, rgba(170, 0, 0, 0) 84%, rgba(170, 0, 0, 0.22));
-            }
-
-            #lowHealthOverlay.is-wounded {
-                --low-health-opacity-min: 0.08;
-                --low-health-opacity-max: 0.18;
-                opacity: 0.14;
-                animation: lowHealthPulse 2.2s ease-in-out infinite;
-            }
-
-            #lowHealthOverlay.is-critical {
-                --low-health-opacity-min: 0.22;
-                --low-health-opacity-max: 0.38;
-                opacity: 0.3;
-                animation: lowHealthPulse 1.15s ease-in-out infinite;
-                background:
-                    radial-gradient(circle at center, rgba(220, 0, 0, 0) 48%, rgba(220, 0, 0, 0.18) 78%, rgba(220, 0, 0, 0.34) 100%),
-                    linear-gradient(90deg, rgba(220, 0, 0, 0.26), rgba(220, 0, 0, 0) 20%, rgba(220, 0, 0, 0) 80%, rgba(220, 0, 0, 0.26));
-            }
-
             /**
              * 📌 SISTEMA DE PIN (FIXAR FICHA)
              */
@@ -323,9 +283,7 @@
         </div>
 
         {{-- Configurações de Sala, para mestre e player --}}
-        @if (!$isDono)
-            <div id="lowHealthOverlay" aria-hidden="true"></div>
-        @endif
+        @include('partials.death', ['enabled' => !$isDono])
 
         <div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
 
