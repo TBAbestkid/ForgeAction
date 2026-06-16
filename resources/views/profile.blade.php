@@ -15,7 +15,18 @@
             <div class="col-md-4 text-center border-end">
                 <i class="fa-solid fa-user-circle text-light" style="font-size: 8rem;"></i>
                 <h3 class="mt-3 mb-0 text-light">{{ $user['login'] }}</h3>
-                <p class="text-light mb-0"><i class="fa-solid fa-id-badge me-1"></i>{{ ucfirst(strtolower($user['role'])) }}</p>
+                <p class="text-light mb-0" id="currentRoleText">
+                    <i class="fa-solid fa-id-badge me-1"></i>{{ $user['role'] === 'MASTER' ? 'Mestre' : 'Player' }}
+                </p>
+
+                <div class="form-check form-switch mt-4 d-inline-flex align-items-center gap-2">
+                    <input class="form-check-input" type="checkbox" id="toggleRole"
+                        {{ $user['role'] === 'MASTER' ? 'checked' : '' }}>
+                    <label class="form-check-label fw-bold text-light" for="toggleRole">
+                        <i id="roleIcon" class="fa-solid {{ $user['role'] === 'MASTER' ? 'fa-chess-king' : 'fa-user' }} me-1"></i>
+                        <span id="roleLabelText">{{ $user['role'] === 'MASTER' ? 'Mestre Ativo' : 'Player Padrao' }}</span>
+                    </label>
+                </div>
 
                 <button id="btnEditProfile" class="btn btn-outline-light mt-4 w-100">
                     <i class="fa-solid fa-pen-to-square me-1"></i> Editar Perfil
@@ -86,6 +97,10 @@
         const senhaAtualInput = document.getElementById('senhaAtual');
         const senhaConfirmInput = document.getElementById('senhaConfirm');
         const btnUpdatePassword = document.getElementById('btnUpdatePassword');
+        const toggleRole = document.getElementById('toggleRole');
+        const roleIcon = document.getElementById('roleIcon');
+        const roleLabelText = document.getElementById('roleLabelText');
+        const currentRoleText = document.getElementById('currentRoleText');
 
         let editMode = false;
 
@@ -137,6 +152,48 @@
             })
             .catch(() => showAlert('Erro na requisicao'));
         });
+
+        toggleRole.addEventListener('change', function() {
+            const newRole = toggleRole.checked ? 'MASTER' : 'PLAYER';
+            const previousChecked = !toggleRole.checked;
+
+            toggleRole.disabled = true;
+
+            fetch("{{ route('profile.updateRole') }}", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ role: newRole })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    updateRoleDisplay(newRole);
+                    showToast(`Papel alterado para ${newRole === 'MASTER' ? 'Mestre' : 'Player'}`, 'success');
+                } else {
+                    toggleRole.checked = previousChecked;
+                    showAlert(res.message || 'Erro ao atualizar papel');
+                }
+            })
+            .catch(() => {
+                toggleRole.checked = previousChecked;
+                showAlert('Erro na requisicao');
+            })
+            .finally(() => {
+                toggleRole.disabled = false;
+            });
+        });
+
+        function updateRoleDisplay(role) {
+            const isMaster = role === 'MASTER';
+
+            roleIcon.classList.toggle('fa-chess-king', isMaster);
+            roleIcon.classList.toggle('fa-user', !isMaster);
+            roleLabelText.textContent = isMaster ? 'Mestre Ativo' : 'Player Padrao';
+            currentRoleText.innerHTML = `<i class="fa-solid fa-id-badge me-1"></i>${isMaster ? 'Mestre' : 'Player'}`;
+        }
 
         editBtn.addEventListener("click", () => {
             editMode = !editMode;

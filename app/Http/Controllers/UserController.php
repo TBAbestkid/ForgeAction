@@ -69,7 +69,22 @@ class UserController extends Controller
 
     public function updateRole(Request $request)
     {
-        return ApiResponse::error('Alteracao de papel nao e permitida pelo perfil.', 403);
+        $validated = $request->validate([
+            'role' => ['required', 'in:PLAYER,MASTER'],
+        ]);
+
+        $response = $this->api->put('api/login/update', [
+            'login' => session('user_login'),
+            'role' => $validated['role'],
+        ]);
+
+        if (($response['status'] ?? '') === 'success') {
+            session(['user_role' => $validated['role']]);
+
+            return ApiResponse::success($response['data'] ?? null, $response['message'] ?? 'Papel atualizado com sucesso!');
+        }
+
+        return ApiResponse::error($response['message'] ?? 'Falha ao atualizar papel', $response['code'] ?? 400);
     }
 
     public function updatePassword(Request $request)
