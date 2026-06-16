@@ -25,3 +25,259 @@
     border-color: #28a745 !important;
     box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
 }
+
+#dice-container {
+    position: relative;
+    overflow: hidden;
+}
+
+#dice-box {
+    z-index: 2;
+    pointer-events: none;
+}
+
+#dice-placeholder {
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 0.9rem 1.4rem;
+    border-radius: 1.5rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 20px 45px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    pointer-events: none;
+    max-width: calc(100% - 2rem);
+    overflow-wrap: anywhere;
+}
+
+#dice-placeholder::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -14px;
+    transform: translateX(-50%);
+    width: 180px;
+    height: 12px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    filter: blur(6px);
+    opacity: 0.85;
+}
+
+.dice-result {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.6);
+    font-size: 4rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow:
+        0 0 28px rgba(255, 255, 255, .9),
+        0 0 60px rgba(0, 0, 0, .45);
+    z-index: 35;
+    pointer-events: none;
+    opacity: 0;
+    animation: diceValuePop 1.5s ease-out forwards;
+}
+
+@keyframes diceValuePop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.4);
+    }
+
+    55% {
+        opacity: 1;
+        transform: translate(-50%, -55%) scale(1.0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -70%) scale(0.8);
+    }
+}
+
+@keyframes pulse-vida {
+    0% {
+        transform: scaleX(1);
+    }
+
+    50% {
+        transform: scaleX(1.05);
+    }
+
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+#fixarFichaMestre,
+#fixarFichaJogador {
+    transition: all 0.3s ease;
+}
+
+#fixarFichaMestre.active,
+#fixarFichaJogador.active {
+    transform: rotate(-15deg) scale(1.1);
+    box-shadow: 0 0 12px rgba(17, 150, 243, 0.6);
+}
+
+.offcanvas-pinned {
+    box-shadow: inset -4px 0 0 0 rgba(17, 150, 243, 0.4) !important;
+    pointer-events: auto;
+}
+
+body.offcanvas-interactive {
+    overflow: auto !important;
+    padding-right: 0 !important;
+}
+
+body.offcanvas-interactive .offcanvas-backdrop {
+    display: none !important;
+}
+
+.personagem-nome {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.personagem-card-nome-wrap {
+    min-width: 0;
+    max-width: 100%;
+    padding-right: 2.25rem;
+}
+
+.room-text-safe {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.room-wrap-safe {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+#coluna-personagens {
+    overflow-x: hidden !important;
+}
+
+.chat-container,
+#chat-content,
+#logs-content,
+#chat-messages,
+#system-logs {
+    min-width: 0;
+}
+
+.hud-bg {
+    max-width: calc(100vw - 1rem);
+}
+
+.hud-bg > .d-flex {
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#offcanvasFichaPersonagem .offcanvas-header,
+#offcanvasUpgradePersonagem .offcanvas-header,
+#offcanvasMembers .offcanvas-header {
+    gap: 0.5rem;
+}
+
+#offcanvasFichaPersonagem .offcanvas-title,
+#offcanvasUpgradePersonagem .offcanvas-title,
+#offcanvasMembers .offcanvas-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#lista-membros .list-group-item > div,
+#lista-membros .list-group-item > .room-text-safe {
+    min-width: 0;
+}
+
+.offcanvas-ficha-player {
+    width: min(92vw, 360px) !important;
+    max-width: 92vw !important;
+}
+
+.ficha-player-header {
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.ficha-player-title {
+    min-width: 0;
+    line-height: 1.25;
+    padding-top: 0.25rem;
+}
+
+.ficha-player-title .personagem-nome {
+    flex: 1 1 auto;
+}
+
+.ficha-player-actions {
+    flex: 0 0 auto;
+}
+
+.ficha-player-body small {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+    #game-section {
+        width: 94vw !important;
+        height: 56vh !important;
+        gap: 0.5rem !important;
+    }
+
+    #coluna-personagens {
+        flex-basis: 180px !important;
+        padding: 0.5rem !important;
+    }
+
+    .chat-container {
+        width: min(400px, 92vw) !important;
+        height: min(400px, 54vh) !important;
+    }
+
+    .hud-btn {
+        width: 52px;
+        height: 52px;
+        font-size: 1.2rem;
+    }
+}
+
+.offcanvas-pinned .offcanvas-header {
+    border-bottom: 2px solid rgba(17, 150, 243, 0.4);
+}
+
+.offcanvas-pinned::after {
+    content: '';
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    background: rgba(17, 150, 243, 0.1);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: rgba(17, 150, 243, 0.8);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 1;
+}
