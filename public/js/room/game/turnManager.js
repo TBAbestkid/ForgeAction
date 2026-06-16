@@ -226,7 +226,9 @@ function selecionarPersonagem(usuarioId, personagemId) {
     const card = document.getElementById(`personagem-online-${personagemId}-pc`) ||
         document.getElementById(`personagem-online-${personagemId}-mb`);
 
-    const vidaAtual = card ? parseInt(card.dataset.vida || 100) : 100;
+    const vidaAtual = card
+        ? parseInt(card.dataset.vidaAtual || card.dataset.vida || 100)
+        : 100;
 
     personagemSelecionadoId = personagemId;
     usuarioSelecionadoId = usuarioId;
