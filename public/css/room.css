@@ -36,6 +36,13 @@
     pointer-events: none;
 }
 
+#dice-box canvas {
+    position: absolute !important;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+}
+
 #dice-placeholder {
     z-index: 1;
     background: rgba(0, 0, 0, 0.55);
