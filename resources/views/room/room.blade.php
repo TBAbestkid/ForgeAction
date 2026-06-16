@@ -843,7 +843,7 @@
     <script src="{{ asset('js/room/game/sound/audioManager.js') }}"></script>
 
     {{-- 5. Gerenciadores de Personagens e Fluxo de Jogo --}}
-    <script src="{{ asset('js/room/game/personagensManager.js') }}"></script>
+    <script src="{{ asset('js/room/game/personagensManager.js') }}?v={{ filemtime(public_path('js/room/game/personagensManager.js')) }}"></script>
     <script src="{{ asset('js/room/game/gameFlow.js') }}"></script>
     <script src="{{ asset('js/room/game/actionNotifier.js') }}"></script>
 
