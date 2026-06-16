@@ -13,6 +13,7 @@ use App\Http\Controllers\SalaController;
 use App\Http\Controllers\UserController;
 
 Route::view('/loading', 'loading')->name('loading');
+Route::view('/death', 'partials.death', ['enabled' => true, 'deathPreview' => true])->name('death.preview');
 Route::view('/chat-teste', 'chat')->name('chat');
 Route::view('/baixar', 'pwa.download')->name('pwa.download');
 
