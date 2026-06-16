@@ -41,6 +41,7 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forge-theme.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/room.css') }}?v={{ filemtime(public_path('css/room.css')) }}" rel="stylesheet">
 </head>
 <body>
 
