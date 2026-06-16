@@ -10,7 +10,7 @@
             style="background-image: url('{{ $sala['urlBackground'] ? $sala['urlBackground'] : asset('assets/images/forge.png') }}');">
         </div>
 
-        {{-- ConfiguraÃ§Ãµes de Sala, para mestre e player --}}
+        {{-- Configurações de Sala, para mestre e player --}}
         @include('partials.death', ['enabled' => !$isDono])
 
         <div class="position-absolute top-0 end-0 d-flex align-items-center gap-2 m-3">
@@ -49,7 +49,7 @@
                             <a href="#" class="dropdown-item" data-action="copiar-codigo"
                                 data-code="{{ $sala['codigo'] ?? '' }}">
                                 <i class="fa-solid fa-copy"></i>
-                                Copiar CÃ³digo da Sala
+                                Copiar Código da Sala
                             </a>
                         </li>
                     @endif
@@ -71,11 +71,11 @@
 
         </div>
 
-        {{-- Chat e Logs Desktop (pq pra cell eu nÃ£o to muito afim) --}}
+        {{-- Chat e Logs Desktop (pq pra cell eu não to muito afim) --}}
         <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 100;">
 
-            <!-- BotÃ£o com Badge de NotificaÃ§Ãµes -->
-            {{-- Meio que nÃ£o tem problema inserir notificaÃ§Ãµes bombasticas --}}
+            <!-- Botão com Badge de Notificações -->
+            {{-- Meio que não tem problema inserir notificaÃ§Ãµes bombasticas --}}
             <button class="btn btn-dark mb-2 position-relative" data-bs-toggle="collapse" data-bs-target="#chatCollapse">
                 <i class="fa-solid fa-comments"></i> Chat
                 <span id="chat-notification-badge"
@@ -108,14 +108,14 @@
                         </li>
                     </ul>
 
-                    <!-- ConteÃºdo das Tabs -->
+                    <!-- Conteúdo das Tabs -->
                     <div class="tab-content flex-grow-1 overflow-hidden" id="chatTabContent">
 
                         <!-- Aba Chat -->
                         <div class="tab-pane fade show active d-flex flex-column h-100" id="chat-content" role="tabpanel"
                             aria-labelledby="chat-tab">
                             <div id="chat-messages" class="flex-grow-1 overflow-auto mb-3 p-3" style="min-height: 0;">
-                                {{-- Mensagens serÃ£o inseridas aqui --}}
+                                {{-- Mensagens serão inseridas aqui --}}
                             </div>
                             <div class="input-group p-3 border-top border-secondary">
                                 <input type="text" class="form-control" placeholder="Digite sua mensagem..."
@@ -130,7 +130,7 @@
                         <div class="tab-pane fade d-flex flex-column h-100" id="logs-content" role="tabpanel"
                             aria-labelledby="logs-tab">
                             <div id="system-logs" class="flex-grow-1 overflow-auto p-3" style="min-height: 0;">
-                                {{-- Logs do sistema serÃ£o inseridos aqui --}}
+                                {{-- Logs do sistema serão inseridos aqui --}}
                             </div>
                         </div>
                     </div>
@@ -140,7 +140,7 @@
 
         </div>
 
-        {{-- SeÃ§Ã£o principal de jogo com layout flexbox --}}
+        {{-- Seção principal de jogo com layout flexbox --}}
         <div id="game-section" class="position-fixed top-50 start-50 translate-middle d-flex gap-3 align-items-stretch"
             style="width: 90vw; height: 60vh; max-width: 1200px; z-index: 5; transform: translate(-50%, -50%);">
 
@@ -149,10 +149,10 @@
                 class="shadow-lg rounded-4 d-flex align-items-center justify-content-center flex-grow-1 position-relative"
                 style="background: rgba(0,0,0,.25); overflow:hidden;">
 
-                {{-- Placeholder (mais atrÃ¡s) --}}
+                {{-- Placeholder (mais atrás) --}}
                 <div id="dice-placeholder"
-                    class="text-white text-center position-absolute top-50 start-50 translate-middle" style="z-index:32;">
-                    ðŸŽ² Aguardando inÃ­cio do turno...
+                    class="text-white text-center position-absolute top-50 start-50 translate-middle" style="z-index:10;">
+                    ðŸŽ² Aguardando início do turno...
                 </div>
 
                 {{-- Grid (na frente do placeholder) --}}
@@ -193,9 +193,9 @@
             {{-- @endif --}}
         </div>
 
-        {{-- BotÃµes de AÃ§Ãµes Mestre/Player (HUD abaixo)
+        {{-- Botões de Ações Mestre/Player (HUD abaixo)
         Usando de base a ideia de HUID
-        BotÃµes de aÃ§Ã£o de mestre como linha abaixo de Ã¡rea --}}
+        Botões de ação de mestre como linha abaixo de área --}}
         <div class="position-fixed bottom-0 start-50 translate-middle-x mb-3" style="z-index: 50;">
             <div class="d-flex flex-column gap-2 px-3 py-2 rounded-4 shadow hud-bg" style="align-items: center;">
 
@@ -313,7 +313,7 @@
             </div>
 
             <div class="offcanvas-body p-3 overflow-auto" style="max-height: calc(100vh - 60px);">
-                {{-- ConteÃºdo serÃ¡ preenchido dinamicamente por JavaScript --}}
+                {{-- Conteúdo serÃ¡ preenchido dinamicamente por JavaScript --}}
             </div>
         </div>
     @else
@@ -345,29 +345,29 @@
                 <div class="row g-2">
                     <!-- Header do Personagem -->
                     <div class="col-12 mb-3 border-bottom border-secondary pb-2">
-                        <div><small><strong><i class="fa-solid fa-user-shield"></i> RaÃ§a:</strong>
+                        <div><small><strong><i class="fa-solid fa-user-shield"></i> Raça:</strong>
                                 {{ $personagemJogador['raca'] ?? 'N/A' }}</small></div>
                         <div><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Classe:</strong>
                                 {{ $personagemJogador['classe'] ?? 'N/A' }}</small></div>
-                        <div><small><strong><i class="fa-solid fa-signal"></i> NÃ­vel:</strong>
+                        <div><small><strong><i class="fa-solid fa-signal"></i> Nível:</strong>
                                 {{ $personagemJogador['level'] ?? 1 }}</small></div>
                     </div>
 
                     <!-- Atributos Principais -->
                     <div class="col-12 mb-2">
-                        <small class="text-warning"><strong>âš”ï¸ Atributos Principais</strong></small>
+                        <small class="text-warning"><strong>⚔️ Atributos Principais</strong></small>
                     </div>
-                    <div class="col-6"><small><strong><i class="fa-solid fa-dumbbell"></i> ForÃ§a:</strong>
+                    <div class="col-6"><small><strong><i class="fa-solid fa-dumbbell"></i> Força:</strong>
                             {{ $personagemJogador['forca'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-bolt"></i> Agilidade:</strong>
                             {{ $personagemJogador['agilidade'] ?? 0 }}</small></div>
-                    <div class="col-6"><small><strong><i class="fa-solid fa-brain"></i> InteligÃªncia:</strong>
+                    <div class="col-6"><small><strong><i class="fa-solid fa-brain"></i> Inteligência:</strong>
                             {{ $personagemJogador['inteligencia'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-hand"></i> Destreza:</strong>
                             {{ $personagemJogador['destreza'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-shield-heart"></i> Vitalidade:</strong>
                             {{ $personagemJogador['vitalidade'] ?? 0 }}</small></div>
-                    <div class="col-6"><small><strong><i class="fa-solid fa-eye"></i> PercepÃ§Ã£o:</strong>
+                    <div class="col-6"><small><strong><i class="fa-solid fa-eye"></i> Percepção:</strong>
                             {{ $personagemJogador['percepcao'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-book"></i> Sabedoria:</strong>
                             {{ $personagemJogador['sabedoria'] ?? 0 }}</small></div>
@@ -376,34 +376,34 @@
 
                     <!-- Recursos de Vida/Mana -->
                     <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
-                        <small class="text-info"><strong>â¤ï¸ Recursos</strong></small>
+                        <small class="text-info"><strong>❤️ Recursos</strong></small>
                     </div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-heart"></i> Vida:</strong>
                             {{ $personagemJogador['vida'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-droplet"></i> Mana:</strong>
                             {{ $personagemJogador['mana'] ?? 0 }}</small></div>
 
-                    <!-- Iniciativa e BÃ´nus -->
+                    <!-- Iniciativa e Bônus -->
                     <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
-                        <small class="text-success"><strong>âš¡ AÃ§Ãµes</strong></small>
+                        <small class="text-success"><strong>⚡ Ações</strong></small>
                     </div>
                     <div class="col-12"><small><strong><i class="fa-solid fa-forward"></i> Iniciativa:</strong>
                             {{ $personagemJogador['iniciativa'] ?? 0 }}</small></div>
 
                     <!-- Ataques -->
                     <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
-                        <small class="text-danger"><strong>âš”ï¸ Ataques</strong></small>
+                        <small class="text-danger"><strong>⚔️ Ataques</strong></small>
                     </div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Atk
-                                MÃ¡gico:</strong> {{ $personagemJogador['ataqueMagico'] ?? 0 }}</small></div>
+                                Mágico:</strong> {{ $personagemJogador['ataqueMagico'] ?? 0 }}</small></div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-hand-fist"></i> Atk Corpo:</strong>
                             {{ $personagemJogador['ataqueFisicoCorpo'] ?? 0 }}</small></div>
-                    <div class="col-12 mt-2"><small><strong><i class="fa-solid fa-bullseye"></i> Atk DistÃ¢ncia:</strong>
+                    <div class="col-12 mt-2"><small><strong><i class="fa-solid fa-bullseye"></i> Atk Distância:</strong>
                             {{ $personagemJogador['ataqueFisicoDistancia'] ?? 0 }}</small></div>
 
                     <!-- Defesa -->
                     <div class="col-12 mb-2 mt-2 border-top border-secondary pt-2">
-                        <small class="text-secondary"><strong>ðŸ›¡ï¸ Defesa</strong></small>
+                        <small class="text-secondary"><strong>🛡️ Defesa</strong></small>
                     </div>
                     <div class="col-6"><small><strong><i class="fa-solid fa-shield-halved"></i> Defesa:</strong>
                             {{ $personagemJogador['defesaPersonagem'] ?? 0 }}</small></div>
@@ -413,7 +413,6 @@
             </div>
         </div>
     @endif
-
     <!-- Offcanvas para Upgrade de Personagem (acessÃ­vel para mestres e players) -->
     <div class="offcanvas offcanvas-end text-light" tabindex="-1" id="offcanvasUpgradePersonagem"
         aria-labelledby="offcanvasUpgradePersonagemLabel" style="background-color: #1c1c1c; max-width: 380px;">
@@ -428,7 +427,7 @@
 
         <div class="offcanvas-body p-3 overflow-auto" style="max-height: calc(100vh - 60px);">
             <div id="upgradeContent">
-                {{-- ConteÃºdo serÃ¡ preenchido dinamicamente por JavaScript --}}
+                {{-- Conteúdo serÃ¡ preenchido dinamicamente por JavaScript --}}
             </div>
         </div>
     </div>
@@ -486,7 +485,7 @@
         Pressione <strong>F11</strong> ou <strong>Clique aqui</strong> para entrar em tela cheia
     </div>
 
-    {{-- 1. DependÃªncias globais --}}
+    {{-- 1. Dependencias globais --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
