@@ -58,7 +58,7 @@ function createHex(q, r) {
         sides: 6,
         id: `hex-${q}-${r}`,
         radius: HEX_SIZE,
-        fill: '#1a1a2e9d',
+        fill: '#72727422',
         rotation: 30,
         stroke: '#4a8fd980',
         strokeWidth: 1,
